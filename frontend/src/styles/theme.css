@@ -1,0 +1,77 @@
+/* TrailGuard design tokens — sourced directly from design.md §2 (locked palette).
+   Do not hardcode hex values in components; reference these variables instead
+   so the whole app stays in sync with a single source of truth. */
+
+:root {
+  /* Brand palette (locked) */
+  --color-main: #102A43;
+  --color-secondary: #1E4D6B;
+  --color-accent: #2DD4BF;
+  --color-accent-dark: #0E9C8C;
+  --color-bg: #F4F9FA;
+  --color-bg-alt: #E7F0F2;
+  --color-text: #172033;
+
+  /* Derived tones */
+  --color-text-secondary: #5C7086;
+  --color-text-muted: #8FA0B0;
+  --color-border: #D9E4E8;
+  --color-white: #FFFFFF;
+
+  /* Semantic colors — intentionally independent of the brand palette */
+  --color-hr: #FF3B5C;
+  --color-hr-light: #FF6B85;
+  --color-o2: var(--color-secondary);
+  --color-o2-light: #3E7A9E;
+  --color-temp: #FF9F0A;
+  --color-temp-light: #FFB84D;
+  --color-alert: #D64545;
+  --color-alert-dark: #7A2424;
+  --color-warning: #E0A339;
+
+  /* Elevation */
+  --shadow-card: 0 8px 24px rgba(16, 42, 67, 0.08);
+  --shadow-card-lg: 0 12px 30px rgba(16, 42, 67, 0.1);
+  --shadow-sidebar: 6px 0 24px rgba(16, 42, 67, 0.15);
+
+  /* Radius scale */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  /* Type */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-alt) 100%);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}

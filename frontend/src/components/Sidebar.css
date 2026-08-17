@@ -1,0 +1,103 @@
+.tg-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--color-main);
+  box-shadow: var(--shadow-sidebar);
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  position: relative;
+}
+
+.tg-sidebar__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tg-sidebar__logo-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+.tg-sidebar__logo-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-white);
+}
+
+.tg-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tg-sidebar__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #B9CBD1;
+}
+.tg-sidebar__item--active {
+  background: rgba(45, 212, 191, 0.18);
+  color: var(--color-white);
+  font-weight: 600;
+}
+
+.tg-sidebar__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #7C93A8;
+  flex-shrink: 0;
+}
+.tg-sidebar__item--active .tg-sidebar__dot {
+  background: var(--color-accent);
+}
+
+.tg-sidebar__logout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #B9CBD1;
+  margin-top: auto;
+}
+.tg-sidebar__logout:hover {
+  color: var(--color-white);
+}
+
+.tg-sidebar__device {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tg-sidebar__device-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-white);
+}
+.tg-sidebar__status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-alert);
+}
+.tg-sidebar__status-dot.is-connected {
+  background: var(--color-accent);
+}
+.tg-sidebar__device-id {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}

@@ -1,0 +1,106 @@
+@import './Page.css';
+@import './FormCard.css';
+
+.tg-settings {
+  flex: 1;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+  max-width: 900px;
+}
+.tg-settings h1 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.tg-settings__card {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.tg-settings__card h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.tg-settings__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-top: 1px solid var(--color-border);
+  font-size: 13px;
+}
+.tg-settings__row-label {
+  color: var(--color-text-secondary);
+}
+.tg-settings__row-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+.tg-settings__badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-accent-dark);
+  background: rgba(45, 212, 191, 0.15);
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+.tg-settings__editform {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tg-settings__grid {
+  display: flex;
+  gap: 20px;
+}
+.tg-settings__grid .tg-settings__card {
+  flex: 1;
+}
+
+.tg-settings__toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+.tg-settings__toggle {
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--color-accent);
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+}
+.tg-settings__toggle-knob {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  margin-left: auto;
+}
+
+.tg-settings__hint {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+@media (max-width: 800px) {
+  .tg-settings__grid { flex-direction: column; }
+}

@@ -1,0 +1,75 @@
+.tg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.tg-field__control {
+  position: relative;
+}
+
+.tg-field__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #5d6f83;
+}
+
+.tg-field__input {
+  width: 100%;
+  padding: 13px 15px;
+  border-radius: 14px;
+  border: 1px solid #d4deea;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-text);
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.tg-field__input::placeholder {
+  color: #9aabbb;
+}
+
+.tg-field__input:focus {
+  border-color: #9ab4cf;
+  background: var(--color-white);
+  box-shadow:
+    0 0 0 4px rgba(16, 42, 67, 0.08),
+    0 4px 12px rgba(16, 42, 67, 0.1);
+}
+
+.tg-field__control--leading .tg-field__input {
+  padding-left: 42px;
+}
+
+.tg-field__control--trailing .tg-field__input {
+  padding-right: 42px;
+}
+
+.tg-field__icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #7f8fa0;
+  font-size: 14px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.tg-field__icon--leading {
+  left: 14px;
+}
+
+.tg-field__icon--trailing {
+  right: 14px;
+}
+
+.tg-field__input--error {
+  border-color: var(--color-alert);
+}
+
+.tg-field__error {
+  font-size: 11.5px;
+  color: var(--color-alert);
+}
