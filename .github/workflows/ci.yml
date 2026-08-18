@@ -82,6 +82,4 @@ jobs:
           python-version: '3.11'
 
       - name: Check Python syntax
-        run: python -m compileall -q hardwaregit add .github/workflows/ci.yml
-git commit -m "Add GitHub Actions CI"
-git push origin smart-wearable-upload:main
+        run: python -m compileall -q hardware
