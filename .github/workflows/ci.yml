@@ -39,6 +39,9 @@ jobs:
       - name: Check server syntax
         run: node --check server.js
 
+      - name: Run backend tests
+        run: pnpm test
+
   frontend:
     name: Frontend Build
     runs-on: ubuntu-latest
