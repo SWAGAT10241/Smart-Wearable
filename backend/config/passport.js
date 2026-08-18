@@ -1,48 +1,49 @@
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const User = require('../models/User');
+const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const User = require("../models/User");
 
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL,
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        // Check if this Google account is already linked to a user
-        let user = await User.findOne({ googleId: profile.id });
+const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL } =
+  process.env;
 
-        if (!user) {
-          // Also check if the email is already registered via local signup
-          user = await User.findOne({ email: profile.emails[0].value });
+if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientID: GOOGLE_CLIENT_ID,
+        clientSecret: GOOGLE_CLIENT_SECRET,
+        callbackURL:
+          GOOGLE_CALLBACK_URL ||
+          `${process.env.SERVER_URL || "http://localhost:3000"}/api/auth/google/callback`,
+      },
+      async (accessToken, refreshToken, profile, done) => {
+        try {
+          const email = profile.emails?.[0]?.value;
 
-          if (user) {
-            // Link Google to the existing local account
-            user.googleId = profile.id;
-            user.authProvider = 'google';
-            await user.save();
-          } else {
-            // Brand new user via Google — profile completion (phone, emergency
-            // contact, height, weight) still required afterward, since Google
-            // doesn't provide those fields
+          let user = await User.findOne({
+            $or: [{ googleId: profile.id }, ...(email ? [{ email }] : [])],
+          });
+
+          if (!user) {
             user = await User.create({
-              username: profile.displayName,
-              email: profile.emails[0].value,
               googleId: profile.id,
-              authProvider: 'google',
+              username: profile.displayName,
+              email,
+              authProvider: "google",
               profileComplete: false,
             });
           }
-        }
 
-        return done(null, user);
-      } catch (err) {
-        return done(err, null);
-      }
-    }
-  )
-);
+          done(null, user);
+        } catch (error) {
+          done(error, null);
+        }
+      },
+    ),
+  );
+} else {
+  console.warn(
+    "Google OAuth disabled: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are not configured.",
+  );
+}
 
 module.exports = passport;
