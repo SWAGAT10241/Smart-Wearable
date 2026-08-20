@@ -8,7 +8,7 @@ import { createContext, useContext, useEffect, useRef, useState, useCallback } f
 // device/user (a documented gap — see rules.md §5). This context works fine against
 // that today, and will keep working once the backend adds per-device scoping.
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:5000/live';
+const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3000/live';
 
 const LiveDataContext = createContext(null);
 

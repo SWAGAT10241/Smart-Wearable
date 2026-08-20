@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../context/AuthContext';
 import { vitalsApi, environmentApi, locationApi, fallsApi } from '../lib/apiClient';
-import './History.css';
 
 const RANGES = [
   { label: '1h', hours: 1 },
@@ -12,7 +11,7 @@ const RANGES = [
 
 function Sparkline({ points, color }) {
   if (!points || points.length < 2) {
-    return <div className="tg-chart__empty">Not enough data yet</div>;
+    return <div className="flex h-[120px] items-center justify-center text-sm text-slate-500">Not enough data yet</div>;
   }
   const min = Math.min(...points);
   const max = Math.max(...points) || 1;
@@ -68,14 +67,14 @@ export default function History() {
   return (
     <div className="tg-page">
       <Sidebar />
-      <main className="tg-history">
-        <div className="tg-history__topbar">
-          <h1>History &amp; Trends</h1>
-          <div className="tg-history__ranges">
+      <main className="flex flex-1 flex-col gap-6 bg-slate-50 p-6 lg:p-8">
+        <div className="flex flex-col gap-4 rounded-[24px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-2xl font-semibold tracking-[-0.02em] text-slate-900">History &amp; Trends</h1>
+          <div className="flex gap-2">
             {RANGES.map((r) => (
               <button
                 key={r.label}
-                className={`tg-history__chip ${range === r.hours ? 'is-active' : ''}`}
+                className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${range === r.hours ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                 onClick={() => setRange(r.hours)}
               >
                 {r.label}
@@ -84,50 +83,54 @@ export default function History() {
           </div>
         </div>
 
-        <div className="tg-chart">
-          <h3>Heart Rate (bpm)</h3>
-          <div className="tg-chart__area"><Sparkline points={hrPoints} color="#FF6B85" /></div>
-        </div>
-        <div className="tg-chart">
-          <h3>Blood Oxygen (SpO2 %)</h3>
-          <div className="tg-chart__area"><Sparkline points={spo2Points} color="var(--color-secondary)" /></div>
-        </div>
-        <div className="tg-chart">
-          <h3>Temperature (°C)</h3>
-          <div className="tg-chart__area"><Sparkline points={tempPoints} color="var(--color-temp)" /></div>
-        </div>
-        <div className="tg-chart">
-          <h3>Humidity (%)</h3>
-          <div className="tg-chart__area"><Sparkline points={humidityPoints} color="var(--color-accent)" /></div>
+        <div className="grid gap-5 lg:grid-cols-2">
+          <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)]">
+            <h3 className="mb-3 text-base font-semibold text-slate-900">Heart Rate (bpm)</h3>
+            <div className="rounded-2xl bg-slate-50 p-3"><Sparkline points={hrPoints} color="#FF6B85" /></div>
+          </div>
+          <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)]">
+            <h3 className="mb-3 text-base font-semibold text-slate-900">Blood Oxygen (SpO2 %)</h3>
+            <div className="rounded-2xl bg-slate-50 p-3"><Sparkline points={spo2Points} color="var(--color-secondary)" /></div>
+          </div>
+          <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)]">
+            <h3 className="mb-3 text-base font-semibold text-slate-900">Temperature (°C)</h3>
+            <div className="rounded-2xl bg-slate-50 p-3"><Sparkline points={tempPoints} color="var(--color-temp)" /></div>
+          </div>
+          <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)]">
+            <h3 className="mb-3 text-base font-semibold text-slate-900">Humidity (%)</h3>
+            <div className="rounded-2xl bg-slate-50 p-3"><Sparkline points={humidityPoints} color="var(--color-accent)" /></div>
+          </div>
         </div>
 
-        <div className="tg-chart">
-          <h3>Trail Path</h3>
-          <div className="tg-chart__area tg-chart__area--map">
+        <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)]">
+          <h3 className="mb-3 text-base font-semibold text-slate-900">Trail Path</h3>
+          <div className="rounded-2xl bg-slate-50 p-3">
             {trailPath ? (
               <svg viewBox="0 0 560 220" width="100%" height="220" preserveAspectRatio="none">
                 <path d={trailPath} fill="none" stroke="#0E9C8C" strokeWidth="2.5" strokeDasharray="7 5" strokeLinecap="round" />
               </svg>
             ) : (
-              <div className="tg-chart__empty">No location history for this range</div>
+              <div className="flex h-[220px] items-center justify-center text-sm text-slate-500">No location history for this range</div>
             )}
           </div>
         </div>
 
-        <div className="tg-fallslog">
-          <h3>Fall Event Log</h3>
-          <div className="tg-fallslog__row tg-fallslog__row--head">
-            <span>Time</span><span>Severity</span><span>Status</span><span>Location</span>
-          </div>
-          {falls.length === 0 && <div className="tg-fallslog__empty">No fall events recorded.</div>}
-          {falls.map((f) => (
-            <div className="tg-fallslog__row" key={f._id}>
-              <span>{new Date(f.timestamp).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
-              <span style={{ textTransform: 'capitalize' }}>{f.severity}</span>
-              <span style={{ textTransform: 'capitalize' }}>{f.status.replace(/_/g, ' ')}</span>
-              <span>{f.latitude?.toFixed(2)}, {f.longitude?.toFixed(2)}</span>
+        <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)]">
+          <h3 className="mb-3 text-base font-semibold text-slate-900">Fall Event Log</h3>
+          <div className="grid gap-2 text-sm text-slate-600">
+            <div className="grid grid-cols-[1.2fr_0.7fr_1fr_1fr] gap-3 rounded-xl bg-slate-100 px-3 py-2 font-semibold text-slate-700">
+              <span>Time</span><span>Severity</span><span>Status</span><span>Location</span>
             </div>
-          ))}
+            {falls.length === 0 && <div className="rounded-xl border border-dashed border-slate-200 px-3 py-3 text-slate-500">No fall events recorded.</div>}
+            {falls.map((f) => (
+              <div className="grid grid-cols-[1.2fr_0.7fr_1fr_1fr] gap-3 rounded-xl border border-slate-200 px-3 py-2 text-slate-600" key={f._id}>
+                <span>{new Date(f.timestamp).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+                <span className="capitalize">{f.severity}</span>
+                <span className="capitalize">{f.status.replace(/_/g, ' ')}</span>
+                <span>{f.latitude?.toFixed(2)}, {f.longitude?.toFixed(2)}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </main>
     </div>

@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema(
   {
@@ -22,8 +22,8 @@ const userSchema = new mongoose.Schema(
     },
     authProvider: {
       type: String,
-      enum: ['local', 'google'],
-      default: 'local',
+      enum: ["local", "google"],
+      default: "local",
     },
     googleId: {
       type: String,
@@ -31,25 +31,35 @@ const userSchema = new mongoose.Schema(
     },
     phoneNumber: {
       type: String,
-      required: true,
+      required: function () {
+        return this.authProvider === "local" || this.profileComplete === true;
+      },
     },
     // Emergency contact — REQUIRED, not optional. This is the number TrailGuard
     // sends SOS alerts to when a fall is detected or the SOS button is pressed.
     emergencyContactPhone: {
       type: String,
-      required: [true, 'An emergency contact number is required for safety alerts'],
+      required: function () {
+        return this.authProvider === "local" || this.profileComplete === true;
+      },
     },
     emergencyContactName: {
       type: String,
-      required: [true, 'Emergency contact name is required'],
+      required: function () {
+        return this.authProvider === "local" || this.profileComplete === true;
+      },
     },
     height: {
-      type: Number, // in cm
-      required: true,
+      type: Number,
+      required: function () {
+        return this.authProvider === "local" || this.profileComplete === true;
+      },
     },
     weight: {
-      type: Number, // in kg
-      required: true,
+      type: Number,
+      required: function () {
+        return this.authProvider === "local" || this.profileComplete === true;
+      },
     },
     // True once phone/emergency contact/height/weight are filled in
     // (needed because Google signup only provides name + email)
@@ -62,12 +72,12 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Hash password before saving, only for local accounts with a password set
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password') || !this.password) return next();
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password") || !this.password) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
@@ -76,4 +86,4 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model("User", userSchema);
