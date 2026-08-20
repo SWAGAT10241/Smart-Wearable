@@ -61,11 +61,13 @@
   }
 
   .tg-formcard {
-    @apply flex w-[460px] max-w-full flex-col gap-[18px] rounded-[28px] border border-white/80 bg-white/70 p-[34px_30px] shadow-[0_20px_46px_rgba(15, 39, 65, 0.12)] backdrop-blur-xl;
+    @apply flex w-[460px] max-w-full flex-col gap-[18px] rounded-[28px] border border-white/80 bg-white/70 p-[34px_30px] backdrop-blur-xl;
+    box-shadow: 0 20px 46px rgba(15, 39, 65, 0.12);
   }
 
   .tg-formcard--login {
-    @apply w-[440px] border-slate-200 bg-white shadow-[0_24px_50px_rgba(7, 29, 50, 0.28)];
+    @apply w-[440px] border-slate-200 bg-white;
+    box-shadow: 0 24px 50px rgba(7, 29, 50, 0.28);
   }
 
   .tg-formcard--card {
