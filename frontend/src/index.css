@@ -1,0 +1,132 @@
+@import 'tailwindcss';
+
+:root {
+  --color-main: #102A43;
+  --color-secondary: #1E4D6B;
+  --color-accent: #2DD4BF;
+  --color-accent-dark: #0E9C8C;
+  --color-bg: #F4F9FA;
+  --color-bg-alt: #E7F0F2;
+  --color-text: #172033;
+  --color-text-secondary: #5C7086;
+  --color-text-muted: #8FA0B0;
+  --color-border: #D9E4E8;
+  --color-white: #FFFFFF;
+  --color-alert: #D64545;
+  --shadow-card: 0 8px 24px rgba(16, 42, 67, 0.08);
+  --shadow-card-lg: 0 12px 30px rgba(16, 42, 67, 0.1);
+  --shadow-sidebar: 6px 0 24px rgba(16, 42, 67, 0.15);
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    color: var(--color-text);
+    background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-alt) 100%);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  button {
+    font: inherit;
+    cursor: pointer;
+  }
+
+  input {
+    font: inherit;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+@layer components {
+  .tg-page {
+    @apply flex min-h-screen;
+  }
+
+  .tg-formcard {
+    @apply flex w-[460px] max-w-full flex-col gap-[18px] rounded-[28px] border border-white/80 bg-white/70 p-[34px_30px] shadow-[0_20px_46px_rgba(15, 39, 65, 0.12)] backdrop-blur-xl;
+  }
+
+  .tg-formcard--login {
+    @apply w-[440px] border-slate-200 bg-white shadow-[0_24px_50px_rgba(7, 29, 50, 0.28)];
+  }
+
+  .tg-formcard--card {
+    @apply w-[700px] p-[40px_36px];
+  }
+
+  .tg-formcard__title {
+    @apply m-0 text-[30px] font-semibold tracking-[-0.02em] text-slate-900;
+  }
+
+  .tg-formcard__sub {
+    @apply -mt-2 mb-1 text-sm leading-6 text-slate-600;
+  }
+
+  .tg-formcard__error {
+    @apply rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-[13px] font-medium text-red-700;
+  }
+
+  .tg-formcard__divider {
+    @apply flex items-center gap-2.5;
+  }
+
+  .tg-formcard__divider span {
+    @apply h-px flex-1 bg-slate-200;
+  }
+
+  .tg-formcard__divider em {
+    @apply text-sm not-italic text-slate-400;
+  }
+
+  .tg-formcard__footer {
+    @apply mt-1 text-center text-[13px] text-slate-500;
+  }
+
+  .tg-formcard__link {
+    @apply font-semibold text-sky-700;
+  }
+
+  .tg-formcard__section-label {
+    @apply flex items-center gap-2 pt-1 text-[12px] font-semibold tracking-[0.03em] text-slate-800;
+  }
+
+  .tg-formcard__section-label::before {
+    content: '';
+    @apply h-1.5 w-1.5 rounded-full bg-teal-400;
+  }
+
+  .tg-formcard__section-label::after {
+    content: '';
+    @apply h-px flex-1 bg-slate-200;
+  }
+
+  .tg-formcard__row {
+    @apply flex gap-3.5;
+  }
+
+  .tg-formcard__row>* {
+    @apply min-w-0 flex-1;
+  }
+
+  .tg-badge-pill {
+    @apply inline-flex self-start rounded-full bg-teal-100 px-3 py-1 text-[10.5px] font-bold tracking-[0.08em] text-sky-700;
+  }
+}
