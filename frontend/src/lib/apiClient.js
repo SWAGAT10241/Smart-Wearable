@@ -2,7 +2,7 @@
 // Every function here maps 1:1 to a route documented in Architecture.md §5 —
 // keep this file and that table in sync if the backend's API surface changes.
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 function getToken() {
   return localStorage.getItem('trailguard_token');

@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import Field from '../components/Field';
 import Button from '../components/Button';
 import { useAuth } from '../context/AuthContext';
-import './FormCard.css';
-import './CompleteProfile.css';
 
 export default function CompleteProfile() {
   const { completeProfile } = useAuth();
@@ -32,7 +30,7 @@ export default function CompleteProfile() {
   };
 
   return (
-    <div className="tg-cp">
+    <div className="flex min-h-screen items-center justify-center px-5 py-10">
       <form className="tg-formcard tg-formcard--card" onSubmit={onSubmit}>
         <span className="tg-badge-pill">ONE LAST STEP</span>
         <h2 className="tg-formcard__title">Finish setting up your safety profile</h2>

@@ -5,7 +5,6 @@ import { HeartIcon, DropletIcon, ThermometerIcon } from '../components/icons';
 import { useAuth } from '../context/AuthContext';
 import { useLiveData } from '../context/LiveDataContext';
 import { vitalsApi, environmentApi, locationApi, fallsApi } from '../lib/apiClient';
-import './Dashboard.css';
 
 function toMapSrc(lat, lng) {
   const delta = 0.01;
@@ -65,10 +64,14 @@ export default function Dashboard() {
       label: 'HEART RATE',
       value: hr?.heartRate ?? '--',
       unit: 'bpm',
-      status: hr ? 'Normal' : undefined,
+      status: hr?.heartRate != null ? 'Live' : undefined,
       statusColor: '#0E9C8C',
       variant: 'ecg',
-      miniStats: [['Resting', '62'], ['Avg 1h', '76'], ['Peak', '142']],
+      miniStats: [
+        ['Resting', hr?.restingHeartRate ?? '--'],
+        ['Avg 1h', hr?.averageHeartRate ?? '--'],
+        ['Peak', hr?.peakHeartRate ?? '--'],
+      ],
     },
     {
       icon: <DropletIcon color="#5AACFF" />,
@@ -76,23 +79,49 @@ export default function Dashboard() {
       label: 'BLOOD OXYGEN',
       value: hr?.spo2 ?? '--',
       unit: '% SpO2',
-      status: hr ? 'Normal' : undefined,
+      status: hr?.spo2 != null ? 'Live' : undefined,
       statusColor: '#0E9C8C',
       variant: 'gauge',
-      gaugePct: hr?.spo2 ?? 97,
-      miniStats: [['Min', '94%'], ['Avg 1h', '96%'], ['Max', '99%']],
+      gaugePct: hr?.spo2 ?? 0,
+      miniStats: [
+        ['Min', hr?.minSpo2 != null ? `${hr.minSpo2}%` : '--'],
+        ['Avg 1h', hr?.averageSpo2 != null ? `${hr.averageSpo2}%` : '--'],
+        ['Max', hr?.maxSpo2 != null ? `${hr.maxSpo2}%` : '--'],
+      ],
     },
     {
       icon: <ThermometerIcon color="#FFB84D" />,
       iconBg: 'var(--color-temp)',
       label: 'TEMPERATURE',
-      value: env?.temperature?.toFixed(1) ?? '--',
+      value:
+        env?.temperature != null
+          ? env.temperature.toFixed(1)
+          : '--',
       unit: '°C',
-      status: env ? 'Mild' : undefined,
+      status: env?.temperature != null ? 'Live' : undefined,
       statusColor: 'var(--color-temp)',
       variant: 'tempGauge',
-      gaugePct: 70,
-      miniStats: [['Low', '14°'], ['Now', env?.temperature ? `${env.temperature.toFixed(1)}°` : '--'], ['High', '23°']],
+      gaugePct: env?.temperature ?? 0,
+      miniStats: [
+        [
+          'Low',
+          env?.minTemperature != null
+            ? `${env.minTemperature.toFixed(1)}°`
+            : '--',
+        ],
+        [
+          'Now',
+          env?.temperature != null
+            ? `${env.temperature.toFixed(1)}°`
+            : '--',
+        ],
+        [
+          'High',
+          env?.maxTemperature != null
+            ? `${env.maxTemperature.toFixed(1)}°`
+            : '--',
+        ],
+      ],
     },
     {
       icon: <DropletIcon color="#5EEAD4" />,
@@ -100,78 +129,101 @@ export default function Dashboard() {
       label: 'HUMIDITY',
       value: env?.humidity ?? '--',
       unit: '%',
-      status: env ? 'Normal' : undefined,
+      status: env?.humidity != null ? 'Live' : undefined,
       statusColor: 'var(--color-accent-dark)',
-      miniStats: [['Low', '44%'], ['Avg 1h', '52%'], ['High', '61%']],
+      miniStats: [
+        [
+          'Low',
+          env?.minHumidity != null
+            ? `${env.minHumidity}%`
+            : '--',
+        ],
+        [
+          'Avg 1h',
+          env?.averageHumidity != null
+            ? `${env.averageHumidity}%`
+            : '--',
+        ],
+        [
+          'High',
+          env?.maxHumidity != null
+            ? `${env.maxHumidity}%`
+            : '--',
+        ],
+      ],
     },
   ];
 
   return (
     <div className="tg-page">
       <Sidebar />
-      <main className="tg-dashboard">
-        <div className="tg-dashboard__topbar">
+      <main className="flex flex-1 flex-col gap-6 bg-slate-50 p-6 lg:p-8">
+        <div className="flex items-center justify-between gap-4 rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-slate-200/80">
           <div>
-            <h1>Live Dashboard</h1>
-            <span className="tg-dashboard__date">
+            <h1 className="text-2xl font-semibold tracking-[-0.02em] text-slate-900">Live Dashboard</h1>
+            <span className="text-sm text-slate-500">
               {new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
               {user?.deviceId ? ` · ${user.deviceId}` : ''}
             </span>
           </div>
-          <div className="tg-dashboard__user">
-            <span className="tg-dashboard__avatar" />
+          <div className="flex items-center gap-3 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
+            <span className="h-8 w-8 rounded-full bg-[radial-gradient(circle_at_30%_30%,#a7f3d0,#0f766e)]" />
             {user?.username}
           </div>
         </div>
 
-        <div className="tg-dashboard__stats">
+        <div className="grid gap-4 xl:grid-cols-4">
           {stats.map((card) => (
             <StatCard key={card.label} {...card} />
           ))}
         </div>
 
-        <div className="tg-dashboard__lower">
-          <div className="tg-mapcard">
-            <div className="tg-mapcard__head">
-              <h3>Live Location</h3>
-              <span>{hasLocation ? 'Updated live' : 'Waiting for signal…'}</span>
+        <div className="grid gap-6 xl:grid-cols-[1.4fr_minmax(280px,0.8fr)]">
+          <div className="rounded-[26px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)]">
+            <div className="mb-3 flex items-center justify-between text-sm">
+              <h3 className="text-lg font-semibold text-slate-900">Live Location</h3>
+              <span className="text-slate-500">{hasLocation ? 'Updated live' : 'Waiting for signal…'}</span>
             </div>
-            <div className="tg-mapcard__area">
+            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
               {hasLocation ? (
                 <iframe
-                  className="tg-mapcard__frame"
+                  className="h-[260px] w-full border-0"
                   title="Live location map"
                   src={mapSrc}
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                 />
               ) : (
-                <div className="tg-mapcard__empty">Live map will appear once a GPS point arrives.</div>
+                <div className="flex h-[260px] items-center justify-center px-6 text-center text-sm text-slate-500">Live map will appear once a GPS point arrives.</div>
               )}
-              <div className="tg-mapcard__coords">
+              <div className="border-t border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600">
                 {hasLocation ? `${loc.latitude.toFixed(5)}, ${loc.longitude.toFixed(5)}` : '--, --'}
               </div>
             </div>
           </div>
 
-          <div className="tg-eventscard">
-            <h3>Recent Events</h3>
+          <div className="rounded-[26px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)]">
+            <h3 className="mb-4 text-lg font-semibold text-slate-900">Recent Events</h3>
             {recentFalls.length === 0 ? (
-              <div className="tg-eventscard__row">
-                <div className="tg-eventscard__title">No fall events today</div>
-                <div className="tg-eventscard__tag" style={{ color: 'var(--color-accent-dark)' }}>All clear</div>
+              <div className="flex items-center justify-between rounded-2xl border border-teal-200 bg-teal-50 px-3 py-3 text-sm">
+                <div className="text-slate-700">No fall events today</div>
+                <div className="font-medium text-teal-700">All clear</div>
               </div>
             ) : (
-              recentFalls.map((f) => (
-                <div className="tg-eventscard__row" key={f._id}>
-                  <div className="tg-eventscard__title">
-                    {new Date(f.timestamp).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
-                    {' — '}
-                    {f.severity} fall
+              <div className="space-y-3">
+                {recentFalls.map((f) => (
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm" key={f._id}>
+                    <div className="font-medium text-slate-700">
+                      {new Date(f.timestamp).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                      {' — '}
+                      {f.severity} fall
+                    </div>
+                    <div className="mt-2 inline-flex rounded-full bg-slate-200 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-slate-700">
+                      {f.status.replace(/_/g, ' ')}
+                    </div>
                   </div>
-                  <div className="tg-eventscard__tag">{f.status.replace(/_/g, ' ')}</div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </div>
         </div>

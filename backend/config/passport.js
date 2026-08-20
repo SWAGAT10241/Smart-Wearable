@@ -2,8 +2,11 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("../models/User");
 
-const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL } =
-  process.env;
+const {
+  GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET,
+  GOOGLE_CALLBACK_URL,
+} = process.env;
 
 if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
   passport.use(
@@ -17,10 +20,13 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          const email = profile.emails?.[0]?.value;
+          const email = profile.emails?.[0]?.value?.toLowerCase();
+
+          if (!email)
+            return done(new Error("Google account did not provide an email address"));
 
           let user = await User.findOne({
-            $or: [{ googleId: profile.id }, ...(email ? [{ email }] : [])],
+            $or: [{ googleId: profile.id }, { email }],
           });
 
           if (!user) {
@@ -31,11 +37,15 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
               authProvider: "google",
               profileComplete: false,
             });
+          } else if (!user.googleId) {
+            // Existing account with the same email.
+            // Link Google authentication to that account.
+            user.googleId = profile.id;
+            await user.save();
           }
-
-          done(null, user);
+          return done(null, user);
         } catch (error) {
-          done(error, null);
+          return done(error, null);
         }
       },
     ),

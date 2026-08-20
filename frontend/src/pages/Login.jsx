@@ -6,7 +6,6 @@ import Button from '../components/Button';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../lib/apiClient';
 import { isProfileComplete } from '../lib/profileCompletion';
-import './FormCard.css';
 
 export default function Login() {
   const { login } = useAuth();
@@ -65,8 +64,13 @@ export default function Login() {
 
         <div className="tg-formcard__divider"><span /><em>or</em><span /></div>
 
-        <Button variant="secondary" className="tg-btn--google" type="button" onClick={() => (window.location.href = authApi.googleLoginUrl())}>
-          <span className="tg-google-badge">G</span>
+        <Button
+          variant="secondary"
+          className="bg-slate-900 text-white shadow-[0_10px_20px_rgba(16,42,67,0.28)] hover:bg-slate-800"
+          type="button"
+          onClick={() => (window.location.href = authApi.googleLoginUrl())}
+        >
+          <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-white text-[13px] font-bold text-red-500">G</span>
           Continue with Google
         </Button>
 
