@@ -59,25 +59,59 @@ export function LiveDataProvider({ children }) {
     let cancelled = false;
 
     function connect() {
+      if (cancelled) return;
+
       const ws = new WebSocket(WS_URL);
       wsRef.current = ws;
 
-      ws.onopen = () => !cancelled && setConnected(true);
-      ws.onclose = () => {
-        if (cancelled) return;
-        setConnected(false);
-        // simple reconnect with backoff
-        reconnectTimerRef.current = setTimeout(connect, 3000);
+      ws.onopen = () => {
+        if (cancelled) {
+          ws.close();
+          return;
+        }
+
+        setConnected(true);
       };
-      ws.onerror = () => ws.close();
+
       ws.onmessage = onMessage;
+
+      ws.onerror = () => {
+        if (!cancelled) {
+          console.warn('WebSocket connection failed');
+        }
+      };
+
+      ws.onclose = () => {
+        setConnected(false);
+
+        if (cancelled) return;
+
+        reconnectTimerRef.current = setTimeout(() => {
+          connect();
+        }, 3000);
+      };
     }
 
     connect();
+
     return () => {
       cancelled = true;
-      clearTimeout(reconnectTimerRef.current);
-      wsRef.current?.close();
+
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
+      }
+      const ws = wsRef.current;
+      if (ws) {
+        wsRef.current = null;
+        if (
+          ws.readyState === WebSocket.CONNECTING ||
+          ws.readyState === WebSocket.OPEN
+        ) {
+          ws.close();
+        }
+      }
+      setConnected(false);
     };
   }, [onMessage]);
 
