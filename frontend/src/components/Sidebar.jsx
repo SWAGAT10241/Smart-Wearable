@@ -24,10 +24,20 @@ export default function Sidebar() {
           <NavLink
             key={item.to}
             to={item.to}
-            className={({ isActive }) => `flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm transition ${isActive ? 'bg-teal-400/20 font-semibold text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}
+            className={({ isActive }) =>
+              `flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm transition ${isActive
+                ? 'bg-teal-400/20 font-semibold text-white'
+                : 'text-slate-300 hover:bg-white/5 hover:text-white'
+              }`}
           >
-            <span className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-teal-300' : 'bg-slate-400'}`} />
-            {item.label}
+            {({ isActive }) => (
+              <>
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-teal-300' : 'bg-slate-400'}`}
+                />
+                {item.label}
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
