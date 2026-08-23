@@ -1,83 +1,107 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import AuthLayout from './AuthLayout';
-import Field from '../components/Field';
-import Button from '../components/Button';
-import { useAuth } from '../context/AuthContext';
-import { authApi } from '../lib/apiClient';
-import { isProfileComplete } from '../lib/profileCompletion';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { FcGoogle } from "react-icons/fc";
+import AuthLayout from "../components/auth/AuthLayout";
+import AuthCard from "../components/auth/AuthCard";
+import Field from "../components/auth/Field";
+import Button from "../components/auth/Button";
+import { useAuth } from "../context/AuthContext";
+import { authApi } from "../lib/apiClient";
+import { isProfileComplete } from "../lib/profileCompletion";
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
+
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  const onChange = (e) =>
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setBusy(true);
+
     try {
       const user = await login(form.email, form.password);
-      navigate(isProfileComplete(user) ? '/dashboard' : '/complete-profile');
+      navigate(isProfileComplete(user) ? "/dashboard" : "/complete-profile");
     } catch (err) {
-      setError(err.message || 'Invalid email or password');
+      setError(err.message || "Invalid email or password");
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <AuthLayout headline="Peace of mind on every trail.">
-      <form className="tg-formcard tg-formcard--login" onSubmit={onSubmit}>
-        <h2 className="tg-formcard__title">Welcome back</h2>
-        <p className="tg-formcard__sub">Log in to see your live trail dashboard.</p>
+    <AuthLayout
+      headline={
+        <>
+          Peace of mind
+          <br />
+          on every <span className="text-[#2DD4BF]">trail.</span>
+        </>
+      }
+    >
+      <AuthCard className="max-w-[500px]">
+        <form className="flex flex-col gap-4" onSubmit={onSubmit}>
+          <h2 className="tg-formcard__title">Welcome back</h2>
 
-        {error && <div className="tg-formcard__error">{error}</div>}
+          <p className="tg-formcard__sub">
+            Log in to see your live trail dashboard.
+          </p>
 
-        <Field
-          label="Email"
-          name="email"
-          type="email"
-          placeholder="you@example.com"
-          value={form.email}
-          onChange={onChange}
-          leadingIcon="✉"
-          required
-        />
-        <Field
-          label="Password"
-          name="password"
-          type="password"
-          placeholder="••••••••"
-          value={form.password}
-          onChange={onChange}
-          leadingIcon="🔒"
-          trailingIcon="◉"
-          required
-        />
+          {error && <div className="tg-formcard__error">{error}</div>}
 
-        <Button type="submit" disabled={busy}>{busy ? 'Logging in…' : 'Log in'}</Button>
+          <Field
+            label="Email"
+            name="email"
+            type="email"
+            placeholder="you@example.com"
+            value={form.email}
+            onChange={onChange}
+            required
+          />
 
-        <div className="tg-formcard__divider"><span /><em>or</em><span /></div>
+          <Field
+            label="Password"
+            name="password"
+            type="password"
+            placeholder="••••••••"
+            value={form.password}
+            onChange={onChange}
+            required
+          />
 
-        <Button
-          variant="secondary"
-          className="bg-slate-900 text-white shadow-[0_10px_20px_rgba(16,42,67,0.28)] hover:bg-slate-800"
-          type="button"
-          onClick={() => (window.location.href = authApi.googleLoginUrl())}
-        >
-          <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-white text-[13px] font-bold text-red-500">G</span>
-          Continue with Google
-        </Button>
+          <Button type="submit" disabled={busy}>
+            {busy ? "Logging in…" : "Log in"}
+          </Button>
 
-        <p className="tg-formcard__footer">
-          Don't have an account? <Link to="/register" className="tg-formcard__link">Sign up</Link>
-        </p>
-      </form>
+          <div className="tg-formcard__divider">
+            <span />
+            <em>or</em>
+            <span />
+          </div>
+
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={() => (window.location.href = authApi.googleLoginUrl())}
+          >
+            <FcGoogle className="text-[22px]" />
+            Continue with Google
+          </Button>
+
+          <p className="tg-formcard__footer">
+            Don't have an account?{" "}
+            <Link to="/register" className="tg-formcard__link">
+              Sign up
+            </Link>
+          </p>
+        </form>
+      </AuthCard>
     </AuthLayout>
   );
 }
