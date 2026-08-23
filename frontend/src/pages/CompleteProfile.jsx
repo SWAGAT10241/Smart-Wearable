@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Field from '../components/Field';
-import Button from '../components/Button';
+import Field from "../components/auth/Field";
+import Button from '../components/auth/Button';
 import { useAuth } from '../context/AuthContext';
 
 export default function CompleteProfile() {

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { fallsApi } from '../lib/apiClient';
 import { useAuth } from '../context/AuthContext';
 import { useLiveData } from '../context/LiveDataContext';
-import Button from './Button';
+import Button from "../components/auth/Button";
 
 const AUTO_ESCALATE_SECONDS = 30;
 

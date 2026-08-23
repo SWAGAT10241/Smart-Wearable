@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Sidebar from '../components/Sidebar';
-import Field from '../components/Field';
-import Button from '../components/Button';
+import Field from "../components/auth/Field";
+import Button from '../components/auth/Button';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../lib/apiClient';
 
