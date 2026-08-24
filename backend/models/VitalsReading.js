@@ -19,6 +19,10 @@ const vitalsReadingSchema = new mongoose.Schema({
     type: Number, // %
     required: true,
   },
+  irSamples: {
+    type: [Number],
+    default: [],
+  },
   timestamp: {
     type: Date,
     default: Date.now,

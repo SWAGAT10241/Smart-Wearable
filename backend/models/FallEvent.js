@@ -1,41 +1,53 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-// MPU6050 sensor data — every fall detection event, kept permanently so
-// past records can always be queried (not just the latest one)
-const fallEventSchema = new mongoose.Schema({
-  deviceId: {
-    type: String,
-    required: true,
-    index: true,
+const fallEventSchema = new mongoose.Schema(
+  {
+    deviceId: {
+      type: String,
+      required: true,
+      trim: true,
+      index: true,
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      index: true,
+    },
+    accelX: Number,
+    accelY: Number,
+    accelZ: Number,
+    tiltAngle: {
+      type: Number,
+      min: 0,
+    },
+    totalAcceleration: {
+      type: Number,
+      min: 0,
+    },
+    severity: {
+      type: String,
+      enum: ["minor", "moderate", "severe"],
+      default: "moderate",
+    },
+    latitude: Number,
+    longitude: Number,
+    status: {
+      type: String,
+      enum: ["detected", "confirmed_false_alarm", "sos_triggered", "resolved"],
+      default: "detected",
+    },
+    timestamp: {
+      type: Date,
+      default: Date.now,
+      index: true,
+    },
   },
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+  {
+    versionKey: false,
   },
-  accelX: Number,
-  accelY: Number,
-  accelZ: Number,
-  tiltAngle: Number, // degrees
-  totalAcceleration: Number, // magnitude used for threshold detection
-  severity: {
-    type: String,
-    enum: ['minor', 'moderate', 'severe'],
-    default: 'moderate',
-  },
-  // Location at time of fall, captured from the last known GPS fix
-  latitude: Number,
-  longitude: Number,
-  // Whether the wearer confirmed "I'm okay" or it escalated to an SOS
-  status: {
-    type: String,
-    enum: ['detected', 'confirmed_false_alarm', 'sos_triggered', 'resolved'],
-    default: 'detected',
-  },
-  timestamp: {
-    type: Date,
-    default: Date.now,
-    index: true,
-  },
-});
+);
 
-module.exports = mongoose.model('FallEvent', fallEventSchema);
+// Fast fall-history queries
+fallEventSchema.index({deviceId: 1,timestamp: -1,});
+
+module.exports = mongoose.model("FallEvent", fallEventSchema);
