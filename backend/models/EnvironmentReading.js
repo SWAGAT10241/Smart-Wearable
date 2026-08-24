@@ -1,29 +1,40 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-// DHT22 sensor data: ambient temperature + humidity
-const environmentReadingSchema = new mongoose.Schema({
-  deviceId: {
-    type: String,
-    required: true,
-    index: true,
+const environmentReadingSchema = new mongoose.Schema(
+  {
+    deviceId: {
+      type: String,
+      required: true,
+      trim: true,
+      index: true,
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      index: true,
+    },
+    temperature: {
+      type: Number,
+      required: true,
+    },
+    humidity: {
+      type: Number,
+      required: true,
+      min: 0,
+      max: 100,
+    },
+    timestamp: {
+      type: Date,
+      default: Date.now,
+      index: true,
+    },
   },
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+  {
+    versionKey: false,
   },
-  temperature: {
-    type: Number, // Celsius
-    required: true,
-  },
-  humidity: {
-    type: Number, // %
-    required: true,
-  },
-  timestamp: {
-    type: Date,
-    default: Date.now,
-    index: true,
-  },
-});
+);
 
-module.exports = mongoose.model('EnvironmentReading', environmentReadingSchema);
+// Fast history/latest queries
+environmentReadingSchema.index({deviceId: 1,timestamp: -1,});
+
+module.exports = mongoose.model("EnvironmentReading", environmentReadingSchema);
