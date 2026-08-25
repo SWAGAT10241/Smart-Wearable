@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import AppLayout from "../components/app/AppLayout";
 import StatCard from "../components/StatCard";
 import ActivitySummary from "../components/ActivitySummary";
@@ -6,65 +7,145 @@ import NotificationBell from "../components/app/NotificationBell";
 import ProfileMenu from "../components/app/ProfileMenu";
 import LiveMap from "../components/LiveMap";
 
-import {HeartIcon,DropletIcon,ThermometerIcon,HumidityIcon,} from "../components/icons";
+import {
+  HeartIcon,
+  DropletIcon,
+  ThermometerIcon,
+  HumidityIcon,
+} from "../components/icons";
 
 import { useAuth } from "../context/AuthContext";
 import { useLiveData } from "../context/LiveDataContext";
 
-import {vitalsApi,environmentApi,locationApi,fallsApi,} from "../lib/apiClient";
+import {
+  vitalsApi,
+  environmentApi,
+  locationApi,
+  fallsApi,
+} from "../lib/apiClient";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const { vitals, environment, location } = useLiveData();
+
   const deviceId = user?.deviceId;
+
   const [initialVitals, setInitialVitals] = useState(null);
   const [initialEnv, setInitialEnv] = useState(null);
   const [initialLoc, setInitialLoc] = useState(null);
+
+  const [vitalStats, setVitalStats] = useState(null);
+  const [environmentStats, setEnvironmentStats] = useState(null);
+
   const [recentFalls, setRecentFalls] = useState([]);
   const [trail, setTrail] = useState([]);
-  const [locationHistory, setLocationHistory] = useState([]);
 
+  // Load dashboard data.
   useEffect(() => {
     if (!deviceId) return;
+
     let cancelled = false;
+
     const loadDashboard = async () => {
-      const [vitalsRes, envRes, locRes, fallsRes, locationHistoryRes] =
-        await Promise.allSettled([
-          vitalsApi.latest(deviceId),
-          environmentApi.latest(deviceId),
-          locationApi.latest(deviceId),
-          fallsApi.all(deviceId),
-          locationApi.history(deviceId, 24),
-        ]);
+      const [
+        vitalsRes,
+        environmentRes,
+        locationRes,
+        fallsRes,
+        trailRes,
+        vitalsStatsRes,
+        environmentStatsRes,
+      ] = await Promise.allSettled([
+        vitalsApi.latest(deviceId),
+        environmentApi.latest(deviceId),
+        locationApi.latest(deviceId),
+        fallsApi.all(deviceId),
+        locationApi.history(deviceId, 24),
+        vitalsApi.stats(deviceId, 1),
+        environmentApi.stats(deviceId, 1),
+      ]);
+
       if (cancelled) return;
+
       if (vitalsRes.status === "fulfilled") {
         setInitialVitals(vitalsRes.value);
       }
-      if (envRes.status === "fulfilled") {
-        setInitialEnv(envRes.value);
+
+      if (environmentRes.status === "fulfilled") {
+        setInitialEnv(environmentRes.value);
       }
-      if (locRes.status === "fulfilled") {
-        setInitialLoc(locRes.value);
+
+      if (locationRes.status === "fulfilled") {
+        setInitialLoc(locationRes.value);
       }
+
       if (fallsRes.status === "fulfilled") {
-        setRecentFalls(fallsRes.value.slice(0, 3));
+        const falls = Array.isArray(fallsRes.value) ? fallsRes.value : [];
+
+        setRecentFalls(falls.slice(0, 3));
       }
-      if (locationHistoryRes.status === "fulfilled") {
-        setLocationHistory(locationHistoryRes.value);
+
+      if (trailRes.status === "fulfilled") {
+        const history = Array.isArray(trailRes.value) ? trailRes.value : [];
+
+        setTrail(history);
+      }
+
+      if (vitalsStatsRes.status === "fulfilled") {
+        setVitalStats(vitalsStatsRes.value);
+      }
+
+      if (environmentStatsRes.status === "fulfilled") {
+        setEnvironmentStats(environmentStatsRes.value);
       }
     };
 
     loadDashboard();
+
     return () => {
       cancelled = true;
     };
   }, [deviceId]);
 
+  // Refresh historical statistics every 30 seconds.
+  useEffect(() => {
+    if (!deviceId) return;
+
+    let cancelled = false;
+
+    const loadStats = async () => {
+      try {
+        const [vitalsStats, environmentStats] = await Promise.all([
+          vitalsApi.stats(deviceId, 1),
+          environmentApi.stats(deviceId, 1),
+        ]);
+
+        if (cancelled) return;
+
+        setVitalStats(vitalsStats);
+        setEnvironmentStats(environmentStats);
+      } catch (error) {
+        console.error("Failed to refresh dashboard statistics:", error);
+      }
+    };
+
+    const interval = setInterval(loadStats, 30_000);
+
+    loadDashboard();
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [deviceId]);
+
+  // Live WebSocket data takes priority over initial REST data.
   const hr = vitals || initialVitals;
   const env = environment || initialEnv;
   const loc = location || initialLoc;
+
   const hasLocation =
     Number.isFinite(loc?.latitude) && Number.isFinite(loc?.longitude);
+
   const notifications = recentFalls.map((fall) => ({
     id: fall._id,
     title: `${fall.severity} fall detected`,
@@ -89,11 +170,12 @@ export default function Dashboard() {
       variant: "ppg",
       signal: hr?.irSamples ?? [],
       miniStats: [
-        ["Resting", hr?.restingHeartRate ?? "--"],
-        ["Avg 1h", hr?.averageHeartRate ?? "--"],
-        ["Peak", hr?.peakHeartRate ?? "--"],
+        ["Resting", vitalStats?.minHeartRate ?? "--"],
+        ["Avg 1h", vitalStats?.averageHeartRate ?? "--"],
+        ["Peak", vitalStats?.maxHeartRate ?? "--"],
       ],
     },
+
     {
       icon: <DropletIcon />,
       iconType: "oxygen",
@@ -105,16 +187,21 @@ export default function Dashboard() {
       variant: "gauge",
       gaugePct: hr?.spo2 ?? 0,
       miniStats: [
-        ["Min", hr?.minSpo2 != null ? `${hr.minSpo2}%` : "--"],
-        ["Avg", hr?.averageSpo2 != null ? `${hr.averageSpo2}%` : "--"],
-        ["Max", hr?.maxSpo2 != null ? `${hr.maxSpo2}%` : "--"],
+        ["Min", vitalStats?.minSpo2 != null ? `${vitalStats.minSpo2}%` : "--"],
+        [
+          "Avg",
+          vitalStats?.averageSpo2 != null ? `${vitalStats.averageSpo2}%` : "--",
+        ],
+        ["Max", vitalStats?.maxSpo2 != null ? `${vitalStats.maxSpo2}%` : "--"],
       ],
     },
+
     {
       icon: <ThermometerIcon />,
       iconType: "temperature",
       label: "TEMPERATURE",
-      value: env?.temperature != null ? env.temperature.toFixed(1) : "--",
+      value:
+        env?.temperature != null ? Number(env.temperature).toFixed(1) : "--",
       unit: "°C",
       status: env?.temperature != null ? "Mild" : undefined,
       statusColor: "#102A43",
@@ -123,35 +210,52 @@ export default function Dashboard() {
       miniStats: [
         [
           "Low",
-          env?.minTemperature != null
-            ? `${env.minTemperature.toFixed(1)}°`
+          environmentStats?.minTemperature != null
+            ? `${Number(environmentStats.minTemperature).toFixed(1)}°`
             : "--",
         ],
         [
           "Now",
-          env?.temperature != null ? `${env.temperature.toFixed(1)}°` : "--",
+          env?.temperature != null
+            ? `${Number(env.temperature).toFixed(1)}°`
+            : "--",
         ],
         [
           "High",
-          env?.maxTemperature != null
-            ? `${env.maxTemperature.toFixed(1)}°`
+          environmentStats?.maxTemperature != null
+            ? `${Number(environmentStats.maxTemperature).toFixed(1)}°`
             : "--",
         ],
       ],
     },
+
     {
       icon: <HumidityIcon />,
       iconType: "humidity",
       label: "HUMIDITY",
-      value: env?.humidity?.toFixed(1) ?? "--",
+      value: env?.humidity != null ? Number(env.humidity).toFixed(1) : "--",
       unit: "%",
       status: env?.humidity != null ? "Normal" : undefined,
       statusColor: "#2BAE8A",
       miniStats: [
         ["Low", env?.minHumidity != null ? `${env.minHumidity}%` : "--"],
         [
+          "Low",
+          environmentStats?.minHumidity != null
+            ? `${Number(environmentStats.minHumidity).toFixed(1)}%`
+            : "--",
+        ],
+        [
           "Avg",
-          env?.averageHumidity != null ? `${env.averageHumidity}%` : "--",
+          environmentStats?.averageHumidity != null
+            ? `${Number(environmentStats.averageHumidity).toFixed(1)}%`
+            : "--",
+        ],
+        [
+          "High",
+          environmentStats?.maxHumidity != null
+            ? `${Number(environmentStats.maxHumidity).toFixed(1)}%`
+            : "--",
         ],
         ["High", env?.maxHumidity != null ? `${env.maxHumidity}%` : "--"],
       ],
@@ -206,7 +310,6 @@ export default function Dashboard() {
               </span>
             </div>
 
-            {/* LiveMap */}
             <div className="min-h-[220px] flex-1 overflow-hidden rounded-[16px] border border-slate-200 bg-slate-100">
               <LiveMap
                 latitude={loc?.latitude}
@@ -215,7 +318,6 @@ export default function Dashboard() {
               />
             </div>
 
-            {/* Coordinates */}
             <div className="mt-2 shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-medium text-slate-600">
               {hasLocation
                 ? `${loc.latitude.toFixed(5)}, ${loc.longitude.toFixed(5)}`
@@ -282,7 +384,7 @@ export default function Dashboard() {
                         </div>
 
                         <span className="rounded-full bg-slate-200 px-2 py-1 text-[9px] font-semibold uppercase tracking-wide text-slate-600">
-                          {fall.status.replace(/_/g, " ")}
+                          {fall.status?.replace(/_/g, " ") || "UNKNOWN"}
                         </span>
                       </div>
                     </div>

@@ -65,7 +65,7 @@ const userSchema = new mongoose.Schema(
     // (needed because Google signup only provides name + email)
     profileComplete: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     deviceId: {
       type: String, // links this user to their physical ESP32 wearable

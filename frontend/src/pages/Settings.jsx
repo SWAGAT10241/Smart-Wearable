@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import AppLayout from '../components/app/AppLayout';
-import Field from '../components/auth/Field';
-import Button from '../components/auth/Button';
-import { useAuth } from '../context/AuthContext';
-import { authApi } from '../lib/apiClient';
+import { useEffect, useState } from "react";
+
+import AppLayout from "../components/app/AppLayout";
+import Field from "../components/auth/Field";
+import Button from "../components/auth/Button";
+import { useAuth } from "../context/AuthContext";
+import { authApi } from "../lib/apiClient";
 
 function Row({ label, value, badge }) {
   return (
@@ -30,27 +31,76 @@ export default function Settings() {
   const [busy, setBusy] = useState(false);
 
   const [form, setForm] = useState({
-    phoneNumber: user?.phoneNumber || '',
-    emergencyContactName: user?.emergencyContactName || '',
-    emergencyContactPhone: user?.emergencyContactPhone || '',
-    height: user?.height || '',
-    weight: user?.weight || '',
+    phoneNumber: "",
+    emergencyContactName: "",
+    emergencyContactPhone: "",
+    height: "",
+    weight: "",
   });
 
-  const onChange = (e) =>
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  // Keep form synchronized with authenticated user data.
+  useEffect(() => {
+    if (!user) return;
+
+    setForm({
+      phoneNumber: user.phoneNumber || "",
+      emergencyContactName: user.emergencyContactName || "",
+      emergencyContactPhone: user.emergencyContactPhone || "",
+      height: user.height ?? "",
+      weight: user.weight ?? "",
+    });
+  }, [user]);
+
+  const onChange = (event) => {
+    const { name, value } = event.target;
+
+    setForm((currentForm) => ({
+      ...currentForm,
+      [name]: value,
+    }));
+  };
 
   const onSave = async () => {
     setBusy(true);
 
     try {
-      await authApi.completeProfile(form);
+      await authApi.completeProfile({
+        ...form,
+        height: form.height === "" ? "" : Number(form.height),
+        weight: form.weight === "" ? "" : Number(form.weight),
+      });
+
       await refreshUser();
       setEditing(false);
+    } catch (error) {
+      console.error("Failed to update safety information:", error);
     } finally {
       setBusy(false);
     }
   };
+
+  const onCancel = () => {
+    setForm({
+      phoneNumber: user?.phoneNumber || "",
+      emergencyContactName: user?.emergencyContactName || "",
+      emergencyContactPhone: user?.emergencyContactPhone || "",
+      height: user?.height ?? "",
+      weight: user?.weight ?? "",
+    });
+
+    setEditing(false);
+  };
+
+  const phoneNumber = user?.phoneNumber || "Not provided";
+
+  const emergencyContact =
+    user?.emergencyContactName && user?.emergencyContactPhone
+      ? `${user.emergencyContactName} · ${user.emergencyContactPhone}`
+      : "Not provided";
+
+  const height = user?.height != null ? `${user.height} cm` : "Not provided";
+
+  const weight = user?.weight != null ? `${user.weight} kg` : "Not provided";
 
   return (
     <AppLayout>
@@ -63,12 +113,16 @@ export default function Settings() {
         <h3 className="mb-4 text-lg font-semibold text-slate-900">Account</h3>
 
         <div className="space-y-3">
-          <Row label="Username" value={user?.username} />
-          <Row label="Email" value={user?.email} />
+          <Row label="Username" value={user?.username || "Not provided"} />
+
+          <Row label="Email" value={user?.email || "Not provided"} />
+
           <Row
             label="Sign-in method"
-            value={user?.authProvider === 'google' ? 'Google' : 'Email & password'}
-            badge={user?.authProvider === 'google' ? 'CONNECTED' : undefined}
+            value={
+              user?.authProvider === "google" ? "Google" : "Email & password"
+            }
+            badge={user?.authProvider === "google" ? "CONNECTED" : undefined}
           />
         </div>
       </section>
@@ -81,20 +135,15 @@ export default function Settings() {
 
         {!editing ? (
           <div className="space-y-3">
-            <Row label="Phone number" value={user?.phoneNumber} />
+            <Row label="Phone number" value={phoneNumber} />
 
-            <Row
-              label="Emergency contact"
-              value={`${user?.emergencyContactName} · ${user?.emergencyContactPhone}`}
-            />
+            <Row label="Emergency contact" value={emergencyContact} />
 
-            <Row label="Height" value={`${user?.height} cm`} />
-            <Row label="Weight" value={`${user?.weight} kg`} />
+            <Row label="Height" value={height} />
 
-            <Button
-              variant="secondary"
-              onClick={() => setEditing(true)}
-            >
+            <Row label="Weight" value={weight} />
+
+            <Button variant="secondary" onClick={() => setEditing(true)}>
               Edit safety info
             </Button>
           </div>
@@ -143,13 +192,10 @@ export default function Settings() {
 
             <div className="grid gap-3 md:grid-cols-2">
               <Button onClick={onSave} disabled={busy}>
-                {busy ? 'Saving…' : 'Save changes'}
+                {busy ? "Saving…" : "Save changes"}
               </Button>
 
-              <Button
-                variant="secondary"
-                onClick={() => setEditing(false)}
-              >
+              <Button variant="secondary" onClick={onCancel} disabled={busy}>
                 Cancel
               </Button>
             </div>
@@ -164,18 +210,17 @@ export default function Settings() {
         <div className="space-y-3">
           <Row
             label="Paired device"
-            value={user?.deviceId || 'None'}
-            badge={user?.deviceId ? 'CONNECTED' : undefined}
+            value={user?.deviceId || "None"}
+            badge={user?.deviceId ? "CONNECTED" : undefined}
           />
 
-          <Button variant="secondary">
-            Re-pair device
-          </Button>
+          <Button variant="secondary">Re-pair device</Button>
         </div>
       </section>
 
       {/* Preferences + Danger Zone */}
       <div className="grid gap-6 lg:grid-cols-2">
+        {/* Preferences */}
         <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[var(--shadow-card)]">
           <h3 className="mb-4 text-lg font-semibold text-slate-900">
             Preferences
@@ -190,6 +235,7 @@ export default function Settings() {
           </div>
         </section>
 
+        {/* Danger Zone */}
         <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[var(--shadow-card)]">
           <h3 className="mb-4 text-lg font-semibold text-slate-900">
             Danger Zone
