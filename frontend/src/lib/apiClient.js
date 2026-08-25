@@ -43,15 +43,18 @@ export const vitalsApi = {
   latest: (deviceId) => request(`/vitals/latest?deviceId=${encodeURIComponent(deviceId)}`, { auth: true }),
   history: (deviceId, hours = 1) =>
     request(`/vitals/history?deviceId=${encodeURIComponent(deviceId)}&hours=${hours}`, { auth: true }),
+  stats: (deviceId, hours = 1) =>
+    request(`/vitals/stats?deviceId=${encodeURIComponent(deviceId)}&hours=${hours}`,{ auth: true }),
 };
 
 // ---- Environment (temperature + humidity) ----
 export const environmentApi = {
-  latest: (deviceId) => request(`/environment/latest?deviceId=${encodeURIComponent(deviceId)}`, { auth: true }),
-  average: (deviceId, hours = 1) =>
-    request(`/environment/average?deviceId=${encodeURIComponent(deviceId)}&hours=${hours}`, { auth: true }),
+  latest: (deviceId) =>
+    request(`/environment/latest?deviceId=${encodeURIComponent(deviceId)}`,{ auth: true }),
   history: (deviceId, hours = 1) =>
-    request(`/environment/history?deviceId=${encodeURIComponent(deviceId)}&hours=${hours}`, { auth: true }),
+    request(`/environment/history?deviceId=${encodeURIComponent(deviceId)}&hours=${hours}`,{ auth: true }),
+  stats: (deviceId, hours = 1) =>
+    request(`/environment/stats?deviceId=${encodeURIComponent(deviceId)}&hours=${hours}`,{ auth: true }),
 };
 
 // ---- Location (GPS trail) ----

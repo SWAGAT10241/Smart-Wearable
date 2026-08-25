@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import 'leaflet/dist/leaflet.css';
 
 :root {
   --color-main: #102A43;
@@ -35,11 +36,9 @@
     margin: 0;
     font-family: var(--font-sans);
     color: var(--color-text);
-    background: linear-gradient(
-      180deg,
-      var(--color-bg) 0%,
-      var(--color-bg-alt) 100%
-    );
+    background: linear-gradient(180deg,
+        var(--color-bg) 0%,
+        var(--color-bg-alt) 100%);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -60,10 +59,13 @@
 }
 
 @layer components {
+
+  /* Shared page */
   .tg-page {
     @apply flex min-h-screen;
   }
 
+  /* Auth */
   .tg-formcard__title {
     @apply m-0 text-[30px] font-semibold tracking-[-0.02em] text-slate-900;
   }
@@ -88,13 +90,13 @@
     @apply text-sm not-italic text-slate-400;
   }
 
-.tg-formcard__footer {
-  @apply mt-1 w-full text-center text-[13px] leading-5 text-slate-500;
-}
+  .tg-formcard__footer {
+    @apply mt-1 w-full text-center text-[13px] leading-5 text-slate-500;
+  }
 
-.tg-formcard__link {
-  @apply font-semibold text-sky-700 transition-colors hover:text-teal-600;
-}
+  .tg-formcard__link {
+    @apply font-semibold text-sky-700 transition-colors hover:text-teal-600;
+  }
 
   .tg-formcard__section-label {
     @apply flex items-center gap-2 pt-1 text-[12px] font-semibold tracking-[0.03em] text-slate-800;
@@ -110,21 +112,116 @@
     @apply h-px flex-1 bg-slate-200;
   }
 
-.tg-formcard__row {
-  @apply flex gap-4;
-}
-
-.tg-formcard__row > * {
-  @apply min-w-0 flex-1;
-}
-
-@media (max-width: 640px) {
   .tg-formcard__row {
-    @apply flex-col gap-4;
+    @apply flex gap-4;
   }
-}
+
+  .tg-formcard__row>* {
+    @apply min-w-0 flex-1;
+  }
 
   .tg-badge-pill {
     @apply inline-flex self-start rounded-full bg-teal-100 px-3 py-1 text-[10.5px] font-bold tracking-[0.08em] text-sky-700;
+  }
+
+  /* ================================
+   TrailGuard Map Marker
+   ================================ */
+
+  .tg-leaflet-marker {
+    background: transparent !important;
+    border: 0 !important;
+  }
+
+  .tg-map-marker {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    height: 42px;
+
+    border-radius: 999px;
+  }
+
+  .tg-map-marker-pulse {
+    position: absolute;
+
+    width: 34px;
+    height: 34px;
+
+    border-radius: 999px;
+
+    background: rgba(45, 212, 191, 0.18);
+
+    box-shadow:
+      0 0 0 7px rgba(45, 212, 191, 0.10),
+      0 0 18px rgba(45, 212, 191, 0.35);
+  }
+
+  .tg-map-marker-dot {
+    position: relative;
+    z-index: 2;
+
+    width: 16px;
+    height: 16px;
+
+    border: 3px solid white;
+    border-radius: 999px;
+
+    background: #1976d2;
+
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.28),
+      0 0 0 3px rgba(25, 118, 210, 0.16);
+  }
+
+  /* ================================
+   Leaflet
+   ================================ */
+
+  .leaflet-container {
+    width: 100%;
+    height: 100%;
+    min-height: 320px;
+
+    font-family: var(--font-sans);
+
+    background: #e8eef0;
+
+    z-index: 0;
+  }
+
+  .leaflet-control-zoom {
+    border: 0 !important;
+    border-radius: 10px !important;
+    overflow: hidden;
+
+    box-shadow:
+      0 4px 12px rgba(16, 42, 67, 0.15) !important;
+  }
+
+  .leaflet-control-zoom a {
+    width: 34px !important;
+    height: 34px !important;
+
+    line-height: 34px !important;
+
+    border: 0 !important;
+
+    color: var(--color-main) !important;
+    background: white !important;
+
+    font-weight: 600;
+  }
+
+  .leaflet-control-zoom a:hover {
+    color: var(--color-accent-dark) !important;
+    background: #f8fafc !important;
+  }
+
+  .leaflet-control-attribution {
+    font-size: 9px !important;
   }
 }

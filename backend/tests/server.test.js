@@ -12,10 +12,14 @@ jest.mock("../models/VitalsReading", () => ({
 
 const { app } = require("../app");
 
-describe("Smart-Wearable Backend", () => {
+describe("TrailGuard Backend API", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
+  // ─────────────────────────────────────────────
+  // Health check
+  // ─────────────────────────────────────────────
 
   describe("GET /", () => {
     test("returns backend status", async () => {
@@ -28,6 +32,10 @@ describe("Smart-Wearable Backend", () => {
       });
     });
   });
+
+  // ─────────────────────────────────────────────
+  // Vitals
+  // ─────────────────────────────────────────────
 
   describe("POST /api/vitals", () => {
     test("rejects missing required fields", async () => {
@@ -61,20 +69,17 @@ describe("Smart-Wearable Backend", () => {
       });
 
       expect(response.statusCode).toBe(201);
-
       expect(response.body).toEqual(reading);
 
-      expect(mockCreate).toHaveBeenCalledWith({
-        deviceId: "ESP32-001",
-        heartRate: 78,
-        spo2: 98,
-        userId: undefined,
-      });
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          deviceId: "ESP32-001",
+          heartRate: 78,
+          spo2: 98,
+          irSamples: [],
+          userId: undefined,
+        }),
+      );
     });
-  });
-});
-describe("Smart-Wearable Backend", () => {
-  test("backend test setup works", () => {
-    expect(true).toBe(true);
   });
 });
