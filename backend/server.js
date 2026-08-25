@@ -2,16 +2,10 @@ require("dotenv").config();
 
 const http = require("http");
 const { WebSocketServer } = require("ws");
-
 const connectDB = require("./config/db");
 const { app, clients } = require("./app");
-
 const server = http.createServer(app);
-
-const wss = new WebSocketServer({
-  server,
-  path: "/live",
-});
+const wss = new WebSocketServer({server,path: "/live",});
 
 wss.on("connection", (ws) => {
   clients.add(ws);
@@ -28,9 +22,8 @@ const PORT = process.env.PORT || 3000;
 connectDB()
   .then(() => {
     server.listen(PORT, () => {
-      console.log(`TrailGuard backend listening on port ${PORT}`);
-
-      console.log(`WebSocket live channel at ws://localhost:${PORT}/live`);
+        console.log(`TrailGuard backend listening on port ${PORT}`);
+        console.log(`WebSocket live channel at /live`);
     });
   })
   .catch((error) => {

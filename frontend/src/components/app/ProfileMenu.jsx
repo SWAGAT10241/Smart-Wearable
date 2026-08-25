@@ -59,7 +59,6 @@ export default function ProfileMenu() {
       {/* Dropdown */}
       {open && (
         <div className="absolute right-0 top-[calc(100%+10px)] z-50 w-60 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
-
           {/* Profile information */}
           <div className="border-b border-slate-100 px-3 py-3">
             <div className="flex items-center gap-3">
@@ -72,9 +71,7 @@ export default function ProfileMenu() {
                   {username}
                 </p>
 
-                <p className="truncate text-xs text-slate-400">
-                  {email}
-                </p>
+                <p className="truncate text-xs text-slate-400">{email}</p>
               </div>
             </div>
           </div>

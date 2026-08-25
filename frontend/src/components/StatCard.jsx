@@ -43,13 +43,10 @@ function PpgTrace({ color, samples = [] }) {
   const points = samples
     .map((value, index) => {
       const x =
-        padding +
-        (index / (samples.length - 1)) * (width - padding * 2);
+        padding + (index / (samples.length - 1)) * (width - padding * 2);
 
       const y =
-        height -
-        padding -
-        ((value - min) / range) * (height - padding * 2);
+        height - padding - ((value - min) / range) * (height - padding * 2);
 
       return `${x},${y}`;
     })
@@ -75,12 +72,7 @@ function PpgTrace({ color, samples = [] }) {
   );
 }
 
-function GaugeBar({
-  pct = 0,
-  color,
-  gradient,
-  type = "normal",
-}) {
+function GaugeBar({ pct = 0, color, gradient, type = "normal" }) {
   const value = Math.min(Math.max(Number(pct) || 0, 0), 100);
 
   return (
@@ -155,7 +147,6 @@ export default function StatCard({
 
   return (
     <article className="tg-stat-card flex min-w-0 flex-1 flex-col rounded-[24px] border border-slate-200/80 bg-white p-5 shadow-[var(--shadow-card)]">
-
       {/* Icon */}
       <div
         className={`tg-stat-icon mb-3 flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] ${
@@ -191,27 +182,15 @@ export default function StatCard({
           {value}
         </span>
 
-        <span className="text-[13px] font-medium text-slate-500">
-          {unit}
-        </span>
+        <span className="text-[13px] font-medium text-slate-500">{unit}</span>
       </div>
 
       {/* Visualization
           Fixed height keeps all four cards aligned. */}
       <div className="mb-1 flex h-10 items-center">
-        {variant === "ppg" && (
-          <PpgTrace
-            color={style.color}
-            samples={signal}
-          />
-        )}
+        {variant === "ppg" && <PpgTrace color={style.color} samples={signal} />}
 
-        {variant === "gauge" && (
-          <GaugeBar
-            pct={gaugePct}
-            color={style.color}
-          />
-        )}
+        {variant === "gauge" && <GaugeBar pct={gaugePct} color={style.color} />}
 
         {variant === "tempGauge" && (
           <GaugeBar
@@ -222,10 +201,9 @@ export default function StatCard({
           />
         )}
 
-        {variant === "plain" &&
-          iconType !== "humidity" && (
-            <div className="h-10 w-full" />
-          )}
+        {variant === "plain" && iconType !== "humidity" && (
+          <div className="h-10 w-full" />
+        )}
 
         {iconType === "humidity" && (
           <div className="tg-humidity-wave">
