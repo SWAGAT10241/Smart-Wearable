@@ -26,28 +26,21 @@ import {
 
 export default function Dashboard() {
   const { user } = useAuth();
-
   const { vitals, environment, location } = useLiveData();
 
   const deviceId = user?.deviceId;
 
-  // Latest REST data
   const [initialVitals, setInitialVitals] = useState(null);
   const [initialEnv, setInitialEnv] = useState(null);
   const [initialLoc, setInitialLoc] = useState(null);
 
-  // Historical/statistical data
   const [vitalStats, setVitalStats] = useState(null);
   const [environmentStats, setEnvironmentStats] = useState(null);
 
-  // Other dashboard data
   const [recentFalls, setRecentFalls] = useState([]);
   const [trail, setTrail] = useState([]);
 
-  /*
-   * Load latest readings, statistics,
-   * falls and location history.
-   */
+  // Load dashboard data.
   useEffect(() => {
     if (!deviceId) return;
 
@@ -56,82 +49,52 @@ export default function Dashboard() {
     const loadDashboard = async () => {
       const [
         vitalsRes,
-        envRes,
-        locRes,
+        environmentRes,
+        locationRes,
         fallsRes,
-        locationHistoryRes,
+        trailRes,
         vitalsStatsRes,
         environmentStatsRes,
       ] = await Promise.allSettled([
-        // Current readings
         vitalsApi.latest(deviceId),
         environmentApi.latest(deviceId),
         locationApi.latest(deviceId),
-
-        // Events
         fallsApi.all(deviceId),
-
-        // Location trail
         locationApi.history(deviceId, 24),
-
-        // Historical statistics
         vitalsApi.stats(deviceId, 1),
         environmentApi.stats(deviceId, 1),
       ]);
 
       if (cancelled) return;
 
-      /*
-       * Latest vitals
-       */
       if (vitalsRes.status === "fulfilled") {
         setInitialVitals(vitalsRes.value);
       }
 
-      /*
-       * Latest environment
-       */
-      if (envRes.status === "fulfilled") {
-        setInitialEnv(envRes.value);
+      if (environmentRes.status === "fulfilled") {
+        setInitialEnv(environmentRes.value);
       }
 
-      /*
-       * Latest location
-       */
-      if (locRes.status === "fulfilled") {
-        setInitialLoc(locRes.value);
+      if (locationRes.status === "fulfilled") {
+        setInitialLoc(locationRes.value);
       }
 
-      /*
-       * Recent falls
-       */
       if (fallsRes.status === "fulfilled") {
-        setRecentFalls(
-          Array.isArray(fallsRes.value) ? fallsRes.value.slice(0, 3) : [],
-        );
+        const falls = Array.isArray(fallsRes.value) ? fallsRes.value : [];
+
+        setRecentFalls(falls.slice(0, 3));
       }
 
-      /*
-       * Location history → trail
-       */
-      if (locationHistoryRes.status === "fulfilled") {
-        const history = Array.isArray(locationHistoryRes.value)
-          ? locationHistoryRes.value
-          : [];
+      if (trailRes.status === "fulfilled") {
+        const history = Array.isArray(trailRes.value) ? trailRes.value : [];
 
         setTrail(history);
       }
 
-      /*
-       * Vitals statistics
-       */
       if (vitalsStatsRes.status === "fulfilled") {
         setVitalStats(vitalsStatsRes.value);
       }
 
-      /*
-       * Environment statistics
-       */
       if (environmentStatsRes.status === "fulfilled") {
         setEnvironmentStats(environmentStatsRes.value);
       }
@@ -144,13 +107,7 @@ export default function Dashboard() {
     };
   }, [deviceId]);
 
-  /*
-   * Refresh statistics periodically.
-   *
-   * Live WebSocket data is already updating the
-   * current values, so we only refresh historical
-   * statistics here.
-   */
+  // Refresh historical statistics every 30 seconds.
   useEffect(() => {
     if (!deviceId) return;
 
@@ -180,24 +137,14 @@ export default function Dashboard() {
     };
   }, [deviceId]);
 
-  /*
-   * Live value takes priority.
-   * Initial API data is used until WebSocket
-   * data arrives.
-   */
+  // Live WebSocket data takes priority over initial REST data.
   const hr = vitals || initialVitals;
   const env = environment || initialEnv;
   const loc = location || initialLoc;
 
-  /*
-   * Location validation
-   */
   const hasLocation =
     Number.isFinite(loc?.latitude) && Number.isFinite(loc?.longitude);
 
-  /*
-   * Notifications
-   */
   const notifications = recentFalls.map((fall) => ({
     id: fall._id,
     title: `${fall.severity} fall detected`,
@@ -210,46 +157,21 @@ export default function Dashboard() {
     }),
   }));
 
-  /*
-   * Dashboard statistics
-   */
   const stats = [
     {
       icon: <HeartIcon color="#FF6B85" />,
       iconType: "heart",
       label: "HEART RATE",
-
-      // LIVE VALUE
       value: hr?.heartRate ?? "--",
-
       unit: "bpm",
-
       status: hr?.heartRate != null ? "Live" : undefined,
-
       statusColor: "#0E9C8C",
-
       variant: "ppg",
-
       signal: hr?.irSamples ?? [],
-
-      // HISTORICAL VALUES
       miniStats: [
-        [
-          "Resting",
-          vitalStats?.minHeartRate != null ? vitalStats.minHeartRate : "--",
-        ],
-
-        [
-          "Avg 1h",
-          vitalStats?.averageHeartRate != null
-            ? vitalStats.averageHeartRate
-            : "--",
-        ],
-
-        [
-          "Peak",
-          vitalStats?.maxHeartRate != null ? vitalStats.maxHeartRate : "--",
-        ],
+        ["Resting", vitalStats?.minHeartRate ?? "--"],
+        ["Avg 1h", vitalStats?.averageHeartRate ?? "--"],
+        ["Peak", vitalStats?.maxHeartRate ?? "--"],
       ],
     },
 
@@ -257,29 +179,18 @@ export default function Dashboard() {
       icon: <DropletIcon />,
       iconType: "oxygen",
       label: "BLOOD OXYGEN",
-
-      // LIVE VALUE
       value: hr?.spo2 ?? "--",
-
       unit: "% SpO₂",
-
       status: hr?.spo2 != null ? "Normal" : undefined,
-
       statusColor: "#2BAE8A",
-
       variant: "gauge",
-
       gaugePct: hr?.spo2 ?? 0,
-
-      // HISTORICAL VALUES
       miniStats: [
         ["Min", vitalStats?.minSpo2 != null ? `${vitalStats.minSpo2}%` : "--"],
-
         [
           "Avg",
           vitalStats?.averageSpo2 != null ? `${vitalStats.averageSpo2}%` : "--",
         ],
-
         ["Max", vitalStats?.maxSpo2 != null ? `${vitalStats.maxSpo2}%` : "--"],
       ],
     },
@@ -288,22 +199,13 @@ export default function Dashboard() {
       icon: <ThermometerIcon />,
       iconType: "temperature",
       label: "TEMPERATURE",
-
-      // LIVE VALUE
       value:
         env?.temperature != null ? Number(env.temperature).toFixed(1) : "--",
-
       unit: "°C",
-
       status: env?.temperature != null ? "Mild" : undefined,
-
       statusColor: "#102A43",
-
       variant: "tempGauge",
-
       gaugePct: env?.temperature ?? 0,
-
-      // HISTORICAL VALUES
       miniStats: [
         [
           "Low",
@@ -311,14 +213,12 @@ export default function Dashboard() {
             ? `${Number(environmentStats.minTemperature).toFixed(1)}°`
             : "--",
         ],
-
         [
           "Now",
           env?.temperature != null
             ? `${Number(env.temperature).toFixed(1)}°`
             : "--",
         ],
-
         [
           "High",
           environmentStats?.maxTemperature != null
@@ -332,17 +232,10 @@ export default function Dashboard() {
       icon: <HumidityIcon />,
       iconType: "humidity",
       label: "HUMIDITY",
-
-      // LIVE VALUE
       value: env?.humidity != null ? Number(env.humidity).toFixed(1) : "--",
-
       unit: "%",
-
       status: env?.humidity != null ? "Normal" : undefined,
-
       statusColor: "#2BAE8A",
-
-      // HISTORICAL VALUES
       miniStats: [
         [
           "Low",
@@ -350,14 +243,12 @@ export default function Dashboard() {
             ? `${Number(environmentStats.minHumidity).toFixed(1)}%`
             : "--",
         ],
-
         [
           "Avg",
           environmentStats?.averageHumidity != null
             ? `${Number(environmentStats.averageHumidity).toFixed(1)}%`
             : "--",
         ],
-
         [
           "High",
           environmentStats?.maxHumidity != null
@@ -385,7 +276,6 @@ export default function Dashboard() {
 
           <div className="flex shrink-0 items-center gap-4">
             <NotificationBell notifications={notifications} />
-
             <ProfileMenu />
           </div>
         </header>
@@ -417,7 +307,6 @@ export default function Dashboard() {
               </span>
             </div>
 
-            {/* LiveMap */}
             <div className="min-h-[220px] flex-1 overflow-hidden rounded-[16px] border border-slate-200 bg-slate-100">
               <LiveMap
                 latitude={loc?.latitude}
@@ -426,7 +315,6 @@ export default function Dashboard() {
               />
             </div>
 
-            {/* Coordinates */}
             <div className="mt-2 shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-medium text-slate-600">
               {hasLocation
                 ? `${loc.latitude.toFixed(5)}, ${loc.longitude.toFixed(5)}`

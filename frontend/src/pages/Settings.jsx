@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import AppLayout from "../components/app/AppLayout";
 import Field from "../components/auth/Field";
 import Button from "../components/auth/Button";
@@ -25,14 +26,19 @@ function Row({ label, value, badge }) {
 
 export default function Settings() {
   const { user, logout, refreshUser } = useAuth();
+
   const [editing, setEditing] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [form, setForm] = useState({
-    phoneNumber: "",emergencyContactName: "",
-    emergencyContactPhone: "",height: "",weight: "",});
 
-  // Keep the form synchronized with the authenticated user.
-  // This is important when user data loads asynchronously.
+  const [form, setForm] = useState({
+    phoneNumber: "",
+    emergencyContactName: "",
+    emergencyContactPhone: "",
+    height: "",
+    weight: "",
+  });
+
+  // Keep form synchronized with authenticated user data.
   useEffect(() => {
     if (!user) return;
 
@@ -40,23 +46,30 @@ export default function Settings() {
       phoneNumber: user.phoneNumber || "",
       emergencyContactName: user.emergencyContactName || "",
       emergencyContactPhone: user.emergencyContactPhone || "",
-      height: user.height ?? "",weight: user.weight ?? "",
+      height: user.height ?? "",
+      weight: user.weight ?? "",
     });
   }, [user]);
 
-  const onChange = (e) => {
-    const { name, value } = e.target;
-    setForm((currentForm) => ({...currentForm,[name]: value,}));
+  const onChange = (event) => {
+    const { name, value } = event.target;
+
+    setForm((currentForm) => ({
+      ...currentForm,
+      [name]: value,
+    }));
   };
 
   const onSave = async () => {
     setBusy(true);
+
     try {
       await authApi.completeProfile({
         ...form,
         height: form.height === "" ? "" : Number(form.height),
         weight: form.weight === "" ? "" : Number(form.weight),
       });
+
       await refreshUser();
       setEditing(false);
     } catch (error) {
@@ -65,6 +78,19 @@ export default function Settings() {
       setBusy(false);
     }
   };
+
+  const onCancel = () => {
+    setForm({
+      phoneNumber: user?.phoneNumber || "",
+      emergencyContactName: user?.emergencyContactName || "",
+      emergencyContactPhone: user?.emergencyContactPhone || "",
+      height: user?.height ?? "",
+      weight: user?.weight ?? "",
+    });
+
+    setEditing(false);
+  };
+
   const phoneNumber = user?.phoneNumber || "Not provided";
 
   const emergencyContact =
@@ -169,21 +195,7 @@ export default function Settings() {
                 {busy ? "Saving…" : "Save changes"}
               </Button>
 
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  setForm({
-                    phoneNumber: user?.phoneNumber || "",
-                    emergencyContactName: user?.emergencyContactName || "",
-                    emergencyContactPhone: user?.emergencyContactPhone || "",
-                    height: user?.height ?? "",
-                    weight: user?.weight ?? "",
-                  });
-
-                  setEditing(false);
-                }}
-                disabled={busy}
-              >
+              <Button variant="secondary" onClick={onCancel} disabled={busy}>
                 Cancel
               </Button>
             </div>
