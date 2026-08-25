@@ -28,9 +28,10 @@ const PORT = process.env.PORT || 3000;
 connectDB()
   .then(() => {
     server.listen(PORT, () => {
-      console.log(`TrailGuard backend listening on port ${PORT}`);
-
-      console.log(`WebSocket live channel at ws://localhost:${PORT}/live`);
+      server.listen(PORT, () => {
+        console.log(`TrailGuard backend listening on port ${PORT}`);
+        console.log(`WebSocket live channel at /live`);
+      });
     });
   })
   .catch((error) => {
