@@ -98,69 +98,61 @@ export default function Sidebar() {
     ========================================================= */}
 
         {/* Banners below navigation */}
-<div className="mt-5 space-y-3">
+        <div className="mt-5 space-y-3">
+          {/* Stay safe banner */}
+          <div className="rounded-2xl border border-white/10 bg-[#102F4A]/65 p-4 shadow-lg backdrop-blur-sm">
+            <div className="flex items-start gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-400/15">
+                🛡
+              </div>
 
-  {/* Stay safe banner */}
-  <div className="rounded-2xl border border-white/10 bg-[#102F4A]/65 p-4 shadow-lg backdrop-blur-sm">
-    <div className="flex items-start gap-3">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-400/15">
-        🛡
-      </div>
+              <div className="min-w-0">
+                <div className="text-[12px] font-semibold text-white">
+                  Stay safe. Explore more.
+                </div>
 
-      <div className="min-w-0">
-        <div className="text-[12px] font-semibold text-white">
-          Stay safe. Explore more.
+                <p className="mt-1 text-[10px] leading-4 text-slate-400">
+                  TrailGuard is watching
+                  <br />
+                  over you.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Device banner */}
+          <div className="rounded-2xl border border-white/10 bg-[#102F4A]/65 p-4 shadow-lg backdrop-blur-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`h-2 w-2 shrink-0 rounded-full ${
+                      connected
+                        ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,.7)]"
+                        : "bg-slate-500"
+                    }`}
+                  />
+
+                  <span className="text-[12px] font-semibold text-white">
+                    {connected ? "Device connected" : "No device connected"}
+                  </span>
+                </div>
+
+                {connected && (
+                  <p className="mt-1 truncate pl-4 text-[10px] text-slate-400">
+                    {user.deviceId}
+                  </p>
+                )}
+              </div>
+
+              <FaBluetooth
+                className={`shrink-0 text-[18px] ${
+                  connected ? "text-slate-200" : "text-slate-600"
+                }`}
+              />
+            </div>
+          </div>
         </div>
-
-        <p className="mt-1 text-[10px] leading-4 text-slate-400">
-          TrailGuard is watching
-          <br />
-          over you.
-        </p>
-      </div>
-    </div>
-  </div>
-
-  {/* Device banner */}
-  <div className="rounded-2xl border border-white/10 bg-[#102F4A]/65 p-4 shadow-lg backdrop-blur-sm">
-    <div className="flex items-center justify-between gap-3">
-
-      <div className="min-w-0">
-        <div className="flex items-center gap-2">
-          <span
-            className={`h-2 w-2 shrink-0 rounded-full ${
-              connected
-                ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,.7)]"
-                : "bg-slate-500"
-            }`}
-          />
-
-          <span className="text-[12px] font-semibold text-white">
-            {connected
-              ? "Device connected"
-              : "No device connected"}
-          </span>
-        </div>
-
-        {connected && (
-          <p className="mt-1 truncate pl-4 text-[10px] text-slate-400">
-            {user.deviceId}
-          </p>
-        )}
-      </div>
-
-      <FaBluetooth
-        className={`shrink-0 text-[18px] ${
-          connected
-            ? "text-slate-200"
-            : "text-slate-600"
-        }`}
-      />
-
-    </div>
-  </div>
-
-</div>
       </div>
     </aside>
   );

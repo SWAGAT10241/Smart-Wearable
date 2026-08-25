@@ -1,8 +1,4 @@
-export default function SectionCard({
-  title,
-  children,
-  className = "",
-}) {
+export default function SectionCard({ title, children, className = "" }) {
   return (
     <section
       className={`
@@ -15,9 +11,7 @@ export default function SectionCard({
       `}
     >
       {title && (
-        <h3 className="mb-4 text-lg font-semibold text-slate-900">
-          {title}
-        </h3>
+        <h3 className="mb-4 text-lg font-semibold text-slate-900">{title}</h3>
       )}
 
       {children}

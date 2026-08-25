@@ -58,7 +58,4 @@ app.get('/', (req, res) => {
   });
 });
 
-module.exports = {
-  app,
-  clients,
-};
+module.exports = {app,clients,};

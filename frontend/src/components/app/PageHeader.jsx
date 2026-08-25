@@ -1,9 +1,4 @@
-export default function PageHeader({
-  title,
-  subtitle,
-  right,
-  children,
-}) {
+export default function PageHeader({ title, subtitle, right, children }) {
   return (
     <header className="flex flex-col gap-4 rounded-[24px] border border-slate-200 bg-white/80 p-5 shadow-[var(--shadow-card)] backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
       <div>
