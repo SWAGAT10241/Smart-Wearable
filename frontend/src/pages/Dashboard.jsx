@@ -131,6 +131,7 @@ export default function Dashboard() {
 
     const interval = setInterval(loadStats, 30_000);
 
+    loadDashboard();
     return () => {
       cancelled = true;
       clearInterval(interval);
@@ -237,6 +238,7 @@ export default function Dashboard() {
       status: env?.humidity != null ? "Normal" : undefined,
       statusColor: "#2BAE8A",
       miniStats: [
+        ["Low", env?.minHumidity != null ? `${env.minHumidity}%` : "--"],
         [
           "Low",
           environmentStats?.minHumidity != null
@@ -255,6 +257,7 @@ export default function Dashboard() {
             ? `${Number(environmentStats.maxHumidity).toFixed(1)}%`
             : "--",
         ],
+        ["High", env?.maxHumidity != null ? `${env.maxHumidity}%` : "--"],
       ],
     },
   ];
