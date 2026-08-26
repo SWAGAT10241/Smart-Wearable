@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
+const { MongoStore } = require('connect-mongo');
 const passport = require('passport');
 const { WebSocketServer } = require('ws');
 
@@ -13,6 +14,9 @@ const environmentRoutes = require('./routes/environmentRoutes');
 const locationRoutes = require('./routes/locationRoutes');
 
 const app = express();
+const isProduction = process.env.NODE_ENV === 'production';
+
+if (isProduction) {app.set('trust proxy', 1);}
 
 // Middleware
 app.use(cors({
@@ -22,14 +26,29 @@ app.use(cors({
 
 app.use(express.json());
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'test-session-secret',
-    resave: false,
-    saveUninitialized: false,
-  })
-);
+// Session configuration
+const sessionOptions = {
+  secret: process.env.SESSION_SECRET || 'test-session-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+  },
+};
 
+// Use MongoDB sessions when MONGODB_URI is available.
+// This is used in local development and production.
+if (process.env.MONGODB_URI) {
+  sessionOptions.store = MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    collectionName: 'sessions',
+    ttl: 14 * 24 * 60 * 60,
+  });
+}
+
+app.use(session(sessionOptions));
 app.use(passport.initialize());
 
 // WebSocket broadcast function
@@ -58,4 +77,4 @@ app.get('/', (req, res) => {
   });
 });
 
-module.exports = {app,clients,};
+module.exports = { app, clients };
