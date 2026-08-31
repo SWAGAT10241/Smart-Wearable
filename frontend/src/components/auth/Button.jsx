@@ -1,5 +1,6 @@
 export default function Button({
   variant = "primary",
+  type = "button",
   children,
   className = "",
   ...props
@@ -154,7 +155,11 @@ export default function Button({
   };
 
   return (
-    <button {...props} className={`${variants[variant]} ${className}`.trim()}>
+    <button
+      type={type}
+      {...props}
+      className={`${variants[variant] || variants.primary} ${className}`.trim()}
+    >
       {children}
     </button>
   );

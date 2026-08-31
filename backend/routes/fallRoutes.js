@@ -1,67 +1,82 @@
-const express = require('express');
-const FallEvent = require('../models/FallEvent');
+const express = require("express");
+const FallEvent = require("../models/FallEvent");
+const protect = require("../middleware/authMiddleware");
 
 module.exports = function (broadcast) {
   const router = express.Router();
-
-  // POST /api/falls — ESP32 (MPU6050) reports a fall event
-  router.post('/', async (req, res) => {
+  router.use(protect);
+  // GET /api/falls
+  // Returns fall events belonging to the logged-in user.
+  router.get("/", async (req, res) => {
     try {
-      const {
-        deviceId, userId, accelX, accelY, accelZ,
-        tiltAngle, totalAcceleration, severity, latitude, longitude,
-      } = req.body;
-
-      if (!deviceId) {
-        return res.status(400).json({ error: 'deviceId is required' });
-      }
-
-      const fallEvent = await FallEvent.create({
-        deviceId, userId, accelX, accelY, accelZ,
-        tiltAngle, totalAcceleration, severity, latitude, longitude,
-        status: 'detected',
+      const events = await FallEvent.find({
+        userId: req.userId,
+      }).sort({
+        timestamp: -1,
       });
-
-      // Real-time alert push — this is the event that should trigger the
-      // SOS popup on the dashboard
-      broadcast({ type: 'fall_detected', data: fallEvent });
-
-      res.status(201).json(fallEvent);
+      res.json(events);
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      console.error("GET /falls error:", err);
+      res.status(500).json({
+        error: "Failed to fetch fall events",
+      });
     }
   });
-
-  // GET /api/falls — ALL past fall records (full history), most recent first
-  router.get('/', async (req, res) => {
-    const { deviceId } = req.query;
-    const filter = deviceId ? { deviceId } : {};
-    const events = await FallEvent.find(filter).sort({ timestamp: -1 });
-    res.json(events);
-  });
-
   // GET /api/falls/latest
-  router.get('/latest', async (req, res) => {
-    const { deviceId } = req.query;
-    const event = await FallEvent.findOne({ deviceId }).sort({ timestamp: -1 });
-    res.json(event || {});
+  router.get("/latest", async (req, res) => {
+    try {
+      const event = await FallEvent.findOne({
+        userId: req.userId,
+      }).sort({
+        timestamp: -1,
+      });
+      res.json(event || {});
+    } catch (err) {
+      console.error("GET /falls/latest error:", err);
+      res.status(500).json({
+        error: "Failed to fetch latest fall event",
+      });
+    }
   });
-
-  // PATCH /api/falls/:id — update status (e.g. "I'm okay" cancel, or SOS confirmed)
-  router.patch('/:id', async (req, res) => {
+  // PATCH /api/falls/:id
+  // User can only update their own fall event.
+  router.patch("/:id", async (req, res) => {
     try {
       const { status } = req.body;
-      const event = await FallEvent.findByIdAndUpdate(
-        req.params.id,
-        { status },
-        { new: true }
+      if (!status) {
+        return res.status(400).json({
+          error: "status is required",
+        });
+      }
+      const event = await FallEvent.findOneAndUpdate(
+        {
+          _id: req.params.id,
+          userId: req.userId,
+        },
+        {
+          status,
+        },
+        {
+          new: true,
+          runValidators: true,
+        },
       );
-      broadcast({ type: 'fall_status_update', data: event });
+      if (!event) {
+        return res.status(404).json({
+          error: "Fall event not found",
+        });
+      }
+      broadcast({
+        type: "fall_status_update",
+        data: event,
+      });
       res.json(event);
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      console.error("PATCH /falls/:id error:", err);
+      res.status(500).json({
+        error: "Failed to update fall event",
+      });
     }
   });
-
   return router;
 };

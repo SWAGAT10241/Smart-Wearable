@@ -14,8 +14,8 @@ cp .env.example .env
 Edit `.env` to point at your running backend:
 
 ```
-VITE_API_URL=http://localhost:5000/api
-VITE_WS_URL=ws://localhost:5000/live
+VITE_API_URL=http://localhost:3000/api
+VITE_WS_URL=ws://localhost:3000/live
 ```
 
 Then run both servers side by side:

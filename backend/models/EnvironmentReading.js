@@ -23,6 +23,12 @@ const environmentReadingSchema = new mongoose.Schema(
       min: 0,
       max: 100,
     },
+    pressure: {
+      type: Number,
+      required: true,
+      min: 900,
+      max: 1100,
+    },
     timestamp: {
       type: Date,
       default: Date.now,
@@ -35,6 +41,5 @@ const environmentReadingSchema = new mongoose.Schema(
 );
 
 // Fast history/latest queries
-environmentReadingSchema.index({deviceId: 1,timestamp: -1,});
-
+environmentReadingSchema.index({ deviceId: 1, timestamp: -1 });
 module.exports = mongoose.model("EnvironmentReading", environmentReadingSchema);

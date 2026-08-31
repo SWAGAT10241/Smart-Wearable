@@ -1,6 +1,3 @@
-// Thin wrapper around the trailguard-backend REST API.
-// Every function here maps 1:1 to a route documented in Architecture.md §5.
-
 // ------------------------------------------------------------
 // API BASE URL
 // ------------------------------------------------------------
@@ -8,10 +5,11 @@
 const configuredApiUrl =
   import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
-// Normalize the API URL so it ALWAYS ends with /api
-const API_URL = configuredApiUrl.replace(/\/+$/, "").endsWith("/api")
-  ? configuredApiUrl.replace(/\/+$/, "")
-  : `${configuredApiUrl.replace(/\/+$/, "")}/api`;
+const normalizedApiUrl = configuredApiUrl.replace(/\/+$/, "");
+
+const API_URL = normalizedApiUrl.endsWith("/api")
+  ? normalizedApiUrl
+  : `${normalizedApiUrl}/api`;
 
 // ------------------------------------------------------------
 // AUTH TOKEN
@@ -33,21 +31,23 @@ async function request(path, { method = "GET", body, auth = false } = {}) {
   if (auth) {
     const token = getToken();
 
-    if (token) {
-      headers.Authorization = "Bearer " + token;
+    if (!token) {
+      throw new Error("Authentication required");
     }
+
+    headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_URL}${path}`, {
+  const response = await fetch(`${API_URL}${path}`, {
     method,
     headers,
-    body: body ? JSON.stringify(body) : undefined,
+    body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
-  const data = await res.json().catch(() => ({}));
+  const data = await response.json().catch(() => ({}));
 
-  if (!res.ok) {
-    throw new Error(data.error || `Request failed (${res.status})`);
+  if (!response.ok) {
+    throw new Error(data.error || `Request failed (${response.status})`);
   }
 
   return data;
@@ -86,7 +86,7 @@ export const authApi = {
 };
 
 // ------------------------------------------------------------
-// VITALS — Heart Rate + SpO2
+// VITALS
 // ------------------------------------------------------------
 
 export const vitalsApi = {
@@ -113,7 +113,7 @@ export const vitalsApi = {
 };
 
 // ------------------------------------------------------------
-// ENVIRONMENT — Temperature + Humidity
+// ENVIRONMENT
 // ------------------------------------------------------------
 
 export const environmentApi = {
@@ -124,7 +124,9 @@ export const environmentApi = {
 
   history: (deviceId, hours = 1) =>
     request(
-      `/environment/history?deviceId=${encodeURIComponent(deviceId)}&hours=${hours}`,
+      `/environment/history?deviceId=${encodeURIComponent(
+        deviceId,
+      )}&hours=${hours}`,
       {
         auth: true,
       },
@@ -132,7 +134,9 @@ export const environmentApi = {
 
   stats: (deviceId, hours = 1) =>
     request(
-      `/environment/stats?deviceId=${encodeURIComponent(deviceId)}&hours=${hours}`,
+      `/environment/stats?deviceId=${encodeURIComponent(
+        deviceId,
+      )}&hours=${hours}`,
       {
         auth: true,
       },
@@ -140,7 +144,7 @@ export const environmentApi = {
 };
 
 // ------------------------------------------------------------
-// LOCATION — GPS Trail
+// LOCATION
 // ------------------------------------------------------------
 
 export const locationApi = {
@@ -151,7 +155,9 @@ export const locationApi = {
 
   history: (deviceId, hours = 24) =>
     request(
-      `/location/history?deviceId=${encodeURIComponent(deviceId)}&hours=${hours}`,
+      `/location/history?deviceId=${encodeURIComponent(
+        deviceId,
+      )}&hours=${hours}`,
       {
         auth: true,
       },
@@ -164,12 +170,9 @@ export const locationApi = {
 
 export const fallsApi = {
   all: (deviceId) =>
-    request(
-      `/falls${deviceId ? `?deviceId=${encodeURIComponent(deviceId)}` : ""}`,
-      {
-        auth: true,
-      },
-    ),
+    request(`/falls?deviceId=${encodeURIComponent(deviceId)}`, {
+      auth: true,
+    }),
 
   latest: (deviceId) =>
     request(`/falls/latest?deviceId=${encodeURIComponent(deviceId)}`, {
@@ -185,6 +188,50 @@ export const fallsApi = {
 };
 
 // ------------------------------------------------------------
+// DEVICES
+// ------------------------------------------------------------
+
+export const devicesApi = {
+  /*
+   * Get devices belonging to the logged-in user.
+   */
+  all: () =>
+    request("/devices", {
+      auth: true,
+    }),
+
+  /*
+   * One-time device registration / activation.
+   *
+   * userId is NOT sent here.
+   * The backend gets userId from the JWT.
+   */
+  register: (deviceId, deviceName = "TrailGuard Wearable") =>
+    request("/devices/register", {
+      method: "POST",
+      body: {
+        deviceId,
+        deviceName,
+      },
+      auth: true,
+    }),
+
+  rename: (deviceId, name) =>
+    request(`/devices/${encodeURIComponent(deviceId)}`, {
+      method: "PATCH",
+      body: {
+        name,
+      },
+      auth: true,
+    }),
+
+  remove: (deviceId) =>
+    request(`/devices/${encodeURIComponent(deviceId)}`, {
+      method: "DELETE",
+      auth: true,
+    }),
+};
+// ------------------------------------------------------------
 // TOKEN MANAGEMENT
 // ------------------------------------------------------------
 
@@ -197,9 +244,5 @@ export function clearToken() {
 }
 
 export { getToken };
-
-// ------------------------------------------------------------
-// DEBUG
-// ------------------------------------------------------------
 
 console.log("[API] Base URL:", API_URL);

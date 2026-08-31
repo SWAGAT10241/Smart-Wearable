@@ -2,7 +2,7 @@ from machine import Pin
 import time
 
 # Configure GPIO 14 as a standard digital output pin
-buzzer = Pin(1, Pin.OUT)
+buzzer = Pin(37, Pin.OUT)
 
 try:
     while True:

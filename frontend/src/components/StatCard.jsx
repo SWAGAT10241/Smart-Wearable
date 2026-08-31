@@ -1,112 +1,656 @@
+import { useEffect, useState } from "react";
+import { Clock3 } from "lucide-react";
+
+/* =======================================================
+ * Updated Time
+ * ======================================================= */
+
+function formatUpdatedTime(timestamp) {
+  if (!timestamp) {
+    return null;
+  }
+
+  const date = new Date(timestamp);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const difference = Math.max(0, Date.now() - date.getTime());
+
+  const seconds = Math.floor(difference / 1000);
+
+  if (seconds < 10) {
+    return "Just now";
+  }
+
+  if (seconds < 60) {
+    return `${seconds} sec ago`;
+  }
+
+  const minutes = Math.floor(seconds / 60);
+
+  if (minutes < 60) {
+    return `${minutes} min ago`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+
+  if (hours < 24) {
+    return `${hours} hr ago`;
+  }
+
+  const days = Math.floor(hours / 24);
+
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+}
+
+/* =======================================================
+ * Updated Time Hook
+ * ======================================================= */
+
+function useUpdatedTime(timestamp) {
+  const [, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    if (!timestamp) {
+      return undefined;
+    }
+
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 10_000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [timestamp]);
+
+  return formatUpdatedTime(timestamp);
+}
+
+/* =======================================================
+ * Mini Stats
+ * ======================================================= */
+
 function MiniStats({ items = [] }) {
-  if (items.length !== 3) return null;
+  if (items.length !== 3) {
+    return null;
+  }
 
   return (
-    <div className="grid grid-cols-3 border-t border-slate-100 pt-3">
+    <div className="grid grid-cols-3 border-t border-slate-100 pt-4">
       {items.map(([label, value], index) => (
         <div
-          key={label}
-          className={`flex min-w-0 flex-col gap-1 ${
+          key={`${label}-${index}`}
+          className={`min-w-0 ${
             index > 0 ? "border-l border-slate-200 pl-3" : "pr-3"
           } ${index === 2 ? "pl-3 pr-0" : ""}`}
         >
-          <span className="truncate text-[12px] font-semibold leading-4 tabular-nums text-slate-800">
+          <div
+            className="
+                truncate
+                text-[15px]
+                font-semibold
+                leading-5
+                tabular-nums
+                text-slate-900
+              "
+          >
             {value}
-          </span>
+          </div>
 
-          <span className="truncate text-[9px] font-medium leading-3 text-slate-400">
+          <div
+            className="
+                mt-1
+                truncate
+                text-[10px]
+                font-medium
+                text-slate-400
+              "
+          >
             {label}
-          </span>
+          </div>
         </div>
       ))}
     </div>
   );
 }
 
-function PpgTrace({ color, samples = [] }) {
-  if (samples.length < 2) {
+/* =======================================================
+ * Line Chart
+ *
+ * Used for:
+ * - Heart Rate
+ * - Pressure
+ *
+ * IMPORTANT:
+ *
+ * This receives REAL sensor values.
+ *
+ * Heart:
+ * 75, 78, 82, 79, 85
+ *
+ * Pressure:
+ * 1010.2, 1011.4, 1009.8
+ *
+ * It never converts raw IR into BPM.
+ * ======================================================= */
+
+function LineTrace({
+  color,
+  samples = [],
+  emptyText = "Waiting for data...",
+  sensorType = "generic",
+}) {
+  const values = Array.isArray(samples)
+    ? samples
+        .map((item) => {
+          if (typeof item === "number" || typeof item === "string") {
+            return Number(item);
+          }
+
+          if (item && typeof item === "object") {
+            if (Number.isFinite(Number(item.value))) {
+              return Number(item.value);
+            }
+
+            if (
+              sensorType === "heart" &&
+              Number.isFinite(Number(item.heartRate))
+            ) {
+              return Number(item.heartRate);
+            }
+
+            if (
+              sensorType === "pressure" &&
+              Number.isFinite(Number(item.pressure))
+            ) {
+              return Number(item.pressure);
+            }
+          }
+
+          return NaN;
+        })
+        .filter(Number.isFinite)
+    : [];
+
+  const visibleValues = values.slice(-30);
+
+  if (visibleValues.length < 2) {
     return (
-      <div className="flex h-10 items-center text-xs text-slate-300">
-        Waiting for pulse signal...
+      <div
+        className="
+          flex
+          h-[86px]
+          items-center
+          justify-center
+          text-[10px]
+          font-medium
+          text-slate-300
+        "
+      >
+        {emptyText}
       </div>
     );
   }
 
+  /* =====================================================
+   * Sensor-specific minimum ranges
+   * ===================================================== */
+
+  const settings = {
+    heart: {
+      minimumRange: 20,
+      rounding: 0,
+    },
+
+    pressure: {
+      minimumRange: 6,
+      rounding: 1,
+    },
+
+    generic: {
+      minimumRange: 10,
+      rounding: 1,
+    },
+  };
+
+  const config = settings[sensorType] || settings.generic;
+
+  /* =====================================================
+   * Dynamic scale
+   * ===================================================== */
+
+  const dataMin = Math.min(...visibleValues);
+
+  const dataMax = Math.max(...visibleValues);
+
+  const dataRange = dataMax - dataMin;
+
+  const effectiveRange = Math.max(dataRange, config.minimumRange);
+
+  /*
+   * Smaller padding = more visible movement.
+   */
+
+  const padding = effectiveRange * 0.15;
+
+  let chartMin = dataMin - padding;
+
+  let chartMax = dataMax + padding;
+
+  /*
+   * If variation is tiny, center around
+   * the actual sensor values.
+   */
+
+  if (dataRange < config.minimumRange) {
+    const center = (dataMin + dataMax) / 2;
+
+    chartMin = center - effectiveRange / 2;
+
+    chartMax = center + effectiveRange / 2;
+  }
+
+  /* =====================================================
+   * Round scale
+   * ===================================================== */
+
+  const factor = 10 ** config.rounding;
+
+  chartMin = Math.floor(chartMin * factor) / factor;
+
+  chartMax = Math.ceil(chartMax * factor) / factor;
+
+  if (chartMax <= chartMin) {
+    chartMax = chartMin + config.minimumRange;
+  }
+
+  const range = chartMax - chartMin;
+
+  /* =====================================================
+   * SVG
+   * ===================================================== */
+
   const width = 300;
-  const height = 40;
-  const padding = 3;
+  const height = 86;
 
-  const min = Math.min(...samples);
-  const max = Math.max(...samples);
-  const range = max - min || 1;
+  /* =====================================================
+   * Labels
+   * ===================================================== */
 
-  const points = samples
+  const middle = chartMin + range / 2;
+
+  const formatLabel = (value) => {
+    if (config.rounding === 0) {
+      return Math.round(value);
+    }
+
+    return Number(value.toFixed(config.rounding));
+  };
+
+  const labels = [
+    formatLabel(chartMax),
+    formatLabel(middle),
+    formatLabel(chartMin),
+  ];
+
+  /* =====================================================
+   * Data points
+   * ===================================================== */
+
+  const points = visibleValues
     .map((value, index) => {
-      const x =
-        padding + (index / (samples.length - 1)) * (width - padding * 2);
+      const x = 4 + (index / (visibleValues.length - 1)) * (width - 8);
 
-      const y =
-        height - padding - ((value - min) / range) * (height - padding * 2);
+      const safeValue = Math.min(Math.max(value, chartMin), chartMax);
+
+      const y = 6 + ((chartMax - safeValue) / range) * (height - 12);
 
       return `${x},${y}`;
     })
     .join(" ");
 
+  /* =====================================================
+   * Latest point
+   * ===================================================== */
+
+  const lastValue = visibleValues[visibleValues.length - 1];
+
+  const lastX = width - 4;
+
+  const safeLastValue = Math.min(Math.max(lastValue, chartMin), chartMax);
+
+  const lastY = 6 + ((chartMax - safeLastValue) / range) * (height - 12);
+
   return (
-    <div className="flex h-10 w-full items-center overflow-hidden">
-      <svg
-        viewBox={`0 0 ${width} ${height}`}
-        className="h-full w-full"
-        preserveAspectRatio="none"
+    <div
+      className="
+        grid
+        h-[86px]
+        grid-cols-[34px_minmax(0,1fr)]
+        gap-2
+      "
+    >
+      {/* Y axis */}
+
+      <div
+        className="
+          flex
+          h-full
+          flex-col
+          justify-between
+          py-[1px]
+        "
       >
-        <polyline
-          points={points}
-          fill="none"
-          stroke={color}
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+        {labels.map((label, index) => (
+          <span
+            key={`${label}-${index}`}
+            className="
+                text-[9px]
+                font-medium
+                leading-none
+                tabular-nums
+                text-slate-400
+              "
+          >
+            {label}
+          </span>
+        ))}
+      </div>
+
+      {/* Graph */}
+
+      <div
+        className="
+          relative
+          min-w-0
+          overflow-hidden
+        "
+      >
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          className="h-full w-full"
+          preserveAspectRatio="none"
+        >
+          {/* Guide lines */}
+
+          {[0, 1, 2].map((index) => {
+            const y = 6 + (index / 2) * (height - 12);
+
+            return (
+              <line
+                key={index}
+                x1="0"
+                x2={width}
+                y1={y}
+                y2={y}
+                stroke="#E5E7EB"
+                strokeWidth="1"
+                strokeDasharray="3 4"
+              />
+            );
+          })}
+
+          {/* REAL DATA */}
+
+          <polyline
+            points={points}
+            fill="none"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+
+          {/* Latest reading */}
+
+          <circle cx={lastX} cy={lastY} r="2.5" fill={color} />
+        </svg>
+      </div>
     </div>
   );
 }
 
-function GaugeBar({ pct = 0, color, gradient, type = "normal" }) {
+/* =======================================================
+ * Humidity Bar Chart
+ * ======================================================= */
+
+function BarTrace({ color, samples = [], emptyText = "Waiting for data..." }) {
+  const values = Array.isArray(samples)
+    ? samples
+        .map((item) => {
+          if (typeof item === "number" || typeof item === "string") {
+            return Number(item);
+          }
+
+          if (item && typeof item === "object") {
+            if (Number.isFinite(Number(item.value))) {
+              return Number(item.value);
+            }
+
+            if (Number.isFinite(Number(item.humidity))) {
+              return Number(item.humidity);
+            }
+          }
+
+          return NaN;
+        })
+        .filter(Number.isFinite)
+    : [];
+
+  const visibleValues = values.slice(-20);
+
+  if (visibleValues.length < 2) {
+    return (
+      <div
+        className="
+          flex
+          h-[86px]
+          items-center
+          justify-center
+          text-[10px]
+          font-medium
+          text-slate-300
+        "
+      >
+        {emptyText}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="
+        grid
+        h-[86px]
+        grid-cols-[34px_minmax(0,1fr)]
+        gap-2
+      "
+    >
+      <div
+        className="
+          flex
+          h-full
+          flex-col
+          justify-between
+          py-[1px]
+        "
+      >
+        <span className="text-[9px] font-medium text-slate-400">100</span>
+
+        <span className="text-[9px] font-medium text-slate-400">50</span>
+
+        <span className="text-[9px] font-medium text-slate-400">0</span>
+      </div>
+
+      <div className="relative min-w-0">
+        <div
+          className="
+            pointer-events-none
+            absolute
+            inset-0
+            flex
+            flex-col
+            justify-between
+          "
+        >
+          <div className="border-t border-dashed border-slate-200" />
+          <div className="border-t border-dashed border-slate-200" />
+          <div className="border-t border-dashed border-slate-200" />
+        </div>
+
+        <div
+          className="
+            relative
+            flex
+            h-full
+            items-end
+            gap-[7px]
+            px-1
+          "
+        >
+          {visibleValues.map((value, index) => {
+            const safeValue = Math.min(Math.max(value, 0), 100);
+
+            return (
+              <span
+                key={`${value}-${index}`}
+                className="
+                    w-[3px]
+                    shrink-0
+                    rounded-full
+                    transition-all
+                    duration-500
+                  "
+                style={{
+                  height: `${Math.max(3, safeValue)}%`,
+                  background: color,
+                  opacity:
+                    index % 3 === 0 ? 0.42 : index % 3 === 1 ? 0.62 : 0.82,
+                }}
+              />
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =======================================================
+ * SpO2 Gauge
+ * ======================================================= */
+
+function GaugeBar({ pct = 0, color }) {
   const value = Math.min(Math.max(Number(pct) || 0, 0), 100);
 
   return (
-    <div className="relative h-10 w-full">
+    <div className="relative h-[72px] w-full">
       <div
-        className="absolute left-0 right-0 top-[17px] h-[6px] rounded-full"
+        className="
+          absolute
+          left-0
+          right-0
+          top-[32px]
+          h-[7px]
+          rounded-full
+        "
         style={{
-          background: gradient || `${color}22`,
+          background: `${color}25`,
         }}
       />
 
-      {!gradient && (
-        <div
-          className="tg-gauge-fill absolute left-0 top-[17px] h-[6px] rounded-full"
-          style={{
-            width: `${value}%`,
-            background: color,
-          }}
-        />
-      )}
+      <div
+        className="
+          absolute
+          left-0
+          top-[32px]
+          h-[7px]
+          rounded-full
+          transition-all
+          duration-700
+        "
+        style={{
+          width: `${value}%`,
+          background: color,
+        }}
+      />
 
       <span
-        className={`tg-gauge-dot absolute top-[13px] h-[14px] w-[14px] rounded-full bg-white ${
-          type === "temperature" ? "tg-temp-dot" : ""
-        }`}
+        className="
+          absolute
+          top-[26px]
+          h-[18px]
+          w-[18px]
+          rounded-full
+          bg-white
+          transition-all
+          duration-700
+        "
         style={{
-          left: `calc(${value}% - 7px)`,
+          left: `calc(${value}% - 9px)`,
           border: `2px solid ${color}`,
-          boxShadow: `0 1px 5px ${color}55`,
+          boxShadow: `0 2px 8px ${color}55`,
         }}
       />
     </div>
   );
 }
+
+/* =======================================================
+ * Temperature Gauge
+ * ======================================================= */
+
+function TemperatureGauge({ temperature }) {
+  const numericTemperature = Number(temperature);
+
+  const pct = Number.isFinite(numericTemperature)
+    ? Math.min(100, Math.max(0, ((numericTemperature - 10) / 30) * 100))
+    : 0;
+
+  return (
+    <div className="relative h-[72px] w-full">
+      <div
+        className="
+          absolute
+          left-0
+          right-0
+          top-[32px]
+          h-[7px]
+          rounded-full
+        "
+        style={{
+          background:
+            "linear-gradient(90deg,#1976D2,#18BFC1,#9DDC67,#F2A93B,#F59E0B)",
+        }}
+      />
+
+      <span
+        className="
+          absolute
+          top-[26px]
+          h-[19px]
+          w-[19px]
+          rounded-full
+          bg-white
+          transition-all
+          duration-700
+        "
+        style={{
+          left: `calc(${pct}% - 9.5px)`,
+          border: "2px solid #F2A93B",
+          boxShadow: "0 2px 8px rgba(242,169,59,0.35)",
+        }}
+      />
+    </div>
+  );
+}
+
+/* =======================================================
+ * Sensor Styles
+ * ======================================================= */
 
 const STYLES = {
   heart: {
@@ -128,7 +672,16 @@ const STYLES = {
     bg: "#E4F9F8",
     color: "#18BFC1",
   },
+
+  pressure: {
+    bg: "#F1EAFF",
+    color: "#8B5CF6",
+  },
 };
+
+/* =======================================================
+ * StatCard
+ * ======================================================= */
 
 export default function StatCard({
   icon,
@@ -142,30 +695,82 @@ export default function StatCard({
   gaugePct = 0,
   miniStats = [],
   signal = [],
+  normalRange,
+  updatedAt,
 }) {
   const style = STYLES[iconType] || STYLES.oxygen;
 
+  const updatedText = useUpdatedTime(updatedAt);
+
   return (
-    <article className="tg-stat-card flex min-w-0 flex-1 flex-col rounded-[24px] border border-slate-200/80 bg-white p-5 shadow-[var(--shadow-card)]">
+    <article
+      className="
+        flex
+        min-w-0
+        flex-col
+        rounded-[24px]
+        border
+        border-slate-200/80
+        bg-white
+        p-5
+        shadow-[var(--shadow-card)]
+      "
+    >
       {/* Icon */}
+
       <div
-        className={`tg-stat-icon mb-3 flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] ${
-          iconType === "humidity" ? "tg-humidity-icon" : ""
-        }`}
-        style={{ background: style.bg }}
+        className="
+          mb-5
+          flex
+          h-12
+          w-12
+          shrink-0
+          items-center
+          justify-center
+          rounded-[14px]
+        "
+        style={{
+          background: style.bg,
+        }}
       >
         {icon}
       </div>
 
-      {/* Label + Status */}
-      <div className="mb-2 flex min-h-[24px] items-center justify-between gap-2">
-        <span className="min-w-0 truncate text-[12px] font-medium tracking-[0.03em] text-slate-500">
+      {/* Title + Status */}
+
+      <div
+        className="
+          mb-3
+          flex
+          min-h-[22px]
+          items-center
+          justify-between
+          gap-2
+        "
+      >
+        <span
+          className="
+            min-w-0
+            truncate
+            text-[12px]
+            font-medium
+            tracking-[0.04em]
+            text-slate-500
+          "
+        >
           {label}
         </span>
 
         {status && (
           <span
-            className="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold"
+            className="
+              shrink-0
+              rounded-full
+              px-2.5
+              py-1
+              text-[10px]
+              font-semibold
+            "
             style={{
               background: `${statusColor}18`,
               color: statusColor,
@@ -176,168 +781,168 @@ export default function StatCard({
         )}
       </div>
 
-      {/* Main Value */}
-      <div className="mb-2 flex min-h-[38px] items-baseline gap-1">
-        <span className="text-[32px] font-bold leading-none tracking-[-0.03em] tabular-nums text-slate-900">
+      {/* Current Value */}
+
+      <div
+        className="
+          mb-5
+          flex
+          min-h-[42px]
+          items-baseline
+          gap-1.5
+        "
+      >
+        <span
+          className="
+            text-[32px]
+            font-bold
+            leading-none
+            tracking-[-0.035em]
+            tabular-nums
+            text-slate-900
+          "
+        >
           {value}
         </span>
 
-        <span className="text-[13px] font-medium text-slate-500">{unit}</span>
+        {unit && (
+          <span
+            className="
+              text-[13px]
+              font-medium
+              text-slate-500
+            "
+          >
+            {unit}
+          </span>
+        )}
       </div>
 
-      {/* Visualization
-          Fixed height keeps all four cards aligned. */}
-      <div className="mb-1 flex h-10 items-center">
-        {variant === "ppg" && <PpgTrace color={style.color} samples={signal} />}
+      {/* Sensor Visual */}
 
-        {variant === "gauge" && <GaugeBar pct={gaugePct} color={style.color} />}
-
-        {variant === "tempGauge" && (
-          <GaugeBar
-            pct={gaugePct}
+      <div
+        className={
+          variant === "ppg" ||
+          variant === "line" ||
+          variant === "bars" ||
+          variant === "pressure"
+            ? "mb-2 h-[86px]"
+            : "mb-2 h-[72px]"
+        }
+      >
+        {variant === "ppg" && (
+          <LineTrace
             color={style.color}
-            type="temperature"
-            gradient="linear-gradient(90deg,#1976D2,#18BFC1,#9DDC67,#F2A93B,#F59E0B)"
+            samples={signal}
+            sensorType="heart"
+            emptyText="Waiting for pulse data..."
           />
         )}
 
-        {variant === "plain" && iconType !== "humidity" && (
-          <div className="h-10 w-full" />
+        {variant === "line" && (
+          <LineTrace
+            color={style.color}
+            samples={signal}
+            sensorType="generic"
+          />
         )}
 
-        {iconType === "humidity" && (
-          <div className="tg-humidity-wave">
-            <span />
-            <span />
-            <span />
-            <span />
-            <span />
-          </div>
+        {variant === "bars" && (
+          <BarTrace
+            color={style.color}
+            samples={signal}
+            emptyText="Waiting for humidity data..."
+          />
         )}
+
+        {variant === "gauge" && <GaugeBar pct={gaugePct} color={style.color} />}
+
+        {variant === "tempGauge" && <TemperatureGauge temperature={value} />}
+
+        {variant === "pressure" && (
+          <LineTrace
+            color={style.color}
+            samples={signal}
+            sensorType="pressure"
+            emptyText="Waiting for pressure data..."
+          />
+        )}
+
+        {variant === "plain" && <div className="h-[72px]" />}
       </div>
 
-      {/* Three fixed sub-statistics */}
-      <MiniStats items={miniStats} />
+      {/* Normal Range */}
 
-      <style>{`
-        .tg-stat-card {
-          transition:
-            transform 220ms ease,
-            box-shadow 220ms ease,
-            border-color 220ms ease;
-        }
+      {normalRange && (
+        <div
+          className="
+            mb-5
+            flex
+            items-center
+            gap-2
+          "
+        >
+          <span
+            className="
+              h-2
+              w-2
+              shrink-0
+              rounded-full
+            "
+            style={{
+              background: "#20B486",
+            }}
+          />
 
-        .tg-stat-card:hover {
-          transform: translateY(-3px);
-          box-shadow:
-            0 14px 30px rgba(16, 42, 67, 0.10);
-        }
+          <span
+            className="
+              text-[10px]
+              font-medium
+              text-slate-500
+            "
+          >
+            {normalRange}
+          </span>
+        </div>
+      )}
 
-        .tg-gauge-fill {
-          transition: width 900ms cubic-bezier(0.22, 1, 0.36, 1);
-        }
+      {/* Min / Avg / Max */}
 
-        .tg-gauge-dot {
-          transition: left 900ms cubic-bezier(0.22, 1, 0.36, 1);
-        }
+      <div className="mt-auto">
+        <MiniStats items={miniStats} />
+      </div>
 
-        .tg-temp-dot {
-          animation: tg-temperature-pulse 2s ease-in-out infinite;
-        }
+      {/* Updated */}
 
-        @keyframes tg-temperature-pulse {
-          0%,
-          100% {
-            box-shadow:
-              0 1px 5px rgba(242, 169, 59, 0.25);
-          }
+      {updatedText && (
+        <div
+          className="
+            mt-4
+            flex
+            items-center
+            gap-1.5
+            border-t
+            border-slate-100
+            pt-3
+            text-[10px]
+            font-medium
+            text-slate-400
+          "
+        >
+          <div
+            className="
+              flex
+              items-center
+              gap-2
+              text-[#8AA0C2]
+            "
+          >
+            <Clock3 size={15} strokeWidth={1.7} />
 
-          50% {
-            box-shadow:
-              0 1px 10px rgba(242, 169, 59, 0.55);
-          }
-        }
-
-        .tg-humidity-icon {
-          animation: tg-humidity-breathe 2.4s ease-in-out infinite;
-        }
-
-        @keyframes tg-humidity-breathe {
-          0%,
-          100% {
-            transform: translateY(0);
-          }
-
-          50% {
-            transform: translateY(-2px);
-          }
-        }
-
-        .tg-humidity-wave {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          height: 18px;
-          width: 100%;
-          opacity: 0.55;
-        }
-
-        .tg-humidity-wave span {
-          display: block;
-          width: 3px;
-          border-radius: 999px;
-          background: #18bfc1;
-          animation: tg-humidity-wave 1.5s ease-in-out infinite;
-        }
-
-        .tg-humidity-wave span:nth-child(1) {
-          height: 7px;
-          animation-delay: 0s;
-        }
-
-        .tg-humidity-wave span:nth-child(2) {
-          height: 12px;
-          animation-delay: 0.12s;
-        }
-
-        .tg-humidity-wave span:nth-child(3) {
-          height: 17px;
-          animation-delay: 0.24s;
-        }
-
-        .tg-humidity-wave span:nth-child(4) {
-          height: 11px;
-          animation-delay: 0.36s;
-        }
-
-        .tg-humidity-wave span:nth-child(5) {
-          height: 6px;
-          animation-delay: 0.48s;
-        }
-
-        @keyframes tg-humidity-wave {
-          0%,
-          100% {
-            transform: scaleY(0.65);
-            opacity: 0.45;
-          }
-
-          50% {
-            transform: scaleY(1);
-            opacity: 1;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .tg-stat-card,
-          .tg-temp-dot,
-          .tg-humidity-icon,
-          .tg-humidity-wave span {
-            animation: none !important;
-            transition: none !important;
-          }
-        }
-      `}</style>
+            <span>{updatedText}</span>
+          </div>
+        </div>
+      )}
     </article>
   );
 }

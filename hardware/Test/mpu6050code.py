@@ -4,7 +4,7 @@ from mpu6050 import MPU6050
 
 # 1. Initialize Hardware I2C on ESP32-S3
 # Default pins for many S3 boards are SDA=11, SCL=12. Adjust if your board differs.
-i2c = machine.I2C(0, sda=machine.Pin(11), scl=machine.Pin(12), freq=400000)
+i2c = machine.I2C(0, sda=machine.Pin(2), scl=machine.Pin(1), freq=400000)
 
 # 2. Initialize the Sensor
 try:

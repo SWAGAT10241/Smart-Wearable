@@ -54,27 +54,11 @@ function SummaryItem({
   color,
   bg,
   graphPoints,
-  positive = false,
 }) {
   return (
-    <div
-      className="
-        group
-        flex min-w-0 items-center gap-4
-        px-5 py-4
-        transition-colors
-        hover:bg-slate-50/60
-      "
-    >
-      {/* Icon */}
+    <div className="group flex min-w-0 items-center gap-4 px-5 py-4 transition-colors hover:bg-slate-50/60">
       <div
-        className="
-          flex h-12 w-12 shrink-0
-          items-center justify-center
-          rounded-full
-          transition-transform
-          group-hover:scale-[1.03]
-        "
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
         style={{
           background: bg,
           color,
@@ -83,7 +67,6 @@ function SummaryItem({
         <span className="text-[22px]">{icon}</span>
       </div>
 
-      {/* Content */}
       <div className="min-w-0 flex-1">
         <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">
           {label}
@@ -101,13 +84,7 @@ function SummaryItem({
           )}
         </div>
 
-        <div
-          className={`mt-1 text-[10px] ${
-            positive ? "font-medium text-emerald-600" : "text-slate-400"
-          }`}
-        >
-          {sub}
-        </div>
+        <div className="mt-1 text-[10px] text-slate-400">{sub}</div>
 
         <MiniGraph points={graphPoints} color={color} />
       </div>
@@ -125,133 +102,84 @@ export default function ActivitySummary({
   durationPoints = [],
   elevationPoints = [],
   caloriePoints = [],
-
-  elevationChange = null,
 }) {
+  const items = [
+    {
+      label: "DISTANCE",
+      value: distance != null ? Number(distance).toFixed(1) : null,
+      unit: "km",
+      sub: distance != null ? "Trail distance" : "No activity data",
+      icon: <GiRunningShoe />,
+      color: "#18BFA3",
+      bg: "#E4F9F3",
+      graphPoints: distancePoints,
+    },
+
+    {
+      label: "DURATION",
+      value: duration,
+      unit: "",
+      sub: duration != null ? "Active trail time" : "No activity data",
+      icon: <LuAlarmClock />,
+      color: "#1976D2",
+      bg: "#E8F2FF",
+      graphPoints: durationPoints,
+    },
+
+    {
+      label: "ELEVATION GAIN",
+      value:
+        elevationGain != null
+          ? Math.round(elevationGain).toLocaleString()
+          : null,
+      unit: "m",
+      sub: elevationGain != null ? "Total ascent" : "No elevation data",
+      icon: <FaMountainSun />,
+      color: "#8B5CF6",
+      bg: "#F1EAFF",
+      graphPoints: elevationPoints,
+    },
+
+    {
+      label: "CALORIES",
+      value: calories != null ? Math.round(calories).toLocaleString() : null,
+      unit: "kcal",
+      sub: calories != null ? "Estimated burn" : "No calorie data",
+      icon: <ImFire />,
+      color: "#F2A93B",
+      bg: "#FFF5E5",
+      graphPoints: caloriePoints,
+    },
+  ];
+
   return (
-    <section
-      className="
-      overflow-hidden
-      rounded-[24px]
-      border border-slate-200/80
-      bg-white
-      shadow-[var(--shadow-card)]
-    "
-    >
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
-        {/* Distance */}
-        <div className="relative">
-          <SummaryItem
-            label="DISTANCE"
-            value={distance != null ? Number(distance).toFixed(1) : null}
-            unit="km"
-            sub={distance != null ? "Today" : "No activity data"}
-            icon={<GiRunningShoe />}
-            color="#18BFA3"
-            bg="#E4F9F3"
-            graphPoints={distancePoints}
-          />
+    <section className="overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-[var(--shadow-card)]">
+      {/* Header */}
 
-          {/* Short divider */}
-          <span
-            className="
-          absolute
-          right-0
-          top-1/2
-          hidden
-          h-16
-          w-px
-          -translate-y-1/2
-          bg-slate-200
-          xl:block
-        "
-          />
+      <div className="border-b border-slate-100 px-5 py-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-[17px] font-semibold text-slate-900">
+              Activity Summary
+            </h2>
+
+            <p className="mt-0.5 text-xs text-slate-400">
+              Today's trail activity
+            </p>
+          </div>
+
+          <span className="rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-600">
+            TODAY
+          </span>
         </div>
+      </div>
 
-        {/* Duration */}
-        <div className="relative">
-          <SummaryItem
-            label="DURATION"
-            value={duration}
-            unit=""
-            sub={duration != null ? "h:m:s" : "No activity data"}
-            icon={<LuAlarmClock />}
-            color="#1976D2"
-            bg="#E8F2FF"
-            graphPoints={durationPoints}
-          />
+      {/* Four activity metrics only */}
 
-          {/* Short divider */}
-          <span
-            className="
-          absolute
-          right-0
-          top-1/2
-          hidden
-          h-16
-          w-px
-          -translate-y-1/2
-          bg-slate-200
-          xl:block
-        "
-          />
-        </div>
-
-        {/* Elevation */}
-        <div className="relative">
-          <SummaryItem
-            label="ELEVATION GAIN"
-            value={
-              elevationGain != null
-                ? Math.round(elevationGain).toLocaleString()
-                : null
-            }
-            unit="m"
-            sub={
-              elevationChange != null
-                ? `↑ ${elevationChange}% vs yesterday`
-                : elevationGain != null
-                  ? "Today"
-                  : "No elevation data"
-            }
-            positive={elevationChange != null && elevationChange > 0}
-            icon={<FaMountainSun />}
-            color="#8B5CF6"
-            bg="#F1EAFF"
-            graphPoints={elevationPoints}
-          />
-
-          {/* Short divider */}
-          <span
-            className="
-          absolute
-          right-0
-          top-1/2
-          hidden
-          h-16
-          w-px
-          -translate-y-1/2
-          bg-slate-200
-          xl:block
-        "
-          />
-        </div>
-
-        {/* Calories */}
-        <div>
-          <SummaryItem
-            label="CALORIES"
-            value={
-              calories != null ? Math.round(calories).toLocaleString() : null
-            }
-            unit="kcal"
-            sub={calories != null ? "Today" : "No calorie data"}
-            icon={<ImFire />}
-            color="#F2A93B"
-            bg="#FFF5E5"
-            graphPoints={caloriePoints}
-          />
-        </div>
+      <div className="grid grid-cols-1 divide-y divide-slate-100 md:grid-cols-2 xl:grid-cols-4 xl:divide-x xl:divide-y-0">
+        {items.map((item) => (
+          <SummaryItem key={item.label} {...item} />
+        ))}
       </div>
     </section>
   );
