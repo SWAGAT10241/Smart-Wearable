@@ -1,117 +1,96 @@
 const express = require("express");
 const VitalsReading = require("../models/VitalsReading");
+const protect = require("../middleware/authMiddleware");
 
-module.exports = function (broadcast) {
+module.exports = function () {
   const router = express.Router();
+  router.use(protect);
 
-  // POST /api/vitals
-  router.post("/", async (req, res) => {
-    try {
-      const { deviceId, heartRate, spo2, irSamples, userId, timestamp } =
-        req.body;
-
-      if (!deviceId || heartRate == null || spo2 == null) {
-        return res.status(400).json({
-          error: "deviceId, heartRate, and spo2 are required",
-        });
-      }
-
-      const reading = await VitalsReading.create({
-        deviceId,
-        heartRate,
-        spo2,
-        irSamples: Array.isArray(irSamples) ? irSamples : [],
-        userId,
-        timestamp: timestamp ? new Date(timestamp) : new Date(),
-      });
-
-      broadcast({
-        type: "vitals",
-        data: reading,
-      });
-
-      res.status(201).json(reading);
-    } catch (err) {
-      console.error("POST /vitals error:", err);
-
-      res.status(500).json({
-        error: err.message,
-      });
-    }
-  });
-
+  // ----------------------------------------------------------
   // GET /api/vitals/latest
+  // ----------------------------------------------------------
   router.get("/latest", async (req, res) => {
     try {
       const { deviceId } = req.query;
-
       if (!deviceId) {
         return res.status(400).json({
           error: "deviceId is required",
         });
       }
-
-      const reading = await VitalsReading.findOne({ deviceId }).sort({
+      const reading = await VitalsReading.findOne({
+        userId: req.userId,
+        deviceId: deviceId.toUpperCase(),
+      }).sort({
         timestamp: -1,
       });
-
       res.json(reading || {});
     } catch (err) {
       console.error("GET /vitals/latest error:", err);
-
       res.status(500).json({
-        error: err.message,
+        error: "Failed to fetch latest vitals",
       });
     }
   });
 
+  // ----------------------------------------------------------
   // GET /api/vitals/history
+  // ----------------------------------------------------------
   router.get("/history", async (req, res) => {
     try {
-      const { deviceId, hours = 1 } = req.query;
-
+      const { deviceId } = req.query;
+      const hours = Number(req.query.hours ?? 1);
       if (!deviceId) {
         return res.status(400).json({
           error: "deviceId is required",
         });
       }
-
-      const since = new Date(Date.now() - Number(hours) * 60 * 60 * 1000);
-
+      if (!Number.isFinite(hours) || hours <= 0) {
+        return res.status(400).json({
+          error: "hours must be a positive number",
+        });
+      }
+      const since = new Date(Date.now() - hours * 60 * 60 * 1000);
       const readings = await VitalsReading.find({
-        deviceId,
-        timestamp: { $gte: since },
+        userId: req.userId,
+        deviceId: deviceId.toUpperCase(),
+        timestamp: {
+          $gte: since,
+        },
       }).sort({
         timestamp: 1,
       });
-
       res.json(readings);
     } catch (err) {
       console.error("GET /vitals/history error:", err);
-
       res.status(500).json({
-        error: err.message,
+        error: "Failed to fetch vitals history",
       });
     }
   });
 
+  // ----------------------------------------------------------
   // GET /api/vitals/stats
+  // ----------------------------------------------------------
   router.get("/stats", async (req, res) => {
     try {
-      const { deviceId, hours = 1 } = req.query;
-
+      const { deviceId } = req.query;
+      const hours = Number(req.query.hours ?? 1);
       if (!deviceId) {
         return res.status(400).json({
           error: "deviceId is required",
         });
       }
-
-      const since = new Date(Date.now() - Number(hours) * 60 * 60 * 1000);
-
+      if (!Number.isFinite(hours) || hours <= 0) {
+        return res.status(400).json({
+          error: "hours must be a positive number",
+        });
+      }
+      const since = new Date(Date.now() - hours * 60 * 60 * 1000);
       const result = await VitalsReading.aggregate([
         {
           $match: {
-            deviceId,
+            userId: req.userId,
+            deviceId: deviceId.toUpperCase(),
             timestamp: { $gte: since },
           },
         },
@@ -128,9 +107,7 @@ module.exports = function (broadcast) {
           },
         },
       ]);
-
       const stats = result[0];
-
       if (!stats) {
         return res.json({
           minHeartRate: null,
@@ -142,21 +119,19 @@ module.exports = function (broadcast) {
           readingCount: 0,
         });
       }
-
       res.json({
-        minHeartRate: Math.round(stats.minHeartRate),
-        averageHeartRate: Math.round(stats.averageHeartRate),
-        maxHeartRate: Math.round(stats.maxHeartRate),
-        minSpo2: Math.round(stats.minSpo2),
-        averageSpo2: Number(stats.averageSpo2.toFixed(1)),
-        maxSpo2: Math.round(stats.maxSpo2),
+        minHeartRate:stats.minHeartRate != null ? Math.round(stats.minHeartRate) : null,
+        averageHeartRate:stats.averageHeartRate != null? Math.round(stats.averageHeartRate): null,
+        maxHeartRate:stats.maxHeartRate != null ? Math.round(stats.maxHeartRate) : null,
+        minSpo2: stats.minSpo2 != null ? Math.round(stats.minSpo2) : null,
+        averageSpo2:stats.averageSpo2 != null? Number(stats.averageSpo2.toFixed(1)): null,
+        maxSpo2: stats.maxSpo2 != null ? Math.round(stats.maxSpo2) : null,
         readingCount: stats.readingCount,
       });
     } catch (err) {
       console.error("GET /vitals/stats error:", err);
-
       res.status(500).json({
-        error: err.message,
+        error: "Failed to calculate vitals statistics",
       });
     }
   });

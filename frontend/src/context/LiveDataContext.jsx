@@ -1,64 +1,220 @@
-import {createContext,useContext,useEffect,useRef,useState,useCallback,} from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
+import { useDevices } from "./DeviceContext";
+
 const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:3000/live";
+
 const LiveDataContext = createContext(null);
 
 export function LiveDataProvider({ children }) {
-  const [connected, setConnected] = useState(false);
-  const [vitals, setVitals] = useState(null);
-  const [environment, setEnvironment] = useState(null);
-  const [location, setLocation] = useState(null);
-  const [activeFall, setActiveFall] = useState(null);
-  const listenersRef = useRef(new Set());
-  const wsRef = useRef(null);
-  const reconnectTimerRef = useRef(null);
-  const stoppedRef = useRef(false);
-  const onMessage = useCallback((event) => {
-    let msg;
-    try {
-      msg = JSON.parse(event.data);
-    } catch (error) {
-      console.warn("Invalid WebSocket message:", event.data);
-      return;
-    }
-    if (!msg?.type) {
-      return;
-    }
-    switch (msg.type) {
-      case "vitals":
-        setVitals(msg.data);
-        break;
-      case "environment":
-        setEnvironment(msg.data);
-        break;
-      case "location":
-        setLocation(msg.data);
-        break;
-      case "fall_detected":
-        setActiveFall(msg.data);
-        break;
-      case "fall_status_update":
-        setActiveFall((prev) => {
-          if (!prev || prev._id !== msg.data?._id) {
-            return prev;
-          }
-          const resolved = [
-            "confirmed_false_alarm",
-            "resolved",
-          ].includes(msg.data.status);
-          return resolved ? null : msg.data;
-        });
-        break;
-      default:break;
-    }
+  const { selectedDeviceId } = useDevices();
 
-    listenersRef.current.forEach((listener) => {
+  const [connected, setConnected] = useState(false);
+
+  const [vitals, setVitals] = useState(null);
+
+  const [environment, setEnvironment] = useState(null);
+
+  const [location, setLocation] = useState(null);
+
+  const [activeFall, setActiveFall] = useState(null);
+
+  /*
+   * Timestamp of the most recent
+   * live sensor messages.
+   */
+
+  const [vitalsUpdatedAt, setVitalsUpdatedAt] = useState(null);
+
+  const [environmentUpdatedAt, setEnvironmentUpdatedAt] = useState(null);
+
+  const [locationUpdatedAt, setLocationUpdatedAt] = useState(null);
+
+  const listenersRef = useRef(new Set());
+
+  const wsRef = useRef(null);
+
+  const reconnectTimerRef = useRef(null);
+
+  const stoppedRef = useRef(false);
+
+  /*
+   * ----------------------------------------------------------
+   * Clear data when device changes
+   * ----------------------------------------------------------
+   */
+
+  useEffect(() => {
+    setVitals(null);
+    setEnvironment(null);
+    setLocation(null);
+    setActiveFall(null);
+
+    setVitalsUpdatedAt(null);
+    setEnvironmentUpdatedAt(null);
+    setLocationUpdatedAt(null);
+  }, [selectedDeviceId]);
+
+  /*
+   * ----------------------------------------------------------
+   * WebSocket message
+   * ----------------------------------------------------------
+   */
+
+  const onMessage = useCallback(
+    (event) => {
+      let msg;
+
       try {
-        listener(msg);
-      } catch (error) {
-        console.error("LiveData listener error:", error);
+        msg = JSON.parse(event.data);
+      } catch {
+        console.warn("[LiveData] Invalid WebSocket message:", event.data);
+
+        return;
       }
-    });
-  }, []);
+
+      if (!msg?.type) {
+        return;
+      }
+
+      /*
+       * Ignore messages belonging
+       * to another selected device.
+       */
+
+      if (
+        selectedDeviceId &&
+        msg.deviceId &&
+        msg.deviceId !== selectedDeviceId
+      ) {
+        return;
+      }
+
+      /*
+       * Prefer backend timestamp.
+       * Otherwise use the time the
+       * browser received the message.
+       */
+
+      const messageTimestamp =
+        msg.data?.timestamp ||
+        msg.data?.createdAt ||
+        msg.data?.recordedAt ||
+        msg.timestamp ||
+        new Date().toISOString();
+
+      switch (msg.type) {
+        /* -----------------------------------------------
+         * VITALS
+         * --------------------------------------------- */
+
+        case "vitals": {
+          const data = {
+            ...(msg.data || {}),
+            _receivedAt: messageTimestamp,
+          };
+
+          setVitals(data);
+
+          setVitalsUpdatedAt(messageTimestamp);
+
+          break;
+        }
+
+        /* -----------------------------------------------
+         * ENVIRONMENT
+         * --------------------------------------------- */
+
+        case "environment": {
+          const data = {
+            ...(msg.data || {}),
+            _receivedAt: messageTimestamp,
+          };
+
+          setEnvironment(data);
+
+          setEnvironmentUpdatedAt(messageTimestamp);
+
+          break;
+        }
+
+        /* -----------------------------------------------
+         * LOCATION
+         * --------------------------------------------- */
+
+        case "location": {
+          const data = {
+            ...(msg.data || {}),
+            _receivedAt: messageTimestamp,
+          };
+
+          setLocation(data);
+
+          setLocationUpdatedAt(messageTimestamp);
+
+          break;
+        }
+
+        /* -----------------------------------------------
+         * FALL
+         * --------------------------------------------- */
+
+        case "fall_detected":
+          setActiveFall(msg.data || null);
+          break;
+
+        /* -----------------------------------------------
+         * FALL STATUS
+         * --------------------------------------------- */
+
+        case "fall_status_update":
+          setActiveFall((previousFall) => {
+            if (!previousFall || previousFall._id !== msg.data?._id) {
+              return previousFall;
+            }
+
+            const resolvedStatuses = ["confirmed_false_alarm", "resolved"];
+
+            if (resolvedStatuses.includes(msg.data?.status)) {
+              return null;
+            }
+
+            return msg.data;
+          });
+
+          break;
+
+        default:
+          break;
+      }
+
+      /*
+       * Notify external subscribers.
+       */
+
+      listenersRef.current.forEach((listener) => {
+        try {
+          listener(msg);
+        } catch (error) {
+          console.error("[LiveData] Listener error:", error);
+        }
+      });
+    },
+    [selectedDeviceId],
+  );
+
+  /*
+   * ----------------------------------------------------------
+   * Connect WebSocket
+   * ----------------------------------------------------------
+   */
 
   const connect = useCallback(() => {
     if (stoppedRef.current) {
@@ -67,10 +223,8 @@ export function LiveDataProvider({ children }) {
 
     if (
       wsRef.current &&
-      (
-        wsRef.current.readyState === WebSocket.CONNECTING ||
-        wsRef.current.readyState === WebSocket.OPEN
-      )
+      (wsRef.current.readyState === WebSocket.CONNECTING ||
+        wsRef.current.readyState === WebSocket.OPEN)
     ) {
       return;
     }
@@ -83,9 +237,12 @@ export function LiveDataProvider({ children }) {
       ws = new WebSocket(WS_URL);
     } catch (error) {
       console.error("[LiveData] Failed to create WebSocket:", error);
+
       setConnected(false);
+
       return;
     }
+
     wsRef.current = ws;
 
     ws.onopen = () => {
@@ -93,51 +250,77 @@ export function LiveDataProvider({ children }) {
         ws.close();
         return;
       }
+
       console.log("[LiveData] WebSocket connected");
+
       setConnected(true);
     };
 
     ws.onmessage = onMessage;
+
     ws.onerror = (error) => {
       console.error("[LiveData] WebSocket error:", error);
     };
+
     ws.onclose = (event) => {
       console.warn(
-        `[LiveData] WebSocket closed. code=${event.code} reason=${event.reason || "none"}`
+        `[LiveData] WebSocket closed. code=${event.code} reason=${
+          event.reason || "none"
+        }`,
       );
+
       if (wsRef.current === ws) {
         wsRef.current = null;
       }
+
       setConnected(false);
+
       if (stoppedRef.current) {
         return;
       }
+
       if (reconnectTimerRef.current) {
         clearTimeout(reconnectTimerRef.current);
       }
+
       reconnectTimerRef.current = setTimeout(() => {
         reconnectTimerRef.current = null;
+
         connect();
       }, 3000);
     };
-  }, [WS_URL, onMessage]);
+  }, [onMessage]);
+
+  /*
+   * ----------------------------------------------------------
+   * WebSocket lifecycle
+   * ----------------------------------------------------------
+   */
 
   useEffect(() => {
     stoppedRef.current = false;
+
     connect();
+
     return () => {
       stoppedRef.current = true;
+
       if (reconnectTimerRef.current) {
         clearTimeout(reconnectTimerRef.current);
+
         reconnectTimerRef.current = null;
       }
+
       const ws = wsRef.current;
+
       wsRef.current = null;
+
       if (ws) {
         ws.onopen = null;
         ws.onmessage = null;
         ws.onerror = null;
         ws.onclose = null;
+
         if (
           ws.readyState === WebSocket.CONNECTING ||
           ws.readyState === WebSocket.OPEN
@@ -145,24 +328,62 @@ export function LiveDataProvider({ children }) {
           ws.close();
         }
       }
+
       setConnected(false);
     };
   }, [connect]);
 
-  const subscribe = useCallback((fn) => {
-    listenersRef.current.add(fn);
+  /*
+   * ----------------------------------------------------------
+   * Subscribe
+   * ----------------------------------------------------------
+   */
+
+  const subscribe = useCallback((listener) => {
+    listenersRef.current.add(listener);
 
     return () => {
-      listenersRef.current.delete(fn);
+      listenersRef.current.delete(listener);
     };
   }, []);
+
+  /*
+   * ----------------------------------------------------------
+   * Dismiss fall
+   * ----------------------------------------------------------
+   */
 
   const dismissFall = useCallback(() => {
     setActiveFall(null);
   }, []);
 
+  /*
+   * ----------------------------------------------------------
+   * Context
+   * ----------------------------------------------------------
+   */
+
   const value = {
-    connected,vitals,environment,location,activeFall,subscribe,dismissFall,
+    connected,
+    selectedDeviceId,
+
+    vitals,
+    environment,
+    location,
+
+    activeFall,
+
+    /*
+     * NEW:
+     * Exact update timestamps.
+     */
+
+    vitalsUpdatedAt,
+    environmentUpdatedAt,
+    locationUpdatedAt,
+
+    subscribe,
+    dismissFall,
   };
 
   return (
@@ -173,13 +394,11 @@ export function LiveDataProvider({ children }) {
 }
 
 export function useLiveData() {
-  const ctx = useContext(LiveDataContext);
+  const context = useContext(LiveDataContext);
 
-  if (!ctx) {
-    throw new Error(
-      "useLiveData must be used inside a LiveDataProvider"
-    );
+  if (!context) {
+    throw new Error("useLiveData must be used inside a LiveDataProvider");
   }
 
-  return ctx;
+  return context;
 }

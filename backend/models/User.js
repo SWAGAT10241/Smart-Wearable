@@ -67,10 +67,6 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    deviceId: {
-      type: String, // links this user to their physical ESP32 wearable
-      default: null,
-    },
   },
   { timestamps: true },
 );

@@ -3,7 +3,8 @@ import { FaBluetooth } from "react-icons/fa";
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
 import { MdHistory } from "react-icons/md";
 import { FiSettings } from "react-icons/fi";
-import { useAuth } from "../context/AuthContext";
+
+import { useDevices } from "../context/DeviceContext";
 import loginBackground from "../assets/images/login-background.png";
 
 const NAV_ITEMS = [
@@ -25,19 +26,22 @@ const NAV_ITEMS = [
 ];
 
 export default function Sidebar() {
-  const { user } = useAuth();
-  const connected = Boolean(user?.deviceId);
+  const { selectedDevice } = useDevices();
+
+  // A selected device is not necessarily online.
+  const connected = Boolean(selectedDevice?.connected);
+
+  const deviceName =
+    selectedDevice?.name || "TrailGuard Wearable";
 
   return (
     <aside className="relative hidden min-h-screen w-[250px] shrink-0 overflow-hidden bg-[#061B2D] lg:flex lg:flex-col">
-      {/* =========================================================
-          SIDEBAR BACKGROUND
-          ========================================================= */}
+      {/* =====================================================
+          BACKGROUND
+      ====================================================== */}
 
-      {/* Base dark navy */}
       <div className="absolute inset-0 bg-[#061B2D]" />
 
-      {/* Mountain image — visible mainly at bottom */}
       <div
         className="absolute inset-x-0 bottom-0 h-[52%] bg-cover bg-bottom"
         style={{
@@ -45,7 +49,6 @@ export default function Sidebar() {
         }}
       />
 
-      {/* Fade image into dark navy */}
       <div
         className="absolute inset-x-0 bottom-0 h-[65%]"
         style={{
@@ -54,26 +57,32 @@ export default function Sidebar() {
         }}
       />
 
-      {/* Very subtle overall dark tint */}
       <div className="absolute inset-0 bg-[#031827]/10" />
 
-      {/* =========================================================
+      {/* =====================================================
           CONTENT
-          ========================================================= */}
+      ====================================================== */}
 
       <div className="relative z-10 flex min-h-screen flex-col px-4 py-5">
-        {/* Logo */}
+        {/* ===================================================
+            LOGO
+        ==================================================== */}
+
         <div className="mb-8 flex items-center gap-2.5 px-1">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-400/15">
             🛡
           </span>
 
           <span className="text-xl font-semibold text-white">
-            Trail<span className="text-[#2DD4BF]">Guard</span>
+            Trail
+            <span className="text-[#2DD4BF]">Guard</span>
           </span>
         </div>
 
-        {/* Navigation */}
+        {/* ===================================================
+            NAVIGATION
+        ==================================================== */}
+
         <nav className="flex flex-col gap-2">
           {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
             <NavLink
@@ -93,13 +102,15 @@ export default function Sidebar() {
           ))}
         </nav>
 
-        {/* =========================================================
-    BOTTOM SECTION
-    ========================================================= */}
+        {/* ===================================================
+            BOTTOM SECTION
+        ==================================================== */}
 
-        {/* Banners below navigation */}
         <div className="mt-5 space-y-3">
-          {/* Stay safe banner */}
+          {/* =================================================
+              SAFETY BANNER
+          ================================================== */}
+
           <div className="rounded-2xl border border-white/10 bg-[#102F4A]/65 p-4 shadow-lg backdrop-blur-sm">
             <div className="flex items-start gap-3">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-400/15">
@@ -120,7 +131,10 @@ export default function Sidebar() {
             </div>
           </div>
 
-          {/* Device banner */}
+          {/* =================================================
+              DEVICE STATUS
+          ================================================== */}
+
           <div className="rounded-2xl border border-white/10 bg-[#102F4A]/65 p-4 shadow-lg backdrop-blur-sm">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
@@ -129,25 +143,41 @@ export default function Sidebar() {
                     className={`h-2 w-2 shrink-0 rounded-full ${
                       connected
                         ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,.7)]"
-                        : "bg-slate-500"
+                        : selectedDevice
+                          ? "bg-amber-400"
+                          : "bg-slate-500"
                     }`}
                   />
 
                   <span className="text-[12px] font-semibold text-white">
-                    {connected ? "Device connected" : "No device connected"}
+                    {connected
+                      ? "Device connected"
+                      : selectedDevice
+                        ? "Device offline"
+                        : "No device connected"}
                   </span>
                 </div>
 
-                {connected && (
-                  <p className="mt-1 truncate pl-4 text-[10px] text-slate-400">
-                    {user.deviceId}
-                  </p>
+                {selectedDevice && (
+                  <>
+                    <p className="mt-1 truncate pl-4 text-[10px] font-medium text-slate-300">
+                      {deviceName}
+                    </p>
+
+                    <p className="mt-0.5 truncate pl-4 font-mono text-[9px] text-slate-500">
+                      {selectedDevice.deviceId}
+                    </p>
+                  </>
                 )}
               </div>
 
               <FaBluetooth
                 className={`shrink-0 text-[18px] ${
-                  connected ? "text-slate-200" : "text-slate-600"
+                  connected
+                    ? "text-slate-200"
+                    : selectedDevice
+                      ? "text-amber-400/70"
+                      : "text-slate-600"
                 }`}
               />
             </div>

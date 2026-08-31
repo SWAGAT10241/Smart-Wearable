@@ -2,7 +2,7 @@
 from machine import UART, Pin
 import time
 
-gps_uart = UART(1, baudrate=9600, rx=Pin(16), tx=Pin(17))
+gps_uart = UART(1, baudrate=9600, rx=Pin(18), tx=Pin(8))
 
 print("Checking for any byte activity on UART1 (rx=16, tx=17)...")
 print("If nothing prints for 10+ seconds, it's a wiring/pin issue, not a GPS fix issue.\n")
