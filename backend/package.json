@@ -1,6 +1,6 @@
 {
   "name": "trailguard-backend",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Backend server for TrailGuard - Smart Wearable Safety and Health Monitoring System",
   "main": "server.js",
   "scripts": {

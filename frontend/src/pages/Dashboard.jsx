@@ -789,17 +789,9 @@ export default function Dashboard() {
    */
 
   const heartRateTimestamp = getReadingTimestamp(hr, vitalsUpdatedAt);
-
   const environmentTimestamp = getReadingTimestamp(env, environmentUpdatedAt);
-
   const locationTimestamp = getReadingTimestamp(loc, locationUpdatedAt);
-
-  const vitalsUpdatedText = formatUpdatedText(heartRateTimestamp);
-
-  const environmentUpdatedText = formatUpdatedText(environmentTimestamp);
-
   const locationUpdatedText = formatUpdatedText(locationTimestamp);
-
   /*
    * ========================================================
    * NOTIFICATIONS
@@ -864,8 +856,7 @@ export default function Dashboard() {
 
       normalRange: "Normal Range: 60 - 100 bpm",
 
-      updatedText: vitalsUpdatedText,
-
+      updatedAt: heartRateTimestamp,
       miniStats: [
         [
           "Resting",
@@ -917,8 +908,7 @@ export default function Dashboard() {
 
       normalRange: "Normal Range: 95% - 100%",
 
-      updatedText: vitalsUpdatedText,
-
+      updatedAt: heartRateTimestamp,
       miniStats: [
         ["Min", spo2Stats.min != null ? `${spo2Stats.min.toFixed(0)}%` : "--"],
 
@@ -965,8 +955,7 @@ export default function Dashboard() {
 
       normalRange: "Comfort Range: 18°C - 26°C",
 
-      updatedText: environmentUpdatedText,
-
+      updatedAt: environmentTimestamp,
       miniStats: [
         [
           "Low",
@@ -1024,8 +1013,7 @@ export default function Dashboard() {
 
       normalRange: "Comfort Range: 30% - 60%",
 
-      updatedText: environmentUpdatedText,
-
+      updatedAt: environmentTimestamp,
       miniStats: [
         [
           "Low",
@@ -1078,8 +1066,7 @@ export default function Dashboard() {
 
       normalRange: "Normal Range: 1000 - 1025 hPa",
 
-      updatedText: environmentUpdatedText,
-
+      updatedAt: environmentTimestamp,
       miniStats: [
         [
           "Low",

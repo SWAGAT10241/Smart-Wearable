@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
-const deviceSchema = new mongoose.Schema({
+const deviceSchema = new mongoose.Schema(
+  {
     // Permanent identity programmed into the physical hardware.
     deviceId: {
       type: String,
@@ -23,7 +24,8 @@ const deviceSchema = new mongoose.Schema({
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
+      default: null,
       index: true,
     },
     status: {

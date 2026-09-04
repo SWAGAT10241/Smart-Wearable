@@ -37,16 +37,26 @@ module.exports = function () {
    *
    * User can only retrieve their own device.
    */
-  router.get("/:deviceId", protect, async (req, res) => {
+  router.delete("/:deviceId", protect, async (req, res) => {
     try {
       const deviceId = req.params.deviceId.trim().toUpperCase();
 
-      const device = await Device.findOne({
-        deviceId,
-        userId: req.userId,
-      })
-        .select("deviceId deviceName status lastSeen createdAt updatedAt")
-        .lean();
+      const device = await Device.findOneAndUpdate(
+        {
+          deviceId,
+          userId: req.userId,
+        },
+        {
+          $set: {
+            status: "inactive",
+            userId: null,
+          },
+        },
+        {
+          new: true,
+          runValidators: false,
+        },
+      ).select("deviceId deviceName status lastSeen");
 
       if (!device) {
         return res.status(404).json({
@@ -54,14 +64,16 @@ module.exports = function () {
         });
       }
 
-      res.json({
+      return res.json({
+        success: true,
+        message: "Device unpaired",
         device,
       });
     } catch (error) {
-      console.error("GET /api/devices/:deviceId error:", error);
+      console.error("DELETE /api/devices/:deviceId error:", error);
 
-      res.status(500).json({
-        error: "Failed to get device",
+      return res.status(500).json({
+        error: "Failed to unpair device",
       });
     }
   });
