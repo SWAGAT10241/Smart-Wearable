@@ -37,7 +37,9 @@ module.exports = function (broadcast) {
       });
 
       if (existingDevice) {
-        // Device already belongs to another user.
+        /*
+         * Device belongs to another user.
+         */
         if (
           existingDevice.userId &&
           existingDevice.userId.toString() !== req.userId.toString()
@@ -47,9 +49,58 @@ module.exports = function (broadcast) {
           });
         }
 
-        // Already belongs to this user.
-        return res.status(409).json({
-          error: "Device already connected",
+        /*
+         * Device is already paired to this user.
+         */
+        if (
+          existingDevice.userId &&
+          existingDevice.userId.toString() === req.userId.toString()
+        ) {
+          return res.status(409).json({
+            error: "Device already connected",
+          });
+        }
+
+        /*
+         * Device exists but is currently unpaired.
+         *
+         * Reclaim the existing physical device instead
+         * of creating a duplicate Device document.
+         */
+        const device = await Device.findOneAndUpdate(
+          {
+            deviceId: normalizedDeviceId,
+            userId: null,
+          },
+          {
+            $set: {
+              userId: req.userId,
+              status: "active",
+              deviceName:
+                typeof deviceName === "string" && deviceName.trim()
+                  ? deviceName.trim()
+                  : "TrailGuard Wearable",
+            },
+          },
+          {
+            new: true,
+            runValidators: true,
+          },
+        );
+
+        if (!device) {
+          return res.status(409).json({
+            error: "Device could not be paired",
+          });
+        }
+
+        return res.status(200).json({
+          success: true,
+          device: {
+            deviceId: device.deviceId,
+            deviceName: device.deviceName,
+            status: device.status,
+          },
         });
       }
 
@@ -177,13 +228,32 @@ module.exports = function (broadcast) {
   router.post("/readings", async (req, res) => {
     try {
       const {
-        deviceId,heartRate,spo2,irSamples,
-        temperature,humidity,pressure,latitude,
-        longitude,altitude,satellites,fallDetected,
-        accelX,accelY,accelZ,gyroX,gyroY,
-        gyroZ,tiltAngle,totalAcceleration,
-        peakAccelG,peakGyroDps,postureChangeDeg,
-        severity,locationStale,timestamp,
+        deviceId,
+        heartRate,
+        spo2,
+        irSamples,
+        temperature,
+        humidity,
+        pressure,
+        latitude,
+        longitude,
+        altitude,
+        satellites,
+        fallDetected,
+        accelX,
+        accelY,
+        accelZ,
+        gyroX,
+        gyroY,
+        gyroZ,
+        tiltAngle,
+        totalAcceleration,
+        peakAccelG,
+        peakGyroDps,
+        postureChangeDeg,
+        severity,
+        locationStale,
+        timestamp,
       } = req.body;
 
       // Device identity is required.
@@ -240,6 +310,7 @@ module.exports = function (broadcast) {
 
         broadcast({
           type: "vitals",
+          deviceId: normalizedDeviceId,
           data: reading,
         });
       }
@@ -268,6 +339,7 @@ module.exports = function (broadcast) {
 
         broadcast({
           type: "environment",
+          deviceId: normalizedDeviceId,
           data: reading,
         });
       }
@@ -299,6 +371,7 @@ module.exports = function (broadcast) {
 
         broadcast({
           type: "location",
+          deviceId: normalizedDeviceId,
           data: reading,
         });
       }
@@ -317,10 +390,12 @@ module.exports = function (broadcast) {
           accelZ: accelZ != null ? Number(accelZ) : undefined,
 
           tiltAngle: tiltAngle != null ? Number(tiltAngle) : undefined,
-          totalAcceleration:totalAcceleration != null ? Number(totalAcceleration) : undefined,
+          totalAcceleration:
+            totalAcceleration != null ? Number(totalAcceleration) : undefined,
           peakAccelG: peakAccelG != null ? Number(peakAccelG) : undefined,
           peakGyroDps: peakGyroDps != null ? Number(peakGyroDps) : undefined,
-          postureChangeDeg:postureChangeDeg != null ? Number(postureChangeDeg) : undefined,
+          postureChangeDeg:
+            postureChangeDeg != null ? Number(postureChangeDeg) : undefined,
           severity: severity || "moderate",
           latitude: latitude != null ? Number(latitude) : undefined,
           longitude: longitude != null ? Number(longitude) : undefined,
@@ -332,6 +407,7 @@ module.exports = function (broadcast) {
 
         broadcast({
           type: "fall_detected",
+          deviceId: normalizedDeviceId,
           data: fallEvent,
         });
       }

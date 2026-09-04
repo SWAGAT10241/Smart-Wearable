@@ -27,7 +27,14 @@ function Row({ label, value, badge }) {
   );
 }
 
-function DeviceCard({ device, selected, onSelect, onRename, onRemove }) {
+function DeviceCard({
+  device,
+  selected,
+  onSelect,
+  onRename,
+  onStatusChange,
+  onRemove,
+}) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(
     device.deviceName || device.name || "TrailGuard Wearable",
@@ -63,7 +70,6 @@ function DeviceCard({ device, selected, onSelect, onRename, onRemove }) {
   };
 
   const deviceName = device.deviceName || device.name || "TrailGuard Wearable";
-
   const isActive = device.status === "active";
 
   return (
@@ -139,7 +145,7 @@ function DeviceCard({ device, selected, onSelect, onRename, onRemove }) {
 
       {!editing && (
         <div className="mt-4 flex flex-wrap gap-2">
-          {!selected && (
+          {isActive && !selected && (
             <Button
               variant="secondary"
               onClick={() => onSelect(device.deviceId)}
@@ -152,9 +158,16 @@ function DeviceCard({ device, selected, onSelect, onRename, onRemove }) {
             Rename
           </Button>
 
+          <Button
+            variant="secondary"
+            onClick={() => onStatusChange(device.deviceId, device.status)}
+          >
+            {isActive ? "Deactivate" : "Activate"}
+          </Button>
+
           {onRemove && (
             <Button variant="ghost" onClick={() => onRemove(device.deviceId)}>
-              Remove
+              Unpair
             </Button>
           )}
         </div>
@@ -173,10 +186,29 @@ export default function Settings() {
     selectDevice,
     registerDevice,
     renameDevice,
+    updateDeviceStatus,
     removeDevice,
     loading: devicesLoading,
   } = useDevices();
 
+  const handleToggleDeviceStatus = async (deviceId, currentStatus) => {
+    const nextStatus = currentStatus === "active" ? "inactive" : "active";
+    const device = devices.find((item) => item.deviceId === deviceId);
+    const deviceName = device?.deviceName || device?.name || "this device";
+    const confirmed = window.confirm(
+      `${action === "deactivate" ? "Deactivate" : "Activate"} ${deviceName}?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await updateDeviceStatus(deviceId, nextStatus);
+    } catch (error) {
+      console.error("Failed to update device status:", error);
+    }
+  };
   /*
    * ----------------------------------------------------------
    * Device registration state
@@ -187,7 +219,8 @@ export default function Settings() {
   const [deviceNameInput, setDeviceNameInput] = useState("TrailGuard Wearable");
   const [registeringDevice, setRegisteringDevice] = useState(false);
   const [deviceRegistrationError, setDeviceRegistrationError] = useState("");
-  const [deviceRegistrationSuccess, setDeviceRegistrationSuccess] = useState("");
+  const [deviceRegistrationSuccess, setDeviceRegistrationSuccess] =
+    useState("");
 
   /*
    * ----------------------------------------------------------
@@ -340,7 +373,7 @@ export default function Settings() {
   const handleRemoveDevice = async (deviceId) => {
     const device = devices.find((item) => item.deviceId === deviceId);
     const deviceName = device?.deviceName || device?.name || "this device";
-    const confirmed = window.confirm(`Remove ${deviceName} from your account?`);
+    const confirmed = window.confirm(`Unpair ${deviceName} from your account?`);
     if (!confirmed) {
       return;
     }
@@ -397,7 +430,10 @@ export default function Settings() {
               <Row label="Emergency contact" value={emergencyContact} />
               <Row label="Height" value={height} />
               <Row label="Weight" value={weight} />
-              <Button variant="secondary" onClick={() => setEditingSafety(true)}>
+              <Button
+                variant="secondary"
+                onClick={() => setEditingSafety(true)}
+              >
                 Edit safety info
               </Button>
             </div>
@@ -490,7 +526,7 @@ export default function Settings() {
                 name="deviceId"
                 value={deviceIdInput}
                 onChange={(event) => setDeviceIdInput(event.target.value)}
-                placeholder="TG290820260001"
+                placeholder="Enter device ID"
                 disabled={registeringDevice}
               />
               <Field
@@ -511,7 +547,10 @@ export default function Settings() {
                   {deviceRegistrationSuccess}
                 </div>
               )}
-              <Button type="submit"disabled={registeringDevice || !deviceIdInput.trim()}>
+              <Button
+                type="submit"
+                disabled={registeringDevice || !deviceIdInput.trim()}
+              >
                 {registeringDevice ? "Connecting…" : "Connect Device"}
               </Button>
             </form>
@@ -541,7 +580,8 @@ export default function Settings() {
                   selected={device.deviceId === selectedDeviceId}
                   onSelect={handleSelectDevice}
                   onRename={handleRenameDevice}
-                  onRemove={devices.length > 1 ? handleRemoveDevice : undefined}
+                  onStatusChange={handleToggleDeviceStatus}
+                  onRemove={handleRemoveDevice}
                 />
               ))}
             </div>
@@ -552,7 +592,7 @@ export default function Settings() {
           {selectedDevice && (
             <div className="mt-4 rounded-xl border border-teal-100 bg-teal-50 px-4 py-3">
               <div className="text-xs font-semibold uppercase tracking-wide text-teal-700">
-                Active device
+                Selected device
               </div>
               <div className="mt-1 text-sm font-semibold text-slate-900">
                 {selectedDevice.deviceName ||

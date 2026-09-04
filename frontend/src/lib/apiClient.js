@@ -2,21 +2,16 @@
 // API BASE URL
 // ------------------------------------------------------------
 
-const configuredApiUrl =
-  import.meta.env.VITE_API_URL || "http://localhost:3000/api";
-
+const configuredApiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 const normalizedApiUrl = configuredApiUrl.replace(/\/+$/, "");
-
-const API_URL = normalizedApiUrl.endsWith("/api")
-  ? normalizedApiUrl
-  : `${normalizedApiUrl}/api`;
+const API_URL = normalizedApiUrl.endsWith("/api") ? normalizedApiUrl : `${normalizedApiUrl}/api`;
 
 // ------------------------------------------------------------
 // AUTH TOKEN
 // ------------------------------------------------------------
 
 function getToken() {
-  return localStorage.getItem("trailguard_token");
+  return localStorage.getItem("trailguard_token")
 }
 
 // ------------------------------------------------------------
@@ -30,11 +25,9 @@ async function request(path, { method = "GET", body, auth = false } = {}) {
 
   if (auth) {
     const token = getToken();
-
     if (!token) {
       throw new Error("Authentication required");
     }
-
     headers.Authorization = `Bearer ${token}`;
   }
 
@@ -43,13 +36,10 @@ async function request(path, { method = "GET", body, auth = false } = {}) {
     headers,
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
-
   const data = await response.json().catch(() => ({}));
-
   if (!response.ok) {
     throw new Error(data.error || `Request failed (${response.status})`);
   }
-
   return data;
 }
 
@@ -63,25 +53,21 @@ export const authApi = {
       method: "POST",
       body: payload,
     }),
-
   login: (payload) =>
     request("/auth/login", {
       method: "POST",
       body: payload,
     }),
-
   completeProfile: (payload) =>
     request("/auth/complete-profile", {
       method: "PATCH",
       body: payload,
       auth: true,
     }),
-
   me: () =>
     request("/auth/me", {
       auth: true,
     }),
-
   googleLoginUrl: () => `${API_URL}/auth/google`,
 };
 
@@ -94,7 +80,6 @@ export const vitalsApi = {
     request(`/vitals/latest?deviceId=${encodeURIComponent(deviceId)}`, {
       auth: true,
     }),
-
   history: (deviceId, hours = 1) =>
     request(
       `/vitals/history?deviceId=${encodeURIComponent(deviceId)}&hours=${hours}`,
@@ -102,7 +87,6 @@ export const vitalsApi = {
         auth: true,
       },
     ),
-
   stats: (deviceId, hours = 1) =>
     request(
       `/vitals/stats?deviceId=${encodeURIComponent(deviceId)}&hours=${hours}`,
@@ -121,7 +105,6 @@ export const environmentApi = {
     request(`/environment/latest?deviceId=${encodeURIComponent(deviceId)}`, {
       auth: true,
     }),
-
   history: (deviceId, hours = 1) =>
     request(
       `/environment/history?deviceId=${encodeURIComponent(
@@ -131,7 +114,6 @@ export const environmentApi = {
         auth: true,
       },
     ),
-
   stats: (deviceId, hours = 1) =>
     request(
       `/environment/stats?deviceId=${encodeURIComponent(
@@ -201,10 +183,7 @@ export const devicesApi = {
     }),
 
   /*
-   * One-time device registration / activation.
-   *
-   * userId is NOT sent here.
-   * The backend gets userId from the JWT.
+   * Pair a TrailGuard device.
    */
   register: (deviceId, deviceName = "TrailGuard Wearable") =>
     request("/devices/register", {
@@ -216,15 +195,21 @@ export const devicesApi = {
       auth: true,
     }),
 
-  rename: (deviceId, name) =>
+  /*
+   * Rename device.
+   */
+  rename: (deviceId, deviceName) =>
     request(`/devices/${encodeURIComponent(deviceId)}`, {
       method: "PATCH",
       body: {
-        name,
+        deviceName,
       },
       auth: true,
     }),
 
+  /*
+   * Unpair device.
+   */
   remove: (deviceId) =>
     request(`/devices/${encodeURIComponent(deviceId)}`, {
       method: "DELETE",

@@ -223,11 +223,8 @@ function LineTrace({
    * ===================================================== */
 
   const dataMin = Math.min(...visibleValues);
-
   const dataMax = Math.max(...visibleValues);
-
   const dataRange = dataMax - dataMin;
-
   const effectiveRange = Math.max(dataRange, config.minimumRange);
 
   /*
@@ -235,9 +232,7 @@ function LineTrace({
    */
 
   const padding = effectiveRange * 0.15;
-
   let chartMin = dataMin - padding;
-
   let chartMax = dataMax + padding;
 
   /*
@@ -247,9 +242,7 @@ function LineTrace({
 
   if (dataRange < config.minimumRange) {
     const center = (dataMin + dataMax) / 2;
-
     chartMin = center - effectiveRange / 2;
-
     chartMax = center + effectiveRange / 2;
   }
 
@@ -258,11 +251,8 @@ function LineTrace({
    * ===================================================== */
 
   const factor = 10 ** config.rounding;
-
   chartMin = Math.floor(chartMin * factor) / factor;
-
   chartMax = Math.ceil(chartMax * factor) / factor;
-
   if (chartMax <= chartMin) {
     chartMax = chartMin + config.minimumRange;
   }
@@ -303,11 +293,8 @@ function LineTrace({
   const points = visibleValues
     .map((value, index) => {
       const x = 4 + (index / (visibleValues.length - 1)) * (width - 8);
-
       const safeValue = Math.min(Math.max(value, chartMin), chartMax);
-
       const y = 6 + ((chartMax - safeValue) / range) * (height - 12);
-
       return `${x},${y}`;
     })
     .join(" ");
@@ -317,11 +304,8 @@ function LineTrace({
    * ===================================================== */
 
   const lastValue = visibleValues[visibleValues.length - 1];
-
   const lastX = width - 4;
-
   const safeLastValue = Math.min(Math.max(lastValue, chartMin), chartMax);
-
   const lastY = 6 + ((chartMax - safeLastValue) / range) * (height - 12);
 
   return (
@@ -938,8 +922,7 @@ export default function StatCard({
             "
           >
             <Clock3 size={15} strokeWidth={1.7} />
-
-            <span>{updatedText}</span>
+            <span>Last seen {updatedText}</span>
           </div>
         </div>
       )}

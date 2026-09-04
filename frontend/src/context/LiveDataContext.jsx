@@ -10,39 +10,21 @@ import {
 import { useDevices } from "./DeviceContext";
 
 const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:3000/live";
-
 const LiveDataContext = createContext(null);
 
 export function LiveDataProvider({ children }) {
   const { selectedDeviceId } = useDevices();
-
   const [connected, setConnected] = useState(false);
-
   const [vitals, setVitals] = useState(null);
-
   const [environment, setEnvironment] = useState(null);
-
   const [location, setLocation] = useState(null);
-
   const [activeFall, setActiveFall] = useState(null);
-
-  /*
-   * Timestamp of the most recent
-   * live sensor messages.
-   */
-
   const [vitalsUpdatedAt, setVitalsUpdatedAt] = useState(null);
-
   const [environmentUpdatedAt, setEnvironmentUpdatedAt] = useState(null);
-
   const [locationUpdatedAt, setLocationUpdatedAt] = useState(null);
-
   const listenersRef = useRef(new Set());
-
   const wsRef = useRef(null);
-
   const reconnectTimerRef = useRef(null);
-
   const stoppedRef = useRef(false);
 
   /*
@@ -56,7 +38,6 @@ export function LiveDataProvider({ children }) {
     setEnvironment(null);
     setLocation(null);
     setActiveFall(null);
-
     setVitalsUpdatedAt(null);
     setEnvironmentUpdatedAt(null);
     setLocationUpdatedAt(null);
@@ -71,15 +52,12 @@ export function LiveDataProvider({ children }) {
   const onMessage = useCallback(
     (event) => {
       let msg;
-
       try {
         msg = JSON.parse(event.data);
       } catch {
         console.warn("[LiveData] Invalid WebSocket message:", event.data);
-
         return;
       }
-
       if (!msg?.type) {
         return;
       }
@@ -89,10 +67,16 @@ export function LiveDataProvider({ children }) {
        * to another selected device.
        */
 
+      const messageDeviceId = msg.deviceId || msg.data?.deviceId;
+      if (!selectedDeviceId) {
+        return;
+      }
+      if (!messageDeviceId) {
+        return;
+      }
       if (
-        selectedDeviceId &&
-        msg.deviceId &&
-        msg.deviceId !== selectedDeviceId
+        messageDeviceId.trim().toUpperCase() !==
+        selectedDeviceId.trim().toUpperCase()
       ) {
         return;
       }
@@ -120,11 +104,8 @@ export function LiveDataProvider({ children }) {
             ...(msg.data || {}),
             _receivedAt: messageTimestamp,
           };
-
           setVitals(data);
-
           setVitalsUpdatedAt(messageTimestamp);
-
           break;
         }
 
@@ -137,11 +118,8 @@ export function LiveDataProvider({ children }) {
             ...(msg.data || {}),
             _receivedAt: messageTimestamp,
           };
-
           setEnvironment(data);
-
           setEnvironmentUpdatedAt(messageTimestamp);
-
           break;
         }
 
@@ -154,11 +132,8 @@ export function LiveDataProvider({ children }) {
             ...(msg.data || {}),
             _receivedAt: messageTimestamp,
           };
-
           setLocation(data);
-
           setLocationUpdatedAt(messageTimestamp);
-
           break;
         }
 
@@ -179,18 +154,13 @@ export function LiveDataProvider({ children }) {
             if (!previousFall || previousFall._id !== msg.data?._id) {
               return previousFall;
             }
-
             const resolvedStatuses = ["confirmed_false_alarm", "resolved"];
-
             if (resolvedStatuses.includes(msg.data?.status)) {
               return null;
             }
-
             return msg.data;
           });
-
           break;
-
         default:
           break;
       }
@@ -220,7 +190,6 @@ export function LiveDataProvider({ children }) {
     if (stoppedRef.current) {
       return;
     }
-
     if (
       wsRef.current &&
       (wsRef.current.readyState === WebSocket.CONNECTING ||
@@ -228,23 +197,17 @@ export function LiveDataProvider({ children }) {
     ) {
       return;
     }
-
     console.log("[LiveData] Connecting:", WS_URL);
-
     let ws;
-
     try {
       ws = new WebSocket(WS_URL);
     } catch (error) {
       console.error("[LiveData] Failed to create WebSocket:", error);
-
       setConnected(false);
-
       return;
     }
 
     wsRef.current = ws;
-
     ws.onopen = () => {
       if (stoppedRef.current) {
         ws.close();
@@ -252,12 +215,10 @@ export function LiveDataProvider({ children }) {
       }
 
       console.log("[LiveData] WebSocket connected");
-
       setConnected(true);
     };
 
     ws.onmessage = onMessage;
-
     ws.onerror = (error) => {
       console.error("[LiveData] WebSocket error:", error);
     };
@@ -268,24 +229,18 @@ export function LiveDataProvider({ children }) {
           event.reason || "none"
         }`,
       );
-
       if (wsRef.current === ws) {
         wsRef.current = null;
       }
-
       setConnected(false);
-
       if (stoppedRef.current) {
         return;
       }
-
       if (reconnectTimerRef.current) {
         clearTimeout(reconnectTimerRef.current);
       }
-
       reconnectTimerRef.current = setTimeout(() => {
         reconnectTimerRef.current = null;
-
         connect();
       }, 3000);
     };
@@ -299,28 +254,20 @@ export function LiveDataProvider({ children }) {
 
   useEffect(() => {
     stoppedRef.current = false;
-
     connect();
-
     return () => {
       stoppedRef.current = true;
-
       if (reconnectTimerRef.current) {
         clearTimeout(reconnectTimerRef.current);
-
         reconnectTimerRef.current = null;
       }
-
       const ws = wsRef.current;
-
       wsRef.current = null;
-
       if (ws) {
         ws.onopen = null;
         ws.onmessage = null;
         ws.onerror = null;
         ws.onclose = null;
-
         if (
           ws.readyState === WebSocket.CONNECTING ||
           ws.readyState === WebSocket.OPEN
@@ -328,7 +275,6 @@ export function LiveDataProvider({ children }) {
           ws.close();
         }
       }
-
       setConnected(false);
     };
   }, [connect]);
@@ -341,7 +287,6 @@ export function LiveDataProvider({ children }) {
 
   const subscribe = useCallback((listener) => {
     listenersRef.current.add(listener);
-
     return () => {
       listenersRef.current.delete(listener);
     };
@@ -366,22 +311,13 @@ export function LiveDataProvider({ children }) {
   const value = {
     connected,
     selectedDeviceId,
-
     vitals,
     environment,
     location,
-
     activeFall,
-
-    /*
-     * NEW:
-     * Exact update timestamps.
-     */
-
     vitalsUpdatedAt,
     environmentUpdatedAt,
     locationUpdatedAt,
-
     subscribe,
     dismissFall,
   };
@@ -395,7 +331,6 @@ export function LiveDataProvider({ children }) {
 
 export function useLiveData() {
   const context = useContext(LiveDataContext);
-
   if (!context) {
     throw new Error("useLiveData must be used inside a LiveDataProvider");
   }
