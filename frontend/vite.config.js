@@ -1,12 +1,11 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import tailwindcss from '@tailwindcss/vite';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-// TrailGuard frontend — talks to the trailguard-backend Express API
-// (see .env.example for the two env vars it needs)
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  server: {
-    port: 5173,
+  plugins: [react()],
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: "./test/setup.js",
   },
 });
