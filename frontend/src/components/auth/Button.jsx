@@ -29,26 +29,26 @@ export default function Button({
 
     // Secondary action
     secondary: `
-      flex w-full
-      h-[64px]
-      items-center justify-center
-      gap-3
-      rounded-[13px]
-      border
-      border-[var(--color-border)]
-      bg-[var(--color-surface-alt)]
-      px-5
-      text-[17px]
-      font-semibold
-      text-[var(--color-text)]
-      shadow-[0_6px_16px_rgba(16,42,67,0.12)]
-      transition-all
-      hover:bg-[var(--color-bg-alt)]
-      hover:border-[var(--color-accent)]
-      active:scale-[0.99]
-      disabled:cursor-not-allowed
-      disabled:opacity-60
-    `,
+    flex w-full
+    h-[64px]
+    items-center justify-center
+    gap-3
+    rounded-[13px]
+    border
+    border-[#2B5F80]
+    bg-[#1E4D6B]
+    px-5
+    text-[17px]
+    font-semibold
+    text-white
+    shadow-[0_6px_16px_rgba(16,42,67,0.18)]
+    transition-all
+    hover:bg-[#285E80]
+    hover:border-[#2DD4BF]
+    active:scale-[0.99]
+    disabled:cursor-not-allowed
+    disabled:opacity-60
+  `,
 
     // Blue / brand button
     blue: `
@@ -73,26 +73,26 @@ export default function Button({
 
     // White / Google-style button
     outline: `
-      flex w-full
-      h-[64px]
-      items-center justify-center
-      gap-3
-      rounded-[13px]
-      border
-      border-[var(--color-border)]
-      bg-[var(--color-surface)]
-      px-5
-      text-[17px]
-      font-medium
-      text-[var(--color-text)]
-      shadow-[0_2px_6px_rgba(16,42,67,0.08)]
-      transition-all
-      hover:bg-[var(--color-surface-alt)]
-      hover:border-[var(--color-accent)]
-      active:scale-[0.99]
-      disabled:cursor-not-allowed
-      disabled:opacity-60
-    `,
+    flex w-full
+    h-[64px]
+    items-center justify-center
+    gap-3
+    rounded-[13px]
+    border
+    border-[var(--color-border)]
+    bg-[var(--color-surface-alt)]
+    px-5
+    text-[17px]
+    font-medium
+    text-[var(--color-text)]
+    shadow-[0_3px_10px_rgba(16,42,67,0.10)]
+    transition-all
+    hover:bg-[var(--color-surface)]
+    hover:border-[var(--color-accent)]
+    active:scale-[0.99]
+    disabled:cursor-not-allowed
+    disabled:opacity-60
+  `,
 
     // Soft button
     light: `
