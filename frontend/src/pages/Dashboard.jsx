@@ -55,10 +55,8 @@ function distanceBetweenPoints(a, b) {
   }
 
   const toRadians = (degrees) => (degrees * Math.PI) / 180;
-
   const dLat = toRadians(lat2 - lat1);
   const dLon = toRadians(lon2 - lon1);
-
   const lat1Rad = toRadians(lat1);
   const lat2Rad = toRadians(lat2);
 
@@ -73,16 +71,11 @@ function distanceBetweenPoints(a, b) {
  * Convert milliseconds to HH:MM:SS.
  */
 function formatDuration(milliseconds) {
-  if (!Number.isFinite(milliseconds) || milliseconds <= 0) {
-    return null;
-  }
+  if (!Number.isFinite(milliseconds) || milliseconds <= 0) return null;
 
   const totalSeconds = Math.floor(milliseconds / 1000);
-
   const hours = Math.floor(totalSeconds / 3600);
-
   const minutes = Math.floor((totalSeconds % 3600) / 60);
-
   const seconds = totalSeconds % 60;
 
   return [
@@ -99,21 +92,15 @@ function formatDuration(milliseconds) {
  */
 
 function calculateNumericStats(values) {
-  const numbers = values.map((value) => Number(value)).filter(Number.isFinite);
+  const numbers = values.map(Number).filter(Number.isFinite);
 
-  if (numbers.length === 0) {
-    return {
-      min: null,
-      average: null,
-      max: null,
-    };
+  if (!numbers.length) {
+    return { min: null, average: null, max: null };
   }
 
   return {
     min: Math.min(...numbers),
-
     average: numbers.reduce((sum, value) => sum + value, 0) / numbers.length,
-
     max: Math.max(...numbers),
   };
 }
@@ -132,12 +119,9 @@ function getReadingTimestamp(reading, fallback) {
     reading?._receivedAt ||
     fallback;
 
-  if (!timestamp) {
-    return null;
-  }
+  if (!timestamp) return null;
 
   const date = new Date(timestamp);
-
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
@@ -151,37 +135,17 @@ function formatUpdatedText(timestamp) {
   const date =
     timestamp instanceof Date ? timestamp : getReadingTimestamp(timestamp);
 
-  if (!date) {
-    return "Waiting for data";
-  }
+  if (!date) return "Waiting for data";
 
-  const difference = Math.max(0, Date.now() - date.getTime());
-
-  const seconds = Math.floor(difference / 1000);
-
+  const seconds = Math.floor(Math.max(0, Date.now() - date.getTime()) / 1000);
   const minutes = Math.floor(seconds / 60);
-
   const hours = Math.floor(minutes / 60);
 
-  if (seconds < 10) {
-    return "Just now";
-  }
-
-  if (seconds < 60) {
-    return `${seconds} sec ago`;
-  }
-
-  if (minutes === 1) {
-    return "1 min ago";
-  }
-
-  if (minutes < 60) {
-    return `${minutes} min ago`;
-  }
-
-  if (hours === 1) {
-    return "1 hour ago";
-  }
+  if (seconds < 10) return "Just now";
+  if (seconds < 60) return `${seconds} sec ago`;
+  if (minutes === 1) return "1 min ago";
+  if (minutes < 60) return `${minutes} min ago`;
+  if (hours === 1) return "1 hour ago";
 
   return `${hours} hours ago`;
 }
@@ -211,11 +175,8 @@ function calculateCalories(distanceKm, durationMs, elevationGain = 0) {
     return null;
   }
 
-  const hours = durationMs / (1000 * 60 * 60);
-
-  if (hours <= 0) {
-    return null;
-  }
+  const hours = durationMs / 3600000;
+  if (hours <= 0) return null;
 
   const speed = distanceKm / hours;
 
@@ -224,13 +185,9 @@ function calculateCalories(distanceKm, durationMs, elevationGain = 0) {
    */
   let met = 5;
 
-  if (speed >= 7) {
-    met = 8;
-  } else if (speed >= 5) {
-    met = 7;
-  } else if (speed >= 3) {
-    met = 6;
-  }
+  if (speed >= 7) met = 8;
+  else if (speed >= 5) met = 7;
+  else if (speed >= 3) met = 6;
 
   /*
    * Default reference weight.
@@ -260,7 +217,6 @@ function calculateCalories(distanceKm, durationMs, elevationGain = 0) {
 
 export default function Dashboard() {
   const { user } = useAuth();
-
   const { selectedDeviceId, selectedDevice } = useDevices();
 
   const {
@@ -281,9 +237,7 @@ export default function Dashboard() {
    */
 
   const [initialVitals, setInitialVitals] = useState(null);
-
   const [initialEnv, setInitialEnv] = useState(null);
-
   const [initialLoc, setInitialLoc] = useState(null);
 
   /*
@@ -293,7 +247,6 @@ export default function Dashboard() {
    */
 
   const [vitalsHistory, setVitalsHistory] = useState([]);
-
   const [environmentHistory, setEnvironmentHistory] = useState([]);
 
   /*
@@ -303,7 +256,6 @@ export default function Dashboard() {
    */
 
   const [vitalStats, setVitalStats] = useState(null);
-
   const [environmentStats, setEnvironmentStats] = useState(null);
 
   /*
@@ -313,7 +265,6 @@ export default function Dashboard() {
    */
 
   const [recentFalls, setRecentFalls] = useState([]);
-
   const [trail, setTrail] = useState([]);
 
   /*
@@ -327,16 +278,12 @@ export default function Dashboard() {
       setInitialVitals(null);
       setInitialEnv(null);
       setInitialLoc(null);
-
       setVitalsHistory([]);
       setEnvironmentHistory([]);
-
       setVitalStats(null);
       setEnvironmentStats(null);
-
       setRecentFalls([]);
       setTrail([]);
-
       return;
     }
 
@@ -355,13 +302,9 @@ export default function Dashboard() {
         environmentHistoryRes,
       ] = await Promise.allSettled([
         vitalsApi.latest(deviceId),
-
         environmentApi.latest(deviceId),
-
         locationApi.latest(deviceId),
-
         fallsApi.all(deviceId),
-
         locationApi.history(deviceId, 24),
 
         /*
@@ -370,15 +313,11 @@ export default function Dashboard() {
         vitalsApi.history(deviceId, 1),
 
         vitalsApi.stats(deviceId, 1),
-
         environmentApi.stats(deviceId, 1),
-
         environmentApi.history(deviceId, 1),
       ]);
 
-      if (cancelled) {
-        return;
-      }
+      if (cancelled) return;
 
       /*
        * Latest readings
@@ -400,27 +339,23 @@ export default function Dashboard() {
        * Vitals history
        */
 
-      if (
+      setVitalsHistory(
         vitalsHistoryRes.status === "fulfilled" &&
-        Array.isArray(vitalsHistoryRes.value)
-      ) {
-        setVitalsHistory(vitalsHistoryRes.value);
-      } else {
-        setVitalsHistory([]);
-      }
+          Array.isArray(vitalsHistoryRes.value)
+          ? vitalsHistoryRes.value
+          : [],
+      );
 
       /*
        * Environment history
        */
 
-      if (
+      setEnvironmentHistory(
         environmentHistoryRes.status === "fulfilled" &&
-        Array.isArray(environmentHistoryRes.value)
-      ) {
-        setEnvironmentHistory(environmentHistoryRes.value);
-      } else {
-        setEnvironmentHistory([]);
-      }
+          Array.isArray(environmentHistoryRes.value)
+          ? environmentHistoryRes.value
+          : [],
+      );
 
       /*
        * Falls
@@ -480,9 +415,7 @@ export default function Dashboard() {
    */
 
   useEffect(() => {
-    if (!deviceId) {
-      return;
-    }
+    if (!deviceId) return;
 
     let cancelled = false;
 
@@ -495,17 +428,12 @@ export default function Dashboard() {
           environmentStatsData,
         ] = await Promise.all([
           vitalsApi.history(deviceId, 1),
-
           environmentApi.history(deviceId, 1),
-
           vitalsApi.stats(deviceId, 1),
-
           environmentApi.stats(deviceId, 1),
         ]);
 
-        if (cancelled) {
-          return;
-        }
+        if (cancelled) return;
 
         if (Array.isArray(vitalsHistoryData)) {
           setVitalsHistory(vitalsHistoryData);
@@ -516,7 +444,6 @@ export default function Dashboard() {
         }
 
         setVitalStats(vitalsStatsData);
-
         setEnvironmentStats(environmentStatsData);
       } catch (error) {
         if (!cancelled) {
@@ -543,9 +470,7 @@ export default function Dashboard() {
    */
 
   useEffect(() => {
-    if (!deviceId || !vitals) {
-      return;
-    }
+    if (!deviceId || !vitals) return;
 
     const timestamp =
       vitals.timestamp ||
@@ -562,17 +487,9 @@ export default function Dashboard() {
         return itemTimestamp === timestamp;
       });
 
-      if (alreadyExists) {
-        return previous;
-      }
+      if (alreadyExists) return previous;
 
-      return [
-        ...previous,
-        {
-          ...vitals,
-          timestamp,
-        },
-      ].slice(-100);
+      return [...previous, { ...vitals, timestamp }].slice(-100);
     });
   }, [deviceId, vitals, vitalsUpdatedAt]);
 
@@ -583,9 +500,7 @@ export default function Dashboard() {
    */
 
   useEffect(() => {
-    if (!deviceId || !environment) {
-      return;
-    }
+    if (!deviceId || !environment) return;
 
     const timestamp =
       environment.timestamp ||
@@ -602,17 +517,9 @@ export default function Dashboard() {
         return itemTimestamp === timestamp;
       });
 
-      if (alreadyExists) {
-        return previous;
-      }
+      if (alreadyExists) return previous;
 
-      return [
-        ...previous,
-        {
-          ...environment,
-          timestamp,
-        },
-      ].slice(-100);
+      return [...previous, { ...environment, timestamp }].slice(-100);
     });
   }, [deviceId, environment, environmentUpdatedAt]);
 
@@ -623,9 +530,7 @@ export default function Dashboard() {
    */
 
   const hr = vitals || initialVitals;
-
   const env = environment || initialEnv;
-
   const loc = location || initialLoc;
 
   /*
@@ -661,7 +566,9 @@ export default function Dashboard() {
         durationMs: 0,
         elevationGain: null,
         distancePoints: [],
+        durationPoints: [],
         elevationPoints: [],
+        caloriePoints: [],
       };
     }
 
@@ -669,22 +576,18 @@ export default function Dashboard() {
     let totalElevationGain = 0;
 
     const distancePoints = [0];
-
+    const durationPoints = [0];
     const elevationPoints = [0];
+    const caloriePoints = [0];
 
     for (let i = 1; i < points.length; i++) {
       const previous = points[i - 1];
-
       const current = points[i];
 
-      const segmentDistance = distanceBetweenPoints(previous, current);
-
-      totalDistance += segmentDistance;
-
+      totalDistance += distanceBetweenPoints(previous, current);
       distancePoints.push(totalDistance);
 
       const previousAltitude = Number(previous.altitude);
-
       const currentAltitude = Number(current.altitude);
 
       if (
@@ -699,26 +602,36 @@ export default function Dashboard() {
       }
 
       elevationPoints.push(totalElevationGain);
+
+      // Elapsed time at this trail point
+      const elapsedMs =
+        new Date(current.timestamp) - new Date(points[0].timestamp);
+
+      durationPoints.push(Math.max(0, elapsedMs));
+
+      // Estimated calories at this trail point
+      caloriePoints.push(
+        calculateCalories(
+          totalDistance,
+          Math.max(0, elapsedMs),
+          totalElevationGain,
+        ) ?? 0,
+      );
     }
 
     const firstTimestamp = new Date(points[0].timestamp);
-
     const lastTimestamp = new Date(points[points.length - 1].timestamp);
-
     const durationMs = lastTimestamp - firstTimestamp;
 
     return {
       distance: totalDistance,
-
       duration: formatDuration(durationMs),
-
       durationMs,
-
       elevationGain: totalElevationGain,
-
       distancePoints,
-
+      durationPoints,
       elevationPoints,
+      caloriePoints,
     };
   }, [trail]);
 
@@ -791,7 +704,10 @@ export default function Dashboard() {
   const heartRateTimestamp = getReadingTimestamp(hr, vitalsUpdatedAt);
   const environmentTimestamp = getReadingTimestamp(env, environmentUpdatedAt);
   const locationTimestamp = getReadingTimestamp(loc, locationUpdatedAt);
-  const locationUpdatedText = formatUpdatedText(locationTimestamp);
+  const locationUpdatedText = hasLocation
+    ? formatUpdatedText(locationTimestamp)
+    : "Waiting for signal...";
+
   /*
    * ========================================================
    * NOTIFICATIONS
@@ -800,11 +716,8 @@ export default function Dashboard() {
 
   const notifications = recentFalls.map((fall) => ({
     id: fall._id,
-
     title: `${fall.severity} fall detected`,
-
     message: "TrailGuard detected a possible fall event.",
-
     time: new Date(fall.timestamp).toLocaleString(undefined, {
       month: "short",
       day: "numeric",
@@ -828,19 +741,12 @@ export default function Dashboard() {
 
     {
       icon: <HeartIcon color="#FF6B85" />,
-
       iconType: "heart",
-
       label: "HEART RATE",
-
       value: hr?.heartRate ?? "--",
-
       unit: "bpm",
-
       status: hr?.heartRate != null ? "Live" : undefined,
-
       statusColor: "#0E9C8C",
-
       variant: "ppg",
 
       /*
@@ -850,13 +756,14 @@ export default function Dashboard() {
        *
        * Do NOT use irSamples here.
        */
+
       signal: vitalsHistory
         .map((item) => item.heartRate)
         .filter((value) => value != null),
 
       normalRange: "Normal Range: 60 - 100 bpm",
-
       updatedAt: heartRateTimestamp,
+
       miniStats: [
         [
           "Resting",
@@ -864,14 +771,12 @@ export default function Dashboard() {
             ? Math.round(heartRateStats.min)
             : (vitalStats?.minHeartRate ?? "--"),
         ],
-
         [
           "Avg 1h",
           heartRateStats.average != null
             ? Math.round(heartRateStats.average)
             : (vitalStats?.averageHeartRate ?? "--"),
         ],
-
         [
           "Peak",
           heartRateStats.max != null
@@ -889,34 +794,23 @@ export default function Dashboard() {
 
     {
       icon: <DropletIcon />,
-
       iconType: "oxygen",
-
       label: "BLOOD OXYGEN",
-
       value: hr?.spo2 ?? "--",
-
       unit: "% SpO₂",
-
       status: hr?.spo2 != null ? "Normal" : undefined,
-
       statusColor: "#2BAE8A",
-
       variant: "gauge",
-
       gaugePct: hr?.spo2 ?? 0,
-
       normalRange: "Normal Range: 95% - 100%",
-
       updatedAt: heartRateTimestamp,
+
       miniStats: [
         ["Min", spo2Stats.min != null ? `${spo2Stats.min.toFixed(0)}%` : "--"],
-
         [
           "Avg",
           spo2Stats.average != null ? `${spo2Stats.average.toFixed(1)}%` : "--",
         ],
-
         ["Max", spo2Stats.max != null ? `${spo2Stats.max.toFixed(0)}%` : "--"],
       ],
     },
@@ -929,19 +823,18 @@ export default function Dashboard() {
 
     {
       icon: <ThermometerIcon />,
-
       iconType: "temperature",
-
       label: "TEMPERATURE",
-
       value:
         env?.temperature != null ? Number(env.temperature).toFixed(1) : "--",
-
       unit: "°C",
-
       status: env?.temperature != null ? "Mild" : undefined,
 
-      statusColor: "#102A43",
+      /*
+       * StatCard now resolves semantic
+       * status colors for dark mode.
+       */
+      statusColor: "#FBBF24",
 
       variant: "tempGauge",
 
@@ -954,8 +847,8 @@ export default function Dashboard() {
           : 0,
 
       normalRange: "Comfort Range: 18°C - 26°C",
-
       updatedAt: environmentTimestamp,
+
       miniStats: [
         [
           "Low",
@@ -965,14 +858,12 @@ export default function Dashboard() {
               ? `${Number(environmentStats.minTemperature).toFixed(1)}°`
               : "--",
         ],
-
         [
           "Now",
           env?.temperature != null
             ? `${Number(env.temperature).toFixed(1)}°`
             : "--",
         ],
-
         [
           "High",
           temperatureStats.max != null
@@ -992,19 +883,12 @@ export default function Dashboard() {
 
     {
       icon: <HumidityIcon />,
-
       iconType: "humidity",
-
       label: "HUMIDITY",
-
       value: env?.humidity != null ? Number(env.humidity).toFixed(1) : "--",
-
       unit: "%",
-
       status: env?.humidity != null ? "Normal" : undefined,
-
       statusColor: "#2BAE8A",
-
       variant: "bars",
 
       signal: environmentHistory
@@ -1012,21 +896,19 @@ export default function Dashboard() {
         .filter((value) => value != null),
 
       normalRange: "Comfort Range: 30% - 60%",
-
       updatedAt: environmentTimestamp,
+
       miniStats: [
         [
           "Low",
           humidityStats.min != null ? `${humidityStats.min.toFixed(1)}%` : "--",
         ],
-
         [
           "Avg",
           humidityStats.average != null
             ? `${humidityStats.average.toFixed(1)}%`
             : "--",
         ],
-
         [
           "High",
           humidityStats.max != null ? `${humidityStats.max.toFixed(1)}%` : "--",
@@ -1042,44 +924,36 @@ export default function Dashboard() {
 
     {
       icon: <PressureIcon />,
-
       iconType: "pressure",
-
       label: "PRESSURE",
-
       value: env?.pressure != null ? Number(env.pressure).toFixed(1) : "--",
-
       unit: "hPa",
-
       status: env?.pressure != null ? "Normal" : undefined,
-
       statusColor: "#8B5CF6",
-
       variant: "pressure",
 
       /*
        * REAL PRESSURE HISTORY
        */
+
       signal: environmentHistory
         .map((item) => item.pressure)
         .filter((value) => value != null),
 
       normalRange: "Normal Range: 1000 - 1025 hPa",
-
       updatedAt: environmentTimestamp,
+
       miniStats: [
         [
           "Low",
           pressureStats.min != null ? pressureStats.min.toFixed(1) : "--",
         ],
-
         [
           "Avg",
           pressureStats.average != null
             ? pressureStats.average.toFixed(1)
             : "--",
         ],
-
         [
           "High",
           pressureStats.max != null ? pressureStats.max.toFixed(1) : "--",
@@ -1103,11 +977,11 @@ export default function Dashboard() {
 
         <header className="flex shrink-0 items-center justify-between gap-4 px-1">
           <div className="min-w-0">
-            <h1 className="truncate text-[26px] font-bold tracking-[-0.03em] text-slate-900">
+            <h1 className="truncate text-[26px] font-bold tracking-[-0.03em] text-[var(--color-text)]">
               Welcome back, {user?.username || "User"}! 👋
             </h1>
 
-            <p className="mt-0.5 text-[14px] text-slate-500">
+            <p className="mt-0.5 text-[14px] text-[var(--color-text-secondary)]">
               {selectedDevice
                 ? `${
                     selectedDevice.name || "TrailGuard Wearable"
@@ -1118,7 +992,6 @@ export default function Dashboard() {
 
           <div className="flex shrink-0 items-center gap-4">
             <NotificationBell notifications={notifications} />
-
             <ProfileMenu />
           </div>
         </header>
@@ -1140,26 +1013,26 @@ export default function Dashboard() {
         <section className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[1.45fr_minmax(300px,0.8fr)]">
           {/* ------------------------------------------------
            * LIVE LOCATION
-           * ---------------------------------------------- */}
+           * ------------------------------------------------ */}
 
-          <section className="flex min-h-0 flex-col rounded-[22px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)]">
+          <section className="flex min-h-0 flex-col rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-card)]">
             <div className="mb-3 flex shrink-0 items-center justify-between">
-              <h2 className="text-[17px] font-semibold tracking-[-0.02em] text-slate-900">
+              <h2 className="text-[17px] font-semibold tracking-[-0.02em] text-[var(--color-text)]">
                 Live Location
               </h2>
 
-              <span className="flex items-center gap-2 text-xs text-slate-500">
+              <span className="flex items-center gap-2 text-xs text-[var(--color-text-secondary)]">
                 <span
                   className={`h-2 w-2 rounded-full ${
-                    hasLocation ? "bg-emerald-500" : "bg-slate-300"
+                    hasLocation ? "bg-emerald-500" : "bg-slate-400"
                   }`}
                 />
 
-                {hasLocation ? locationUpdatedText : "Waiting for signal..."}
+                {locationUpdatedText}
               </span>
             </div>
 
-            <div className="min-h-[220px] flex-1 overflow-hidden rounded-[16px] border border-slate-200 bg-slate-100">
+            <div className="min-h-[220px] flex-1 overflow-hidden rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface-alt)]">
               <LiveMap
                 latitude={loc?.latitude}
                 longitude={loc?.longitude}
@@ -1167,7 +1040,7 @@ export default function Dashboard() {
               />
             </div>
 
-            <div className="mt-2 shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-medium text-slate-600">
+            <div className="mt-2 shrink-0 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-4 py-2.5 text-xs font-medium text-[var(--color-text-secondary)]">
               {hasLocation
                 ? `${Number(loc.latitude).toFixed(5)}, ${Number(
                     loc.longitude,
@@ -1178,17 +1051,17 @@ export default function Dashboard() {
 
           {/* ------------------------------------------------
            * RECENT EVENTS
-           * ---------------------------------------------- */}
+           * ------------------------------------------------ */}
 
-          <section className="flex min-h-0 flex-col rounded-[22px] border border-slate-200 bg-white p-4 shadow-[var(--shadow-card)]">
+          <section className="flex min-h-0 flex-col rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-card)]">
             <div className="mb-3 flex shrink-0 items-center justify-between">
-              <h2 className="text-[17px] font-semibold tracking-[-0.02em] text-slate-900">
+              <h2 className="text-[17px] font-semibold tracking-[-0.02em] text-[var(--color-text)]">
                 Recent Events
               </h2>
 
               <button
                 type="button"
-                className="text-xs font-medium text-teal-600 transition hover:text-teal-700"
+                className="text-xs font-medium text-[var(--color-accent-dark)] transition hover:opacity-80"
               >
                 View all
               </button>
@@ -1196,17 +1069,17 @@ export default function Dashboard() {
 
             <div className="min-h-0 flex-1 overflow-auto">
               {recentFalls.length === 0 ? (
-                <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 p-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+                <div className="flex items-center gap-3 rounded-2xl border border-emerald-200/40 bg-emerald-500/10 p-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-400">
                     ✓
                   </div>
 
                   <div>
-                    <div className="text-sm font-semibold text-slate-800">
+                    <div className="text-sm font-semibold text-[var(--color-text)]">
                       No fall events today
                     </div>
 
-                    <div className="mt-0.5 text-xs text-emerald-600">
+                    <div className="mt-0.5 text-xs text-emerald-400">
                       All clear
                     </div>
                   </div>
@@ -1216,11 +1089,11 @@ export default function Dashboard() {
                   {recentFalls.map((fall) => (
                     <div
                       key={fall._id}
-                      className="rounded-2xl border border-slate-200 bg-slate-50 p-3"
+                      className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3 transition hover:border-[var(--color-accent)]/40"
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <div className="text-sm font-semibold text-slate-800">
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold text-[var(--color-text)]">
                             {new Date(fall.timestamp).toLocaleString(
                               undefined,
                               {
@@ -1232,12 +1105,12 @@ export default function Dashboard() {
                             )}
                           </div>
 
-                          <div className="mt-1 text-xs capitalize text-slate-500">
+                          <div className="mt-1 text-xs capitalize text-[var(--color-text-secondary)]">
                             {fall.severity} fall
                           </div>
                         </div>
 
-                        <span className="rounded-full bg-slate-200 px-2 py-1 text-[9px] font-semibold uppercase tracking-wide text-slate-600">
+                        <span className="shrink-0 rounded-full bg-[var(--color-border)] px-2 py-1 text-[9px] font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
                           {fall.status?.replace(/_/g, " ") || "UNKNOWN"}
                         </span>
                       </div>
@@ -1258,12 +1131,11 @@ export default function Dashboard() {
             distance={activity.distance}
             duration={activity.duration}
             elevationGain={activity.elevationGain}
-            /*
-             * NOW DYNAMIC
-             */
             calories={calories}
             distancePoints={activity.distancePoints}
+            durationPoints={activity.durationPoints}
             elevationPoints={activity.elevationPoints}
+            caloriePoints={activity.caloriePoints}
           />
         </section>
       </div>

@@ -6,42 +6,23 @@ import { Clock3 } from "lucide-react";
  * ======================================================= */
 
 function formatUpdatedTime(timestamp) {
-  if (!timestamp) {
-    return null;
-  }
+  if (!timestamp) return null;
 
   const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return null;
 
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
+  const seconds = Math.floor(Math.max(0, Date.now() - date.getTime()) / 1000);
 
-  const difference = Math.max(0, Date.now() - date.getTime());
-
-  const seconds = Math.floor(difference / 1000);
-
-  if (seconds < 10) {
-    return "Just now";
-  }
-
-  if (seconds < 60) {
-    return `${seconds} sec ago`;
-  }
+  if (seconds < 10) return "Just now";
+  if (seconds < 60) return `${seconds} sec ago`;
 
   const minutes = Math.floor(seconds / 60);
-
-  if (minutes < 60) {
-    return `${minutes} min ago`;
-  }
+  if (minutes < 60) return `${minutes} min ago`;
 
   const hours = Math.floor(minutes / 60);
-
-  if (hours < 24) {
-    return `${hours} hr ago`;
-  }
+  if (hours < 24) return `${hours} hr ago`;
 
   const days = Math.floor(hours / 24);
-
   return `${days} day${days === 1 ? "" : "s"} ago`;
 }
 
@@ -53,17 +34,10 @@ function useUpdatedTime(timestamp) {
   const [, setNow] = useState(Date.now());
 
   useEffect(() => {
-    if (!timestamp) {
-      return undefined;
-    }
+    if (!timestamp) return;
 
-    const interval = setInterval(() => {
-      setNow(Date.now());
-    }, 10_000);
-
-    return () => {
-      clearInterval(interval);
-    };
+    const interval = setInterval(() => setNow(Date.now()), 10_000);
+    return () => clearInterval(interval);
   }, [timestamp]);
 
   return formatUpdatedTime(timestamp);
@@ -74,41 +48,22 @@ function useUpdatedTime(timestamp) {
  * ======================================================= */
 
 function MiniStats({ items = [] }) {
-  if (items.length !== 3) {
-    return null;
-  }
+  if (items.length !== 3) return null;
 
   return (
-    <div className="grid grid-cols-3 border-t border-slate-100 pt-4">
+    <div className="grid grid-cols-3 border-t border-[var(--color-border)] pt-4">
       {items.map(([label, value], index) => (
         <div
           key={`${label}-${index}`}
           className={`min-w-0 ${
-            index > 0 ? "border-l border-slate-200 pl-3" : "pr-3"
+            index > 0 ? "border-l border-[var(--color-border)] pl-3" : "pr-3"
           } ${index === 2 ? "pl-3 pr-0" : ""}`}
         >
-          <div
-            className="
-                truncate
-                text-[15px]
-                font-semibold
-                leading-5
-                tabular-nums
-                text-slate-900
-              "
-          >
+          <div className="truncate text-[15px] font-semibold leading-5 tabular-nums text-[var(--color-text)]">
             {value}
           </div>
 
-          <div
-            className="
-                mt-1
-                truncate
-                text-[10px]
-                font-medium
-                text-slate-400
-              "
-          >
+          <div className="mt-1 truncate text-[10px] font-medium text-[var(--color-text-muted)]">
             {label}
           </div>
         </div>
@@ -151,9 +106,7 @@ function LineTrace({
           }
 
           if (item && typeof item === "object") {
-            if (Number.isFinite(Number(item.value))) {
-              return Number(item.value);
-            }
+            if (Number.isFinite(Number(item.value))) return Number(item.value);
 
             if (
               sensorType === "heart" &&
@@ -179,17 +132,7 @@ function LineTrace({
 
   if (visibleValues.length < 2) {
     return (
-      <div
-        className="
-          flex
-          h-[86px]
-          items-center
-          justify-center
-          text-[10px]
-          font-medium
-          text-slate-300
-        "
-      >
+      <div className="flex h-[86px] items-center justify-center text-[10px] font-medium text-[var(--color-text-muted)]">
         {emptyText}
       </div>
     );
@@ -200,20 +143,9 @@ function LineTrace({
    * ===================================================== */
 
   const settings = {
-    heart: {
-      minimumRange: 20,
-      rounding: 0,
-    },
-
-    pressure: {
-      minimumRange: 6,
-      rounding: 1,
-    },
-
-    generic: {
-      minimumRange: 10,
-      rounding: 1,
-    },
+    heart: { minimumRange: 20, rounding: 0 },
+    pressure: { minimumRange: 6, rounding: 1 },
+    generic: { minimumRange: 10, rounding: 1 },
   };
 
   const config = settings[sensorType] || settings.generic;
@@ -226,19 +158,10 @@ function LineTrace({
   const dataMax = Math.max(...visibleValues);
   const dataRange = dataMax - dataMin;
   const effectiveRange = Math.max(dataRange, config.minimumRange);
-
-  /*
-   * Smaller padding = more visible movement.
-   */
-
   const padding = effectiveRange * 0.15;
+
   let chartMin = dataMin - padding;
   let chartMax = dataMax + padding;
-
-  /*
-   * If variation is tiny, center around
-   * the actual sensor values.
-   */
 
   if (dataRange < config.minimumRange) {
     const center = (dataMin + dataMax) / 2;
@@ -251,8 +174,10 @@ function LineTrace({
    * ===================================================== */
 
   const factor = 10 ** config.rounding;
+
   chartMin = Math.floor(chartMin * factor) / factor;
   chartMax = Math.ceil(chartMax * factor) / factor;
+
   if (chartMax <= chartMin) {
     chartMax = chartMin + config.minimumRange;
   }
@@ -270,19 +195,14 @@ function LineTrace({
    * Labels
    * ===================================================== */
 
-  const middle = chartMin + range / 2;
-
-  const formatLabel = (value) => {
-    if (config.rounding === 0) {
-      return Math.round(value);
-    }
-
-    return Number(value.toFixed(config.rounding));
-  };
+  const formatLabel = (value) =>
+    config.rounding === 0
+      ? Math.round(value)
+      : Number(value.toFixed(config.rounding));
 
   const labels = [
     formatLabel(chartMax),
-    formatLabel(middle),
+    formatLabel(chartMin + range / 2),
     formatLabel(chartMin),
   ];
 
@@ -293,8 +213,10 @@ function LineTrace({
   const points = visibleValues
     .map((value, index) => {
       const x = 4 + (index / (visibleValues.length - 1)) * (width - 8);
+
       const safeValue = Math.min(Math.max(value, chartMin), chartMax);
       const y = 6 + ((chartMax - safeValue) / range) * (height - 12);
+
       return `${x},${y}`;
     })
     .join(" ");
@@ -309,35 +231,14 @@ function LineTrace({
   const lastY = 6 + ((chartMax - safeLastValue) / range) * (height - 12);
 
   return (
-    <div
-      className="
-        grid
-        h-[86px]
-        grid-cols-[34px_minmax(0,1fr)]
-        gap-2
-      "
-    >
+    <div className="grid h-[86px] grid-cols-[34px_minmax(0,1fr)] gap-2">
       {/* Y axis */}
 
-      <div
-        className="
-          flex
-          h-full
-          flex-col
-          justify-between
-          py-[1px]
-        "
-      >
+      <div className="flex h-full flex-col justify-between py-[1px]">
         {labels.map((label, index) => (
           <span
             key={`${label}-${index}`}
-            className="
-                text-[9px]
-                font-medium
-                leading-none
-                tabular-nums
-                text-slate-400
-              "
+            className="text-[9px] font-medium leading-none tabular-nums text-[var(--color-text-muted)]"
           >
             {label}
           </span>
@@ -346,13 +247,7 @@ function LineTrace({
 
       {/* Graph */}
 
-      <div
-        className="
-          relative
-          min-w-0
-          overflow-hidden
-        "
-      >
+      <div className="relative min-w-0 overflow-hidden">
         <svg
           viewBox={`0 0 ${width} ${height}`}
           className="h-full w-full"
@@ -370,7 +265,7 @@ function LineTrace({
                 x2={width}
                 y1={y}
                 y2={y}
-                stroke="#E5E7EB"
+                stroke="var(--color-border)"
                 strokeWidth="1"
                 strokeDasharray="3 4"
               />
@@ -410,10 +305,7 @@ function BarTrace({ color, samples = [], emptyText = "Waiting for data..." }) {
           }
 
           if (item && typeof item === "object") {
-            if (Number.isFinite(Number(item.value))) {
-              return Number(item.value);
-            }
-
+            if (Number.isFinite(Number(item.value))) return Number(item.value);
             if (Number.isFinite(Number(item.humidity))) {
               return Number(item.humidity);
             }
@@ -428,86 +320,40 @@ function BarTrace({ color, samples = [], emptyText = "Waiting for data..." }) {
 
   if (visibleValues.length < 2) {
     return (
-      <div
-        className="
-          flex
-          h-[86px]
-          items-center
-          justify-center
-          text-[10px]
-          font-medium
-          text-slate-300
-        "
-      >
+      <div className="flex h-[86px] items-center justify-center text-[10px] font-medium text-[var(--color-text-muted)]">
         {emptyText}
       </div>
     );
   }
 
   return (
-    <div
-      className="
-        grid
-        h-[86px]
-        grid-cols-[34px_minmax(0,1fr)]
-        gap-2
-      "
-    >
-      <div
-        className="
-          flex
-          h-full
-          flex-col
-          justify-between
-          py-[1px]
-        "
-      >
-        <span className="text-[9px] font-medium text-slate-400">100</span>
-
-        <span className="text-[9px] font-medium text-slate-400">50</span>
-
-        <span className="text-[9px] font-medium text-slate-400">0</span>
+    <div className="grid h-[86px] grid-cols-[34px_minmax(0,1fr)] gap-2">
+      <div className="flex h-full flex-col justify-between py-[1px]">
+        {["100", "50", "0"].map((value) => (
+          <span
+            key={value}
+            className="text-[9px] font-medium text-[var(--color-text-muted)]"
+          >
+            {value}
+          </span>
+        ))}
       </div>
 
       <div className="relative min-w-0">
-        <div
-          className="
-            pointer-events-none
-            absolute
-            inset-0
-            flex
-            flex-col
-            justify-between
-          "
-        >
-          <div className="border-t border-dashed border-slate-200" />
-          <div className="border-t border-dashed border-slate-200" />
-          <div className="border-t border-dashed border-slate-200" />
+        <div className="pointer-events-none absolute inset-0 flex flex-col justify-between">
+          <div className="border-t border-dashed border-[var(--color-border)]" />
+          <div className="border-t border-dashed border-[var(--color-border)]" />
+          <div className="border-t border-dashed border-[var(--color-border)]" />
         </div>
 
-        <div
-          className="
-            relative
-            flex
-            h-full
-            items-end
-            gap-[7px]
-            px-1
-          "
-        >
+        <div className="relative flex h-full items-end gap-[7px] px-1">
           {visibleValues.map((value, index) => {
             const safeValue = Math.min(Math.max(value, 0), 100);
 
             return (
               <span
                 key={`${value}-${index}`}
-                className="
-                    w-[3px]
-                    shrink-0
-                    rounded-full
-                    transition-all
-                    duration-500
-                  "
+                className="w-[3px] shrink-0 rounded-full transition-all duration-500"
                 style={{
                   height: `${Math.max(3, safeValue)}%`,
                   background: color,
@@ -533,46 +379,17 @@ function GaugeBar({ pct = 0, color }) {
   return (
     <div className="relative h-[72px] w-full">
       <div
-        className="
-          absolute
-          left-0
-          right-0
-          top-[32px]
-          h-[7px]
-          rounded-full
-        "
-        style={{
-          background: `${color}25`,
-        }}
+        className="absolute left-0 right-0 top-[32px] h-[7px] rounded-full"
+        style={{ background: `${color}25` }}
       />
 
       <div
-        className="
-          absolute
-          left-0
-          top-[32px]
-          h-[7px]
-          rounded-full
-          transition-all
-          duration-700
-        "
-        style={{
-          width: `${value}%`,
-          background: color,
-        }}
+        className="absolute left-0 top-[32px] h-[7px] rounded-full transition-all duration-700"
+        style={{ width: `${value}%`, background: color }}
       />
 
       <span
-        className="
-          absolute
-          top-[26px]
-          h-[18px]
-          w-[18px]
-          rounded-full
-          bg-white
-          transition-all
-          duration-700
-        "
+        className="absolute top-[26px] h-[18px] w-[18px] rounded-full bg-[var(--color-surface)] transition-all duration-700"
         style={{
           left: `calc(${value}% - 9px)`,
           border: `2px solid ${color}`,
@@ -597,14 +414,7 @@ function TemperatureGauge({ temperature }) {
   return (
     <div className="relative h-[72px] w-full">
       <div
-        className="
-          absolute
-          left-0
-          right-0
-          top-[32px]
-          h-[7px]
-          rounded-full
-        "
+        className="absolute left-0 right-0 top-[32px] h-[7px] rounded-full"
         style={{
           background:
             "linear-gradient(90deg,#1976D2,#18BFC1,#9DDC67,#F2A93B,#F59E0B)",
@@ -612,16 +422,7 @@ function TemperatureGauge({ temperature }) {
       />
 
       <span
-        className="
-          absolute
-          top-[26px]
-          h-[19px]
-          w-[19px]
-          rounded-full
-          bg-white
-          transition-all
-          duration-700
-        "
+        className="absolute top-[26px] h-[19px] w-[19px] rounded-full bg-[var(--color-surface)] transition-all duration-700"
         style={{
           left: `calc(${pct}% - 9.5px)`,
           border: "2px solid #F2A93B",
@@ -635,31 +436,43 @@ function TemperatureGauge({ temperature }) {
 /* =======================================================
  * Sensor Styles
  * ======================================================= */
+const STATUS_COLORS = {
+  live: "#2DD4BF",
+  normal: "#34D399",
+  mild: "#FBBF24",
+  warning: "#FBBF24",
+  alert: "#F87171",
+};
 
 const STYLES = {
   heart: {
-    bg: "#FFF0F3",
-    color: "#FF3B5C",
+    bg: "linear-gradient(145deg,rgba(255,59,92,.22),rgba(255,59,92,.06))",
+    color: "#FF4D6D",
+    glow: "rgba(255,59,92,.28)",
   },
 
   oxygen: {
-    bg: "#E8F2FF",
-    color: "#1976D2",
+    bg: "linear-gradient(145deg,rgba(25,118,210,.24),rgba(25,118,210,.06))",
+    color: "#2196F3",
+    glow: "rgba(33,150,243,.30)",
   },
 
   temperature: {
-    bg: "#FFF5E5",
-    color: "#F2A93B",
+    bg: "linear-gradient(145deg,rgba(242,169,59,.24),rgba(242,169,59,.06))",
+    color: "#FFB84D",
+    glow: "rgba(242,169,59,.28)",
   },
 
   humidity: {
-    bg: "#E4F9F8",
-    color: "#18BFC1",
+    bg: "linear-gradient(145deg,rgba(24,191,193,.24),rgba(24,191,193,.06))",
+    color: "#22D3D5",
+    glow: "rgba(24,191,193,.28)",
   },
 
   pressure: {
-    bg: "#F1EAFF",
-    color: "#8B5CF6",
+    bg: "linear-gradient(145deg,rgba(139,92,246,.24),rgba(139,92,246,.06))",
+    color: "#A78BFA",
+    glow: "rgba(139,92,246,.30)",
   },
 };
 
@@ -683,81 +496,35 @@ export default function StatCard({
   updatedAt,
 }) {
   const style = STYLES[iconType] || STYLES.oxygen;
-
   const updatedText = useUpdatedTime(updatedAt);
+  const resolvedStatusColor =
+    STATUS_COLORS[String(status || "").toLowerCase()] || statusColor;
+  const chartVariant = ["ppg", "line", "bars", "pressure"].includes(variant);
 
   return (
-    <article
-      className="
-        flex
-        min-w-0
-        flex-col
-        rounded-[24px]
-        border
-        border-slate-200/80
-        bg-white
-        p-5
-        shadow-[var(--shadow-card)]
-      "
-    >
+    <article className="flex min-w-0 flex-col rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]">
       {/* Icon */}
 
       <div
-        className="
-          mb-5
-          flex
-          h-12
-          w-12
-          shrink-0
-          items-center
-          justify-center
-          rounded-[14px]
-        "
-        style={{
-          background: style.bg,
-        }}
+        className="mb-5 flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px]"
+        style={{ background: style.bg }}
       >
         {icon}
       </div>
 
       {/* Title + Status */}
 
-      <div
-        className="
-          mb-3
-          flex
-          min-h-[22px]
-          items-center
-          justify-between
-          gap-2
-        "
-      >
-        <span
-          className="
-            min-w-0
-            truncate
-            text-[12px]
-            font-medium
-            tracking-[0.04em]
-            text-slate-500
-          "
-        >
+      <div className="mb-3 flex min-h-[22px] items-center justify-between gap-2">
+        <span className="min-w-0 truncate text-[12px] font-medium tracking-[0.04em] text-[var(--color-text-secondary)]">
           {label}
         </span>
 
         {status && (
           <span
-            className="
-              shrink-0
-              rounded-full
-              px-2.5
-              py-1
-              text-[10px]
-              font-semibold
-            "
+            className="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold"
             style={{
-              background: `${statusColor}18`,
-              color: statusColor,
+              background: `${resolvedStatusColor}20`,
+              color: resolvedStatusColor,
             }}
           >
             {status}
@@ -767,36 +534,13 @@ export default function StatCard({
 
       {/* Current Value */}
 
-      <div
-        className="
-          mb-5
-          flex
-          min-h-[42px]
-          items-baseline
-          gap-1.5
-        "
-      >
-        <span
-          className="
-            text-[32px]
-            font-bold
-            leading-none
-            tracking-[-0.035em]
-            tabular-nums
-            text-slate-900
-          "
-        >
+      <div className="mb-5 flex min-h-[42px] items-baseline gap-1.5">
+        <span className="text-[32px] font-bold leading-none tracking-[-0.035em] tabular-nums text-[var(--color-text)]">
           {value}
         </span>
 
         {unit && (
-          <span
-            className="
-              text-[13px]
-              font-medium
-              text-slate-500
-            "
-          >
+          <span className="text-[13px] font-medium text-[var(--color-text-secondary)]">
             {unit}
           </span>
         )}
@@ -804,16 +548,7 @@ export default function StatCard({
 
       {/* Sensor Visual */}
 
-      <div
-        className={
-          variant === "ppg" ||
-          variant === "line" ||
-          variant === "bars" ||
-          variant === "pressure"
-            ? "mb-2 h-[86px]"
-            : "mb-2 h-[72px]"
-        }
-      >
+      <div className={chartVariant ? "mb-2 h-[86px]" : "mb-2 h-[72px]"}>
         {variant === "ppg" && (
           <LineTrace
             color={style.color}
@@ -824,11 +559,7 @@ export default function StatCard({
         )}
 
         {variant === "line" && (
-          <LineTrace
-            color={style.color}
-            samples={signal}
-            sensorType="generic"
-          />
+          <LineTrace color={style.color} samples={signal} />
         )}
 
         {variant === "bars" && (
@@ -840,9 +571,7 @@ export default function StatCard({
         )}
 
         {variant === "gauge" && <GaugeBar pct={gaugePct} color={style.color} />}
-
         {variant === "tempGauge" && <TemperatureGauge temperature={value} />}
-
         {variant === "pressure" && (
           <LineTrace
             color={style.color}
@@ -858,33 +587,13 @@ export default function StatCard({
       {/* Normal Range */}
 
       {normalRange && (
-        <div
-          className="
-            mb-5
-            flex
-            items-center
-            gap-2
-          "
-        >
+        <div className="mb-5 flex items-center gap-2">
           <span
-            className="
-              h-2
-              w-2
-              shrink-0
-              rounded-full
-            "
-            style={{
-              background: "#20B486",
-            }}
+            className="h-2 w-2 shrink-0 rounded-full"
+            style={{ background: "#20B486" }}
           />
 
-          <span
-            className="
-              text-[10px]
-              font-medium
-              text-slate-500
-            "
-          >
+          <span className="text-[10px] font-medium text-[var(--color-text-secondary)]">
             {normalRange}
           </span>
         </div>
@@ -899,31 +608,9 @@ export default function StatCard({
       {/* Updated */}
 
       {updatedText && (
-        <div
-          className="
-            mt-4
-            flex
-            items-center
-            gap-1.5
-            border-t
-            border-slate-100
-            pt-3
-            text-[10px]
-            font-medium
-            text-slate-400
-          "
-        >
-          <div
-            className="
-              flex
-              items-center
-              gap-2
-              text-[#8AA0C2]
-            "
-          >
-            <Clock3 size={15} strokeWidth={1.7} />
-            <span>Last seen {updatedText}</span>
-          </div>
+        <div className="mt-4 flex items-center gap-1.5 border-t border-[var(--color-border)] pt-3 text-[10px] font-medium text-[var(--color-text-muted)]">
+          <Clock3 size={15} strokeWidth={1.7} />
+          <span>Last seen {updatedText}</span>
         </div>
       )}
     </article>

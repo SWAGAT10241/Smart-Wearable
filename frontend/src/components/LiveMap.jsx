@@ -80,7 +80,7 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
 
   if (!hasLocation) {
     return (
-      <div className="flex h-full min-h-[320px] items-center justify-center bg-slate-100 text-sm text-slate-500">
+      <div className="flex h-full min-h-[320px] items-center justify-center bg-[var(--color-surface-alt)] text-sm text-[var(--color-text-secondary)]">
         Live map will appear once a GPS point arrives.
       </div>
     );
@@ -121,7 +121,7 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
         <Marker position={position} icon={markerIcon} />
       </MapContainer>
 
-      <div className="absolute bottom-3 left-3 z-[1000] flex items-center gap-4 rounded-xl border border-slate-200/80 bg-white/95 px-3 py-2 text-[11px] font-medium text-slate-600 shadow-md backdrop-blur-sm">
+      <div className="absolute bottom-3 left-3 z-[1000] flex items-center gap-4 rounded-xl border border-[var(--color-border)]/80 bg-[var(--color-surface)]/95 px-3 py-2 text-[11px] font-medium text-[var(--color-text-secondary)] shadow-md backdrop-blur-sm">
         <div className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-full bg-[#16B890]" />
           Trail

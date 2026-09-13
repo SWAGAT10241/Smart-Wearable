@@ -48,7 +48,7 @@ export default function CompleteProfile() {
           <Field label="Emergency contact name" name="emergencyContactName" placeholder="Priya Nair" value={form.emergencyContactName} onChange={onChange} required />
           <Field label="Weight (kg)" name="weight" type="number" placeholder="70" value={form.weight} onChange={onChange} required />
         </div>
-        <Field label="Emergency contact phone" name="emergencyContactPhone" placeholder="+1 555 837 1120" value={form.emergencyContactPhone} onChange={onChange} required />
+        <Field label="Emergency contact phone" name="emergencyContactPhone" placeholder="+CountryCode Phone Number" value={form.emergencyContactPhone} onChange={onChange} required />
 
         <Button type="submit" disabled={busy}>{busy ? 'Saving…' : 'Complete profile & continue'}</Button>
       </form>

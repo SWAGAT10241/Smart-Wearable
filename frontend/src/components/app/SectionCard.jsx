@@ -3,10 +3,11 @@ export default function SectionCard({ title, children, className = "" }) {
     <section
       className={`
         rounded-[24px]
-        border border-slate-200
-        bg-white
+       border border-[var(--color-border)]
+        bg-[var(--color-surface)]
         p-5
         shadow-[var(--shadow-card)]
+        
         ${className}
       `}
     >

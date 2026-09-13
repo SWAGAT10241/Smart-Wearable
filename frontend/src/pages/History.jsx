@@ -26,7 +26,7 @@ function Sparkline({ points, color }) {
 
   if (values.length < 2) {
     return (
-      <div className="flex h-[140px] items-center justify-center text-sm text-slate-400">
+      <div className="flex h-[140px] items-center justify-center text-sm text-[var(--color-text-muted)]">
         Not enough data yet
       </div>
     );
@@ -95,25 +95,25 @@ function ChartCard({ title, points, color, unit }) {
   };
 
   return (
-    <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[var(--shadow-card)]">
+    <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]">
       {/* Header */}
 
       <div className="mb-4 flex items-start justify-between gap-4">
         <div>
-          <h3 className="text-base font-semibold text-slate-900">{title}</h3>
-          <p className="mt-1 text-xs text-slate-400">Historical trend</p>
+          <h3 className="text-base font-semibold text-[var(--color-text)]">{title}</h3>
+          <p className="mt-1 text-xs text-[var(--color-text-muted)]">Historical trend</p>
         </div>
         <div className="text-right">
-          <div className="text-xl font-bold tabular-nums text-slate-900">
+          <div className="text-xl font-bold tabular-nums text-[var(--color-text)]">
             {latest != null ? formatValue(latest) : "--"}
           </div>
-          {unit && <div className="text-[11px] text-slate-400">{unit}</div>}
+          {unit && <div className="text-[11px] text-[var(--color-text-muted)]">{unit}</div>}
         </div>
       </div>
 
       {/* Chart */}
 
-      <div className="rounded-2xl bg-slate-50 p-3">
+      <div className="rounded-2xl bg-[var(--color-surface-alt)] p-3">
         <Sparkline points={values} color={color} />
       </div>
 
@@ -121,22 +121,22 @@ function ChartCard({ title, points, color, unit }) {
 
       <div className="mt-4 grid grid-cols-3 border-t border-slate-100 pt-4">
         <div className="pr-3">
-          <div className="text-sm font-semibold tabular-nums text-slate-900">
+          <div className="text-sm font-semibold tabular-nums text-[var(--color-text)]">
             {minimum != null ? formatValue(minimum) : "--"}
           </div>
-          <div className="mt-1 text-[10px] font-medium text-slate-400">MIN</div>
+          <div className="mt-1 text-[10px] font-medium text-[var(--color-text-muted)]">MIN</div>
         </div>
-        <div className="border-l border-slate-200 px-3">
-          <div className="text-sm font-semibold tabular-nums text-slate-900">
+        <div className="border-l border-[var(--color-border)] px-3">
+          <div className="text-sm font-semibold tabular-nums text-[var(--color-text)]">
             {average != null ? formatValue(average) : "--"}
           </div>
-          <div className="mt-1 text-[10px] font-medium text-slate-400">AVG</div>
+          <div className="mt-1 text-[10px] font-medium text-[var(--color-text-muted)]">AVG</div>
         </div>
-        <div className="border-l border-slate-200 pl-3">
-          <div className="text-sm font-semibold tabular-nums text-slate-900">
+        <div className="border-l border-[var(--color-border)] pl-3">
+          <div className="text-sm font-semibold tabular-nums text-[var(--color-text)]">
             {maximum != null ? formatValue(maximum) : "--"}
           </div>
-          <div className="mt-1 text-[10px] font-medium text-slate-400">MAX</div>
+          <div className="mt-1 text-[10px] font-medium text-[var(--color-text-muted)]">MAX</div>
         </div>
       </div>
     </div>
@@ -285,12 +285,12 @@ export default function History() {
          * Header
          * ------------------------------------------------ */}
 
-        <div className="flex flex-col gap-4 rounded-[24px] border border-slate-200 bg-white p-5 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)] sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold tracking-[-0.02em] text-slate-900">
+            <h1 className="text-2xl font-semibold tracking-[-0.02em] text-[var(--color-text)]">
               History & Trends
             </h1>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
               {selectedDevice
                 ? `${selectedDevice.name || "TrailGuard Wearable"} · ${
                     selectedDevice.deviceId
@@ -308,7 +308,7 @@ export default function History() {
                 className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                   range === item.hours
                     ? "bg-slate-900 text-white shadow-sm"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    : "bg-[var(--color-surface-alt)] text-[var(--color-text-secondary)] hover:bg-slate-200"
                 }`}
               >
                 {item.label}
@@ -320,7 +320,7 @@ export default function History() {
          * Loading
          * ------------------------------------------------ */}
         {loading && (
-          <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500 shadow-[var(--shadow-card)]">
+          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm text-[var(--color-text-secondary)] shadow-[var(--shadow-card)]">
             Loading history...
           </div>
         )}
@@ -362,16 +362,16 @@ export default function History() {
         {/* --------------------------------------------------
          * Trail
          * ------------------------------------------------ */}
-        <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[var(--shadow-card)]">
+        <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]">
           <div className="mb-3">
-            <h3 className="text-base font-semibold text-slate-900">
+            <h3 className="text-base font-semibold text-[var(--color-text)]">
               Trail Path
             </h3>
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-xs text-[var(--color-text-muted)]">
               GPS movement during the selected period
             </p>
           </div>
-          <div className="rounded-2xl bg-slate-50 p-3">
+          <div className="rounded-2xl bg-[var(--color-surface-alt)] p-3">
             {trailPath ? (
               <svg
                 viewBox="0 0 560 220"
@@ -389,7 +389,7 @@ export default function History() {
                 />
               </svg>
             ) : (
-              <div className="flex h-[220px] items-center justify-center text-sm text-slate-400">
+              <div className="flex h-[220px] items-center justify-center text-sm text-[var(--color-text-muted)]">
                 No location history for this range
               </div>
             )}
@@ -398,18 +398,18 @@ export default function History() {
         {/* --------------------------------------------------
          * Fall events
          * ------------------------------------------------ */}
-        <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[var(--shadow-card)]">
+        <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]">
           <div className="mb-4">
-            <h3 className="text-base font-semibold text-slate-900">
+            <h3 className="text-base font-semibold text-[var(--color-text)]">
               Fall Event Log
             </h3>
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-xs text-[var(--color-text-muted)]">
               Detected fall events for this device
             </p>
           </div>
-          <div className="grid gap-2 text-sm text-slate-600">
+          <div className="grid gap-2 text-sm text-[var(--color-text-secondary)]">
             {/* Table header */}
-            <div className="hidden grid-cols-[1.2fr_0.7fr_1fr_1fr] gap-3 rounded-xl bg-slate-100 px-3 py-2 font-semibold text-slate-700 md:grid">
+            <div className="hidden grid-cols-[1.2fr_0.7fr_1fr_1fr] gap-3 rounded-xl bg-[var(--color-surface-alt)] px-3 py-2 font-semibold text-[var(--color-text)] md:grid">
               <span>Time</span>
               <span>Severity</span>
               <span>Status</span>
@@ -417,7 +417,7 @@ export default function History() {
             </div>
             {/* Empty */}
             {falls.length === 0 && (
-              <div className="rounded-xl border border-dashed border-slate-200 px-3 py-4 text-slate-500">
+              <div className="rounded-xl border border-dashed border-[var(--color-border)] px-3 py-4 text-[var(--color-text-secondary)]">
                 No fall events recorded.
               </div>
             )}
@@ -430,7 +430,7 @@ export default function History() {
                   gap-2
                   rounded-xl
                   border
-                  border-slate-200
+                  border-[var(--color-border)]
                   px-3
                   py-3
                   md:grid-cols-[1.2fr_0.7fr_1fr_1fr]

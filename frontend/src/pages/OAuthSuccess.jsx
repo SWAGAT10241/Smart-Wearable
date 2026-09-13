@@ -29,7 +29,7 @@ export default function OAuthSuccess() {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-50 text-center">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[var(--color-surface-alt)] text-center">
       <div className="relative h-[72px] w-[72px]">
         <svg width="72" height="72" viewBox="0 0 72 72" className="animate-spin [animation-duration:1s]" style={{ transformOrigin: '50% 50%' }}>
           <circle cx="36" cy="36" r="33" fill="none" stroke="#D9E4E8" strokeWidth="5" />
@@ -42,9 +42,9 @@ export default function OAuthSuccess() {
         </svg>
         <span className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-slate-900" />
       </div>
-      <h1 className="m-0 text-[22px] font-semibold text-slate-900">Signing you in…</h1>
-      <p className="m-0 text-sm text-slate-600">Confirming your Google account with TrailGuard.</p>
-      <div className="rounded-full border border-slate-200 bg-white px-4 py-2 text-[12px] font-medium text-slate-500">Redirecting to your dashboard…</div>
+      <h1 className="m-0 text-[22px] font-semibold text-[var(--color-text)]">Signing you in…</h1>
+      <p className="m-0 text-sm text-[var(--color-text-secondary)]">Confirming your Google account with TrailGuard.</p>
+      <div className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-[12px] font-medium text-[var(--color-text-secondary)]">Redirecting to your dashboard…</div>
     </div>
   );
 }

@@ -1,24 +1,20 @@
 import { useEffect, useState } from "react";
-
+import { useTheme } from "../context/ThemeContext";
 import AppLayout from "../components/app/AppLayout";
 import Field from "../components/auth/Field";
 import Button from "../components/auth/Button";
-
 import { useAuth } from "../context/AuthContext";
 import { useDevices } from "../context/DeviceContext";
-
 import { authApi } from "../lib/apiClient";
 
 function Row({ label, value, badge }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm">
-      <span className="font-medium text-slate-600">{label}</span>
-
-      <span className="flex items-center gap-2 text-right text-slate-800">
+    <div className="flex items-center justify-between gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-3 py-3 text-sm">
+      <span className="font-medium text-[var(--color-text-secondary)]">{label}</span>
+      <span className="flex items-center gap-2 text-right text-[var(--color-text)]">
         {value}
-
         {badge && (
-          <span className="rounded-full bg-teal-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-teal-700">
+          <span className="rounded-full border border-teal-400/20 bg-teal-400/10 px-2 py-0.5 text-[10px] font-bold uppercase text-teal-400">
             {badge}
           </span>
         )}
@@ -27,55 +23,36 @@ function Row({ label, value, badge }) {
   );
 }
 
-function DeviceCard({
-  device,
-  selected,
-  onSelect,
-  onRename,
-  onStatusChange,
-  onRemove,
-}) {
+function DeviceCard({ device, selected, onSelect, onRename, onStatusChange, onRemove }) {
   const [editing, setEditing] = useState(false);
-  const [name, setName] = useState(
-    device.deviceName || device.name || "TrailGuard Wearable",
-  );
+  const [name, setName] = useState(device.deviceName || device.name || "TrailGuard Wearable");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     setName(device.deviceName || device.name || "TrailGuard Wearable");
   }, [device.deviceName, device.name]);
 
+  const deviceName = device.deviceName || device.name || "TrailGuard Wearable";
+  const isActive = device.status === "active";
+
   const saveName = async () => {
-    const trimmedName = name.trim();
-
-    if (!trimmedName) {
-      return;
-    }
-
+    const value = name.trim();
+    if (!value) return;
     setBusy(true);
-
     try {
-      await onRename(device.deviceId, trimmedName);
+      await onRename(device.deviceId, value);
       setEditing(false);
-    } catch (error) {
-      console.error("Failed to rename device:", error);
     } finally {
       setBusy(false);
     }
   };
 
-  const cancelRename = () => {
-    setName(device.deviceName || device.name || "TrailGuard Wearable");
-    setEditing(false);
-  };
-
-  const deviceName = device.deviceName || device.name || "TrailGuard Wearable";
-  const isActive = device.status === "active";
-
   return (
     <div
       className={`rounded-2xl border p-4 transition ${
-        selected ? "border-teal-300 bg-teal-50/50" : "border-slate-200 bg-white"
+        selected
+          ? "border-teal-400/60 bg-teal-400/5"
+          : "border-[var(--color-border)] bg-[var(--color-surface-alt)]"
       }`}
     >
       <div className="flex items-start justify-between gap-4">
@@ -86,17 +63,19 @@ function DeviceCard({
                 label="Device name"
                 name="deviceName"
                 value={name}
-                onChange={(event) => setName(event.target.value)}
+                onChange={(e) => setName(e.target.value)}
               />
 
               <div className="flex gap-2">
                 <Button onClick={saveName} disabled={busy || !name.trim()}>
                   {busy ? "Saving…" : "Save"}
                 </Button>
-
                 <Button
                   variant="secondary"
-                  onClick={cancelRename}
+                  onClick={() => {
+                    setName(deviceName);
+                    setEditing(false);
+                  }}
                   disabled={busy}
                 >
                   Cancel
@@ -106,18 +85,18 @@ function DeviceCard({
           ) : (
             <>
               <div className="flex items-center gap-2">
-                <h4 className="truncate text-base font-semibold text-slate-900">
+                <h4 className="truncate text-base font-semibold text-[var(--color-text)]">
                   {deviceName}
                 </h4>
 
                 {selected && (
-                  <span className="rounded-full bg-teal-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-teal-700">
+                  <span className="rounded-full border border-teal-400/20 bg-teal-400/10 px-2 py-0.5 text-[9px] font-bold uppercase text-teal-400">
                     Selected
                   </span>
                 )}
               </div>
 
-              <p className="mt-1 font-mono text-xs text-slate-500">
+              <p className="mt-1 font-mono text-xs text-[var(--color-text-muted)]">
                 {device.deviceId}
               </p>
             </>
@@ -128,16 +107,11 @@ function DeviceCard({
           <span
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold ${
               isActive
-                ? "bg-emerald-100 text-emerald-700"
-                : "bg-slate-100 text-slate-500"
+                ? "bg-emerald-400/10 text-emerald-400"
+                : "bg-[var(--color-surface)] text-[var(--color-text-muted)]"
             }`}
           >
-            <span
-              className={`h-1.5 w-1.5 rounded-full ${
-                isActive ? "bg-emerald-500" : "bg-slate-400"
-              }`}
-            />
-
+            <span className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-emerald-400" : "bg-slate-400"}`} />
             {isActive ? "Active" : "Inactive"}
           </span>
         )}
@@ -148,25 +122,35 @@ function DeviceCard({
           {isActive && !selected && (
             <Button
               variant="secondary"
+              className="!h-11 !w-auto px-5"
               onClick={() => onSelect(device.deviceId)}
             >
               Select
             </Button>
           )}
 
-          <Button variant="secondary" onClick={() => setEditing(true)}>
+          <Button
+            variant="secondary"
+            className="!h-11 !w-auto px-5"
+            onClick={() => setEditing(true)}
+          >
             Rename
           </Button>
 
           <Button
             variant="secondary"
+            className="!h-11 !w-auto px-5"
             onClick={() => onStatusChange(device.deviceId, device.status)}
           >
             {isActive ? "Deactivate" : "Activate"}
           </Button>
 
           {onRemove && (
-            <Button variant="ghost" onClick={() => onRemove(device.deviceId)}>
+            <Button
+              variant="ghost"
+              className="!h-11 !w-auto px-5"
+              onClick={() => onRemove(device.deviceId)}
+            >
               Unpair
             </Button>
           )}
@@ -178,6 +162,7 @@ function DeviceCard({
 
 export default function Settings() {
   const { user, logout, refreshUser } = useAuth();
+  const { theme, setLightTheme, setDarkTheme } = useTheme();
 
   const {
     devices,
@@ -191,45 +176,15 @@ export default function Settings() {
     loading: devicesLoading,
   } = useDevices();
 
-  const handleToggleDeviceStatus = async (deviceId, currentStatus) => {
-    const nextStatus = currentStatus === "active" ? "inactive" : "active";
-    const device = devices.find((item) => item.deviceId === deviceId);
-    const deviceName = device?.deviceName || device?.name || "this device";
-    const confirmed = window.confirm(
-      `${action === "deactivate" ? "Deactivate" : "Activate"} ${deviceName}?`,
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      await updateDeviceStatus(deviceId, nextStatus);
-    } catch (error) {
-      console.error("Failed to update device status:", error);
-    }
-  };
-  /*
-   * ----------------------------------------------------------
-   * Device registration state
-   * ----------------------------------------------------------
-   */
-
   const [deviceIdInput, setDeviceIdInput] = useState("");
   const [deviceNameInput, setDeviceNameInput] = useState("TrailGuard Wearable");
   const [registeringDevice, setRegisteringDevice] = useState(false);
-  const [deviceRegistrationError, setDeviceRegistrationError] = useState("");
-  const [deviceRegistrationSuccess, setDeviceRegistrationSuccess] =
-    useState("");
-
-  /*
-   * ----------------------------------------------------------
-   * Safety state
-   * ----------------------------------------------------------
-   */
+  const [deviceError, setDeviceError] = useState("");
+  const [deviceSuccess, setDeviceSuccess] = useState("");
 
   const [editingSafety, setEditingSafety] = useState(false);
   const [busy, setBusy] = useState(false);
+
   const [form, setForm] = useState({
     phoneNumber: "",
     emergencyContactName: "",
@@ -238,16 +193,9 @@ export default function Settings() {
     weight: "",
   });
 
-  /*
-   * ----------------------------------------------------------
-   * Sync safety form with authenticated user
-   * ----------------------------------------------------------
-   */
-
   useEffect(() => {
-    if (!user) {
-      return;
-    }
+    if (!user) return;
+
     setForm({
       phoneNumber: user.phoneNumber || "",
       emergencyContactName: user.emergencyContactName || "",
@@ -257,50 +205,29 @@ export default function Settings() {
     });
   }, [user]);
 
-  /*
-   * ----------------------------------------------------------
-   * Form change
-   * ----------------------------------------------------------
-   */
+  const onChange = (e) =>
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
-  const onChange = (event) => {
-    const { name, value } = event.target;
-    setForm((currentForm) => ({
-      ...currentForm,
-      [name]: value,
-    }));
-  };
-
-  /*
-   * ----------------------------------------------------------
-   * Save safety information
-   * ----------------------------------------------------------
-   */
-
-  const onSaveSafety = async () => {
+  const saveSafety = async () => {
     setBusy(true);
+
     try {
       await authApi.completeProfile({
         ...form,
         height: form.height === "" ? "" : Number(form.height),
         weight: form.weight === "" ? "" : Number(form.weight),
       });
+
       await refreshUser();
       setEditingSafety(false);
-    } catch (error) {
-      console.error("Failed to update safety information:", error);
+    } catch (e) {
+      console.error("Failed to update safety information:", e);
     } finally {
       setBusy(false);
     }
   };
 
-  /*
-   * ----------------------------------------------------------
-   * Cancel safety editing
-   * ----------------------------------------------------------
-   */
-
-  const onCancelSafety = () => {
+  const cancelSafety = () => {
     setForm({
       phoneNumber: user?.phoneNumber || "",
       emergencyContactName: user?.emergencyContactName || "",
@@ -308,182 +235,177 @@ export default function Settings() {
       height: user?.height ?? "",
       weight: user?.weight ?? "",
     });
-
     setEditingSafety(false);
   };
 
-  /*
-   * ----------------------------------------------------------
-   * Safety display values
-   * ----------------------------------------------------------
-   */
+  const register = async (e) => {
+    e.preventDefault();
+    setDeviceError("");
+    setDeviceSuccess("");
 
-  const phoneNumber = user?.phoneNumber || "Not provided";
-  const emergencyContact =
-    user?.emergencyContactName && user?.emergencyContactPhone
-      ? `${user.emergencyContactName} · ${user.emergencyContactPhone}`
-      : "Not provided";
-  const height = user?.height != null ? `${user.height} cm` : "Not provided";
-  const weight = user?.weight != null ? `${user.weight} kg` : "Not provided";
+    const id = deviceIdInput.trim().toUpperCase();
+    const name = deviceNameInput.trim() || "TrailGuard Wearable";
 
-  /*
-   * ----------------------------------------------------------
-   * ONE-TIME DEVICE REGISTRATION
-   * ----------------------------------------------------------
-   */
-
-  const handleRegisterDevice = async (event) => {
-    event.preventDefault();
-    setDeviceRegistrationError("");
-    setDeviceRegistrationSuccess("");
-    const deviceId = deviceIdInput.trim().toUpperCase();
-    const deviceName = deviceNameInput.trim() || "TrailGuard Wearable";
-    if (!deviceId) {
-      setDeviceRegistrationError("Enter your TrailGuard device ID.");
+    if (!id) {
+      setDeviceError("Enter your TrailGuard device ID.");
       return;
     }
+
     setRegisteringDevice(true);
+
     try {
-      const device = await registerDevice(deviceId, deviceName);
-      setDeviceRegistrationSuccess(
-        `${device?.deviceId || deviceId} is connected to your account.`,
-      );
+      const device = await registerDevice(id, name);
+      setDeviceSuccess(`${device?.deviceId || id} is connected to your account.`);
       setDeviceIdInput("");
       setDeviceNameInput("TrailGuard Wearable");
-    } catch (error) {
-      console.error("Failed to register device:", error);
-      setDeviceRegistrationError(error?.message || "Failed to connect device.");
+    } catch (e) {
+      setDeviceError(e?.message || "Failed to connect device.");
     } finally {
       setRegisteringDevice(false);
     }
   };
 
-  /*
-   * ----------------------------------------------------------
-   * Device handlers
-   * ----------------------------------------------------------
-   */
+  const toggleStatus = async (deviceId, status) => {
+    const next = status === "active" ? "inactive" : "active";
+    const device = devices.find((d) => d.deviceId === deviceId);
+    const name = device?.deviceName || device?.name || "this device";
 
-  const handleSelectDevice = (deviceId) => {
-    selectDevice(deviceId);
+    if (!window.confirm(`${next === "inactive" ? "Deactivate" : "Activate"} ${name}?`)) return;
+
+    await updateDeviceStatus(deviceId, next);
   };
-  const handleRenameDevice = async (deviceId, name) => {
-    await renameDevice(deviceId, name);
+
+  const remove = async (deviceId) => {
+    const device = devices.find((d) => d.deviceId === deviceId);
+    const name = device?.deviceName || device?.name || "this device";
+
+    if (!window.confirm(`Unpair ${name} from your account?`)) return;
+
+    await removeDevice(deviceId);
   };
-  const handleRemoveDevice = async (deviceId) => {
-    const device = devices.find((item) => item.deviceId === deviceId);
-    const deviceName = device?.deviceName || device?.name || "this device";
-    const confirmed = window.confirm(`Unpair ${deviceName} from your account?`);
-    if (!confirmed) {
-      return;
-    }
-    try {
-      await removeDevice(deviceId);
-    } catch (error) {
-      console.error("Failed to remove device:", error);
-    }
-  };
+
+  const phone = user?.phoneNumber || "Not provided";
+
+  const emergency =
+    user?.emergencyContactName && user?.emergencyContactPhone
+      ? `${user.emergencyContactName} · ${user.emergencyContactPhone}`
+      : "Not provided";
+
+  const height = user?.height != null ? `${user.height} cm` : "Not provided";
+  const weight = user?.weight != null ? `${user.weight} kg` : "Not provided";
+
+  const card =
+    "rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]";
+
+  const option = (active) =>
+    `rounded-xl border p-4 text-left transition ${
+      active
+        ? "border-teal-400 bg-teal-400/10 ring-2 ring-teal-400/20"
+        : "border-[var(--color-border)] bg-[var(--color-surface-alt)] hover:border-teal-400/40"
+    }`;
 
   return (
     <AppLayout>
       <div className="space-y-6">
-        {/* ----------------------------------------------------
-            Header
-        ----------------------------------------------------- */}
-        <div>
-          <h1 className="text-2xl font-semibold tracking-[-0.02em] text-slate-900">
+        {/* Header */}
+        <header>
+          <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)]">
             Settings
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
             Manage your account, safety information, and TrailGuard devices.
           </p>
-        </div>
-        {/* ----------------------------------------------------
+        </header>
+
+        {/* Appearance */}
+        <section className={card}>
+          <h3 className="text-lg font-semibold text-[var(--color-text)]">Appearance</h3>
+          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+            Choose how TrailGuard looks on your device.
+          </p>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <button type="button" onClick={setLightTheme} className={option(theme === "light")}>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">☀️</span>
+                <div>
+                  <p className="font-semibold text-[var(--color-text)]">Light</p>
+                  <p className="text-xs text-[var(--color-text-secondary)]">
+                    Use the bright theme
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            <button type="button" onClick={setDarkTheme} className={option(theme === "dark")}>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🌙</span>
+                <div>
+                  <p className="font-semibold text-[var(--color-text)]">Dark</p>
+                  <p className="text-xs text-[var(--color-text-secondary)]">
+                    Use the dark theme
+                  </p>
+                </div>
+              </div>
+            </button>
+          </div>
+        </section>
+
+        {/* Account */}
+        <section className={card}>
+          <h3 className="mb-4 text-lg font-semibold text-[var(--color-text)]">
             Account
-        ----------------------------------------------------- */}
-        <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[var(--shadow-card)]">
-          <h3 className="mb-4 text-lg font-semibold text-slate-900">Account</h3>
+          </h3>
+
           <div className="space-y-3">
             <Row label="Username" value={user?.username || "Not provided"} />
             <Row label="Email" value={user?.email || "Not provided"} />
             <Row
               label="Sign-in method"
-              value={
-                user?.authProvider === "google" ? "Google" : "Email & password"
-              }
+              value={user?.authProvider === "google" ? "Google" : "Email & password"}
               badge={user?.authProvider === "google" ? "CONNECTED" : undefined}
             />
           </div>
         </section>
 
-        {/* ----------------------------------------------------
-            Safety Info
-        ----------------------------------------------------- */}
-
-        <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[var(--shadow-card)]">
-          <h3 className="mb-4 text-lg font-semibold text-slate-900">
+        {/* Safety */}
+        <section className={card}>
+          <h3 className="mb-4 text-lg font-semibold text-[var(--color-text)]">
             Safety Info
           </h3>
+
           {!editingSafety ? (
             <div className="space-y-3">
-              <Row label="Phone number" value={phoneNumber} />
-              <Row label="Emergency contact" value={emergencyContact} />
+              <Row label="Phone number" value={phone} />
+              <Row label="Emergency contact" value={emergency} />
               <Row label="Height" value={height} />
               <Row label="Weight" value={weight} />
-              <Button
-                variant="secondary"
-                onClick={() => setEditingSafety(true)}
-              >
+
+              <Button variant="secondary" onClick={() => setEditingSafety(true)}>
                 Edit safety info
               </Button>
             </div>
           ) : (
             <div className="space-y-4">
               <div className="grid gap-3 md:grid-cols-2">
-                <Field
-                  label="Phone number"
-                  name="phoneNumber"
-                  value={form.phoneNumber}
-                  onChange={onChange}
-                />
-                <Field
-                  label="Height (cm)"
-                  name="height"
-                  type="number"
-                  value={form.height}
-                  onChange={onChange}
-                />
+                <Field label="Phone number" name="phoneNumber" value={form.phoneNumber} onChange={onChange} />
+                <Field label="Height (cm)" name="height" type="number" value={form.height} onChange={onChange} />
+                <Field label="Emergency contact name" name="emergencyContactName" value={form.emergencyContactName} onChange={onChange} />
+                <Field label="Weight (kg)" name="weight" type="number" value={form.weight} onChange={onChange} />
               </div>
-              <div className="grid gap-3 md:grid-cols-2">
-                <Field
-                  label="Emergency contact name"
-                  name="emergencyContactName"
-                  value={form.emergencyContactName}
-                  onChange={onChange}
-                />
-                <Field
-                  label="Weight (kg)"
-                  name="weight"
-                  type="number"
-                  value={form.weight}
-                  onChange={onChange}
-                />
-              </div>
+
               <Field
                 label="Emergency contact phone"
                 name="emergencyContactPhone"
                 value={form.emergencyContactPhone}
                 onChange={onChange}
               />
+
               <div className="grid gap-3 md:grid-cols-2">
-                <Button onClick={onSaveSafety} disabled={busy}>
+                <Button onClick={saveSafety} disabled={busy}>
                   {busy ? "Saving…" : "Save changes"}
                 </Button>
-                <Button
-                  variant="secondary"
-                  onClick={onCancelSafety}
-                  disabled={busy}
-                >
+                <Button variant="secondary" onClick={cancelSafety} disabled={busy}>
                   Cancel
                 </Button>
               </div>
@@ -491,83 +413,80 @@ export default function Settings() {
           )}
         </section>
 
-        {/* ----------------------------------------------------
-            Devices
-        ----------------------------------------------------- */}
-        <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[var(--shadow-card)]">
+        {/* Devices */}
+        <section className={card}>
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
-              <h3 className="text-lg font-semibold text-slate-900">Devices</h3>
-              <p className="mt-1 text-sm text-slate-500">
+              <h3 className="text-lg font-semibold text-[var(--color-text)]">Devices</h3>
+              <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
                 Connect and manage your TrailGuard wearables.
               </p>
             </div>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+
+            <span className="rounded-full bg-[var(--color-surface-alt)] px-3 py-1 text-xs font-semibold text-[var(--color-text-secondary)]">
               {devices.length} {devices.length === 1 ? "device" : "devices"}
             </span>
           </div>
-          {/* --------------------------------------------------
-              ONE-TIME DEVICE CONNECTION
-          --------------------------------------------------- */}
-          <div className="mb-5 rounded-2xl border border-teal-200 bg-teal-50/50 p-4">
-            <div className="mb-4">
-              <h4 className="text-sm font-semibold text-slate-900">
-                Connect TrailGuard Wearable
-              </h4>
-              <p className="mt-1 text-xs leading-5 text-slate-500">
-                Enter the device ID printed on your physical TrailGuard
-                wearable. This is a one-time setup that connects the wearable to
-                your account.
-              </p>
-            </div>
-            <form onSubmit={handleRegisterDevice} className="space-y-3">
+
+          {/* Connect */}
+          <div className="mb-5 rounded-2xl border border-teal-400/20 bg-teal-400/5 p-4">
+            <h4 className="text-sm font-semibold text-[var(--color-text)]">
+              Connect TrailGuard Wearable
+            </h4>
+
+            <p className="mt-1 text-xs leading-5 text-[var(--color-text-secondary)]">
+              Enter the device ID printed on your physical TrailGuard wearable.
+              This is a one-time setup.
+            </p>
+
+            <form onSubmit={register} className="mt-4 space-y-3">
               <Field
                 label="Device ID"
                 name="deviceId"
                 value={deviceIdInput}
-                onChange={(event) => setDeviceIdInput(event.target.value)}
+                onChange={(e) => setDeviceIdInput(e.target.value)}
                 placeholder="Enter device ID"
                 disabled={registeringDevice}
               />
+
               <Field
                 label="Device name"
                 name="deviceName"
                 value={deviceNameInput}
-                onChange={(event) => setDeviceNameInput(event.target.value)}
+                onChange={(e) => setDeviceNameInput(e.target.value)}
                 placeholder="TrailGuard Wearable"
                 disabled={registeringDevice}
               />
-              {deviceRegistrationError && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                  {deviceRegistrationError}
+
+              {deviceError && (
+                <div className="rounded-xl border border-red-400/20 bg-red-400/10 px-3 py-2 text-sm text-red-400">
+                  {deviceError}
                 </div>
               )}
-              {deviceRegistrationSuccess && (
-                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-                  {deviceRegistrationSuccess}
+
+              {deviceSuccess && (
+                <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-sm text-emerald-400">
+                  {deviceSuccess}
                 </div>
               )}
-              <Button
-                type="submit"
-                disabled={registeringDevice || !deviceIdInput.trim()}
-              >
+
+              <Button type="submit" disabled={registeringDevice || !deviceIdInput.trim()}>
                 {registeringDevice ? "Connecting…" : "Connect Device"}
               </Button>
             </form>
           </div>
-          {/* --------------------------------------------------
-              DEVICE LIST
-          --------------------------------------------------- */}
+
+          {/* Device list */}
           {devicesLoading ? (
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
+            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-6 text-center text-sm text-[var(--color-text-secondary)]">
               Loading devices…
             </div>
           ) : devices.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
-              <div className="text-sm font-semibold text-slate-800">
+            <div className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface-alt)] p-6 text-center">
+              <div className="text-sm font-semibold text-[var(--color-text)]">
                 No devices connected
               </div>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
                 Enter your device ID above to connect your TrailGuard wearable.
               </p>
             </div>
@@ -578,58 +497,65 @@ export default function Settings() {
                   key={device.deviceId}
                   device={device}
                   selected={device.deviceId === selectedDeviceId}
-                  onSelect={handleSelectDevice}
-                  onRename={handleRenameDevice}
-                  onStatusChange={handleToggleDeviceStatus}
-                  onRemove={handleRemoveDevice}
+                  onSelect={selectDevice}
+                  onRename={renameDevice}
+                  onStatusChange={toggleStatus}
+                  onRemove={remove}
                 />
               ))}
             </div>
           )}
-          {/* --------------------------------------------------
-              SELECTED DEVICE
-          --------------------------------------------------- */}
+
+          {/* Selected device */}
           {selectedDevice && (
-            <div className="mt-4 rounded-xl border border-teal-100 bg-teal-50 px-4 py-3">
-              <div className="text-xs font-semibold uppercase tracking-wide text-teal-700">
+            <div className="mt-4 rounded-xl border border-teal-400/30 bg-teal-400/5 px-4 py-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-teal-400">
                 Selected device
               </div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">
+
+              <div className="mt-1 text-sm font-semibold text-[var(--color-text)]">
                 {selectedDevice.deviceName ||
                   selectedDevice.name ||
                   "TrailGuard Wearable"}
               </div>
 
-              <div className="mt-0.5 font-mono text-xs text-slate-500">
+              <div className="mt-0.5 font-mono text-xs text-[var(--color-text-muted)]">
                 {selectedDevice.deviceId}
               </div>
             </div>
           )}
         </section>
-        {/* ----------------------------------------------------
-            Preferences + Danger Zone
-        ----------------------------------------------------- */}
+
+        {/* Preferences + Danger */}
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* Preferences */}
-          <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[var(--shadow-card)]">
-            <h3 className="mb-4 text-lg font-semibold text-slate-900">
+          <section className={card}>
+            <h3 className="mb-4 text-lg font-semibold text-[var(--color-text)]">
               Preferences
             </h3>
-            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700">
-              <span>Light theme</span>
-              <span className="relative inline-flex h-6 w-11 items-center rounded-full bg-slate-200">
-                <span className="absolute left-1 h-4 w-4 rounded-full bg-white shadow-sm" />
+
+            <div className="flex items-center justify-between rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-3 py-3 text-sm">
+              <div>
+                <p className="font-medium text-[var(--color-text)]">Current theme</p>
+                <p className="mt-0.5 text-xs text-[var(--color-text-secondary)]">
+                  Your theme preference is saved automatically.
+                </p>
+              </div>
+
+              <span className="rounded-full border border-teal-400/20 bg-teal-400/10 px-3 py-1 text-xs font-semibold text-teal-400">
+                {theme === "dark" ? "Dark" : "Light"}
               </span>
             </div>
           </section>
-          {/* Danger Zone */}
-          <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[var(--shadow-card)]">
-            <h3 className="mb-4 text-lg font-semibold text-slate-900">
+
+          <section className={card}>
+            <h3 className="mb-4 text-lg font-semibold text-[var(--color-text)]">
               Danger Zone
             </h3>
-            <p className="mb-4 text-sm text-slate-500">
+
+            <p className="mb-4 text-sm text-[var(--color-text-secondary)]">
               Signing out ends your session on this device.
             </p>
+
             <Button variant="ghost" onClick={logout}>
               Log out
             </Button>

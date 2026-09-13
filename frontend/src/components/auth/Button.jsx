@@ -13,7 +13,7 @@ export default function Button({
       items-center justify-center
       gap-2
       rounded-[13px]
-      bg-[#2DD4BF]
+      bg-[var(--color-accent)]
       px-5
       text-[17px]
       font-semibold
@@ -27,7 +27,7 @@ export default function Button({
       disabled:opacity-60
     `,
 
-    // Dark navy button
+    // Secondary action
     secondary: `
       flex w-full
       h-[64px]
@@ -35,36 +35,36 @@ export default function Button({
       gap-3
       rounded-[13px]
       border
-      border-[#102A43]
-      bg-[#102A43]
+      border-[var(--color-border)]
+      bg-[var(--color-surface-alt)]
       px-5
       text-[17px]
       font-semibold
-      text-white
-      shadow-[0_6px_16px_rgba(16,42,67,0.18)]
+      text-[var(--color-text)]
+      shadow-[0_6px_16px_rgba(16,42,67,0.12)]
       transition-all
-      hover:bg-[#1E4D6B]
-      hover:border-[#1E4D6B]
+      hover:bg-[var(--color-bg-alt)]
+      hover:border-[var(--color-accent)]
       active:scale-[0.99]
       disabled:cursor-not-allowed
       disabled:opacity-60
     `,
 
-    // Blue button
+    // Blue / brand button
     blue: `
       flex w-full
       h-[64px]
       items-center justify-center
       gap-2
       rounded-[13px]
-      bg-[#1E4D6B]
+      bg-[var(--color-secondary)]
       px-5
       text-[17px]
       font-semibold
       text-white
       shadow-[0_8px_18px_rgba(30,77,107,0.22)]
       transition-all
-      hover:bg-[#183F58]
+      hover:opacity-90
       hover:shadow-[0_10px_24px_rgba(30,77,107,0.28)]
       active:scale-[0.99]
       disabled:cursor-not-allowed
@@ -79,35 +79,35 @@ export default function Button({
       gap-3
       rounded-[13px]
       border
-      border-[#C7D5E3]
-      bg-white
+      border-[var(--color-border)]
+      bg-[var(--color-surface)]
       px-5
       text-[17px]
       font-medium
-      text-[#102A43]
+      text-[var(--color-text)]
       shadow-[0_2px_6px_rgba(16,42,67,0.08)]
       transition-all
-      hover:bg-[#F4F9FA]
-      hover:border-[#1E4D6B]
+      hover:bg-[var(--color-surface-alt)]
+      hover:border-[var(--color-accent)]
       active:scale-[0.99]
       disabled:cursor-not-allowed
       disabled:opacity-60
     `,
 
-    // Soft light button
+    // Soft button
     light: `
       flex w-full
       h-[64px]
       items-center justify-center
       gap-2
       rounded-[13px]
-      bg-[#F4F9FA]
+      bg-[var(--color-bg-alt)]
       px-5
       text-[17px]
       font-semibold
-      text-[#102A43]
+      text-[var(--color-text)]
       transition-all
-      hover:bg-[#E7F1F3]
+      hover:bg-[var(--color-surface-alt)]
       active:scale-[0.99]
       disabled:cursor-not-allowed
       disabled:opacity-60
@@ -134,7 +134,7 @@ export default function Button({
       disabled:opacity-60
     `,
 
-    // Red soft action
+    // Soft destructive action
     ghost: `
       flex w-full
       h-[64px]
@@ -151,6 +151,10 @@ export default function Button({
       active:scale-[0.99]
       disabled:cursor-not-allowed
       disabled:opacity-60
+
+      dark:bg-red-400/10
+      dark:text-red-300
+      dark:hover:bg-red-400/20
     `,
   };
 
