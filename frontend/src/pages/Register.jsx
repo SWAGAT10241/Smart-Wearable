@@ -139,7 +139,7 @@ export default function Register() {
           <Field
             label="Emergency contact phone"
             name="emergencyContactPhone"
-            placeholder="+1 555 837 1120"
+            placeholder="+CountryCode Phone Number"
             value={form.emergencyContactPhone}
             onChange={onChange}
             required

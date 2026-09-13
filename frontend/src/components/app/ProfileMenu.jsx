@@ -16,93 +16,103 @@ export default function ProfileMenu() {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const username = user?.username || "User";
   const email = user?.email || "";
 
+  const menuClass =
+    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-[var(--color-text-secondary)] transition hover:bg-[var(--color-surface-alt)]";
+
   return (
     <div ref={menuRef} className="relative">
-      {/* Profile button */}
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-2.5 py-2 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+        className="
+          flex items-center gap-3 rounded-full
+          border border-[var(--color-border)]
+          bg-[var(--color-surface)]
+          px-2.5 py-2 shadow-sm transition
+          hover:border-[var(--color-accent)]
+          hover:shadow-md
+        "
       >
-        {/* Avatar */}
         <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[radial-gradient(circle_at_30%_30%,#b7f3df,#15967f)] text-sm font-bold text-white shadow-inner">
           {username.charAt(0).toUpperCase()}
         </span>
 
-        {/* Name */}
         <span className="hidden text-left sm:block">
-          <span className="block max-w-[130px] truncate text-sm font-semibold text-slate-800">
+          <span className="block max-w-[130px] truncate text-sm font-semibold text-[var(--color-text)]">
             {username}
           </span>
-
-          <span className="block max-w-[130px] truncate text-[11px] text-slate-400">
+          <span className="block max-w-[130px] truncate text-[11px] text-[var(--color-text-muted)]">
             {email}
           </span>
         </span>
 
         <FiChevronDown
-          className={`text-slate-500 transition-transform ${
+          className={`text-[var(--color-text-muted)] transition-transform ${
             open ? "rotate-180" : ""
           }`}
         />
       </button>
 
-      {/* Dropdown */}
       {open && (
-        <div className="absolute right-0 top-[calc(100%+10px)] z-50 w-60 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
-          {/* Profile information */}
-          <div className="border-b border-slate-100 px-3 py-3">
+        <div className="
+          absolute right-0 top-[calc(100%+10px)] z-50 w-60
+          overflow-hidden rounded-2xl
+          border border-[var(--color-border)]
+          bg-[var(--color-surface)]
+          p-2 shadow-xl
+        ">
+          <div className="border-b border-[var(--color-border)] px-3 py-3">
             <div className="flex items-center gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[radial-gradient(circle_at_30%_30%,#b7f3df,#15967f)] font-bold text-white">
                 {username.charAt(0).toUpperCase()}
               </span>
 
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-slate-900">
+                <p className="truncate text-sm font-semibold text-[var(--color-text)]">
                   {username}
                 </p>
-
-                <p className="truncate text-xs text-slate-400">{email}</p>
+                <p className="truncate text-xs text-[var(--color-text-muted)]">
+                  {email}
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Menu */}
           <div className="py-1">
             <Link
               to="/settings"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-700 transition hover:bg-slate-50"
+              className={menuClass}
             >
-              <FiUser className="text-[18px] text-slate-500" />
+              <FiUser className="text-[18px] text-[var(--color-text-muted)]" />
               Profile
             </Link>
 
             <Link
               to="/settings"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-700 transition hover:bg-slate-50"
+              className={menuClass}
             >
-              <FiSettings className="text-[18px] text-slate-500" />
+              <FiSettings className="text-[18px] text-[var(--color-text-muted)]" />
               Settings
             </Link>
           </div>
 
-          {/* Logout */}
-          <div className="border-t border-slate-100 pt-1">
+          <div className="border-t border-[var(--color-border)] pt-1">
             <button
               type="button"
               onClick={logout}
-              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-red-500 transition hover:bg-red-50"
+              className="
+                flex w-full items-center gap-3 rounded-xl
+                px-3 py-2.5 text-sm text-red-500 transition
+                hover:bg-red-50
+              "
             >
               <FiLogOut className="text-[18px]" />
               Log out

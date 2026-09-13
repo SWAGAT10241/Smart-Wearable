@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
+import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import { DeviceProvider } from "./context/DeviceContext";
 import { LiveDataProvider } from "./context/LiveDataContext";
@@ -17,30 +18,38 @@ import Settings from "./pages/Settings";
 
 export default function App() {
   return (
-    <AuthProvider>
-      <DeviceProvider>
-        <LiveDataProvider>
-          <BrowserRouter>
-            <FallAlertModal />
+    <ThemeProvider>
+      <AuthProvider>
+        <DeviceProvider>
+          <LiveDataProvider>
+            <BrowserRouter>
+              <FallAlertModal />
 
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/oauth-success" element={<OAuthSuccess />} />
-              <Route path="/complete-profile" element={<CompleteProfile />} />
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/oauth-success" element={<OAuthSuccess />} />
+                <Route path="/complete-profile" element={<CompleteProfile />} />
 
-              <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/history" element={<History />} />
-                <Route path="/settings" element={<Settings />} />
-              </Route>
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/history" element={<History />} />
+                  <Route path="/settings" element={<Settings />} />
+                </Route>
 
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
-            </Routes>
-          </BrowserRouter>
-        </LiveDataProvider>
-      </DeviceProvider>
-    </AuthProvider>
+                <Route
+                  path="/"
+                  element={<Navigate to="/dashboard" replace />}
+                />
+                <Route
+                  path="*"
+                  element={<Navigate to="/dashboard" replace />}
+                />
+              </Routes>
+            </BrowserRouter>
+          </LiveDataProvider>
+        </DeviceProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

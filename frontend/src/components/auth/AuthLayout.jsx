@@ -85,7 +85,7 @@ export default function AuthLayout({ headline, children }) {
                   {title}
                 </div>
 
-                <div className="mt-1 text-[12px] text-slate-300">
+                <div className="mt-1 text-[12px] text-[var(--color-text-secondary)]">
                   {sub}
                 </div>
               </div>
@@ -102,7 +102,7 @@ export default function AuthLayout({ headline, children }) {
       {/* Global footer */}
       <footer className="absolute bottom-5 left-0 z-20 flex w-full justify-center px-6 text-center text-[12px] text-slate-200/75">
         <span>TrailGuard secures your adventures.</span>
-        <span className="mx-3 text-slate-300/50">|</span>
+        <span className="mx-3 text-[var(--color-text-secondary)]/50">|</span>
         <span>Stay safe. Explore more.</span>
       </footer>
     </div>

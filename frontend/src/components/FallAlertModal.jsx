@@ -30,17 +30,17 @@ export default function FallAlertModal() {
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/45">
-      <div className="flex w-[560px] max-w-[92vw] flex-col items-center gap-4 rounded-[24px] border-2 border-red-600 bg-white p-12 text-center shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+      <div className="flex w-[560px] max-w-[92vw] flex-col items-center gap-4 rounded-[24px] border-2 border-red-600 bg-[var(--color-surface)] p-12 text-center shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
         <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-red-100">
           <span className="h-7 w-7 rounded-full bg-red-600" />
         </div>
         <span className="rounded-full bg-red-100 px-2.5 py-1 text-[11px] font-bold tracking-[0.08em] text-red-700">
           {(activeFall.severity || "moderate").toUpperCase()} SEVERITY
         </span>
-        <h1 className="m-0 text-[30px] font-bold text-slate-900">
+        <h1 className="m-0 text-[30px] font-bold text-[var(--color-text)]">
           Fall Detected
         </h1>
-        <p className="m-0 max-w-[440px] text-sm text-slate-600">
+        <p className="m-0 max-w-[440px] text-sm text-[var(--color-text-secondary)]">
           Detected just now
           {activeFall.latitude && activeFall.longitude
             ? ` near ${activeFall.latitude.toFixed(4)}, ${activeFall.longitude.toFixed(4)}`
@@ -64,7 +64,7 @@ export default function FallAlertModal() {
           </Button>
         </div>
 
-        <p className="m-0 max-w-[440px] text-[12px] text-slate-500">
+        <p className="m-0 max-w-[440px] text-[12px] text-[var(--color-text-secondary)]">
           Emergency contact
           {user?.emergencyContactName
             ? `, ${user.emergencyContactName},`
