@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Field from "../components/auth/Field";
 import Button from '../components/auth/Button';
 import { useAuth } from '../context/AuthContext';
+import PhoneField from "../components/auth/PhoneField";
 
 export default function CompleteProfile() {
   const { completeProfile } = useAuth();
@@ -41,15 +42,14 @@ export default function CompleteProfile() {
         {error && <div className="tg-formcard__error">{error}</div>}
 
         <div className="tg-formcard__row">
-          <Field label="Phone number" name="phoneNumber" placeholder="+1 555 010 2938" value={form.phoneNumber} onChange={onChange} required />
+          <PhoneField label="Phone number" name="phoneNumber" placeholder="Enter phone number" value={form.phoneNumber} onChange={onChange} defaultCountry="IN" required/>
           <Field label="Height (cm)" name="height" type="number" placeholder="175" value={form.height} onChange={onChange} required />
         </div>
         <div className="tg-formcard__row">
           <Field label="Emergency contact name" name="emergencyContactName" placeholder="Priya Nair" value={form.emergencyContactName} onChange={onChange} required />
           <Field label="Weight (kg)" name="weight" type="number" placeholder="70" value={form.weight} onChange={onChange} required />
         </div>
-        <Field label="Emergency contact phone" name="emergencyContactPhone" placeholder="+CountryCode Phone Number" value={form.emergencyContactPhone} onChange={onChange} required />
-
+          <PhoneField label="Emergency contact phone" name="emergencyContactPhone" placeholder="Emergency contact number" value={form.emergencyContactPhone} onChange={onChange} defaultCountry="IN" required/>
         <Button type="submit" disabled={busy}>{busy ? 'Saving…' : 'Complete profile & continue'}</Button>
       </form>
     </div>
