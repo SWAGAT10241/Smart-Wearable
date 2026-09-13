@@ -6,6 +6,7 @@ import Button from "../components/auth/Button";
 import { useAuth } from "../context/AuthContext";
 import { useDevices } from "../context/DeviceContext";
 import { authApi } from "../lib/apiClient";
+import PhoneField from "../components/auth/PhoneField";
 
 function Row({ label, value, badge }) {
   return (
@@ -388,19 +389,12 @@ export default function Settings() {
           ) : (
             <div className="space-y-4">
               <div className="grid gap-3 md:grid-cols-2">
-                <Field label="Phone number" name="phoneNumber" value={form.phoneNumber} onChange={onChange} />
+                <PhoneField label="Phone number" name="phoneNumber" value={form.phoneNumber} onChange={onChange} defaultCountry="IN"/>
                 <Field label="Height (cm)" name="height" type="number" value={form.height} onChange={onChange} />
                 <Field label="Emergency contact name" name="emergencyContactName" value={form.emergencyContactName} onChange={onChange} />
                 <Field label="Weight (kg)" name="weight" type="number" value={form.weight} onChange={onChange} />
               </div>
-
-              <Field
-                label="Emergency contact phone"
-                name="emergencyContactPhone"
-                value={form.emergencyContactPhone}
-                onChange={onChange}
-              />
-
+              <PhoneField label="Emergency contact phone" name="emergencyContactPhone" value={form.emergencyContactPhone} onChange={onChange} defaultCountry="IN"/>
               <div className="grid gap-3 md:grid-cols-2">
                 <Button onClick={saveSafety} disabled={busy}>
                   {busy ? "Saving…" : "Save changes"}

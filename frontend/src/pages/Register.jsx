@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/auth/AuthLayout";
 import AuthCard from "../components/auth/AuthCard";
 import Field from "../components/auth/Field";
+import PhoneField from "../components/auth/PhoneField";
 import Button from "../components/auth/Button";
 import { useAuth } from "../context/AuthContext";
 
@@ -95,12 +96,13 @@ export default function Register() {
           </div>
 
           <div className="tg-formcard__row">
-            <Field
-              label="Phone number"
+            <PhoneField
+              label="Phone Number"
               name="phoneNumber"
-              placeholder="+1 555 010 2938"
               value={form.phoneNumber}
               onChange={onChange}
+              placeholder="Enter phone number"
+              defaultCountry="IN"
               required
             />
 
@@ -136,13 +138,13 @@ export default function Register() {
             />
           </div>
 
-          <Field
+          <PhoneField
             label="Emergency contact phone"
             name="emergencyContactPhone"
-            placeholder="+CountryCode Phone Number"
             value={form.emergencyContactPhone}
             onChange={onChange}
-            required
+            placeholder="Emergency contact number"
+            defaultCountry="IN"
           />
 
           <Button type="submit" disabled={busy}>
