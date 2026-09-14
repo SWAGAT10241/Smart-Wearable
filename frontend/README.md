@@ -2,9 +2,9 @@
 
 React + Vite web dashboard for **TrailGuard — Smart Wearable Safety and Health Monitoring System**.
 
-The frontend provides the user-facing dashboard for authentication, wearable/device management, real-time health monitoring, environmental monitoring, GPS location tracking, fall detection, SOS alerts, historical data, and profile/safety settings.
+The frontend provides the user-facing interface for authentication, wearable/device management, real-time health monitoring, environmental monitoring, GPS tracking, fall detection, SOS alerts, historical data, and profile/safety settings.
 
-It communicates with the TrailGuard Express backend through REST APIs and a WebSocket connection for real-time wearable data.
+It communicates with the TrailGuard backend through REST APIs and a WebSocket connection for realtime wearable data.
 
 ---
 
@@ -20,7 +20,7 @@ It communicates with the TrailGuard Express backend through REST APIs and a WebS
 - [Running the Application](#running-the-application)
 - [Application Routes](#application-routes)
 - [Backend API Integration](#backend-api-integration)
-- [Real-Time Data](#real-time-data)
+- [Realtime Data](#realtime-data)
 - [Authentication](#authentication)
 - [Dashboard](#dashboard)
 - [History](#history)
@@ -28,142 +28,753 @@ It communicates with the TrailGuard Express backend through REST APIs and a WebS
 - [Fall Detection and SOS](#fall-detection-and-sos)
 - [Device Management](#device-management)
 - [Project Structure](#project-structure)
-- [Design System](#design-system)
-- [Development Guidelines](#development-guidelines)
+- [Testing](#testing)
 - [Production Build](#production-build)
 - [Deployment](#deployment)
 - [Known Limitations](#known-limitations)
+- [Development Guidelines](#development-guidelines)
 - [Related Components](#related-components)
 - [License](#license)
 
 ---
 
-## Overview
+# Overview
 
 TrailGuard is a smart wearable safety and health monitoring system designed to collect information from a wearable device and present it through a web dashboard.
 
-The frontend acts as the main interface between the user and the TrailGuard backend.
+The frontend acts as the primary interface between the user, the TrailGuard wearable, and the backend services.
 
 ```text
-┌──────────────────────┐
-│   TrailGuard Wearable│
-│       / ESP32        │
-└──────────┬───────────┘
-           │
-           │ HTTP telemetry
-           ▼
-┌──────────────────────┐
-│   TrailGuard Backend │
-│  Express + MongoDB   │
-└──────────┬───────────┘
-           │
-           ├──────── REST API
-           │
-           └──────── WebSocket
-                    │
-                    ▼
-           ┌──────────────────┐
-           │ TrailGuard Web   │
-           │    Dashboard     │
-           │ React + Vite     │
-           └──────────────────┘
-```
-
-The frontend is designed to work with the backend located in:
-
-```text
-/backend
+┌──────────────────────────┐
+│   TrailGuard Wearable    │
+│          ESP32            │
+│                          │
+│ MAX30100 / BME280        │
+│ NEO-6M / MPU6050 / LoRa │
+└────────────┬─────────────┘
+             │
+             │ HTTP Telemetry
+             ▼
+┌──────────────────────────┐
+│    TrailGuard Backend    │
+│                          │
+│ Node.js + Express        │
+│ MongoDB + WebSocket      │
+└────────────┬─────────────┘
+             │
+       ┌─────┴─────┐
+       │           │
+       │ REST      │ WebSocket
+       │           │
+       ▼           ▼
+┌──────────────────────────┐
+│     TrailGuard Web       │
+│        Dashboard         │
+│                          │
+│      React + Vite        │
+└──────────────────────────┘
 ```
 
 ---
 
-## Features
+# Features
 
-### Authentication
+## Authentication
 
 - User registration
 - Email/password login
-- Google OAuth login
+- Google OAuth
 - JWT-based authentication
 - Protected application routes
-- Profile completion flow
 - Persistent authentication state
+- Profile completion flow
 
-### Health Monitoring
+## Health Monitoring
 
 - Live heart-rate monitoring
-- Blood oxygen (`SpO₂`) monitoring
+- SpO₂ monitoring
 - Latest vital readings
 - Historical vital data
 - Vital statistics
-- Real-time updates through WebSocket
+- Realtime WebSocket updates
 
-### Environmental Monitoring
+## Environmental Monitoring
 
-- Temperature monitoring
-- Humidity monitoring
-- Atmospheric pressure monitoring
-- Latest environmental readings
-- Historical environmental data
+- Temperature
+- Humidity
+- Atmospheric pressure
+- Latest readings
+- Historical readings
 - Environmental statistics
 
-### Location Tracking
+## Location Tracking
 
-- Current GPS location
-- Latitude and longitude display
-- Altitude information
-- Satellite information
+- Latest GPS position
+- Latitude/longitude
+- Altitude
+- Satellite count
 - Location history
-- Live map visualization using Leaflet/OpenStreetMap
+- Interactive map visualization
+- MapLibre GL integration
 
-### Fall Detection
+## Fall Detection
 
-- Real-time fall notifications
-- Fall event information
+- Realtime fall notifications
+- Fall-event information
 - Fall history
-- Fall status management
-- Global fall/SOS alert modal
+- Fall status updates
+- Global fall/SOS alert interface
 
-### Device Management
+## Device Management
 
-- View paired wearable devices
+- View registered wearable devices
+- Select a device
 - Rename devices
 - Activate/deactivate devices
-- Device-aware dashboard data
+- Device-aware monitoring
 
-### User Settings
+## Profile and Safety
 
-- Profile information
 - Personal information
-- Safety information
-- Emergency contact information
-- Health-related profile information
+- Health information
+- Emergency contact
+- Safety settings
+- Profile completion
 
 ---
 
-## Technology Stack
+# Technology Stack
 
-| Technology        | Purpose                                    |
-| ----------------- | ------------------------------------------ |
-| React 18          | UI framework                               |
-| Vite              | Frontend build tool and development server |
-| React Router      | Client-side routing                        |
-| Tailwind CSS      | Utility-first styling                      |
-| Leaflet           | Interactive maps                           |
-| React Leaflet     | React integration for Leaflet              |
-| Lucide React      | UI icons                                   |
-| React Icons       | Additional icon library                    |
-| Typewriter Effect | Animated text                              |
-| JavaScript / JSX  | Application development                    |
-| pnpm              | Package management                         |
+| Technology               | Purpose                           |
+| ------------------------ | --------------------------------- |
+| React 18                 | UI framework                      |
+| Vite                     | Development server and build tool |
+| React Router 7           | Client-side routing               |
+| Tailwind CSS 4           | Styling                           |
+| MapLibre GL              | Interactive map rendering         |
+| Lucide React             | UI icons                          |
+| React Icons              | Additional icons                  |
+| React Phone Number Input | Phone-number input                |
+| Typewriter Effect        | Animated text                     |
+| Vitest                   | Testing                           |
+| Testing Library          | Component testing                 |
+| JavaScript / JSX         | Application development           |
+| pnpm                     | Package management                |
 
-The current project uses **pnpm 11** as its package manager.
+The current frontend package is:
+
+```text
+trailguard-frontend
+version 1.2.4
+```
+
+The repository uses:
+
+```text
+pnpm 11.20.0
+```
 
 ---
 
-## Application Architecture
+# Application Architecture
 
-The application is organized around pages, reusable components, React contexts, API utilities, and styling.
+The frontend is organized around:
+
+- Pages
+- Reusable components
+- React Context providers
+- API utilities
+- Global styling
+- Client-side routing
+
+The major application layers are:
+
+```text
+┌──────────────────────────────────────┐
+│               App.jsx               │
+│          Routing / Application       │
+└──────────────────┬───────────────────┘
+                   │
+        ┌──────────┼──────────┐
+        │          │          │
+        ▼          ▼          ▼
+     Pages      Components   Context
+        │          │          │
+        │          │          ├── AuthContext
+        │          │          ├── DeviceContext
+        │          │          └── LiveDataContext
+        │          │
+        └──────────┼───────────
+                   ▼
+             lib/apiClient.js
+                   │
+             REST API / WebSocket
+                   │
+                   ▼
+          TrailGuard Backend
+```
+
+---
+
+# Prerequisites
+
+Install:
+
+- Node.js 18 or later
+- pnpm 11
+- Git
+- A running TrailGuard backend
+
+The backend is normally configured to run at:
+
+```text
+http://localhost:3000
+```
+
+The frontend Vite development server runs at:
+
+```text
+http://localhost:5173
+```
+
+---
+
+# Installation
+
+From the repository root:
+
+```bash
+cd frontend
+```
+
+Install dependencies:
+
+```bash
+pnpm install
+```
+
+Create the environment file:
+
+```bash
+cp .env.example .env
+```
+
+Configure the required frontend environment variables.
+
+---
+
+# Environment Configuration
+
+Create:
+
+```text
+frontend/.env
+```
+
+Example:
+
+```env
+VITE_API_URL=http://localhost:3000/api
+VITE_WS_URL=ws://localhost:3000/live
+```
+
+## Variables
+
+| Variable       | Purpose                    | Example                     |
+| -------------- | -------------------------- | --------------------------- |
+| `VITE_API_URL` | Backend REST API base URL  | `http://localhost:3000/api` |
+| `VITE_WS_URL`  | Backend WebSocket endpoint | `ws://localhost:3000/live`  |
+
+### Development
+
+```env
+VITE_API_URL=http://localhost:3000/api
+VITE_WS_URL=ws://localhost:3000/live
+```
+
+### Production
+
+For an HTTPS deployment:
+
+```env
+VITE_API_URL=https://your-backend-domain.example/api
+VITE_WS_URL=wss://your-backend-domain.example/live
+```
+
+### Security
+
+Do **not** place private secrets in frontend environment variables.
+
+Anything beginning with:
+
+```text
+VITE_
+```
+
+is intended to be exposed to the browser.
+
+Never put:
+
+```text
+JWT_SECRET
+SESSION_SECRET
+GOOGLE_CLIENT_SECRET
+TWILIO_AUTH_TOKEN
+DEVICE_KEY
+```
+
+inside the frontend `.env`.
+
+Those belong on the backend.
+
+---
+
+# Running the Application
+
+Start the Vite development server:
+
+```bash
+pnpm dev
+```
+
+The application will normally be available at:
+
+```text
+http://localhost:5173
+```
+
+---
+
+# Running Frontend + Backend
+
+Use two terminals.
+
+### Terminal 1 — Backend
+
+```bash
+cd backend
+pnpm dev
+```
+
+Backend:
+
+```text
+http://localhost:3000
+```
+
+### Terminal 2 — Frontend
+
+```bash
+cd frontend
+pnpm dev
+```
+
+Frontend:
+
+```text
+http://localhost:5173
+```
+
+### Data flow
+
+```text
+Browser
+  │
+  ├── REST ──────────────▶ http://localhost:3000/api
+  │
+  └── WebSocket ─────────▶ ws://localhost:3000/live
+```
+
+---
+
+# Application Routes
+
+The current application contains the following primary routes:
+
+| Route               | Page             | Purpose                               |
+| ------------------- | ---------------- | ------------------------------------- |
+| `/login`            | Login            | User authentication                   |
+| `/register`         | Register         | Create account                        |
+| `/oauth-success`    | OAuth Success    | Google OAuth redirect handling        |
+| `/complete-profile` | Complete Profile | Complete required profile information |
+| `/dashboard`        | Dashboard        | Main monitoring dashboard             |
+| `/history`          | History          | Historical monitoring data            |
+| `/settings`         | Settings         | Profile and safety settings           |
+
+Protected application pages are guarded by:
+
+```text
+components/ProtectedRoute.jsx
+```
+
+The fall/SOS notification is implemented as an application-level interface rather than a separate fall route.
+
+---
+
+# Backend API Integration
+
+Backend communication is centralized through:
+
+```text
+lib/apiClient.js
+```
+
+The frontend consumes the TrailGuard backend REST API.
+
+---
+
+## Authentication API
+
+```http
+POST /api/auth/register
+POST /api/auth/login
+GET  /api/auth/google
+GET  /api/auth/google/callback
+GET  /api/auth/me
+PATCH /api/auth/complete-profile
+```
+
+---
+
+## Device API
+
+```http
+POST   /api/devices/register
+GET    /api/devices
+PATCH  /api/devices/:deviceId
+PATCH  /api/devices/:deviceId/status
+DELETE /api/devices/:deviceId
+
+GET    /api/device/:deviceId
+```
+
+The exact device-management functionality is shared between the device-management and individual-device backend routes.
+
+---
+
+## Vitals API
+
+```http
+GET /api/vitals/latest
+GET /api/vitals/history
+GET /api/vitals/stats
+```
+
+---
+
+## Environment API
+
+```http
+GET /api/environment/latest
+GET /api/environment/history
+GET /api/environment/stats
+```
+
+---
+
+## Location API
+
+```http
+GET /api/location/latest
+GET /api/location/history
+```
+
+---
+
+## Fall API
+
+```http
+GET   /api/falls
+GET   /api/falls/latest
+PATCH /api/falls/:id
+```
+
+---
+
+# Realtime Data
+
+TrailGuard uses WebSocket communication for live wearable data.
+
+The frontend connects to:
+
+```text
+VITE_WS_URL
+```
+
+Default:
+
+```text
+ws://localhost:3000/live
+```
+
+Realtime state is managed through:
+
+```text
+context/LiveDataContext.jsx
+```
+
+This provides a shared WebSocket data layer for the application.
+
+---
+
+## Supported Events
+
+The backend can broadcast:
+
+```text
+vitals
+environment
+location
+fall_detected
+fall_status_update
+```
+
+The general data flow is:
+
+```text
+Wearable
+    │
+    │ Telemetry
+    ▼
+Backend
+    │
+    │ WebSocket
+    ▼
+LiveDataContext
+    │
+    ├── Dashboard
+    ├── Health information
+    ├── Environment information
+    ├── Location
+    └── Fall/SOS notification
+```
+
+The frontend can therefore update monitoring information without continuously polling every endpoint.
+
+---
+
+# Authentication
+
+Authentication state is managed through:
+
+```text
+context/AuthContext.jsx
+```
+
+The authentication system supports:
+
+1. Local registration
+2. Local login
+3. Google OAuth
+4. JWT authentication
+5. Protected routes
+6. Profile completion
+7. Persistent authentication state
+
+---
+
+## Protected Routes
+
+Protected application pages use:
+
+```text
+components/ProtectedRoute.jsx
+```
+
+Unauthenticated users are redirected to the appropriate authentication page.
+
+---
+
+## JWT
+
+Authenticated API requests include the JWT using the HTTP authorization header.
+
+Conceptually:
+
+```http
+Authorization: Bearer <JWT>
+```
+
+The current frontend stores authentication state/token information in browser storage.
+
+> For a production security model, authentication should be reviewed carefully and preferably use secure `httpOnly` cookies where appropriate.
+
+---
+
+# Dashboard
+
+The Dashboard is the main TrailGuard monitoring interface.
+
+It brings together:
+
+- User information
+- Selected wearable
+- Heart rate
+- SpO₂
+- Temperature
+- Humidity
+- Pressure
+- GPS position
+- Fall status
+- Recent activity
+- Realtime updates
+- Safety notifications
+
+The Dashboard combines:
+
+```text
+REST API
++
+WebSocket data
++
+React Context state
+```
+
+This allows historical information to be loaded from the backend while new wearable readings arrive in realtime.
+
+---
+
+# History
+
+The History page provides historical monitoring information.
+
+It can work with:
+
+- Heart-rate data
+- SpO₂ data
+- Environmental readings
+- GPS/location information
+- Fall events
+
+The frontend obtains historical data from backend endpoints such as:
+
+```http
+GET /api/vitals/history
+GET /api/environment/history
+GET /api/location/history
+GET /api/falls
+```
+
+The backend controls the requested history window using query parameters such as:
+
+```text
+hours
+```
+
+---
+
+# Location and Live Map
+
+The frontend currently uses **MapLibre GL** for interactive map rendering.
+
+The main map component is:
+
+```text
+components/LiveMap.jsx
+```
+
+Map data comes from the TrailGuard GPS pipeline.
+
+The primary coordinates are:
+
+```text
+latitude
+longitude
+```
+
+Additional GPS information may include:
+
+```text
+altitude
+satellites
+locationStale
+```
+
+The frontend can use the latest location to display the wearable's current/latest known position.
+
+---
+
+## Map Technology
+
+Current dependency:
+
+```text
+maplibre-gl
+```
+
+The frontend does **not** use Leaflet/React Leaflet in its current dependency configuration.
+
+This distinction is important when extending or debugging the map implementation.
+
+---
+
+# Fall Detection and SOS
+
+Fall events are delivered from the backend through the realtime WebSocket channel.
+
+When:
+
+```text
+fall_detected
+```
+
+is received, the frontend can display the global fall/SOS interface.
+
+The main component is:
+
+```text
+components/FallAlertModal.jsx
+```
+
+The event can subsequently be updated through:
+
+```http
+PATCH /api/falls/:id
+```
+
+Supported backend fall statuses include:
+
+```text
+detected
+confirmed_false_alarm
+sos_triggered
+resolved
+```
+
+The global alert approach ensures that a fall notification can be presented independently of the currently visible dashboard section.
+
+---
+
+# Device Management
+
+Device state is managed through:
+
+```text
+context/DeviceContext.jsx
+```
+
+The frontend can:
+
+- Load registered devices
+- Select the active device
+- Rename a device
+- Activate/deactivate a device
+- Display device information
+- Associate monitoring data with the selected wearable
+
+A physical TrailGuard device is identified by its:
+
+```text
+deviceId
+```
+
+The backend uses this ID to associate wearable telemetry with its registered owner.
+
+---
+
+# Project Structure
+
+The current frontend follows this general structure:
 
 ```text
 frontend/
@@ -216,646 +827,237 @@ frontend/
 
 ---
 
-## Prerequisites
+# Important Components
 
-Before running the frontend, install:
+## `App.jsx`
 
-- Node.js 18 or later
-- pnpm 11
-- Git
-- A running TrailGuard backend
-- MongoDB configured through the backend
-
-The backend should normally be available at:
-
-```text
-http://localhost:3000
-```
-
-The frontend development server is configured to run on:
-
-```text
-http://localhost:5173
-```
-
-The Vite configuration explicitly sets the development server port to `5173`.
+Main application entry for client-side routing and application composition.
 
 ---
 
-## Installation
+## `AuthContext.jsx`
 
-From the frontend directory:
-
-```bash
-cd frontend
-```
-
-Install dependencies:
-
-```bash
-pnpm install
-```
-
-Create the local environment file:
-
-```bash
-cp .env.example .env
-```
-
-Then configure the environment variables.
+Maintains authentication state and user information.
 
 ---
 
-## Environment Configuration
+## `DeviceContext.jsx`
 
-Create:
-
-```text
-frontend/.env
-```
-
-Example:
-
-```env
-VITE_API_URL=http://localhost:3000/api
-VITE_WS_URL=ws://localhost:3000/live
-```
-
-### Variables
-
-| Variable       | Description                       | Example                     |
-| -------------- | --------------------------------- | --------------------------- |
-| `VITE_API_URL` | Base URL for the backend REST API | `http://localhost:3000/api` |
-| `VITE_WS_URL`  | WebSocket endpoint for live data  | `ws://localhost:3000/live`  |
-
-Vite exposes frontend environment variables only when they use the `VITE_` prefix.
-
-### Production
-
-For HTTPS deployments, use secure WebSocket connections:
-
-```env
-VITE_API_URL=https://your-backend-domain.example/api
-VITE_WS_URL=wss://your-backend-domain.example/live
-```
-
-Do not place private secrets inside frontend environment variables.
-
-Anything prefixed with `VITE_` can be exposed to the browser.
+Maintains registered/selected wearable information.
 
 ---
 
-## Running the Application
+## `LiveDataContext.jsx`
 
-Start the development server:
-
-```bash
-pnpm run dev
-```
-
-The application will normally be available at:
-
-```text
-http://localhost:5173
-```
-
-### Run Backend and Frontend Together
-
-Terminal 1:
-
-```bash
-cd backend
-npm run dev
-```
-
-Terminal 2:
-
-```bash
-cd frontend
-pnpm run dev
-```
-
-The resulting architecture is:
-
-```text
-Frontend
-http://localhost:5173
-       │
-       ├── REST
-       ▼
-Backend
-http://localhost:3000/api
-       │
-       └── WebSocket
-           ws://localhost:3000/live
-```
+Maintains realtime WebSocket communication and live wearable data.
 
 ---
 
-## Application Routes
+## `ProtectedRoute.jsx`
 
-| Page             | Route               | Purpose                                          |
-| ---------------- | ------------------- | ------------------------------------------------ |
-| Login            | `/login`            | User authentication                              |
-| Register         | `/register`         | Create a new account                             |
-| OAuth Success    | `/oauth-success`    | Handles Google OAuth redirect                    |
-| Complete Profile | `/complete-profile` | Complete required profile information            |
-| Dashboard        | `/dashboard`        | Main health and safety dashboard                 |
-| History          | `/history`          | Historical health/environment/location/fall data |
-| Settings         | `/settings`         | Profile and safety settings                      |
-
-The fall/SOS alert is implemented as a **global application overlay**, rather than as a dedicated route.
+Prevents unauthenticated users from accessing protected application pages.
 
 ---
 
-## Backend API Integration
+## `LiveMap.jsx`
 
-The main API integration is handled by:
+Displays TrailGuard GPS information using MapLibre GL.
+
+---
+
+## `FallAlertModal.jsx`
+
+Displays safety/fall notifications received from the backend.
+
+---
+
+## `StatCard.jsx`
+
+Reusable monitoring/statistic card used throughout dashboard interfaces.
+
+---
+
+## `ActivitySummary.jsx`
+
+Displays summarized user/device activity information.
+
+---
+
+# Authentication Flow
+
+The normal local authentication flow is:
 
 ```text
-src/lib/apiClient.js
-```
-
-The frontend communicates with the backend using REST endpoints for authentication, device information, health data, environment data, location data, and fall events.
-
-### Authentication
-
-```text
+User
+ │
+ ▼
+Register
+ │
+ ▼
 POST /api/auth/register
-POST /api/auth/login
-GET  /api/auth/google
-PATCH /api/auth/complete-profile
-GET  /api/auth/me
-```
-
-### Device
-
-```text
-POST  /api/device/register
-GET   /api/device/:deviceId
-PATCH /api/device/:deviceId/name
-
-GET   /api/devices
-PATCH /api/devices/:deviceId
-PATCH /api/devices/:deviceId/status
-DELETE /api/devices/:deviceId
-```
-
-### Vitals
-
-```text
-GET /api/vitals/latest
-GET /api/vitals/history
-GET /api/vitals/stats
-```
-
-### Environment
-
-```text
-GET /api/environment/latest
-GET /api/environment/history
-GET /api/environment/stats
-```
-
-### Location
-
-```text
-GET /api/location/latest
-GET /api/location/history
-```
-
-### Falls
-
-```text
-GET   /api/falls
-GET   /api/falls/latest
-PATCH /api/falls/:id
-```
-
-The frontend sends the JWT with authenticated API requests.
-
----
-
-## Real-Time Data
-
-TrailGuard uses a WebSocket connection for live wearable data.
-
-The connection is established through:
-
-```text
-VITE_WS_URL
-```
-
-Default:
-
-```text
-ws://localhost:3000/live
-```
-
-The application maintains the WebSocket connection through:
-
-```text
-context/LiveDataContext.jsx
-```
-
-This allows multiple pages and components to consume the same live data connection.
-
-### Supported Events
-
-The frontend handles events including:
-
-```text
-vitals
-environment
-location
-fall_detected
-fall_status_update
-```
-
-Conceptually:
-
-```text
-Wearable
-   │
-   │ telemetry
-   ▼
+ │
+ ▼
 Backend
-   │
-   │ WebSocket broadcast
-   ▼
-LiveDataContext
-   │
-   ├── Dashboard
-   ├── Live Map
-   ├── Health cards
-   ├── Environment cards
-   └── Fall/SOS Alert
+ │
+ ▼
+JWT
+ │
+ ▼
+AuthContext
+ │
+ ▼
+Protected Application
 ```
 
-The WebSocket connection also supports automatic reconnection when the connection is lost.
-
----
-
-## Authentication
-
-Authentication is handled through:
+Login:
 
 ```text
-context/AuthContext.jsx
+User
+ │
+ ▼
+Login
+ │
+ ▼
+POST /api/auth/login
+ │
+ ▼
+JWT
+ │
+ ▼
+AuthContext
+ │
+ ▼
+Dashboard
 ```
 
-The application supports:
-
-1. Local registration
-2. Local login
-3. Google OAuth
-4. JWT persistence
-5. Protected routes
-6. Profile completion
-
-Protected pages use:
+Google OAuth:
 
 ```text
-components/ProtectedRoute.jsx
+User
+ │
+ ▼
+Google Login
+ │
+ ▼
+/api/auth/google
+ │
+ ▼
+Google
+ │
+ ▼
+/api/auth/google/callback
+ │
+ ▼
+OAuthSuccess
+ │
+ ▼
+Application
 ```
 
-### Current Token Storage
-
-The current implementation stores the JWT in browser `localStorage`.
-
-This is convenient for the current development/capstone stage but has security trade-offs.
-
-For a production deployment, consider moving authentication to secure, appropriately configured `httpOnly` cookies.
-
 ---
 
-## Dashboard
+# Device-to-Dashboard Flow
 
-The dashboard is the primary monitoring interface.
-
-It combines:
-
-- User information
-- Wearable/device information
-- Heart rate
-- SpO₂
-- Temperature
-- Humidity
-- Pressure
-- GPS location
-- Fall events
-- Recent activity
-- Real-time updates
-- SOS/fall notifications
-
-The dashboard consumes both REST API data and WebSocket updates.
-
----
-
-## History
-
-The History page provides access to previously recorded data.
-
-It can display historical:
-
-- Vital readings
-- Environmental readings
-- Location data
-- Fall events
-
-Historical requests use backend endpoints such as:
+The complete monitoring flow is:
 
 ```text
-GET /api/vitals/history
-GET /api/environment/history
-GET /api/location/history
-GET /api/falls
+TrailGuard Wearable
+        │
+        │ telemetry
+        ▼
+POST /api/device/readings
+        │
+        ▼
+TrailGuard Backend
+        │
+        ├── MongoDB
+        │
+        └── WebSocket
+                │
+                ▼
+        LiveDataContext
+                │
+        ┌───────┼────────┐
+        ▼       ▼        ▼
+    Dashboard  Map    Fall Alert
 ```
-
-The available time range is controlled through API query parameters.
 
 ---
 
-## Location and Live Map
+# Testing
 
 The frontend uses:
 
-- Leaflet
-- React Leaflet
-- OpenStreetMap
+- Vitest
+- Testing Library
+- jsdom
+- `@testing-library/jest-dom`
 
-The main map component is:
+The package provides:
 
-```text
-components/LiveMap.jsx
+```bash
+pnpm test
 ```
 
-The map uses the latest GPS coordinates supplied by the backend:
+for watch/development mode.
 
-```text
-latitude
-longitude
+For a single test run:
+
+```bash
+pnpm test:run
 ```
-
-Additional location information can include:
-
-```text
-altitude
-satellites
-locationStale
-```
-
-The map is intended to provide a lightweight real-time visualization of the wearable's latest known position.
 
 ---
 
-## Fall Detection and SOS
+## Build Verification
 
-Fall detection is integrated into the application globally.
+A production build can also be used as a basic integration check:
 
-When the backend broadcasts:
-
-```text
-fall_detected
+```bash
+pnpm build
 ```
 
-the frontend can display the fall/SOS alert regardless of which protected page the user is currently viewing.
-
-The primary component is:
-
-```text
-components/FallAlertModal.jsx
-```
-
-After a fall event is received, the application can also interact with:
-
-```text
-PATCH /api/falls/:id
-```
-
-to update the event status.
-
-This global design ensures that a safety-critical notification is not restricted to the Dashboard page.
+If the build succeeds, Vite has successfully compiled the frontend application.
 
 ---
 
-## Device Management
-
-Device-related application state is handled through:
-
-```text
-context/DeviceContext.jsx
-```
-
-The frontend can work with paired wearable devices and communicate with backend device-management endpoints.
-
-Typical operations include:
-
-- Loading registered devices
-- Selecting a device
-- Renaming a device
-- Activating/deactivating a device
-- Associating dashboard data with the selected device
-
-The device ID is used by the backend to associate wearable telemetry with the appropriate user.
-
----
-
-## Project Structure
-
-### `pages/`
-
-Contains complete application screens.
-
-Examples:
-
-```text
-Dashboard.jsx
-History.jsx
-Login.jsx
-Register.jsx
-Settings.jsx
-CompleteProfile.jsx
-OAuthSuccess.jsx
-```
-
-### `components/`
-
-Contains reusable UI components.
-
-Examples:
-
-```text
-StatCard.jsx
-LiveMap.jsx
-FallAlertModal.jsx
-Sidebar.jsx
-ProtectedRoute.jsx
-```
-
-### `components/auth/`
-
-Reusable authentication-related UI:
-
-```text
-AuthCard.jsx
-AuthLayout.jsx
-Button.jsx
-Field.jsx
-```
-
-### `components/app/`
-
-Shared application layout and navigation components:
-
-```text
-AppLayout.jsx
-NotificationBell.jsx
-PageHeader.jsx
-ProfileMenu.jsx
-SectionCard.jsx
-```
-
-### `context/`
-
-Global React state:
-
-```text
-AuthContext.jsx
-DeviceContext.jsx
-LiveDataContext.jsx
-```
-
-### `lib/`
-
-Application utilities and backend communication:
-
-```text
-apiClient.js
-profileCompletion.js
-```
-
-### `assets/`
-
-Static frontend assets such as images.
-
----
-
-## Design System
-
-The frontend uses a centralized styling approach rather than defining arbitrary styles independently inside every component.
-
-Global styling is primarily located in:
-
-```text
-src/index.css
-```
-
-and related CSS files.
-
-The project also uses Tailwind CSS for utility-based styling.
-
-### Design Principles
-
-When adding new UI:
-
-- Reuse existing components whenever possible.
-- Reuse existing spacing and typography patterns.
-- Use the established design tokens.
-- Avoid unnecessary hardcoded colors.
-- Keep cards and dashboard sections visually consistent.
-- Maintain accessible contrast.
-- Keep safety-critical alerts visually prominent.
-- Avoid breaking the existing responsive layouts.
-
----
-
-## Development Guidelines
-
-### Component Reuse
-
-Before creating a new component, check whether an existing component can be reused.
-
-For example:
-
-```text
-StatCard.jsx
-SectionCard.jsx
-Button.jsx
-Field.jsx
-```
-
-### API Calls
-
-Keep backend communication inside:
-
-```text
-lib/apiClient.js
-```
-
-rather than scattering raw `fetch()` calls throughout unrelated components.
-
-### Global State
-
-Use the appropriate context for shared state:
-
-```text
-AuthContext
-DeviceContext
-LiveDataContext
-```
-
-Avoid duplicating global state independently across pages.
-
-### Real-Time Data
-
-Components that need live wearable information should consume the existing WebSocket state rather than opening separate WebSocket connections.
-
-This keeps the application architecture simple and reduces unnecessary connections to the backend.
-
----
-
-## Production Build
+# Production Build
 
 Create an optimized production build:
 
 ```bash
-pnpm run build
+pnpm build
 ```
 
-Vite will generate the production output in:
+Vite generates the production files in:
 
 ```text
 dist/
 ```
 
-To preview the production build locally:
+---
+
+# Preview Production Build
+
+After building:
 
 ```bash
-pnpm run preview
+pnpm preview
 ```
 
-The frontend package currently provides the following scripts:
-
-```text
-pnpm run dev
-pnpm run build
-pnpm run preview
-```
-
-There is currently no dedicated frontend test script in `package.json`.
+This serves the generated production build locally for verification.
 
 ---
 
-## Deployment
+# Deployment
 
-The frontend includes:
+The repository contains:
 
 ```text
 vercel.json
 ```
 
-and can be deployed to Vercel or another static/frontend hosting platform.
+and the frontend is structured for Vite-based deployment.
 
 Before deployment, configure the production environment variables:
 
@@ -864,204 +1066,197 @@ VITE_API_URL=https://your-backend-domain.example/api
 VITE_WS_URL=wss://your-backend-domain.example/live
 ```
 
-The backend must also allow requests from the deployed frontend origin through its CORS configuration.
-
-### Deployment Checklist
-
-Before deploying:
-
-- [ ] Build succeeds with `pnpm run build`
-- [ ] Production API URL is configured
-- [ ] Production WebSocket URL is configured
-- [ ] Backend is publicly reachable
-- [ ] Backend CORS allows the frontend domain
-- [ ] Google OAuth redirect configuration matches production
-- [ ] HTTPS is enabled
-- [ ] WebSocket uses `wss://`
-- [ ] No private secrets are exposed through `VITE_` variables
+The backend must also allow the deployed frontend origin through its CORS configuration.
 
 ---
 
-## Known Limitations
+# Development Guidelines
 
-### Mobile Responsiveness
+## Reuse Existing Components
 
-Basic responsive behavior exists, but additional mobile-specific UI polishing may still be required.
+Before creating a new component, check whether an existing component can be reused.
+
+Examples:
+
+```text
+StatCard
+SectionCard
+Button
+Field
+PageHeader
+```
+
+---
+
+## Keep API Communication Centralized
+
+Prefer:
+
+```text
+lib/apiClient.js
+```
+
+for backend communication.
+
+Avoid scattering unrelated raw `fetch()` calls throughout the application.
+
+---
+
+## Use Existing Contexts
+
+Use the existing contexts for global state:
+
+```text
+AuthContext
+DeviceContext
+LiveDataContext
+```
+
+Do not create duplicate authentication, device, or WebSocket state unless there is a strong architectural reason.
+
+---
+
+## Realtime Data
+
+Components requiring live wearable data should consume the existing:
+
+```text
+LiveDataContext
+```
+
+rather than opening independent WebSocket connections.
+
+This keeps the application architecture simpler and avoids unnecessary connections.
+
+---
+
+## Styling
+
+The frontend uses Tailwind CSS 4 together with the existing application CSS.
+
+When adding UI:
+
+- Reuse existing design patterns.
+- Maintain consistent spacing.
+- Reuse existing typography.
+- Reuse existing components.
+- Maintain responsive layouts.
+- Keep safety-critical notifications prominent.
+- Maintain accessible contrast.
+- Avoid unnecessary one-off styling.
+
+---
+
+# Known Limitations
+
+The current frontend has several areas that should be considered during further development.
 
 ### Authentication Storage
 
-JWTs are currently stored in `localStorage`.
+The current frontend uses browser-side persistent authentication state.
 
-A production-grade implementation should evaluate secure cookie-based authentication.
+A production deployment should review whether secure cookie-based authentication would be preferable.
 
-### Sensor GET Route Authorization
+### Realtime Connection
 
-The frontend sends JWT credentials with API requests, but some sensor-related backend GET routes may still require additional server-side authorization work.
-
-Frontend authentication should not be treated as a substitute for backend authorization.
-
-### Twilio SOS Messaging
-
-The frontend can initiate the relevant SOS/fall workflow, but actual SMS delivery depends on the backend's Twilio integration being configured and implemented.
-
-### Browser Geolocation
-
-The dashboard's primary location data comes from the wearable/backend GPS data rather than relying solely on the browser's own location.
-
----
-
-## Troubleshooting
-
-### Frontend cannot connect to backend
-
-Check:
-
-```env
-VITE_API_URL=http://localhost:3000/api
-```
-
-Make sure the backend is running:
-
-```bash
-cd backend
-npm run dev
-```
-
-### Live data is not updating
-
-Check:
-
-```env
-VITE_WS_URL=ws://localhost:3000/live
-```
-
-Also verify that the backend WebSocket server is running.
-
-### CORS error
-
-Verify that the backend's:
-
-```env
-CLIENT_URL
-```
-
-matches the frontend origin.
-
-For local development:
+The frontend depends on the backend WebSocket service being available at:
 
 ```text
-http://localhost:5173
+/live
 ```
 
-### Login succeeds but dashboard is inaccessible
+### Backend Dependency
 
-Check:
+The dashboard requires the TrailGuard backend for:
 
-- JWT is being stored correctly.
-- The browser has not cleared local storage.
-- The API URL is correct.
-- The backend is running.
-- The user has completed the required profile information.
-- Protected route logic is not redirecting unexpectedly.
+- Authentication
+- Device information
+- Telemetry
+- Historical data
+- Fall events
+- Location data
+- Realtime updates
 
-### Map does not display correctly
+### Map Availability
 
-Check that:
+Map functionality depends on MapLibre configuration and the map style/source used by the application.
 
-- Latitude and longitude are valid.
-- Leaflet CSS is loaded.
-- The backend is providing location data.
-- The browser can reach the map tile provider.
+### API/Frontend Synchronization
+
+When backend API routes or response structures change, corresponding frontend API utilities and components may need to be updated.
 
 ---
 
-## Development Workflow
+# Development Checklist
 
-A typical development workflow is:
+Before committing frontend changes:
 
 ```text
-1. Start MongoDB
-        │
-        ▼
-2. Start TrailGuard Backend
-        │
-        ▼
-3. Start TrailGuard Frontend
-        │
-        ▼
-4. Register / Login
-        │
-        ▼
-5. Pair wearable device
-        │
-        ▼
-6. Start wearable / ESP32 simulator
-        │
-        ▼
-7. Backend receives telemetry
-        │
-        ▼
-8. Backend broadcasts live events
-        │
-        ▼
-9. Frontend updates dashboard
-        │
-        ▼
-10. Fall/location/health information appears in real time
+[ ] pnpm install
+[ ] Configure .env
+[ ] Start backend
+[ ] Start frontend
+[ ] Test authentication
+[ ] Test device selection
+[ ] Test dashboard
+[ ] Test realtime WebSocket
+[ ] Test map
+[ ] Test fall alert
+[ ] Test history
+[ ] Test settings
+[ ] pnpm test:run
+[ ] pnpm build
 ```
 
 ---
 
-## Related Components
+# Related Components
 
-TrailGuard is organized into three major application areas:
+TrailGuard is composed of multiple project components:
 
 ```text
 Smart-Wearable/
 │
-├── backend/     # Express API, MongoDB, WebSocket server
-├── frontend/    # React + Vite dashboard
-└── hardware/    # Wearable / ESP32 hardware implementation
+├── backend/      ← Node.js + Express + MongoDB + WebSocket
+│
+├── frontend/     ← React + Vite dashboard
+│
+└── ...
 ```
 
-The frontend depends on the backend for:
-
-- Authentication
-- Device association
-- Health telemetry
-- Environmental telemetry
-- GPS information
-- Fall events
-- Real-time WebSocket events
+The frontend is responsible for the user interface and communicates with the backend for data and realtime events.
 
 ---
 
-## Project Repository
+# Current Frontend Status
 
-TrailGuard source code:
+The current frontend provides:
 
-https://github.com/SWAGAT10241/Smart-Wearable
+- [x] React/Vite application
+- [x] Authentication pages
+- [x] Local login/register
+- [x] Google OAuth flow
+- [x] Protected routes
+- [x] Profile completion
+- [x] Device management
+- [x] Health monitoring
+- [x] Environmental monitoring
+- [x] GPS/location monitoring
+- [x] MapLibre-based live map
+- [x] Historical data
+- [x] Fall detection UI
+- [x] SOS/fall alert modal
+- [x] WebSocket realtime data
+- [x] Responsive application layout
+- [x] Settings/profile interface
+- [x] Vitest test setup
+- [x] Production Vite build
+- [x] Vercel deployment configuration
 
 ---
 
-## License
+# License
 
-This project is licensed under the **MIT License**.
+This project is part of the **TrailGuard — Smart Wearable Safety & Health Monitoring System**.
 
-See the repository's `LICENSE` file for details.
-
----
-
-## Capstone Context
-
-TrailGuard is developed as a smart wearable safety and health monitoring system combining:
-
-- Embedded hardware
-- Sensors
-- ESP32-based wearable functionality
-- Backend APIs
-- MongoDB
-- Real-time WebSocket communication
-- React-based monitoring dashboard
-
-The frontend serves as the central user interface for visualizing the data collected by the wearable and processed by the TrailGuard backend.
+See the repository root for project-level licensing and documentation.
