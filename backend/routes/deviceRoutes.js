@@ -1,16 +1,28 @@
 const express = require("express");
+const rateLimit = require("express-rate-limit");
 
 const Device = require("../models/Device");
 const VitalsReading = require("../models/VitalsReading");
 const EnvironmentReading = require("../models/EnvironmentReading");
 const LocationReading = require("../models/LocationReading");
 const FallEvent = require("../models/FallEvent");
+const User = require("../models/User");
+const { sendEmergencySMS } = require("../services/smsService");
+const { sendEmergencyWhatsApp } = require("../services/whatsappService");
 
 const protect = require("../middleware/authMiddleware");
 
 module.exports = function (broadcast) {
   const router = express.Router();
-
+  const deviceReadLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    limit: 60,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: {
+      error: "Too many device requests. Please try again later.",
+    },
+  });
   // ─────────────────────────────────────────────
   // POST /api/device/register
   //
@@ -402,7 +414,41 @@ module.exports = function (broadcast) {
           status: "detected",
           timestamp: readingTimestamp,
         });
+        const user = await User.findById(device.userId).select(
+          "username emergencyContactName emergencyContactPhone",
+        );
 
+        if (user?.emergencyContactPhone) {
+          // SMS
+          try {
+            await sendEmergencySMS({
+              to: user.emergencyContactPhone,
+              userName: user.username,
+              latitude,
+              longitude,
+            });
+          } catch (smsError) {
+            console.error(
+              "[SMS] Failed to send emergency SMS:",
+              smsError.message,
+            );
+          }
+
+          // WhatsApp
+          try {
+            await sendEmergencyWhatsApp({
+              to: user.emergencyContactPhone,
+              userName: user.username,
+              latitude,
+              longitude,
+            });
+          } catch (whatsappError) {
+            console.error(
+              "[WhatsApp] Failed to send emergency WhatsApp:",
+              whatsappError.message,
+            );
+          }
+        }
         saved.fall = fallEvent;
 
         broadcast({
@@ -446,7 +492,7 @@ module.exports = function (broadcast) {
   // Only the owner can see their device.
   // ─────────────────────────────────────────────
 
-  router.get("/:deviceId", protect, async (req, res) => {
+  router.get("/:deviceId", deviceReadLimiter,protect, async (req, res) => {
     try {
       const device = await Device.findOne({
         deviceId: req.params.deviceId.trim().toUpperCase(),

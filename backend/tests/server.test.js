@@ -10,6 +10,10 @@ const mockEnvironmentCreate = jest.fn();
 const mockLocationCreate = jest.fn();
 const mockFallCreate = jest.fn();
 
+const mockUserFindById = jest.fn();
+const mockSendEmergencySMS = jest.fn();
+const mockSendEmergencyWhatsApp = jest.fn();
+
 jest.mock("../models/Device", () => ({
   findOne: mockDeviceFindOne,
   create: mockDeviceCreate,
@@ -41,6 +45,18 @@ jest.mock("../models/FallEvent", () => ({
   findByIdAndUpdate: jest.fn(),
 }));
 
+jest.mock("../models/User", () => ({
+  findById: mockUserFindById,
+}));
+
+jest.mock("../services/smsService", () => ({
+  sendEmergencySMS: mockSendEmergencySMS,
+}));
+
+jest.mock("../services/whatsappService", () => ({
+  sendEmergencyWhatsApp: mockSendEmergencyWhatsApp,
+}));
+
 // Mock authentication for device registration tests.
 jest.mock("../middleware/authMiddleware", () => {
   return (req, res, next) => {
@@ -54,6 +70,24 @@ const { app } = require("../app");
 describe("TrailGuard Backend API", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+
+    mockUserFindById.mockReturnValue({
+      select: jest.fn().mockResolvedValue({
+        username: "Test User",
+        emergencyContactName: "Emergency Contact",
+        emergencyContactPhone: null,
+      }),
+    });
+
+    mockSendEmergencySMS.mockResolvedValue({
+      success: true,
+      sid: "test-sms-sid",
+    });
+
+    mockSendEmergencyWhatsApp.mockResolvedValue({
+      success: true,
+      sid: "test-whatsapp-sid",
+    });
   });
 
   // ─────────────────────────────────────────────
@@ -65,7 +99,6 @@ describe("TrailGuard Backend API", () => {
       const response = await request(app).get("/");
 
       expect(response.statusCode).toBe(200);
-
       expect(response.body).toEqual({
         status: "TrailGuard backend running",
       });
@@ -81,9 +114,7 @@ describe("TrailGuard Backend API", () => {
       const response = await request(app).post("/api/device/register").send({});
 
       expect(response.statusCode).toBe(400);
-
       expect(response.body.error).toBe("deviceId is required");
-
       expect(mockDeviceCreate).not.toHaveBeenCalled();
     });
 
@@ -101,7 +132,6 @@ describe("TrailGuard Backend API", () => {
       });
 
       expect(response.statusCode).toBe(201);
-
       expect(mockDeviceFindOne).toHaveBeenCalledWith({
         deviceId: "TG-000001",
       });
@@ -151,9 +181,7 @@ describe("TrailGuard Backend API", () => {
       });
 
       expect(response.statusCode).toBe(409);
-
       expect(response.body.error).toBe("Device already connected");
-
       expect(mockDeviceCreate).not.toHaveBeenCalled();
     });
   });
@@ -170,7 +198,6 @@ describe("TrailGuard Backend API", () => {
       });
 
       expect(response.statusCode).toBe(400);
-
       expect(response.body.error).toBe("deviceId is required");
     });
 
@@ -184,9 +211,7 @@ describe("TrailGuard Backend API", () => {
       });
 
       expect(response.statusCode).toBe(401);
-
       expect(response.body.error).toBe("Unknown or inactive device");
-
       expect(mockVitalsCreate).not.toHaveBeenCalled();
     });
 
@@ -217,7 +242,6 @@ describe("TrailGuard Backend API", () => {
       });
 
       expect(response.statusCode).toBe(201);
-
       expect(mockVitalsCreate).toHaveBeenCalledWith(
         expect.objectContaining({
           deviceId: "TG-000001",
@@ -229,7 +253,6 @@ describe("TrailGuard Backend API", () => {
       );
 
       expect(save).toHaveBeenCalled();
-
       expect(response.body.success).toBe(true);
       expect(response.body.device.deviceId).toBe("TG-000001");
       expect(response.body.device.userId).toBe("507f1f77bcf86cd799439011");
@@ -260,7 +283,6 @@ describe("TrailGuard Backend API", () => {
       });
 
       expect(response.statusCode).toBe(201);
-
       expect(mockEnvironmentCreate).toHaveBeenCalledWith(
         expect.objectContaining({
           deviceId: "TG-000001",
@@ -269,7 +291,6 @@ describe("TrailGuard Backend API", () => {
           humidity: 50.5,
         }),
       );
-
       expect(save).toHaveBeenCalled();
     });
 
@@ -298,7 +319,6 @@ describe("TrailGuard Backend API", () => {
       });
 
       expect(response.statusCode).toBe(201);
-
       expect(mockLocationCreate).toHaveBeenCalledWith(
         expect.objectContaining({
           deviceId: "TG-000001",
@@ -307,7 +327,6 @@ describe("TrailGuard Backend API", () => {
           longitude: 85.8245,
         }),
       );
-
       expect(save).toHaveBeenCalled();
     });
 
@@ -343,7 +362,6 @@ describe("TrailGuard Backend API", () => {
       });
 
       expect(response.statusCode).toBe(201);
-
       expect(mockFallCreate).toHaveBeenCalledWith(
         expect.objectContaining({
           deviceId: "TG-000001",
@@ -433,11 +451,9 @@ describe("TrailGuard Backend API", () => {
       });
 
       expect(response.statusCode).toBe(400);
-
       expect(response.body.error).toBe(
         "temperature and humidity must be provided together",
       );
-
       expect(mockEnvironmentCreate).not.toHaveBeenCalled();
     });
 
@@ -457,11 +473,9 @@ describe("TrailGuard Backend API", () => {
       });
 
       expect(response.statusCode).toBe(400);
-
       expect(response.body.error).toBe(
         "latitude and longitude must be provided together",
       );
-
       expect(mockLocationCreate).not.toHaveBeenCalled();
     });
 
@@ -483,9 +497,7 @@ describe("TrailGuard Backend API", () => {
       });
 
       expect(response.statusCode).toBe(400);
-
       expect(response.body.error).toBe("Invalid timestamp");
-
       expect(mockVitalsCreate).not.toHaveBeenCalled();
     });
   });
