@@ -1,49 +1,57 @@
 @import "tailwindcss";
-@import "leaflet/dist/leaflet.css";
 
 :root {
-  --color-main: #102A43;
-  --color-secondary: #1E4D6B;
-  --color-accent: #2DD4BF;
-  --color-accent-dark: #0E9C8C;
-  --color-bg: #F4F9FA;
-  --color-bg-alt: #E7F0F2;
-  --color-surface: #FFF;
-  --color-surface-alt: #F8FAFC;
+  --color-main: #102a43;
+  --color-secondary: #1e4d6b;
+  --color-accent: #2dd4bf;
+  --color-accent-dark: #0e9c8c;
+
+  --color-bg: #f4f9fa;
+  --color-bg-alt: #e7f0f2;
+  --color-surface: #fff;
+  --color-surface-alt: #f8fafc;
+
   --color-text: #172033;
-  --color-text-secondary: #5C7086;
-  --color-text-muted: #8FA0B0;
-  --color-border: #D9E4E8;
-  --color-white: #FFF;
-  --color-alert: #D64545;
+  --color-text-secondary: #5c7086;
+  --color-text-muted: #8fa0b0;
+  --color-border: #d9e4e8;
+  --color-white: #fff;
+
+  --color-alert: #d64545;
   --color-success: #059669;
-  --color-warning: #D97706;
-  --shadow-card: 0 8px 24px rgba(16, 42, 67, .08);
-  --shadow-card-lg: 0 12px 30px rgba(16, 42, 67, .1);
-  --shadow-sidebar: 6px 0 24px rgba(16, 42, 67, .15);
+  --color-warning: #d97706;
+
+  --shadow-card: 0 8px 24px rgba(16, 42, 67, 0.08);
+  --shadow-card-lg: 0 12px 30px rgba(16, 42, 67, 0.1);
+  --shadow-sidebar: 6px 0 24px rgba(16, 42, 67, 0.15);
+
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 html.dark {
-  --color-main: #E2E8F0;
-  --color-secondary: #94A3B8;
-  --color-accent: #2DD4BF;
-  --color-accent-dark: #5EEAD4;
-  --color-bg: #0B1220;
+  --color-main: #e2e8f0;
+  --color-secondary: #94a3b8;
+  --color-accent: #2dd4bf;
+  --color-accent-dark: #5eead4;
+
+  --color-bg: #0b1220;
   --color-bg-alt: #111827;
   --color-surface: #172033;
-  --color-surface-alt: #1E293B;
-  --color-text: #F8FAFC;
-  --color-text-secondary: #CBD5E1;
-  --color-text-muted: #94A3B8;
+  --color-surface-alt: #1e293b;
+
+  --color-text: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #94a3b8;
   --color-border: #334155;
-  --color-white: #FFF;
-  --color-alert: #F87171;
-  --color-success: #34D399;
-  --color-warning: #FBBF24;
-  --shadow-card: 0 8px 24px rgba(0, 0, 0, .25);
-  --shadow-card-lg: 0 12px 30px rgba(0, 0, 0, .3);
-  --shadow-sidebar: 6px 0 24px rgba(0, 0, 0, .35);
+  --color-white: #fff;
+
+  --color-alert: #f87171;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.25);
+  --shadow-card-lg: 0 12px 30px rgba(0, 0, 0, 0.3);
+  --shadow-sidebar: 6px 0 24px rgba(0, 0, 0, 0.35);
 }
 
 @layer base {
@@ -58,18 +66,22 @@ html.dark {
   body,
   #root {
     width: 100%;
-    min-height: 100%;
     height: 100%;
+    min-height: 100%;
   }
 
   body {
     margin: 0;
     font-family: var(--font-sans);
     color: var(--color-text);
-    background: linear-gradient(180deg, var(--color-bg), var(--color-bg-alt));
+    background: linear-gradient(180deg,
+        var(--color-bg),
+        var(--color-bg-alt));
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    transition: background-color .2s ease, color .2s ease;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
   }
 
   button,
@@ -137,7 +149,7 @@ html.dark {
 
   .tg-formcard__link {
     @apply font-semibold transition-colors hover:text-teal-600;
-    color: #0369A1;
+    color: #0369a1;
   }
 
   .tg-formcard__section-label {
@@ -169,75 +181,49 @@ html.dark {
     @apply inline-flex self-start rounded-full bg-teal-100 px-3 py-1 text-[10.5px] font-bold tracking-[0.08em] text-sky-700;
   }
 
-  /* Map */
-  .tg-leaflet-marker {
-    background: transparent !important;
-    border: 0 !important;
-  }
-
+  /* MapLibre marker */
   .tg-map-marker {
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 42px;
     height: 42px;
-    border-radius: 999px;
   }
 
   .tg-map-marker-pulse {
     position: absolute;
-    width: 34px;
-    height: 34px;
+    inset: 2px;
     border-radius: 999px;
-    background: rgba(45, 212, 191, .18);
-    box-shadow: 0 0 0 7px rgba(45, 212, 191, .1), 0 0 18px rgba(45, 212, 191, .35);
+    background: rgba(45, 212, 191, 0.25);
+    animation: tg-map-pulse 1.8s ease-out infinite;
   }
 
   .tg-map-marker-dot {
-    position: relative;
-    z-index: 2;
-    width: 16px;
-    height: 16px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 14px;
+    height: 14px;
+    transform: translate(-50%, -50%);
     border: 3px solid #fff;
     border-radius: 999px;
     background: #1976d2;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .28), 0 0 0 3px rgba(25, 118, 210, .16);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
   }
 
-  .leaflet-container {
-    width: 100%;
-    height: 100%;
-    min-height: 320px;
-    font-family: var(--font-sans);
-    background: #e8eef0;
-    z-index: 0;
-  }
+  @keyframes tg-map-pulse {
+    0% {
+      transform: scale(0.7);
+      opacity: 0.8;
+    }
 
-  .leaflet-control-zoom {
-    border: 0 !important;
-    border-radius: 10px !important;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(16, 42, 67, .15) !important;
-  }
+    70% {
+      transform: scale(1.35);
+      opacity: 0;
+    }
 
-  .leaflet-control-zoom a {
-    width: 34px !important;
-    height: 34px !important;
-    line-height: 34px !important;
-    border: 0 !important;
-    color: var(--color-main) !important;
-    background: #fff !important;
-    font-weight: 600;
-  }
-
-  .leaflet-control-zoom a:hover {
-    color: var(--color-accent-dark) !important;
-    background: #f8fafc !important;
-  }
-
-  .leaflet-control-attribution {
-    font-size: 9px !important;
+    100% {
+      transform: scale(1.35);
+      opacity: 0;
+    }
   }
 
   /* Phone input */
@@ -255,12 +241,14 @@ html.dark {
     border-radius: 12px;
     background: var(--color-surface);
     color: var(--color-text);
-    transition: border-color .2s ease, box-shadow .2s ease;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
   .tg-phone-field .PhoneInput:focus-within {
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px rgba(45, 212, 191, .15);
+    box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.15);
   }
 
   .tg-phone-field .PhoneInputCountry {
@@ -358,11 +346,11 @@ html.dark {
   }
 
   html.dark .text-slate-800 {
-    color: #E2E8F0 !important;
+    color: #e2e8f0 !important;
   }
 
   html.dark .text-slate-700 {
-    color: #CBD5E1 !important;
+    color: #cbd5e1 !important;
   }
 
   html.dark .text-slate-600 {
@@ -374,7 +362,7 @@ html.dark {
   }
 
   html.dark .text-slate-400 {
-    color: #94A3B8 !important;
+    color: #94a3b8 !important;
   }
 
   html.dark .border-slate-200 {
@@ -386,52 +374,52 @@ html.dark {
   }
 
   html.dark .hover\:border-slate-300:hover {
-    border-color: #64748B !important;
+    border-color: #64748b !important;
   }
 
   html.dark .bg-teal-50 {
-    background-color: rgba(45, 212, 191, .1) !important;
+    background-color: rgba(45, 212, 191, 0.1) !important;
   }
 
   html.dark .bg-teal-100 {
-    background-color: rgba(45, 212, 191, .18) !important;
+    background-color: rgba(45, 212, 191, 0.18) !important;
   }
 
   html.dark .text-teal-700 {
-    color: #5EEAD4 !important;
+    color: #5eead4 !important;
   }
 
   html.dark .text-sky-700 {
-    color: #38BDF8 !important;
+    color: #38bdf8 !important;
   }
 
   html.dark .bg-red-50 {
-    background-color: rgba(239, 68, 68, .12) !important;
+    background-color: rgba(239, 68, 68, 0.12) !important;
   }
 
   html.dark .bg-red-100 {
-    background-color: rgba(239, 68, 68, .2) !important;
+    background-color: rgba(239, 68, 68, 0.2) !important;
   }
 
   html.dark .border-red-200 {
-    border-color: rgba(248, 113, 113, .35) !important;
+    border-color: rgba(248, 113, 113, 0.35) !important;
   }
 
   html.dark .text-red-600,
   html.dark .text-red-700 {
-    color: #FCA5A5 !important;
+    color: #fca5a5 !important;
   }
 
   html.dark .bg-emerald-50 {
-    background-color: rgba(16, 185, 129, .12) !important;
+    background-color: rgba(16, 185, 129, 0.12) !important;
   }
 
   html.dark .bg-emerald-100 {
-    background-color: rgba(16, 185, 129, .18) !important;
+    background-color: rgba(16, 185, 129, 0.18) !important;
   }
 
   html.dark .text-emerald-700 {
-    color: #6EE7B7 !important;
+    color: #6ee7b7 !important;
   }
 
   html.dark .shadow-\[var\(--shadow-card\)\] {
@@ -440,20 +428,5 @@ html.dark {
 
   html.dark .shadow-\[var\(--shadow-card-lg\)\] {
     box-shadow: var(--shadow-card-lg) !important;
-  }
-
-  /* Phone dark mode */
-  html.dark .tg-phone-field .PhoneInput,
-  html.dark .tg-phone-field .PhoneInputCountry {
-    background: var(--color-surface);
-    border-color: var(--color-border);
-  }
-
-  html.dark .tg-phone-field .PhoneInputInput {
-    color: var(--color-text) !important;
-  }
-
-  html.dark .tg-phone-field .PhoneInputCountrySelect {
-    color-scheme: dark;
   }
 }
