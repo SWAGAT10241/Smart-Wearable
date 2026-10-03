@@ -39,24 +39,34 @@ module.exports = function () {
       });
 
       if (existingDevice) {
-        // Already belongs to this user
-        if (existingDevice.userId.toString() === req.userId.toString()) {
-          return res.status(200).json({
-            success: true,
-            message: "Device is already registered to your account",
-            device: {
-              deviceId: existingDevice.deviceId,
-              deviceName: existingDevice.deviceName,
-              status: existingDevice.status,
-            },
-          });
-        }
+  // Existing device has no owner
+  if (!existingDevice.userId) {
+    return res.status(409).json({
+      error: "Device is not assigned to a user",
+    });
+  }
 
-        // Device belongs to another account
-        return res.status(409).json({
-          error: "Device is already registered to another user",
-        });
-      }
+  // Device already belongs to the logged-in user
+  if (
+    req.userId &&
+    existingDevice.userId.toString() === req.userId.toString()
+  ) {
+    return res.status(200).json({
+      success: true,
+      message: "Device is already registered to your account",
+      device: {
+        deviceId: existingDevice.deviceId,
+        deviceName: existingDevice.deviceName,
+        status: existingDevice.status,
+      },
+    });
+  }
+
+  // Device belongs to another account
+  return res.status(409).json({
+    error: "Device is already registered to another user",
+  });
+}
 
       // Create the one-time device ownership record
       const device = await Device.create({

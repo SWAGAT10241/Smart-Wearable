@@ -2,6 +2,8 @@ allowBuilds:
   bcrypt: true
   mongodb-memory-server: false
   unrs-resolver: true
+  "@parcel/watcher": false
+
 overrides:
   qs: ">=6.16.0"
   js-yaml: ">=3.15.2 <4"
