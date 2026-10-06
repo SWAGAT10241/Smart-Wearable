@@ -1,4 +1,5 @@
 const express = require("express");
+const rateLimit = require("express-rate-limit");
 
 const Device = require("../models/Device");
 const protect = require("../middleware/authMiddleware");
@@ -6,6 +7,20 @@ const authorizeRole = require("../middleware/authorizeRole");
 
 module.exports = function () {
   const router = express.Router();
+
+  const devicesLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
+  const adminDevicesLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 50,
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
   /*
    * GET /api/devices/admin/all
    *
@@ -13,6 +28,7 @@ module.exports = function () {
    */
   router.get(
     "/admin/all",
+    adminDevicesLimiter,
     protect,
     authorizeRole("admin"),
     async (req, res) => {
@@ -39,7 +55,7 @@ module.exports = function () {
    *
    * Returns only devices belonging to the logged-in user.
    */
-  router.get("/", protect, async (req, res) => {
+  router.get("/", devicesLimiter, protect, async (req, res) => {
     try {
       const devices = await Device.find({
         userId: req.userId,
@@ -65,7 +81,7 @@ module.exports = function () {
    *
    * User can only retrieve their own device.
    */
-  router.delete("/:deviceId", protect, async (req, res) => {
+  router.delete("/:deviceId", devicesLimiter, protect, async (req, res) => {
     try {
       const deviceId = req.params.deviceId.trim().toUpperCase();
 
