@@ -1,17 +1,61 @@
 const express = require("express");
+const rateLimit = require("express-rate-limit");
 
 const Device = require("../models/Device");
 const protect = require("../middleware/authMiddleware");
+const authorizeRole = require("../middleware/authorizeRole");
 
 module.exports = function () {
   const router = express.Router();
 
+  const devicesLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
+  const adminDevicesLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 50,
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+  /*
+   * GET /api/devices/admin/all
+   *
+   * Administrator-only device management.
+   */
+  router.get(
+    "/admin/all",
+    adminDevicesLimiter,
+    protect,
+    authorizeRole("admin"),
+    async (req, res) => {
+      try {
+        const devices = await Device.find({})
+          .select("deviceId deviceName status userId lastSeen createdAt updatedAt")
+          .sort({ createdAt: -1 })
+          .lean();
+
+        return res.json({
+          devices,
+        });
+      } catch (error) {
+        console.error("GET /api/devices/admin/all error:", error);
+
+        return res.status(500).json({
+          error: "Failed to get all devices",
+        });
+      }
+    },
+  );
   /*
    * GET /api/devices
    *
    * Returns only devices belonging to the logged-in user.
    */
-  router.get("/", protect, async (req, res) => {
+  router.get("/", devicesLimiter, protect, async (req, res) => {
     try {
       const devices = await Device.find({
         userId: req.userId,
@@ -37,7 +81,7 @@ module.exports = function () {
    *
    * User can only retrieve their own device.
    */
-  router.delete("/:deviceId", protect, async (req, res) => {
+  router.delete("/:deviceId", devicesLimiter, protect, async (req, res) => {
     try {
       const deviceId = req.params.deviceId.trim().toUpperCase();
 
@@ -195,53 +239,6 @@ module.exports = function () {
 
       res.status(500).json({
         error: "Failed to update device status",
-      });
-    }
-  });
-
-  /*
-   * DELETE /api/devices/:deviceId
-   *
-   * Removes ownership of the device.
-   *
-   * We deactivate rather than physically delete it so
-   * historical telemetry remains traceable.
-   */
-  router.delete("/:deviceId", protect, async (req, res) => {
-    try {
-      const deviceId = req.params.deviceId.trim().toUpperCase();
-
-      const device = await Device.findOneAndUpdate(
-        {
-          deviceId,
-          userId: req.userId,
-        },
-        {
-          $set: {
-            status: "inactive",
-          },
-        },
-        {
-          new: true,
-        },
-      ).select("deviceId deviceName status lastSeen");
-
-      if (!device) {
-        return res.status(404).json({
-          error: "Device not found",
-        });
-      }
-
-      res.json({
-        success: true,
-        message: "Device disconnected",
-        device,
-      });
-    } catch (error) {
-      console.error("DELETE /api/devices/:deviceId error:", error);
-
-      res.status(500).json({
-        error: "Failed to disconnect device",
       });
     }
   });
