@@ -2,6 +2,10 @@ allowBuilds:
   bcrypt: true
   mongodb-memory-server: false
   unrs-resolver: true
+  "@parcel/watcher": false
+
 overrides:
   qs: ">=6.16.0"
   js-yaml: ">=3.15.2 <4"
+  brace-expansion: ">=5.0.11"
+  ip-address: ">=10.7.1"
