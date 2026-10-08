@@ -11,6 +11,7 @@ const { sendEmergencySMS } = require("../services/smsService");
 const { sendEmergencyWhatsApp } = require("../services/whatsappService");
 
 const protect = require("../middleware/authMiddleware");
+const deviceAuth = require("../middleware/deviceAuthMiddleware");
 
 module.exports = function (broadcast) {
   const router = express.Router();
@@ -25,7 +26,8 @@ module.exports = function (broadcast) {
   });
   router.post("/register", protect, (req, res) =>
     res.status(410).json({
-      error: "ID-only device registration is disabled; use the secure pairing flow",
+      error:
+        "ID-only device registration is disabled; use the secure pairing flow",
     }),
   );
 
@@ -110,7 +112,7 @@ module.exports = function (broadcast) {
   // Device authentication will be added here.
   // ─────────────────────────────────────────────
 
-  router.post("/readings", async (req, res) => {
+  router.post("/readings", deviceAuth, async (req, res) => {
     try {
       const {
         deviceId,
@@ -141,24 +143,19 @@ module.exports = function (broadcast) {
         timestamp,
       } = req.body;
 
-      // Device identity is required.
-      if (!deviceId) {
-        return res.status(400).json({
-          error: "deviceId is required",
-        });
-      }
-      const normalizedDeviceId = deviceId.trim().toUpperCase();
-      // Find active device.
-      const device = await Device.findOne({
-        deviceId: normalizedDeviceId,
-        status: "active",
-      });
-
-      if (!device) {
+      const authenticatedDeviceId = req.deviceId;
+      if (
+        typeof deviceId !== "string" ||
+        deviceId.trim().toUpperCase() !== authenticatedDeviceId
+      ) {
         return res.status(401).json({
-          error: "Unknown or inactive device",
+          error:
+            "Telemetry device identity does not match authenticated device",
         });
       }
+
+      const device = req.device;
+      const normalizedDeviceId = req.deviceId;
 
       // Validate timestamp.
       const readingTimestamp = timestamp ? new Date(timestamp) : new Date();
@@ -365,7 +362,7 @@ module.exports = function (broadcast) {
   // Only the owner can see their device.
   // ─────────────────────────────────────────────
 
-  router.get("/:deviceId", deviceReadLimiter,protect, async (req, res) => {
+  router.get("/:deviceId", deviceReadLimiter, protect, async (req, res) => {
     try {
       const device = await Device.findOne({
         deviceId: req.params.deviceId.trim().toUpperCase(),

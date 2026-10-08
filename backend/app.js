@@ -26,12 +26,14 @@ const isProduction = process.env.NODE_ENV === "production";
 
 app.disable("x-powered-by");
 
-if (isProduction) {app.set("trust proxy", 1)}
+if (isProduction) {
+  app.set("trust proxy", 1);
+}
 // Security headers
-app.use(helmet({crossOriginResourcePolicy: {policy: "cross-origin"}}));
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 // CORS
 const allowedOrigin = process.env.CLIENT_URL;
-app.use(cors({origin: allowedOrigin,credentials: true}));
+app.use(cors({ origin: allowedOrigin, credentials: true }));
 
 // JSON body parser
 //
@@ -39,7 +41,17 @@ app.use(cors({origin: allowedOrigin,credentials: true}));
 // packets are relatively small.
 //
 
-app.use(express.json({limit: "100kb"}));
+app.use(
+  express.json({
+    limit: "100kb",
+
+    verify: (req, res, buffer) => {
+      if (req.originalUrl === "/api/device/readings") {
+        req.rawBody = Buffer.from(buffer);
+      }
+    },
+  }),
+);
 // ─────────────────────────────────────────────
 // Session configuration
 // ─────────────────────────────────────────────
@@ -149,4 +161,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-module.exports = {app,clients};
+module.exports = { app, clients };
