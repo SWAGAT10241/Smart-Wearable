@@ -217,11 +217,17 @@ unpair/revoke; reject downgrade to legacy pairing.
 
 ### Telemetry envelope
 
+Telemetry is a wearable-to-paired-app BLE notification, not a normal-mode
+backend upload. JSON is UTF-8 encoded and the complete envelope MUST be no
+larger than 512 bytes. Version 1 has exactly the following envelope and
+payload fields; unknown or missing fields are rejected.
+
 ```json
 {
   "schemaVersion": 1,
   "messageType": "telemetry",
   "deviceId": "b3fdc7e3-995b-4f32-9d37-c8aaf9bb9f2a",
+  "bootId": "6e8f6f5d-747a-4f01-8ec5-2be9b8a3d5ae",
   "sequence": 4182,
   "timestamp": "2026-10-08T06:20:00.000Z",
   "payload": {
@@ -230,20 +236,59 @@ unpair/revoke; reject downgrade to legacy pairing.
     "temperatureC": 36.7,
     "batteryPercent": 72,
     "charging": false,
-    "sensorHealth": {"heartRate": "ok", "spo2": "ok"},
+    "sensorHealth": {
+      "heartRate": "ok",
+      "spo2": "ok",
+      "temperature": "ok"
+    },
     "riskEngineStatus": "normal"
   }
 }
 ```
 
-Timestamps are UTC RFC 3339 with millisecond precision. `sequence` is an
-unsigned 32-bit monotonic counter per device boot/session; include a boot ID
-when the counter resets. Accept documented fields only, enforce units/ranges,
-schema version, payload maximum, and a bounded timestamp skew. Reject malformed
-or oversized frames without crashing or changing state. Deduplicate on
-`(deviceId, bootId, sequence)`. Buffer out-of-order frames for at most 10
-seconds; then discard them and emit a non-sensitive diagnostic. Never infer a
-fresh reading from a duplicate or stale frame.
+`deviceId` and `bootId` are lowercase UUIDv4 strings. Generate a new random
+`bootId` on every boot; `sequence` starts at zero and increments once per
+notification as an unsigned 32-bit integer. Do not wrap the counter: start a
+new stream with a new `bootId` before exhaustion. On subscription, the first
+valid sequence is the baseline; following frames must be consecutive.
+`timestamp` is UTC RFC 3339 with exactly millisecond precision (`.sssZ`) and
+must be within five minutes of the paired app's synchronized clock.
+
+Version 1 payload fields are all required. Heart rate is an integer in
+20–240 bpm or `null`; SpO2 is an integer in 50–100 percent or `null`;
+temperature is a finite number in 20–50 °C or `null`; battery is an integer in
+0–100 percent or `null`; `charging` is boolean or `null`. The three matching
+`sensorHealth` values are one of `ok`, `unavailable`, `fault`, or
+`not_integrated`; a non-null reading requires `ok`, and a null reading must not
+claim `ok`. `riskEngineStatus` is `normal`, `elevated`, `critical`, or
+`not_integrated`. No location field is included in this version; location
+sharing remains governed by the local-first and emergency-data contracts.
+
+Reject malformed JSON, invalid UTF-8, extra/missing fields, unsupported
+versions/types, invalid identifiers, out-of-range readings, inconsistent
+sensor health, stale timestamps, and frames over 512 encoded bytes. Rejection
+must not mutate stream state, crash the BLE client, or log frame contents.
+Deduplicate by `(deviceId, bootId, sequence)`. A duplicate buffered or already
+delivered sequence is discarded. Buffer a future sequence only when the gap is
+at most 32 and the buffer has fewer than 32 frames. Wait up to 10 seconds for
+the missing sequence; deliver buffered frames only after the gap closes. If
+the gap does not close within 10 seconds, discard the buffered frames, emit a
+non-sensitive `sequence_gap_timeout` diagnostic, and establish a new baseline
+on the next valid, higher sequence. The app calls the tracker expiry method
+using a monotonic clock so a stalled notification stream still expires its
+buffer at the deadline. Never infer a fresh reading from a duplicate or stale
+frame. Counter exhaustion likewise requires a new boot/session ID.
+
+The executable schema validator and sequence tracker live in
+[`frontend/src/lib/telemetryProtocol.js`](../../frontend/src/lib/telemetryProtocol.js);
+they define the browser/app-side reference behavior but do not imply that the
+ESP32 firmware currently emits sensor telemetry or that the web dashboard
+stores it. The Web Bluetooth notification adapter in
+[`frontend/src/lib/telemetryBleClient.js`](../../frontend/src/lib/telemetryBleClient.js)
+validates and orders incoming frames and requires the caller to affirm an
+authenticated paired link before enabling notifications. The current firmware
+does not yet provide the authenticated bond/owner-session check needed to use
+that adapter with real device data.
 
 ### Connection state and retries
 

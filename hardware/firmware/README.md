@@ -93,11 +93,19 @@ GATT UUIDs match the architecture contract:
   challenge exchange over Web Bluetooth on supported Chromium browsers and
   secure origins. This browser flow has not been tested against physical
   hardware and is not a mobile-app integration.
+* An app-side telemetry notification adapter now validates protocol-v1
+  frames and refuses to subscribe unless the caller confirms an authenticated
+  paired link. The current firmware does not implement that persistent
+  authenticated owner link, so real health telemetry remains disabled.
 * This slice is not a production BLE security profile. Challenge signing is
   gated by a physical button and protects hardware identity, but authenticated
   BLE bonding/owner-session lifecycle, backend-signed pairing receipts,
-  telemetry authentication, and revoke/unpair synchronization are not yet
-  implemented. Do not transmit sensor, location, or control data over this
-  initial pairing service.
+  telemetry authentication, actual telemetry notifications, and
+  revoke/unpair synchronization are not yet implemented. The version 1
+  telemetry contract and executable app-side validation/reference sequencing
+  rules are documented in the
+  [architecture document](../../../docs/architecture/day-3-device-and-api-architecture.md#telemetry-envelope).
+  Do not transmit sensor, location, or control data over this initial pairing
+  service.
 * Sensor drivers in `hardware/Drivers` are MicroPython experiments and have
   not been ported to this ESP-IDF application.
