@@ -434,6 +434,12 @@ Backend
 
 The hardware layer is based around an ESP32-class microcontroller and wearable sensor modules.
 
+The initial ESP32-S3 BLE pairing firmware project is in
+[hardware/firmware](hardware/firmware/README.md). It is a new ESP-IDF target;
+the existing `hardware/Drivers` Python files remain MicroPython sensor
+experiments and are not yet ported. The firmware has not been built or tested
+on a physical board in this environment.
+
 Potential sensor categories include:
 
 - Heart-rate / SpO₂ sensor

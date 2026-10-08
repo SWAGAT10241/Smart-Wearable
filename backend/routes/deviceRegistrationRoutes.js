@@ -101,6 +101,7 @@ module.exports = function () {
       return res.status(201).json({
         challengeId,
         deviceId: normalizedDeviceId,
+        userId: String(req.userId),
         nonce,
         expiresAt: expiresAt.toISOString(),
       });

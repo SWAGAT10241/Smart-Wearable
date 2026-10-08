@@ -151,8 +151,12 @@ backend/
 │   └── vitalsRoutes.js
 │
 ├── services/
+│   ├── deviceProvisioningService.js
 │   ├── smsService.js
 │   └── whatsappService.js
+│
+├── scripts/
+│   └── provision-device.js
 │
 ├── tests/
 │   └── server.test.js
@@ -517,15 +521,44 @@ for current dashboard compatibility.
 
 ### Trusted device provisioning prerequisite
 
-There is intentionally no public device-provisioning API. Before pairing, a
-trusted manufacturing or operator process must create a device record with:
+There is intentionally no public device-provisioning API. A trusted operator
+uses the backend CLI to create a device record from the device-generated
+Ed25519 public key. The device must generate and retain its private key before
+this step; the private key must never be copied to the backend.
 
-* a canonical UUIDv4 `deviceId`;
-* the device-generated Ed25519 SubjectPublicKeyInfo public key in PEM form;
-* `state: "PROVISIONED"`, `userId: null`, and `status: "inactive"`;
-* `bootstrapTokenHash`: lowercase hex SHA-256 of a cryptographically random
-  32-byte base64url token printed/encoded only in a sealed QR;
-* `bootstrapTokenExpiresAt`: 30 days after provisioning.
+```powershell
+cd backend
+corepack pnpm provision-device -- `
+  --device-id b3fdc7e3-995b-4f32-9d37-c8aaf9bb9f2a `
+  --public-key-file C:\secure-provisioning\device-public.pem `
+  --device-name "TrailGuard One" `
+  --qr-output C:\secure-provisioning\device-pairing.svg
+```
+
+The command requires `DEVICE_PROVISIONING_MONGODB_URI`, loaded from the
+operator environment. Use a dedicated MongoDB principal scoped to read and
+write only the `devices` collection; do not reuse the backend application's
+credential. The command accepts only a UUIDv4 and an Ed25519 SPKI public-key
+PEM. It creates a new record with `state: "PROVISIONED"`, `userId: null`,
+`status: "inactive"`, and `keyVersion: 1`. The unique device ID is never
+overwritten; a duplicate causes an error and requires an explicit operator
+investigation.
+
+With `--qr-output`, the CLI creates a new SVG containing the versioned pairing
+payload used by the dashboard scanner and prints its path, device ID, and
+expiry. The output file must not already exist; protect it as a secret and
+transfer it only through the controlled labeling process. The raw token is not
+printed in this mode. Without that option, the CLI prints one JSON object with
+the device ID, 32-byte random base64url bootstrap token, and its expiry (30
+days); handle the token as a secret and do not paste it into tickets, chat,
+shell arguments, CI logs, or source control. If output is lost or exposed,
+the same command can issue a replacement token only when the record is
+`PROVISIONED`, has no owner, the submitted public key matches exactly, and the
+prior token is absent or expired. It cannot overwrite an active token or
+reprovision a paired/revoked record. A record with a different key or state
+fails closed; investigate it rather than modifying it manually. If QR file
+creation fails, the device record is not written; if database persistence fails
+after file creation, the newly created QR file is removed.
 
 Never store the raw QR token or device private key in the database, repository,
 logs, or normal API response. After successful pairing the server atomically
@@ -599,8 +632,12 @@ ten requests per authenticated account in a 15-minute window. Expired
 challenges return `410`; invalid proof
 returns `401`; ID-only registration returns `410`; stale/already-used
 challenges and state races return `404` or `409` without assigning ownership.
-The browser dashboard does not implement QR scanning or Bluetooth signature
-collection, so it deliberately does not offer pairing yet.
+The Settings page scans the sealed QR with the camera and uses Web Bluetooth
+to read the device identity, send the authenticated user's challenge, collect
+the Ed25519 proof, and complete pairing. This browser flow requires a secure
+origin and a supported Chromium browser. It has not been validated against a
+physical ESP32-S3; the current firmware slice does not yet provide encrypted
+BLE bonding.
 The pairing update uses a MongoDB transaction; deployments must use a
 transaction-capable replica set or sharded cluster.
 

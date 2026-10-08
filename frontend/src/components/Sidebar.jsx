@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FiLink, FiX } from "react-icons/fi";
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
 import { MdHistory } from "react-icons/md";
@@ -16,8 +16,8 @@ const NAV_ITEMS = [
 
 export default function Sidebar() {
   const { selectedDevice, removeDevice } = useDevices();
+  const navigate = useNavigate();
 
-  const [showPairModal, setShowPairModal] = useState(false);
   const [showUnpairModal, setShowUnpairModal] = useState(false);
   const [unpairing, setUnpairing] = useState(false);
 
@@ -40,7 +40,7 @@ export default function Sidebar() {
   };
 
   const openPairModal = () => {
-    setShowPairModal(true);
+    navigate("/settings");
   };
 
   return (
@@ -163,9 +163,7 @@ export default function Sidebar() {
                       </div>
 
                       <p className="mt-1 text-[10px] leading-4 text-slate-400">
-                        Secure QR/Bluetooth pairing
-                        <br />
-                        is not available yet.
+                        Pair using the QR and Bluetooth flow in Settings.
                       </p>
                     </div>
 
@@ -188,34 +186,8 @@ export default function Sidebar() {
       </aside>
 
       {/* MODAL BACKDROP */}
-      {(showPairModal || showUnpairModal) && (
+      {showUnpairModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-[2px]">
-          {/* PAIR MODAL */}
-          {showPairModal && (
-            <div className="w-full max-w-[400px] rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-2xl">
-              <ModalHeader
-                title="Pair TrailGuard Device"
-                text="Secure QR and Bluetooth pairing is not available in this web dashboard yet."
-                onClose={() => setShowPairModal(false)}
-              />
-
-              <p className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/10 px-3 py-3 text-xs leading-5 text-[var(--color-text-secondary)]">
-                A device ID alone cannot prove ownership. Pairing will be
-                available when the companion app can scan the one-time QR code
-                and authenticate the wearable over Bluetooth.
-              </p>
-              <div className="mt-5 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowPairModal(false)}
-                  className="rounded-xl bg-[#2DD4BF] px-4 py-2 text-xs font-semibold text-[#06202D] transition hover:bg-[#5EEAD4]"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          )}
-
           {/* UNPAIR MODAL */}
           {showUnpairModal && selectedDevice && (
             <div className="w-full max-w-[440px] rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-2xl">

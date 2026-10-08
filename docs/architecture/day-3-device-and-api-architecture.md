@@ -20,12 +20,14 @@ This is a target architecture, not a description of all current behavior. The
 repository has a React web dashboard and MongoDB-backed telemetry routes. The
 backend now has a pairing-challenge API that verifies pre-provisioned Ed25519
 device keys, consumes one-time bootstrap tokens, and atomically claims eligible
-devices. There is not yet a trusted provisioning workflow, native BLE client,
-or emergency-session API. Current telemetry routes can still upload readings
-in normal operation using device ID/status lookup rather than cryptographic
-device authentication. These are migration gaps, not acceptable properties of
-the target design. Do not enable production telemetry or emergency access until
-the corresponding controls and tests below are implemented.
+devices. A trusted provisioning CLI and browser QR/Web Bluetooth pairing flow
+are implemented, but the browser flow has not been validated against physical
+hardware. There is not yet an emergency-session API. Current telemetry routes
+can still upload readings in normal operation using device ID/status lookup
+rather than cryptographic device authentication. These are migration gaps, not
+acceptable properties of the target design. Do not enable production telemetry
+or emergency access until the corresponding controls and tests below are
+implemented.
 
 ## 2. System components and trust boundaries
 
@@ -693,8 +695,9 @@ tests), but these are not equivalent to this target:
 
 * Backend pairing challenge endpoints now require a pre-provisioned device,
   one-time bootstrap token, and Ed25519 signature. Public ID-only registration
-  is rejected. However, there is no trusted manufacturing/operator provisioning
-  process yet, and no real device/app currently completes this protocol.
+  is rejected. A trusted operator CLI provisions devices and can reissue an
+  expired/absent token only for an unowned `PROVISIONED` record with the same
+  public key. No real device/app currently completes this protocol.
   Challenge consumption and device ownership are transactionally coupled.
   The API enforces five signature failures per challenge and ten requests per
   account per endpoint per 15 minutes; device-wide lockout, recent
@@ -708,10 +711,20 @@ tests), but these are not equivalent to this target:
   Pairing does not secure telemetry ingestion by itself. Do not expose those
   routes in production until device signatures, replay prevention, and
   local-first upload behavior are implemented.
-* The current React dashboard is not a native companion app and the hardware
-  tree does not implement the BLE GATT contract. Dashboard ID-only pairing
-  controls are disabled. QR scanning, physical activation, authenticated BLE,
-  local encrypted SQLite, and local-first sync remain implementation work.
+* A trusted operator CLI now provisions new devices from their device-generated
+  Ed25519 public key, stores only a hash of the one-time bootstrap token, and
+  can generate a one-time QR SVG at an explicit output path. It does not audit
+  the operator.
+  Existing records have not been auto-migrated or verified.
+* An ESP-IDF/NimBLE firmware slice now generates an Ed25519 device key, uses
+  encrypted NVS, opens a time-limited pairing window on a physical button, and
+  signs the backend challenge on the documented GATT command characteristic.
+  Device information is readable only inside this physical activation window.
+  It is not hardware-validated; telemetry and battery are not integrated.
+  The Settings dashboard now scans a pairing QR and collects the challenge
+  proof over Web Bluetooth. Authenticated BLE bonding, signed pairing receipts,
+  radio interoperability testing, telemetry, and battery support remain
+  implementation work. Dashboard ID-only pairing is disabled.
 * Pairing challenge records now exist, but ownership history, emergency
   sessions, and an append-oriented audit log are not implemented.
 * Current access tokens and API paths are not yet the versioned contract above.

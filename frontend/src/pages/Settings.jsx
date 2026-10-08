@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import { useDevices } from "../context/DeviceContext";
 import { authApi } from "../lib/apiClient";
 import PhoneField from "../components/auth/PhoneField";
+import PairDevicePanel from "../components/PairDevicePanel";
 
 function Row({ label, value, badge }) {
   return (
@@ -173,6 +174,7 @@ export default function Settings() {
     renameDevice,
     updateDeviceStatus,
     removeDevice,
+    refreshDevices,
     loading: devicesLoading,
   } = useDevices();
 
@@ -389,18 +391,7 @@ export default function Settings() {
             </span>
           </div>
 
-          {/* Pairing */}
-          <div className="mb-5 rounded-2xl border border-teal-400/20 bg-teal-400/5 p-4">
-            <h4 className="text-sm font-semibold text-[var(--color-text)]">
-              Secure device pairing
-            </h4>
-
-            <p className="mt-1 text-xs leading-5 text-[var(--color-text-secondary)]">
-              ID-only registration has been disabled. Pairing will be available
-              from the companion app after QR scanning and authenticated
-              Bluetooth support are implemented.
-            </p>
-          </div>
+          <PairDevicePanel onPaired={refreshDevices} />
 
           {/* Device list */}
           {devicesLoading ? (
@@ -413,7 +404,7 @@ export default function Settings() {
                 No devices connected
               </div>
               <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-                Secure pairing is not available in this web dashboard yet.
+                Use the QR scanner above to pair a wearable over Bluetooth.
               </p>
             </div>
           ) : (

@@ -31,6 +31,11 @@ const deviceSchema = new mongoose.Schema(
       type: String,
       select: false,
     },
+    keyVersion: {
+      type: Number,
+      min: 1,
+      default: 1,
+    },
     bootstrapTokenHash: {
       type: String,
       select: false,

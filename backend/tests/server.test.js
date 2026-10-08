@@ -190,6 +190,7 @@ describe("TrailGuard Backend API", () => {
 
       expect(response.statusCode).toBe(201);
       expect(response.body.nonce).toMatch(/^[A-Za-z0-9_-]{43}$/);
+      expect(response.body.userId).toBe(userId);
       expect(Date.parse(response.body.expiresAt)).toBeGreaterThan(Date.now());
       expect(mockDeviceFindOne).toHaveBeenCalledWith(
         expect.objectContaining({

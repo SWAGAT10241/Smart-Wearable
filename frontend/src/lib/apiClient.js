@@ -203,6 +203,21 @@ export const devicesApi = {
       auth: true,
     }),
 };
+
+export const devicePairingApi = {
+  start: (deviceId, bootstrapToken) =>
+    request("/devices/pairing-challenges", {
+      method: "POST",
+      body: { deviceId, bootstrapToken },
+      auth: true,
+    }),
+  complete: (challengeId, proof) =>
+    request(`/devices/pairing-challenges/${encodeURIComponent(challengeId)}/complete`, {
+      method: "POST",
+      body: proof,
+      auth: true,
+    }),
+};
 // ------------------------------------------------------------
 // TOKEN MANAGEMENT
 // ------------------------------------------------------------
