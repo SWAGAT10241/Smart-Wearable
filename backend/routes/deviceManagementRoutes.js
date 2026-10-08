@@ -5,6 +5,10 @@ const Device = require("../models/Device");
 const protect = require("../middleware/authMiddleware");
 const authorizeRole = require("../middleware/authorizeRole");
 
+const pairedOrLegacyDeviceState = {
+  $or: [{ state: "PAIRED" }, { state: { $exists: false } }],
+};
+
 module.exports = function () {
   const router = express.Router();
 
@@ -89,10 +93,12 @@ module.exports = function () {
         {
           deviceId,
           userId: req.userId,
+          ...pairedOrLegacyDeviceState,
         },
         {
           $set: {
             status: "inactive",
+            state: "PROVISIONED",
             userId: null,
           },
         },
@@ -160,6 +166,7 @@ module.exports = function () {
         {
           deviceId,
           userId: req.userId,
+          ...pairedOrLegacyDeviceState,
         },
         {
           $set: {
@@ -212,6 +219,7 @@ module.exports = function () {
         {
           deviceId,
           userId: req.userId,
+          ...pairedOrLegacyDeviceState,
         },
         {
           $set: {

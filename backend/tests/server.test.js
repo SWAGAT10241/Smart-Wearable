@@ -1,9 +1,16 @@
 process.env.NODE_ENV = "test";
 
+const crypto = require("crypto");
+const mongoose = require("mongoose");
 const request = require("supertest");
 
 const mockDeviceFindOne = jest.fn();
 const mockDeviceCreate = jest.fn();
+const mockDeviceFindOneAndUpdate = jest.fn();
+const mockDevicePairingCreate = jest.fn();
+const mockDevicePairingFindOne = jest.fn();
+const mockDevicePairingFindOneAndUpdate = jest.fn();
+const mockDevicePairingUpdateOne = jest.fn();
 
 const mockVitalsCreate = jest.fn();
 const mockEnvironmentCreate = jest.fn();
@@ -17,6 +24,14 @@ const mockSendEmergencyWhatsApp = jest.fn();
 jest.mock("../models/Device", () => ({
   findOne: mockDeviceFindOne,
   create: mockDeviceCreate,
+  findOneAndUpdate: mockDeviceFindOneAndUpdate,
+}));
+
+jest.mock("../models/DevicePairing", () => ({
+  create: mockDevicePairingCreate,
+  findOne: mockDevicePairingFindOne,
+  findOneAndUpdate: mockDevicePairingFindOneAndUpdate,
+  updateOne: mockDevicePairingUpdateOne,
 }));
 
 jest.mock("../models/VitalsReading", () => ({
@@ -57,7 +72,7 @@ jest.mock("../services/whatsappService", () => ({
   sendEmergencyWhatsApp: mockSendEmergencyWhatsApp,
 }));
 
-// Mock authentication for device registration tests.
+// Mock authentication for device pairing tests.
 jest.mock("../middleware/authMiddleware", () => {
   return (req, res, next) => {
     req.userId = "507f1f77bcf86cd799439011";
@@ -109,80 +124,288 @@ describe("TrailGuard Backend API", () => {
   // Device registration
   // ─────────────────────────────────────────────
 
-  describe("POST /api/device/register", () => {
-    test("requires deviceId", async () => {
-      const response = await request(app).post("/api/device/register").send({});
+  describe("Legacy device registration", () => {
+    test.each(["/api/device/register", "/api/devices/register"])(
+      "rejects ID-only claims at %s",
+      async (path) => {
+        const response = await request(app).post(path).send({
+          deviceId: "TG-000001",
+        });
+
+        expect(response.statusCode).toBe(410);
+        expect(response.body.error).toMatch(/ID-only device registration is disabled/);
+        expect(mockDeviceCreate).not.toHaveBeenCalled();
+      },
+    );
+  });
+
+  describe("Secure device pairing", () => {
+    const deviceId = "b3fdc7e3-995b-4f32-9d37-c8aaf9bb9f2a";
+    const userId = "507f1f77bcf86cd799439011";
+    const bootstrapToken = crypto.randomBytes(32).toString("base64url");
+    let privateKey;
+    let publicKey;
+
+    beforeEach(() => {
+      ({ privateKey, publicKey } = crypto.generateKeyPairSync("ed25519"));
+      mockDeviceFindOne.mockReturnValue({
+        select: jest.fn().mockResolvedValue({
+          deviceId: deviceId.toUpperCase(),
+          state: "PROVISIONED",
+          bootstrapTokenExpiresAt: new Date(Date.now() + 60 * 60 * 1000),
+          bootstrapTokenHash: crypto
+            .createHash("sha256")
+            .update(bootstrapToken)
+            .digest("hex"),
+          publicKey: publicKey.export({ type: "spki", format: "pem" }),
+        }),
+      });
+    });
+
+    test("rejects a device ID without a one-time pairing token", async () => {
+      const response = await request(app)
+        .post("/api/devices/pairing-challenges")
+        .send({ deviceId });
 
       expect(response.statusCode).toBe(400);
-      expect(response.body.error).toBe("deviceId is required");
-      expect(mockDeviceCreate).not.toHaveBeenCalled();
+      expect(mockDevicePairingCreate).not.toHaveBeenCalled();
     });
 
-    test("registers device for authenticated user", async () => {
-      mockDeviceFindOne.mockResolvedValue(null);
+    test("rejects a token that does not match the provisioned device", async () => {
+      const response = await request(app)
+        .post("/api/devices/pairing-challenges")
+        .send({
+          deviceId,
+          bootstrapToken: crypto.randomBytes(32).toString("base64url"),
+        });
 
-      mockDeviceCreate.mockResolvedValue({
-        deviceId: "TG-000001",
-        userId: "507f1f77bcf86cd799439011",
-        status: "active",
-      });
+      expect(response.statusCode).toBe(404);
+      expect(mockDevicePairingCreate).not.toHaveBeenCalled();
+    });
 
-      const response = await request(app).post("/api/device/register").send({
-        deviceId: "TG-000001",
-      });
+    test("issues an expiring challenge without exposing stored credentials", async () => {
+      const response = await request(app)
+        .post("/api/devices/pairing-challenges")
+        .send({ deviceId, bootstrapToken });
 
       expect(response.statusCode).toBe(201);
-      expect(mockDeviceFindOne).toHaveBeenCalledWith({
-        deviceId: "TG-000001",
-      });
-
-      expect(mockDeviceCreate).toHaveBeenCalledWith({
-        deviceId: "TG-000001",
-        deviceName: "TrailGuard Wearable",
-        userId: "507f1f77bcf86cd799439011",
-        status: "active",
-      });
-
-      expect(response.body.success).toBe(true);
+      expect(response.body.nonce).toMatch(/^[A-Za-z0-9_-]{43}$/);
+      expect(Date.parse(response.body.expiresAt)).toBeGreaterThan(Date.now());
+      expect(mockDeviceFindOne).toHaveBeenCalledWith(
+        expect.objectContaining({
+          deviceId: deviceId.toUpperCase(),
+          state: "PROVISIONED",
+          bootstrapTokenExpiresAt: expect.objectContaining({ $gt: expect.any(Date) }),
+        }),
+      );
+      expect(mockDevicePairingCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          deviceId: deviceId.toUpperCase(),
+          userId,
+          state: "PENDING",
+          purgeAt: expect.any(Date),
+          bootstrapTokenHash: crypto
+            .createHash("sha256")
+            .update(bootstrapToken)
+            .digest("hex"),
+        }),
+      );
+      expect(response.body).not.toHaveProperty("bootstrapToken");
     });
 
-    test("normalizes deviceId to uppercase", async () => {
-      mockDeviceFindOne.mockResolvedValue(null);
+    test("pairs only after a valid Ed25519 proof and atomically consumes the claim", async () => {
+      const session = {
+        withTransaction: jest.fn(async (callback) => callback()),
+        endSession: jest.fn().mockResolvedValue(undefined),
+      };
+      const startSession = jest
+        .spyOn(mongoose, "startSession")
+        .mockResolvedValue(session);
+      const expiresAt = new Date(Date.now() + 60_000);
+      const nonce = crypto.randomBytes(32).toString("base64url");
+      const challenge = {
+        _id: "challenge-document",
+        challengeId: crypto.randomUUID(),
+        deviceId: deviceId.toUpperCase(),
+        userId,
+        nonceHash: crypto.createHash("sha256").update(nonce).digest("hex"),
+        bootstrapTokenHash: crypto
+          .createHash("sha256")
+          .update(bootstrapToken)
+          .digest("hex"),
+        expiresAt,
+        attempts: 0,
+        state: "PENDING",
+      };
+      const message = JSON.stringify({
+        challengeId: challenge.challengeId,
+        deviceId: challenge.deviceId,
+        userId,
+        nonce,
+        expiresAt: expiresAt.toISOString(),
+      });
+      const signature = crypto
+        .sign(null, Buffer.from(message), privateKey)
+        .toString("base64url");
 
-      mockDeviceCreate.mockResolvedValue({
-        deviceId: "TRAILGUARD-DEMO-001",
-        userId: "507f1f77bcf86cd799439011",
-        status: "active",
+      mockDevicePairingFindOne.mockReturnValue({
+        select: jest.fn().mockResolvedValue(challenge),
+      });
+      mockDevicePairingFindOneAndUpdate.mockResolvedValue(challenge);
+      mockDeviceFindOneAndUpdate.mockReturnValue({
+        select: jest.fn().mockResolvedValue({
+          deviceId: challenge.deviceId,
+          deviceName: "TrailGuard Wearable",
+          state: "PAIRED",
+          status: "active",
+        }),
       });
 
-      const response = await request(app).post("/api/device/register").send({
-        deviceId: " trailguard-demo-001 ",
-      });
+      const response = await request(app)
+        .post(`/api/devices/pairing-challenges/${challenge.challengeId}/complete`)
+        .send({ nonce, signature });
 
-      expect(response.statusCode).toBe(201);
-
-      expect(mockDeviceCreate).toHaveBeenCalledWith({
-        deviceId: "TRAILGUARD-DEMO-001",
-        deviceName: "TrailGuard Wearable",
-        userId: "507f1f77bcf86cd799439011",
-        status: "active",
-      });
+      expect(response.statusCode).toBe(200);
+      expect(response.body.device.state).toBe("PAIRED");
+      expect(mockDevicePairingFindOneAndUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          _id: challenge._id,
+          userId,
+          state: "PENDING",
+          expiresAt: expect.objectContaining({ $gt: expect.any(Date) }),
+        }),
+        { $set: { state: "CONSUMED", consumedAt: expect.any(Date) } },
+        { new: false, session },
+      );
+      expect(mockDeviceFindOneAndUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          deviceId: challenge.deviceId,
+          state: "PROVISIONED",
+          userId: null,
+          bootstrapTokenHash: challenge.bootstrapTokenHash,
+          bootstrapTokenExpiresAt: expect.objectContaining({ $gt: expect.any(Date) }),
+        }),
+        expect.objectContaining({
+          $set: { state: "PAIRED", userId, status: "active" },
+          $unset: {
+            bootstrapTokenHash: 1,
+            bootstrapTokenExpiresAt: 1,
+          },
+        }),
+        { new: true, runValidators: true, session },
+      );
+      expect(startSession).toHaveBeenCalledTimes(1);
+      expect(session.withTransaction).toHaveBeenCalledTimes(1);
+      expect(session.endSession).toHaveBeenCalledTimes(1);
+      startSession.mockRestore();
     });
 
-    test("rejects already registered device", async () => {
-      mockDeviceFindOne.mockResolvedValue({
-        deviceId: "TG-000001",
-        userId: "507f1f77bcf86cd799439011",
-        status: "active",
+    test("rejects expired challenges", async () => {
+      const challenge = {
+        _id: "expired-challenge",
+        expiresAt: new Date(Date.now() - 1),
+        state: "PENDING",
+      };
+      mockDevicePairingFindOne.mockReturnValue({
+        select: jest.fn().mockResolvedValue(challenge),
       });
 
-      const response = await request(app).post("/api/device/register").send({
-        deviceId: "TG-000001",
+      const response = await request(app)
+        .post(`/api/devices/pairing-challenges/${crypto.randomUUID()}/complete`)
+        .send({
+          nonce: crypto.randomBytes(32).toString("base64url"),
+          signature: Buffer.alloc(64).toString("base64url"),
+        });
+
+      expect(response.statusCode).toBe(410);
+      expect(mockDevicePairingUpdateOne).toHaveBeenCalledWith(
+        { _id: challenge._id, state: "PENDING" },
+        { $set: { state: "EXPIRED" } },
+      );
+      expect(mockDeviceFindOneAndUpdate).not.toHaveBeenCalled();
+    });
+
+    test("rejects invalid signatures without assigning ownership", async () => {
+      const expiresAt = new Date(Date.now() + 60_000);
+      const nonce = crypto.randomBytes(32).toString("base64url");
+      const challenge = {
+        _id: "invalid-proof",
+        challengeId: crypto.randomUUID(),
+        deviceId: deviceId.toUpperCase(),
+        userId,
+        nonceHash: crypto.createHash("sha256").update(nonce).digest("hex"),
+        bootstrapTokenHash: crypto
+          .createHash("sha256")
+          .update(bootstrapToken)
+          .digest("hex"),
+        expiresAt,
+        attempts: 0,
+        state: "PENDING",
+      };
+      mockDevicePairingFindOne.mockReturnValue({
+        select: jest.fn().mockResolvedValue(challenge),
       });
 
-      expect(response.statusCode).toBe(409);
-      expect(response.body.error).toBe("Device already connected");
-      expect(mockDeviceCreate).not.toHaveBeenCalled();
+      const response = await request(app)
+        .post(`/api/devices/pairing-challenges/${challenge.challengeId}/complete`)
+        .send({ nonce, signature: Buffer.alloc(64).toString("base64url") });
+
+      expect(response.statusCode).toBe(401);
+      expect(mockDevicePairingFindOneAndUpdate).toHaveBeenCalled();
+      expect(mockDeviceFindOneAndUpdate).not.toHaveBeenCalled();
+    });
+
+    test("locks a challenge after five invalid signature attempts", async () => {
+      const challenge = {
+        _id: "locked-challenge",
+        challengeId: crypto.randomUUID(),
+        userId,
+        state: "PENDING",
+        attempts: 5,
+        expiresAt: new Date(Date.now() + 60_000),
+      };
+      mockDevicePairingFindOne.mockReturnValue({
+        select: jest.fn().mockResolvedValue(challenge),
+      });
+
+      const response = await request(app)
+        .post(`/api/devices/pairing-challenges/${challenge.challengeId}/complete`)
+        .send({
+          nonce: crypto.randomBytes(32).toString("base64url"),
+          signature: Buffer.alloc(64).toString("base64url"),
+        });
+
+      expect(response.statusCode).toBe(429);
+      expect(mockDeviceFindOne).not.toHaveBeenCalled();
+      expect(mockDevicePairingFindOneAndUpdate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("Device lifecycle management", () => {
+    test("unpairs only caller-owned paired or legacy devices", async () => {
+      const deviceId = "B3FDc7e3-995b-4f32-9d37-c8aaf9bb9f2a";
+      mockDeviceFindOneAndUpdate.mockReturnValue({
+        select: jest.fn().mockResolvedValue(null),
+      });
+
+      const response = await request(app).delete(`/api/devices/${deviceId}`);
+
+      expect(response.statusCode).toBe(404);
+      expect(mockDeviceFindOneAndUpdate).toHaveBeenCalledWith(
+        {
+          deviceId: deviceId.toUpperCase(),
+          userId: "507f1f77bcf86cd799439011",
+          $or: [{ state: "PAIRED" }, { state: { $exists: false } }],
+        },
+        {
+          $set: {
+            status: "inactive",
+            state: "PROVISIONED",
+            userId: null,
+          },
+        },
+        expect.objectContaining({ new: true }),
+      );
     });
   });
 

@@ -21,6 +21,24 @@ const deviceSchema = new mongoose.Schema(
       maxlength: 50,
       default: "TrailGuard Wearable",
     },
+    state: {
+      type: String,
+      enum: ["UNREGISTERED", "PROVISIONED", "PAIRED", "REVOKED"],
+      default: "UNREGISTERED",
+      index: true,
+    },
+    publicKey: {
+      type: String,
+      select: false,
+    },
+    bootstrapTokenHash: {
+      type: String,
+      select: false,
+    },
+    bootstrapTokenExpiresAt: {
+      type: Date,
+      select: false,
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -31,7 +49,7 @@ const deviceSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["active", "inactive"],
-      default: "active",
+      default: "inactive",
       index: true,
     },
     lastSeen: {

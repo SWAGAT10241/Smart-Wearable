@@ -15,42 +15,14 @@ const NAV_ITEMS = [
 ];
 
 export default function Sidebar() {
-  const { selectedDevice, registerDevice, removeDevice } = useDevices();
+  const { selectedDevice, removeDevice } = useDevices();
 
   const [showPairModal, setShowPairModal] = useState(false);
   const [showUnpairModal, setShowUnpairModal] = useState(false);
-  const [deviceId, setDeviceId] = useState("");
-  const [pairing, setPairing] = useState(false);
   const [unpairing, setUnpairing] = useState(false);
-  const [pairError, setPairError] = useState("");
 
   const deviceName =
     selectedDevice?.deviceName || selectedDevice?.name || "TrailGuard Wearable";
-
-  const handlePair = async (event) => {
-    event?.preventDefault();
-
-    const id = deviceId.trim().toUpperCase();
-
-    if (!id) {
-      setPairError("Enter your TrailGuard device ID.");
-      return;
-    }
-
-    setPairError("");
-    setPairing(true);
-
-    try {
-      await registerDevice(id, "TrailGuard Wearable");
-      setDeviceId("");
-      setShowPairModal(false);
-    } catch (error) {
-      console.error("Failed to pair device:", error);
-      setPairError(error?.message || "Failed to pair device.");
-    } finally {
-      setPairing(false);
-    }
-  };
 
   const handleUnpair = async () => {
     if (!selectedDevice?.deviceId) return;
@@ -68,8 +40,6 @@ export default function Sidebar() {
   };
 
   const openPairModal = () => {
-    setPairError("");
-    setDeviceId("");
     setShowPairModal(true);
   };
 
@@ -193,9 +163,9 @@ export default function Sidebar() {
                       </div>
 
                       <p className="mt-1 text-[10px] leading-4 text-slate-400">
-                        Pair your TrailGuard wearable
+                        Secure QR/Bluetooth pairing
                         <br />
-                        to start monitoring.
+                        is not available yet.
                       </p>
                     </div>
 
@@ -225,41 +195,24 @@ export default function Sidebar() {
             <div className="w-full max-w-[400px] rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-2xl">
               <ModalHeader
                 title="Pair TrailGuard Device"
-                text="Enter the device ID printed on your TrailGuard wearable."
+                text="Secure QR and Bluetooth pairing is not available in this web dashboard yet."
                 onClose={() => setShowPairModal(false)}
               />
 
-              <form onSubmit={handlePair} className="mt-5 space-y-4">
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-[var(--color-text-secondary)]">
-                    Device ID
-                  </label>
-
-                  <input
-                    type="text"
-                    value={deviceId}
-                    onChange={(e) => setDeviceId(e.target.value)}
-                    placeholder="Enter your device ID"
-                    autoFocus
-                    disabled={pairing}
-                    className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-3 py-3 font-mono text-sm uppercase text-[var(--color-text)] outline-none placeholder:text-[var(--color-text-muted)] focus:border-teal-400"
-                  />
-                </div>
-
-                {pairError && (
-                  <div className="rounded-xl border border-red-400/20 bg-red-400/10 px-3 py-2.5 text-xs text-red-400">
-                    {pairError}
-                  </div>
-                )}
-
-                <ModalButtons
-                  onCancel={() => setShowPairModal(false)}
-                  onConfirm={handlePair}
-                  cancelText="Cancel"
-                  confirmText={pairing ? "Pairing…" : "Pair Device"}
-                  disabled={pairing || !deviceId.trim()}
-                />
-              </form>
+              <p className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/10 px-3 py-3 text-xs leading-5 text-[var(--color-text-secondary)]">
+                A device ID alone cannot prove ownership. Pairing will be
+                available when the companion app can scan the one-time QR code
+                and authenticate the wearable over Bluetooth.
+              </p>
+              <div className="mt-5 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowPairModal(false)}
+                  className="rounded-xl bg-[#2DD4BF] px-4 py-2 text-xs font-semibold text-[#06202D] transition hover:bg-[#5EEAD4]"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           )}
 

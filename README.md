@@ -38,6 +38,15 @@ TrailGuard is designed around four major goals:
 
 The wearable collects sensor data and sends telemetry to the backend. The backend validates and processes the data, stores historical readings in MongoDB, and broadcasts real-time events to connected dashboard clients.
 
+## Architecture and security design
+
+The target device lifecycle, secure pairing, BLE protocol, local-first data
+boundary, emergency sharing flow, API contract, data models, threat model, and
+verification requirements are documented in the
+[Day 3 device and API architecture](docs/architecture/day-3-device-and-api-architecture.md).
+That document distinguishes the intended design from prototype behavior that
+is not yet production-safe.
+
 ---
 
 # Project Status

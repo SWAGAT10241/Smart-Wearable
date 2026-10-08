@@ -183,19 +183,6 @@ export const devicesApi = {
     }),
 
   /*
-   * Pair a TrailGuard device.
-   */
-  register: (deviceId, deviceName = "TrailGuard Wearable") =>
-    request("/devices/register", {
-      method: "POST",
-      body: {
-        deviceId,
-        deviceName,
-      },
-      auth: true,
-    }),
-
-  /*
    * Rename device.
    */
   rename: (deviceId, deviceName) =>

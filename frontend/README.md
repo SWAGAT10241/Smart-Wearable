@@ -439,7 +439,6 @@ PATCH /api/auth/complete-profile
 ## Device API
 
 ```http
-POST   /api/devices/register
 GET    /api/devices
 PATCH  /api/devices/:deviceId
 PATCH  /api/devices/:deviceId/status
@@ -447,6 +446,10 @@ DELETE /api/devices/:deviceId
 
 GET    /api/device/:deviceId
 ```
+
+ID-only device registration is disabled. Pairing requires the backend pairing
+challenge flow and device proof; the web dashboard does not yet support QR
+scanning or Bluetooth pairing.
 
 The exact device-management functionality is shared between the device-management and individual-device backend routes.
 
@@ -768,7 +771,8 @@ A physical TrailGuard device is identified by its:
 deviceId
 ```
 
-The backend uses this ID to associate wearable telemetry with its registered owner.
+The ID is not proof of device identity or ownership. Secure pairing is not yet
+available in this web dashboard.
 
 ---
 

@@ -104,8 +104,7 @@ function broadcast(message) {
 // Routes
 // Authentication
 app.use("/api/auth", authRoutes);
-// One-time physical device activation.
-// Logged-in user claims a TrailGuard wearable.
+// Secure pairing requires a one-time bootstrap token and device-key proof.
 app.use("/api/devices", deviceRegistrationRoutes());
 // Device → Backend
 // Physical hardware sends telemetry here.

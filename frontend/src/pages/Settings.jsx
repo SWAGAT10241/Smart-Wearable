@@ -170,18 +170,12 @@ export default function Settings() {
     selectedDevice,
     selectedDeviceId,
     selectDevice,
-    registerDevice,
     renameDevice,
     updateDeviceStatus,
     removeDevice,
     loading: devicesLoading,
   } = useDevices();
 
-  const [deviceIdInput, setDeviceIdInput] = useState("");
-  const [deviceNameInput, setDeviceNameInput] = useState("TrailGuard Wearable");
-  const [registeringDevice, setRegisteringDevice] = useState(false);
-  const [deviceError, setDeviceError] = useState("");
-  const [deviceSuccess, setDeviceSuccess] = useState("");
 
   const [editingSafety, setEditingSafety] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -237,33 +231,6 @@ export default function Settings() {
       weight: user?.weight ?? "",
     });
     setEditingSafety(false);
-  };
-
-  const register = async (e) => {
-    e.preventDefault();
-    setDeviceError("");
-    setDeviceSuccess("");
-
-    const id = deviceIdInput.trim().toUpperCase();
-    const name = deviceNameInput.trim() || "TrailGuard Wearable";
-
-    if (!id) {
-      setDeviceError("Enter your TrailGuard device ID.");
-      return;
-    }
-
-    setRegisteringDevice(true);
-
-    try {
-      const device = await registerDevice(id, name);
-      setDeviceSuccess(`${device?.deviceId || id} is connected to your account.`);
-      setDeviceIdInput("");
-      setDeviceNameInput("TrailGuard Wearable");
-    } catch (e) {
-      setDeviceError(e?.message || "Failed to connect device.");
-    } finally {
-      setRegisteringDevice(false);
-    }
   };
 
   const toggleStatus = async (deviceId, status) => {
@@ -422,52 +389,17 @@ export default function Settings() {
             </span>
           </div>
 
-          {/* Connect */}
+          {/* Pairing */}
           <div className="mb-5 rounded-2xl border border-teal-400/20 bg-teal-400/5 p-4">
             <h4 className="text-sm font-semibold text-[var(--color-text)]">
-              Connect TrailGuard Wearable
+              Secure device pairing
             </h4>
 
             <p className="mt-1 text-xs leading-5 text-[var(--color-text-secondary)]">
-              Enter the device ID printed on your physical TrailGuard wearable.
-              This is a one-time setup.
+              ID-only registration has been disabled. Pairing will be available
+              from the companion app after QR scanning and authenticated
+              Bluetooth support are implemented.
             </p>
-
-            <form onSubmit={register} className="mt-4 space-y-3">
-              <Field
-                label="Device ID"
-                name="deviceId"
-                value={deviceIdInput}
-                onChange={(e) => setDeviceIdInput(e.target.value)}
-                placeholder="Enter device ID"
-                disabled={registeringDevice}
-              />
-
-              <Field
-                label="Device name"
-                name="deviceName"
-                value={deviceNameInput}
-                onChange={(e) => setDeviceNameInput(e.target.value)}
-                placeholder="TrailGuard Wearable"
-                disabled={registeringDevice}
-              />
-
-              {deviceError && (
-                <div className="rounded-xl border border-red-400/20 bg-red-400/10 px-3 py-2 text-sm text-red-400">
-                  {deviceError}
-                </div>
-              )}
-
-              {deviceSuccess && (
-                <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-sm text-emerald-400">
-                  {deviceSuccess}
-                </div>
-              )}
-
-              <Button type="submit" disabled={registeringDevice || !deviceIdInput.trim()}>
-                {registeringDevice ? "Connecting…" : "Connect Device"}
-              </Button>
-            </form>
           </div>
 
           {/* Device list */}
@@ -481,7 +413,7 @@ export default function Settings() {
                 No devices connected
               </div>
               <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-                Enter your device ID above to connect your TrailGuard wearable.
+                Secure pairing is not available in this web dashboard yet.
               </p>
             </div>
           ) : (
