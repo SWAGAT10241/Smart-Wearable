@@ -204,8 +204,8 @@ importers:
         specifier: ^7.7.0
         version: 7.7.0
       mongoose:
-        specifier: ^9.10.3
-        version: 9.10.3
+        specifier: ^9.10.4
+        version: 9.10.4
       passport:
         specifier: ^0.7.0
         version: 0.7.0
@@ -511,9 +511,6 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
-
-  '@mongodb-js/saslprep@1.4.13':
-    resolution: {integrity: sha512-E3Sv4eCYAlKYUTx8S3ioQcDUscOif+8zZ5OnW1IzJ+Tt+EO+ke8mn+Y3FX6N1H79picwbdOavVOb1jPi2EOyrg==}
 
   '@mongodb-js/saslprep@1.5.5':
     resolution: {integrity: sha512-0PV4mvjGd2Q2/viDvXuoSNzTjQngHvtuWUry1vqvcK4Q/CTeO1zEKMf9set01DMocJnogl/pyNAdvyk+Pe0kQA==}
@@ -910,10 +907,6 @@ packages:
 
   bser@2.1.1:
     resolution: {integrity: sha512-gQxTNE/GAfIIrmHLUE3oJyp5FO6HRBfhjnw4/wMmA63ZGDJnWBmgY/lyQBpnDUkGmAhbSe39tx2d/iTOAfglwQ==}
-
-  bson@7.3.2:
-    resolution: {integrity: sha512-1w0ra+ho1cuE+w8jzwgzTFIimFtCfZeCoOsvIPQg6uyFCsp8M29U7bNNf5GrFh88TXbYg1g3TyKUGpd6O7q6zA==}
-    engines: {node: '>=20.19.0'}
 
   bson@7.3.3:
     resolution: {integrity: sha512-oz3LwE3qGEhTCSyhzQRLY3Bj1NLOsjFMf6tcmY5J8M+3R7EVcmoBfSHWvjUK3yXCLDUsGpIuB3aQL4nDZ1EV/g==}
@@ -1719,8 +1712,8 @@ packages:
       socks:
         optional: true
 
-  mongoose@9.10.3:
-    resolution: {integrity: sha512-BQyjLRSJa5DzJ3PP0LHxATG4XX+6ys0J68lFmOlgoXJ+GVkuIsaZXZKxUPYd/t1Tv4qzLfaKkNWaipMIOuy5yw==}
+  mongoose@9.10.4:
+    resolution: {integrity: sha512-p1hx2MSD4B+4shFTpRcd/uTwD6DtZeDJ+YxM9ja8/VBDH7vqqLynwGLA6rWa/tD7voOBoGqQR1wM3+/LcUoEfA==}
     engines: {node: '>=20.19.0'}
 
   mpath@0.9.0:
@@ -2629,10 +2622,6 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@mongodb-js/saslprep@1.4.13':
-    dependencies:
-      sparse-bitfield: 3.0.3
-
   '@mongodb-js/saslprep@1.5.5':
     dependencies:
       sparse-bitfield: 3.0.3
@@ -3000,8 +2989,6 @@ snapshots:
   bser@2.1.1:
     dependencies:
       node-int64: 0.4.0
-
-  bson@7.3.2: {}
 
   bson@7.3.3: {}
 
@@ -3900,8 +3887,8 @@ snapshots:
 
   mongodb@7.6.0:
     dependencies:
-      '@mongodb-js/saslprep': 1.4.13
-      bson: 7.3.2
+      '@mongodb-js/saslprep': 1.5.5
+      bson: 7.3.3
       mongodb-connection-string-url: 7.0.2
 
   mongodb@7.7.0:
@@ -3910,7 +3897,7 @@ snapshots:
       bson: 7.3.3
       mongodb-connection-string-url: 7.0.2
 
-  mongoose@9.10.3:
+  mongoose@9.10.4:
     dependencies:
       '@standard-schema/spec': 1.1.0
       kareem: 3.4.0
