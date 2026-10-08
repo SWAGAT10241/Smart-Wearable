@@ -12,7 +12,7 @@
     "test:run": "vitest run"
   },
   "dependencies": {
-    "lucide-react": "^1.49.0",
+    "lucide-react": "^1.52.0",
     "maplibre-gl": "^6.11.2",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
