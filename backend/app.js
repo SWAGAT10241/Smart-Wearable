@@ -30,8 +30,32 @@ if (isProduction) {app.set("trust proxy", 1)}
 // Security headers
 app.use(helmet({crossOriginResourcePolicy: {policy: "cross-origin"}}));
 // CORS
-const allowedOrigin = process.env.CLIENT_URL;
-app.use(cors({origin: allowedOrigin,credentials: true}));
+const allowedOrigins = (process.env.CLIENT_URLS || process.env.CLIENT_URL || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+if (isProduction && allowedOrigins.length === 0) {
+  throw new Error("CLIENT_URLS must be configured in production");
+}
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      // Allow non-browser/server-to-server requests.
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("CORS origin not allowed"));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
 // JSON body parser
 //
