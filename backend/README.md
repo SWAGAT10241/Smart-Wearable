@@ -1,8 +1,6 @@
 # TrailGuard Backend
 
-Backend API and realtime service for **TrailGuard — Smart Wearable Safety & Health Monitoring System**.
-
-The backend connects the TrailGuard wearable/ESP32 device with the web dashboard and MongoDB. It provides authentication, secure device pairing and management, health telemetry storage, fall-event handling, environmental monitoring, GPS/location history, realtime WebSocket updates, and emergency SMS/WhatsApp notifications.
+Backend API and realtime service for **Smart Wearable Safety & Health Monitoring System**.
 
 ---
 
@@ -38,7 +36,7 @@ The backend connects the TrailGuard wearable/ESP32 device with the web dashboard
 
 # Overview
 
-TrailGuard is a smart wearable safety system designed to monitor:
+SWAAS is a smart wearable safety system designed to monitor:
 
 - ❤️ Heart rate
 - 🫁 SpO₂ / blood oxygen
@@ -60,8 +58,8 @@ The backend is implemented using **Node.js + Express + MongoDB/Mongoose** with a
 
 ```text
                          ┌─────────────────────────┐
-                         │    TrailGuard Web App    │
-                         │       Dashboard          │
+                         │        Web App          │
+                         │       Dashboard         │
                          └────────────┬────────────┘
                                       │
                               REST API + JWT
