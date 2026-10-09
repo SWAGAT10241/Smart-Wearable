@@ -8,6 +8,7 @@
     "dev": "node server.js",
     "simulate": "node simulate-esp32.js",
     "provision-device": "node scripts/provision-device.js",
+    "generate-device-authority-keys": "node scripts/generate-device-authority-keys.js",
     "test": "jest --runInBand"
   },
   "dependencies": {

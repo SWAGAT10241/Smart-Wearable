@@ -4,6 +4,8 @@ export const DEVICE_INFORMATION_CHARACTERISTIC_UUID =
   "6f2a0006-7b1c-4d90-a5e2-8c1d3f6a0001";
 export const COMMAND_CHARACTERISTIC_UUID =
   "6f2a0003-7b1c-4d90-a5e2-8c1d3f6a0001";
+export const AUTHORIZATION_CHARACTERISTIC_UUID =
+  "6f2a0007-7b1c-4d90-a5e2-8c1d3f6a0001";
 
 const UUID_V4_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -80,6 +82,53 @@ export function parsePairingProof(text) {
     throw new Error("The wearable returned an incomplete pairing proof.");
   }
   return proof;
+}
+
+export function parseAuthorizationChallenge(text) {
+  let challenge;
+  try {
+    challenge = JSON.parse(text);
+  } catch {
+    throw new Error("The wearable returned an invalid authorization challenge.");
+  }
+  if (
+    typeof challenge?.deviceId !== "string" ||
+    !UUID_V4_PATTERN.test(challenge.deviceId) ||
+    typeof challenge?.challengeId !== "string" ||
+    !UUID_V4_PATTERN.test(challenge.challengeId) ||
+    typeof challenge?.nonce !== "string" ||
+    !BOOTSTRAP_TOKEN_PATTERN.test(challenge.nonce)
+  ) {
+    throw new Error("The wearable returned an incomplete authorization challenge.");
+  }
+  return { ...challenge, deviceId: challenge.deviceId.toUpperCase() };
+}
+
+export function serializeAuthorizationReceipt(receipt) {
+  if (
+    receipt?.receiptVersion !== 1 ||
+    !["PAIR", "TELEMETRY"].includes(receipt.scope) ||
+    typeof receipt.deviceId !== "string" ||
+    !UUID_V4_PATTERN.test(receipt.deviceId.toLowerCase()) ||
+    typeof receipt.userId !== "string" ||
+    !/^[a-f0-9]{24}$/i.test(receipt.userId) ||
+    typeof receipt.challengeId !== "string" ||
+    !UUID_V4_PATTERN.test(receipt.challengeId) ||
+    typeof receipt.nonce !== "string" ||
+    !BOOTSTRAP_TOKEN_PATTERN.test(receipt.nonce) ||
+    !Number.isSafeInteger(receipt.issuedAtUnixMs) ||
+    receipt.issuedAtUnixMs <= 0 ||
+    !Number.isInteger(receipt.leaseSeconds) ||
+    receipt.leaseSeconds < 0 ||
+    receipt.leaseSeconds > 900 ||
+    (receipt.scope === "PAIR" && receipt.leaseSeconds !== 0) ||
+    (receipt.scope === "TELEMETRY" && receipt.leaseSeconds === 0) ||
+    typeof receipt.signature !== "string" ||
+    !/^[A-Za-z0-9_-]{86}$/.test(receipt.signature)
+  ) {
+    throw new Error("The backend returned an invalid device authorization receipt.");
+  }
+  return JSON.stringify(receipt);
 }
 
 export function getBluetoothSupport(navigatorObject = globalThis.navigator) {

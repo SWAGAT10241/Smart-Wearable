@@ -5,6 +5,7 @@ import Field from "../components/auth/Field";
 import Button from "../components/auth/Button";
 import { useAuth } from "../context/AuthContext";
 import { useDevices } from "../context/DeviceContext";
+import { useLiveData } from "../context/LiveDataContext";
 import { authApi } from "../lib/apiClient";
 import PhoneField from "../components/auth/PhoneField";
 import PairDevicePanel from "../components/PairDevicePanel";
@@ -164,6 +165,7 @@ function DeviceCard({ device, selected, onSelect, onRename, onStatusChange, onRe
 
 export default function Settings() {
   const { user, logout, refreshUser } = useAuth();
+  const { ingestTelemetryFrame, attachBleTelemetrySession } = useLiveData();
   const { theme, setLightTheme, setDarkTheme } = useTheme();
 
   const {
@@ -391,7 +393,11 @@ export default function Settings() {
             </span>
           </div>
 
-          <PairDevicePanel onPaired={refreshDevices} />
+          <PairDevicePanel
+            onPaired={refreshDevices}
+            onTelemetry={ingestTelemetryFrame}
+            onTelemetrySession={attachBleTelemetrySession}
+          />
 
           {/* Device list */}
           {devicesLoading ? (

@@ -88,6 +88,9 @@ jest.mock("../middleware/authMiddleware", () => {
 });
 
 const { app } = require("../app");
+const {
+  verifyDeviceAuthorizationReceipt,
+} = require("../services/deviceAuthorizationReceiptService");
 
 describe("TrailGuard Backend API", () => {
   /*
@@ -291,10 +294,15 @@ describe("TrailGuard Backend API", () => {
 
     let privateKey;
     let publicKey;
+    let authorityPublicKey;
 
     beforeEach(() => {
       ({ privateKey, publicKey } = crypto.generateKeyPairSync("ed25519"));
-
+      const authorityKeys = crypto.generateKeyPairSync("ed25519");
+      authorityPublicKey = authorityKeys.publicKey;
+      process.env.DEVICE_AUTHORITY_PRIVATE_KEY = authorityKeys.privateKey
+        .export({ type: "pkcs8", format: "pem" })
+        .toString();
       mockDeviceFindOne.mockReturnValue({
         select: jest.fn().mockResolvedValue({
           deviceId: deviceId.toUpperCase(),
@@ -440,7 +448,21 @@ describe("TrailGuard Backend API", () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.body.device.state).toBe("PAIRED");
-
+      expect(response.body.receipt).toMatchObject({
+        receiptVersion: 1,
+        scope: "PAIR",
+        deviceId: challenge.deviceId,
+        userId,
+        challengeId: challenge.challengeId,
+        nonce,
+        leaseSeconds: 0,
+      });
+      expect(
+        verifyDeviceAuthorizationReceipt(
+          response.body.receipt,
+          authorityPublicKey,
+        ),
+      ).toBe(true);
       expect(mockDevicePairingFindOneAndUpdate).toHaveBeenCalledWith(
         expect.objectContaining({
           _id: challenge._id,
@@ -494,6 +516,59 @@ describe("TrailGuard Backend API", () => {
       expect(startSession).toHaveBeenCalledTimes(1);
       expect(session.withTransaction).toHaveBeenCalledTimes(1);
       expect(session.endSession).toHaveBeenCalledTimes(1);
+    });
+
+    test("issues a short telemetry receipt only for the authenticated owner", async () => {
+      const challengeId = crypto.randomUUID();
+      const nonce = crypto.randomBytes(32).toString("base64url");
+      mockDeviceFindOne.mockReturnValue({
+        select: jest.fn().mockResolvedValue({
+          deviceId: deviceId.toUpperCase(),
+          userId,
+        }),
+      });
+
+      const response = await request(app)
+        .post("/api/devices/telemetry-receipts")
+        .send({ deviceId, challengeId, nonce });
+
+      expect(response.statusCode).toBe(200);
+      expect(mockDeviceFindOne).toHaveBeenCalledWith({
+        deviceId: deviceId.toUpperCase(),
+        userId,
+        state: "PAIRED",
+        status: "active",
+      });
+      expect(response.body.receipt).toMatchObject({
+        receiptVersion: 1,
+        scope: "TELEMETRY",
+        deviceId: deviceId.toUpperCase(),
+        userId,
+        challengeId,
+        nonce,
+        leaseSeconds: 15 * 60,
+      });
+      expect(
+        verifyDeviceAuthorizationReceipt(
+          response.body.receipt,
+          authorityPublicKey,
+        ),
+      ).toBe(true);
+    });
+
+    test("does not authorize a telemetry lease for another user's device", async () => {
+      mockDeviceFindOne.mockReturnValue({
+        select: jest.fn().mockResolvedValue(null),
+      });
+      const response = await request(app)
+        .post("/api/devices/telemetry-receipts")
+        .send({
+          deviceId,
+          challengeId: crypto.randomUUID(),
+          nonce: crypto.randomBytes(32).toString("base64url"),
+        });
+
+      expect(response.statusCode).toBe(404);
       startSession.mockRestore();
     });
 

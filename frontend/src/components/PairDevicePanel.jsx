@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   COMMAND_CHARACTERISTIC_UUID,
+  AUTHORIZATION_CHARACTERISTIC_UUID,
   DEVICE_INFORMATION_CHARACTERISTIC_UUID,
   DEVICE_PAIRING_SERVICE_UUID,
   createPairingChallengePayload,
@@ -8,10 +9,17 @@ import {
   parseDeviceInformation,
   parsePairingProof,
   parsePairingQr,
+  parseAuthorizationChallenge,
+  serializeAuthorizationReceipt,
 } from "../lib/devicePairing";
 import { devicePairingApi } from "../lib/apiClient";
+import { subscribeToTelemetry } from "../lib/telemetryBleClient";
 
-export default function PairDevicePanel({ onPaired }) {
+export default function PairDevicePanel({
+  onPaired,
+  onTelemetry,
+  onTelemetrySession,
+}) {
   const videoRef = useRef(null);
   const scannerRef = useRef(null);
   const [qrData, setQrData] = useState(null);
@@ -90,6 +98,8 @@ export default function PairDevicePanel({ onPaired }) {
     setError("");
     setMessage("Select the TrailGuard wearable in the Bluetooth prompt.");
     let server;
+    let keepConnection = false;
+    let stopNotifications;
     try {
       const device = await navigator.bluetooth.requestDevice({
         filters: [{ services: [DEVICE_PAIRING_SERVICE_UUID] }],
@@ -130,9 +140,55 @@ export default function PairDevicePanel({ onPaired }) {
       const proof = parsePairingProof(new TextDecoder().decode(proofValue));
 
       setMessage("Verifying device proof and completing pairing.");
-      await devicePairingApi.complete(challenge.challengeId, proof);
+      const completion = await devicePairingApi.complete(
+        challenge.challengeId,
+        proof,
+      );
+      if (!completion.receipt) {
+        throw new Error("The backend did not return a signed device authorization receipt.");
+      }
+      const authorizationCharacteristic = await service.getCharacteristic(
+        AUTHORIZATION_CHARACTERISTIC_UUID,
+      );
+      await authorizationCharacteristic.writeValueWithResponse(
+        new TextEncoder().encode(
+          serializeAuthorizationReceipt(completion.receipt),
+        ),
+      );
+
+      const authorizationValue = await authorizationCharacteristic.readValue();
+      const authorizationChallenge = parseAuthorizationChallenge(
+        new TextDecoder().decode(authorizationValue),
+      );
+      if (authorizationChallenge.deviceId !== qrData.deviceId) {
+        throw new Error("The BLE authorization challenge belongs to another device.");
+      }
+      const { receipt: telemetryReceipt } =
+        await devicePairingApi.telemetryReceipt(
+          authorizationChallenge.deviceId,
+          authorizationChallenge.challengeId,
+          authorizationChallenge.nonce,
+        );
+      await authorizationCharacteristic.writeValueWithResponse(
+        new TextEncoder().encode(
+          serializeAuthorizationReceipt(telemetryReceipt),
+        ),
+      );
+      const telemetryCharacteristic = await service.getCharacteristic(
+        "6f2a0002-7b1c-4d90-a5e2-8c1d3f6a0001",
+      );
+      stopNotifications = await subscribeToTelemetry(telemetryCharacteristic, {
+        deviceId: qrData.deviceId,
+        assertAuthenticatedConnection: async () => true,
+        onTelemetry,
+        onDiagnostic: (diagnostic) => {
+          if (diagnostic.code !== "sequence_gap_timeout") {
+            console.warn("[BLE telemetry] Frame rejected:", diagnostic.code);
+          }
+        },
+      });
+
       setQrData(null);
-      setMessage(`${info.deviceId} was paired to your account.`);
       try {
         await onPaired?.();
       } catch (refreshError) {
@@ -140,11 +196,20 @@ export default function PairDevicePanel({ onPaired }) {
           `Pairing succeeded, but the device list could not refresh: ${refreshError.message}`,
         );
       }
+      onTelemetrySession?.({
+        device,
+        deviceId: info.deviceId,
+        server,
+        stopNotifications,
+      });
+      keepConnection = true;
+      setMessage(`${info.deviceId} was paired and telemetry link authorized.`);
     } catch (pairingError) {
+      await stopNotifications?.();
       setError(pairingError?.message || "Device pairing failed.");
       setMessage("");
     } finally {
-      if (server?.connected) server.disconnect();
+      if (!keepConnection && server?.connected) server.disconnect();
       setBusy(false);
     }
   };

@@ -217,6 +217,12 @@ export const devicePairingApi = {
       body: proof,
       auth: true,
     }),
+  telemetryReceipt: (deviceId, challengeId, nonce) =>
+    request("/devices/telemetry-receipts", {
+      method: "POST",
+      body: { deviceId, challengeId, nonce },
+      auth: true,
+    }),
 };
 // ------------------------------------------------------------
 // TOKEN MANAGEMENT

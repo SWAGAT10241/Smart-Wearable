@@ -15,4 +15,13 @@ config TRAILGUARD_PAIRING_WINDOW_SECONDS
     range 10 60
     default 60
 
+config TRAILGUARD_AUTHORITY_PUBLIC_KEY_B64URL
+    string "Backend Ed25519 authority public key (base64url)"
+    default ""
+    help
+        The 32-byte Ed25519 verification key generated with the backend
+        generate-device-authority-keys command. Only the public key is embedded
+        in firmware. A valid backend-signed receipt is required before the
+        device stores an owner or sends telemetry.
+
 endmenu

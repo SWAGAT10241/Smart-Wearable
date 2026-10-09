@@ -624,6 +624,44 @@ Content-Type: application/json
 {"nonce":"<returned nonce>","signature":"<Ed25519 signature, base64url>"}
 ```
 
+On success, the backend returns the paired device and a signed `PAIR`
+authorization receipt bound to the exact device challenge. The wearable
+verifies this receipt with its compiled-in backend authority public key before
+persisting the owner ID. Generate one authority key pair per deployment:
+
+```powershell
+corepack pnpm generate-device-authority-keys -- `
+  --private-key-file C:\secure-provisioning\device-authority-private.pem `
+  --public-key-file C:\secure-provisioning\device-authority-public.txt
+```
+
+Keep the private key in the backend secret manager as
+`DEVICE_AUTHORITY_PRIVATE_KEY`; never check it into source control. Configure
+the base64url public key in ESP-IDF `menuconfig` as
+`CONFIG_TRAILGUARD_AUTHORITY_PUBLIC_KEY_B64URL`. A telemetry session is
+authorized separately on each BLE connection using a device-generated
+challenge and this endpoint:
+
+```http
+POST /api/devices/telemetry-receipts
+Authorization: Bearer <access token>
+Content-Type: application/json
+```
+
+```json
+{
+  "deviceId": "B3FDC7E3-995B-4F32-9D37-C8AAF9BB9F2A",
+  "challengeId": "<device-generated UUID>",
+  "nonce": "<device-generated 256-bit base64url nonce>"
+}
+```
+
+The endpoint returns a signed `TELEMETRY` receipt with a 15-minute lease.
+The firmware accepts it only over an encrypted BLE link, for the current
+connection's nonce/challenge ID, and for its persisted owner. Disconnect
+immediately ends the lease; reconnecting requires a fresh authenticated API
+receipt. The browser cannot read or modify the private signing key.
+
 The backend verifies the user/device/challenge binding, expiry, nonce hash,
 device key and signature, then consumes the challenge and bootstrap token and
 atomically claims only a `PROVISIONED`, ownerless device. A challenge permits
@@ -634,10 +672,10 @@ returns `401`; ID-only registration returns `410`; stale/already-used
 challenges and state races return `404` or `409` without assigning ownership.
 The Settings page scans the sealed QR with the camera and uses Web Bluetooth
 to read the device identity, send the authenticated user's challenge, collect
-the Ed25519 proof, and complete pairing. This browser flow requires a secure
-origin and a supported Chromium browser. It has not been validated against a
-physical ESP32-S3; the current firmware slice does not yet provide encrypted
-BLE bonding.
+the Ed25519 proof, install the signed owner receipt, and authorize the
+encrypted telemetry session. This browser flow requires a secure origin and a
+supported Chromium browser. It has not been validated against a physical
+ESP32-S3.
 The pairing update uses a MongoDB transaction; deployments must use a
 transaction-capable replica set or sharded cluster.
 

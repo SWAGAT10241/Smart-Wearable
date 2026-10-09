@@ -1,11 +1,9 @@
 # ESP32-S3 BLE pairing firmware
 
-This ESP-IDF project adds the first BLE firmware slice for the TrailGuard
-wearable. It replaces neither the existing MicroPython sensor experiments nor
-the future native companion app. The current firmware provides device identity,
-a time-limited physical pairing window, and Ed25519 challenge signing; telemetry,
-battery sampling, normal paired-mode bonding, and app integration remain later
-work.
+This ESP-IDF project provides device identity, a time-limited physical pairing
+window, Ed25519 challenge signing, backend-signed owner authorization, and a
+BLE telemetry notification stream. Sensor drivers remain to be ported from
+the existing MicroPython experiments.
 
 ## Toolchain
 
@@ -66,6 +64,14 @@ firmware command to export the private key or reset identity.
    firmware's signature uses the canonical UTF-8 JSON key order and format
    defined in the
    [backend pairing contract](../../backend/README.md#secure-pairing-api).
+5. The backend returns a challenge-bound signed owner receipt. The client
+   writes it to **Authorization** (`...0007`); only after signature and
+   challenge verification does the device persist the owner ID.
+6. On each encrypted BLE connection the device generates a one-time nonce and
+   challenge ID. The authenticated app obtains a 15-minute backend telemetry
+   receipt and writes it to Authorization. The device accepts only the
+   persisted owner, current nonce, and current connection; disconnect revokes
+   that in-memory session lease.
 
 Challenge writes are capped at 512 bytes. The GATT client must negotiate an
 ATT MTU large enough for the challenge JSON (the firmware advertises a
@@ -82,6 +88,15 @@ GATT UUIDs match the architecture contract:
 | Device status | `0004` | Reports firmware and integration status |
 | Battery | `0005` | Reports `null` until a battery sensor is integrated |
 | Device information | `0006` | Readable only during the physical pairing window |
+| Authorization | `0007` | Encrypted read/write; verifies backend-signed owner and per-connection telemetry receipts |
+
+Only an encrypted BLE link is required at the GATT layer; LE Secure
+Connections Just Works does not authenticate the peer. Device ownership and
+telemetry authorization instead require the backend's Ed25519 receipt and
+the fresh per-connection device nonce. Telemetry frames are emitted every
+five seconds only while an authorized receipt and notification subscription
+are active. Until sensor drivers are integrated, measurements and battery
+values are `null` with `not_integrated` health/status fields.
 
 ## Important limitations
 
@@ -89,19 +104,18 @@ GATT UUIDs match the architecture contract:
   environment. Build, flash-encryption commissioning, BLE radio behavior,
   button wiring, and backend-to-device pairing have **not** been hardware
   validated.
-* The React web dashboard now scans the provisioned QR and performs the
-  challenge exchange over Web Bluetooth on supported Chromium browsers and
-  secure origins. This browser flow has not been tested against physical
-  hardware and is not a mobile-app integration.
-* An app-side telemetry notification adapter now validates protocol-v1
-  frames and refuses to subscribe unless the caller confirms an authenticated
-  paired link. The current firmware does not implement that persistent
-  authenticated owner link, so real health telemetry remains disabled.
+* The React web dashboard scans the provisioned QR, installs the signed owner
+  receipt, obtains the fresh telemetry receipt, and consumes BLE notifications
+  on supported Chromium browsers and secure origins. It has not been tested
+  against physical hardware and is not a mobile-app integration.
+* The app-side telemetry adapter validates protocol-v1 frames and handles
+  ordering, duplicates, and reconnects. It trusts only notifications after
+  the firmware accepts a challenge-bound backend signature.
 * This slice is not a production BLE security profile. Challenge signing is
-  gated by a physical button and protects hardware identity, but authenticated
-  BLE bonding/owner-session lifecycle, backend-signed pairing receipts,
-  telemetry authentication, actual telemetry notifications, and
-  revoke/unpair synchronization are not yet implemented. The version 1
+  gated by a physical button and protects hardware identity. Telemetry is
+  authenticated per connection by a backend-signed receipt, but pairing/bond
+  revocation synchronization and live sensor drivers are not implemented.
+  The version 1
   telemetry contract and executable app-side validation/reference sequencing
   rules are documented in the
   [architecture document](../../../docs/architecture/day-3-device-and-api-architecture.md#telemetry-envelope).

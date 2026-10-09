@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
+#include <time.h>
 
 #include "cJSON.h"
 #include "esp_check.h"
@@ -28,6 +29,10 @@
 #define PAIRING_WINDOW_US ((int64_t)CONFIG_TRAILGUARD_PAIRING_WINDOW_SECONDS * 1000000)
 #define COMMAND_MAX_BYTES 512
 #define INFO_MAX_BYTES 256
+#define AUTH_MAX_BYTES 512
+#define TELEMETRY_MAX_BYTES 512
+#define TELEMETRY_INTERVAL_MS 5000
+#define TELEMETRY_LEASE_MAX_SECONDS (15 * 60)
 #define NONCE_BYTES 32
 #define SIGNATURE_BYTES crypto_sign_BYTES
 
@@ -36,6 +41,7 @@ static const char *NVS_NAMESPACE = "tg_device";
 static const char *NVS_DEVICE_ID = "device_id";
 static const char *NVS_SECRET_KEY = "ed25519_sk";
 static const char *NVS_PUBLIC_KEY = "ed25519_pk";
+static const char *NVS_OWNER_ID = "owner_id";
 
 static uint8_t secret_key[crypto_sign_SECRETKEYBYTES];
 static uint8_t public_key[crypto_sign_PUBLICKEYBYTES];
@@ -43,12 +49,27 @@ static char device_id[37];
 static char info_json[INFO_MAX_BYTES];
 static char command_response[COMMAND_MAX_BYTES];
 static size_t command_response_length;
+static char owner_user_id[25];
+static char boot_id[37];
+static char session_challenge_id[37];
+static char session_nonce[44];
+static char pending_pair_challenge_id[37];
+static char pending_pair_nonce[44];
+static int64_t telemetry_lease_deadline_us;
+static int64_t telemetry_time_anchor_us;
+static uint64_t telemetry_time_anchor_unix_ms;
+static uint32_t telemetry_sequence;
 static int64_t pairing_window_deadline_us;
 static uint16_t connection_handle = BLE_HS_CONN_HANDLE_NONE;
 static uint16_t command_value_handle;
 static uint16_t status_value_handle;
+static uint16_t telemetry_value_handle;
+static uint16_t authorization_value_handle;
 static bool advertising;
 static bool ble_synced;
+static bool device_paired;
+static bool link_encrypted;
+static bool telemetry_subscribed;
 static uint8_t own_address_type;
 
 static const ble_uuid128_t service_uuid =
@@ -69,6 +90,9 @@ static const ble_uuid128_t battery_uuid =
 static const ble_uuid128_t info_uuid =
     BLE_UUID128_INIT(0x01, 0x00, 0x6a, 0x3f, 0x1d, 0x8c, 0xe2, 0xa5,
                      0x90, 0x4d, 0x1c, 0x7b, 0x06, 0x00, 0x2a, 0x6f);
+static const ble_uuid128_t authorization_uuid =
+    BLE_UUID128_INIT(0x01, 0x00, 0x6a, 0x3f, 0x1d, 0x8c, 0xe2, 0xa5,
+                     0x90, 0x4d, 0x1c, 0x7b, 0x07, 0x00, 0x2a, 0x6f);
 
 static bool pairing_window_open(void)
 {
@@ -223,6 +247,22 @@ static esp_err_t load_or_create_identity(void)
         sodium_memzero(derived_public_key, sizeof(derived_public_key));
     }
 
+    size_t owner_length = sizeof(owner_user_id);
+    const esp_err_t owner_error =
+        nvs_get_str(handle, NVS_OWNER_ID, owner_user_id, &owner_length);
+    if (owner_error == ESP_OK) {
+        if (owner_length != sizeof(owner_user_id) ||
+            !is_hex_string(owner_user_id, 24)) {
+            nvs_close(handle);
+            memset(owner_user_id, 0, sizeof(owner_user_id));
+            return ESP_ERR_INVALID_STATE;
+        }
+        device_paired = true;
+    } else if (owner_error != ESP_ERR_NVS_NOT_FOUND) {
+        nvs_close(handle);
+        return owner_error;
+    }
+
     nvs_close(handle);
     return ESP_OK;
 
@@ -282,6 +322,9 @@ static int sign_pairing_challenge(const uint8_t *data, size_t length)
         return BLE_ATT_ERR_UNLIKELY;
     }
 
+    strlcpy(pending_pair_challenge_id, challenge_value,
+            sizeof(pending_pair_challenge_id));
+    strlcpy(pending_pair_nonce, nonce_value, sizeof(pending_pair_nonce));
     char canonical[COMMAND_MAX_BYTES];
     const int canonical_length = snprintf(
         canonical, sizeof(canonical),
@@ -341,6 +384,288 @@ static int sign_pairing_challenge(const uint8_t *data, size_t length)
     return 0;
 }
 
+static bool make_connection_challenge(void)
+{
+    uint8_t nonce[NONCE_BYTES];
+    uint8_t challenge_bytes[16];
+    randombytes_buf(nonce, sizeof(nonce));
+    uuid_from_random_bytes(challenge_bytes);
+    format_uuid(challenge_bytes, session_challenge_id);
+    sodium_memzero(challenge_bytes, sizeof(challenge_bytes));
+    if (sodium_bin2base64(session_nonce, sizeof(session_nonce), nonce,
+                          sizeof(nonce),
+                          sodium_base64_VARIANT_URLSAFE_NO_PADDING) == NULL) {
+        sodium_memzero(nonce, sizeof(nonce));
+        return false;
+    }
+    sodium_memzero(nonce, sizeof(nonce));
+    return true;
+}
+
+static bool authority_public_key_available(void)
+{
+    uint8_t authority_public_key[crypto_sign_PUBLICKEYBYTES];
+    size_t authority_length = 0;
+    const char *configured_authority =
+        CONFIG_TRAILGUARD_AUTHORITY_PUBLIC_KEY_B64URL;
+    const bool available =
+        configured_authority[0] != '\0' &&
+        sodium_base642bin(authority_public_key, sizeof(authority_public_key),
+                          configured_authority, strlen(configured_authority),
+                          NULL, &authority_length, NULL,
+                          sodium_base64_VARIANT_URLSAFE_NO_PADDING) == 0 &&
+        authority_length == sizeof(authority_public_key);
+    sodium_memzero(authority_public_key, sizeof(authority_public_key));
+    return available;
+}
+
+static bool verify_authorization_receipt(const uint8_t *data, size_t length)
+{
+    if (!link_encrypted || connection_handle == BLE_HS_CONN_HANDLE_NONE ||
+        data == NULL || length == 0 || length > AUTH_MAX_BYTES) {
+        return false;
+    }
+    cJSON *root = cJSON_ParseWithLength((const char *)data, length);
+    if (root == NULL || !cJSON_IsObject(root) || cJSON_GetArraySize(root) != 9) {
+        cJSON_Delete(root);
+        return false;
+    }
+
+    const cJSON *version = cJSON_GetObjectItemCaseSensitive(root, "receiptVersion");
+    const cJSON *scope = cJSON_GetObjectItemCaseSensitive(root, "scope");
+    const cJSON *receipt_device =
+        cJSON_GetObjectItemCaseSensitive(root, "deviceId");
+    const cJSON *receipt_user = cJSON_GetObjectItemCaseSensitive(root, "userId");
+    const cJSON *challenge =
+        cJSON_GetObjectItemCaseSensitive(root, "challengeId");
+    const cJSON *nonce = cJSON_GetObjectItemCaseSensitive(root, "nonce");
+    const cJSON *issued_at =
+        cJSON_GetObjectItemCaseSensitive(root, "issuedAtUnixMs");
+    const cJSON *lease =
+        cJSON_GetObjectItemCaseSensitive(root, "leaseSeconds");
+    const cJSON *signature =
+        cJSON_GetObjectItemCaseSensitive(root, "signature");
+    const char *scope_value = cJSON_IsString(scope) ? scope->valuestring : NULL;
+    const char *device_value =
+        cJSON_IsString(receipt_device) ? receipt_device->valuestring : NULL;
+    const char *user_value = cJSON_IsString(receipt_user)
+                                 ? receipt_user->valuestring
+                                 : NULL;
+    const char *challenge_value =
+        cJSON_IsString(challenge) ? challenge->valuestring : NULL;
+    const char *nonce_value = cJSON_IsString(nonce) ? nonce->valuestring : NULL;
+    const char *signature_value =
+        cJSON_IsString(signature) ? signature->valuestring : NULL;
+    if (!cJSON_IsNumber(version) || version->valueint != 1 ||
+        (strcmp(scope_value == NULL ? "" : scope_value, "PAIR") != 0 &&
+         strcmp(scope_value == NULL ? "" : scope_value, "TELEMETRY") != 0) ||
+        device_value == NULL || strcasecmp(device_value, device_id) != 0 ||
+        !is_hex_string(user_value, 24) || !is_uuid_string(challenge_value) ||
+        !is_base64url_string(nonce_value, 43) ||
+        !cJSON_IsNumber(issued_at) || issued_at->valuedouble < 1 ||
+        issued_at->valuedouble > 9007199254740991.0 ||
+        !cJSON_IsNumber(lease) || lease->valueint < 0 ||
+        lease->valueint > TELEMETRY_LEASE_MAX_SECONDS ||
+        !is_base64url_string(signature_value, 86)) {
+        cJSON_Delete(root);
+        return false;
+    }
+
+    const bool is_pair_receipt = strcmp(scope_value, "PAIR") == 0;
+    const bool challenge_matches =
+        is_pair_receipt
+            ? (strcmp(challenge_value, pending_pair_challenge_id) == 0 &&
+               strcmp(nonce_value, pending_pair_nonce) == 0 &&
+               lease->valueint == 0)
+            : (device_paired && strcmp(user_value, owner_user_id) == 0 &&
+               strcmp(challenge_value, session_challenge_id) == 0 &&
+               strcmp(nonce_value, session_nonce) == 0 &&
+               lease->valueint > 0);
+    if (!challenge_matches) {
+        cJSON_Delete(root);
+        return false;
+    }
+
+    char canonical[AUTH_MAX_BYTES];
+    const int canonical_length = snprintf(
+        canonical, sizeof(canonical),
+        "{\"receiptVersion\":1,\"scope\":\"%s\",\"deviceId\":\"%s\","
+        "\"userId\":\"%s\",\"challengeId\":\"%s\",\"nonce\":\"%s\","
+        "\"issuedAtUnixMs\":%.0f,\"leaseSeconds\":%d}",
+        scope_value, device_id, user_value, challenge_value, nonce_value,
+        issued_at->valuedouble, lease->valueint);
+    uint8_t authority_public_key[crypto_sign_PUBLICKEYBYTES];
+    size_t authority_length = 0;
+    uint8_t decoded_signature[SIGNATURE_BYTES];
+    size_t signature_length = 0;
+    const char *configured_authority =
+        CONFIG_TRAILGUARD_AUTHORITY_PUBLIC_KEY_B64URL;
+    const bool authority_decoded =
+        sodium_base642bin(authority_public_key, sizeof(authority_public_key),
+                          configured_authority, strlen(configured_authority),
+                          NULL, &authority_length, NULL,
+                          sodium_base64_VARIANT_URLSAFE_NO_PADDING) == 0 &&
+        authority_length == sizeof(authority_public_key);
+    const bool signature_decoded =
+        sodium_base642bin(decoded_signature, sizeof(decoded_signature),
+                          signature_value, strlen(signature_value), NULL,
+                          &signature_length, NULL,
+                          sodium_base64_VARIANT_URLSAFE_NO_PADDING) == 0 &&
+        signature_length == sizeof(decoded_signature);
+    const bool valid =
+        canonical_length > 0 && (size_t)canonical_length < sizeof(canonical) &&
+        authority_decoded && signature_decoded &&
+        crypto_sign_verify_detached(
+            decoded_signature, (const unsigned char *)canonical,
+            (unsigned long long)canonical_length, authority_public_key) == 0;
+    sodium_memzero(authority_public_key, sizeof(authority_public_key));
+    sodium_memzero(decoded_signature, sizeof(decoded_signature));
+    sodium_memzero(canonical, sizeof(canonical));
+    if (!valid) {
+        cJSON_Delete(root);
+        return false;
+    }
+
+    if (is_pair_receipt) {
+        nvs_handle_t handle;
+        esp_err_t error = nvs_open(NVS_NAMESPACE, NVS_READWRITE, &handle);
+        if (error == ESP_OK) {
+            error = nvs_set_str(handle, NVS_OWNER_ID, user_value);
+            if (error == ESP_OK) {
+                error = nvs_commit(handle);
+            }
+            nvs_close(handle);
+        }
+        if (error != ESP_OK) {
+            cJSON_Delete(root);
+            return false;
+        }
+        strlcpy(owner_user_id, user_value, sizeof(owner_user_id));
+        device_paired = true;
+        memset(pending_pair_challenge_id, 0, sizeof(pending_pair_challenge_id));
+        memset(pending_pair_nonce, 0, sizeof(pending_pair_nonce));
+    } else {
+        telemetry_time_anchor_unix_ms = (uint64_t)issued_at->valuedouble;
+        telemetry_time_anchor_us = esp_timer_get_time();
+        telemetry_lease_deadline_us =
+            telemetry_time_anchor_us + (int64_t)lease->valueint * 1000000;
+        telemetry_sequence = 0;
+    }
+    cJSON_Delete(root);
+    return true;
+}
+
+static int append_authorization_challenge(struct os_mbuf *output)
+{
+    if (!link_encrypted || !device_paired ||
+        connection_handle == BLE_HS_CONN_HANDLE_NONE ||
+        !make_connection_challenge()) {
+        return BLE_ATT_ERR_READ_NOT_PERMITTED;
+    }
+    char challenge[160];
+    const int length = snprintf(challenge, sizeof(challenge),
+                                "{\"deviceId\":\"%s\",\"challengeId\":\"%s\","
+                                "\"nonce\":\"%s\"}",
+                                device_id, session_challenge_id, session_nonce);
+    if (length <= 0 || (size_t)length >= sizeof(challenge)) {
+        return BLE_ATT_ERR_UNLIKELY;
+    }
+    return os_mbuf_append(output, challenge, (uint16_t)length) == 0
+               ? 0
+               : BLE_ATT_ERR_INSUFFICIENT_RES;
+}
+
+static bool build_telemetry_frame(char output[TELEMETRY_MAX_BYTES],
+                                  size_t *output_length)
+{
+    const int64_t now_us = esp_timer_get_time();
+    if (!device_paired || !link_encrypted || !telemetry_subscribed ||
+        connection_handle == BLE_HS_CONN_HANDLE_NONE ||
+        now_us >= telemetry_lease_deadline_us ||
+        telemetry_time_anchor_us <= 0 ||
+        telemetry_sequence == UINT32_MAX) {
+        return false;
+    }
+    const uint64_t timestamp_ms =
+        telemetry_time_anchor_unix_ms +
+        (uint64_t)((now_us - telemetry_time_anchor_us) / 1000);
+    const time_t timestamp_seconds = (time_t)(timestamp_ms / 1000);
+    struct tm utc_time;
+    if (gmtime_r(&timestamp_seconds, &utc_time) == NULL) {
+        return false;
+    }
+    char timestamp[25];
+    if (strftime(timestamp, sizeof(timestamp), "%Y-%m-%dT%H:%M:%S", &utc_time) != 19) {
+        return false;
+    }
+    char exact_timestamp[25];
+    snprintf(exact_timestamp, sizeof(exact_timestamp), "%s.%03uZ", timestamp,
+             (unsigned)(timestamp_ms % 1000));
+
+    cJSON *root = cJSON_CreateObject();
+    cJSON *payload = cJSON_CreateObject();
+    cJSON *sensor_health = cJSON_CreateObject();
+    if (root == NULL || payload == NULL || sensor_health == NULL) {
+        cJSON_Delete(root);
+        cJSON_Delete(payload);
+        cJSON_Delete(sensor_health);
+        return false;
+    }
+    cJSON_AddNumberToObject(root, "schemaVersion", 1);
+    cJSON_AddStringToObject(root, "messageType", "telemetry");
+    cJSON_AddStringToObject(root, "deviceId", device_id);
+    cJSON_AddStringToObject(root, "bootId", boot_id);
+    cJSON_AddNumberToObject(root, "sequence", telemetry_sequence);
+    cJSON_AddStringToObject(root, "timestamp", exact_timestamp);
+    cJSON_AddNullToObject(payload, "heartRateBpm");
+    cJSON_AddNullToObject(payload, "spo2Percent");
+    cJSON_AddNullToObject(payload, "temperatureC");
+    cJSON_AddNullToObject(payload, "batteryPercent");
+    cJSON_AddNullToObject(payload, "charging");
+    cJSON_AddStringToObject(sensor_health, "heartRate", "not_integrated");
+    cJSON_AddStringToObject(sensor_health, "spo2", "not_integrated");
+    cJSON_AddStringToObject(sensor_health, "temperature", "not_integrated");
+    cJSON_AddItemToObject(payload, "sensorHealth", sensor_health);
+    cJSON_AddStringToObject(payload, "riskEngineStatus", "not_integrated");
+    cJSON_AddItemToObject(root, "payload", payload);
+    char *serialized = cJSON_PrintUnformatted(root);
+    cJSON_Delete(root);
+    if (serialized == NULL) {
+        return false;
+    }
+    const size_t serialized_length = strlen(serialized);
+    const bool fits = serialized_length <= TELEMETRY_MAX_BYTES;
+    if (fits) {
+        memcpy(output, serialized, serialized_length + 1);
+        *output_length = serialized_length;
+        telemetry_sequence += 1;
+    }
+    cJSON_free(serialized);
+    return fits;
+}
+
+static void telemetry_task(void *argument)
+{
+    (void)argument;
+    while (true) {
+        char frame[TELEMETRY_MAX_BYTES + 1];
+        size_t frame_length = 0;
+        if (build_telemetry_frame(frame, &frame_length)) {
+            struct os_mbuf *notification =
+                ble_hs_mbuf_from_flat(frame, (uint16_t)frame_length);
+            if (notification != NULL) {
+                const int result = ble_gatts_notify_custom(
+                    connection_handle, telemetry_value_handle, notification);
+                if (result != 0) {
+                    ESP_LOGW(TAG, "Telemetry notification send failed: %d", result);
+                }
+            }
+            sodium_memzero(frame, sizeof(frame));
+        }
+        vTaskDelay(pdMS_TO_TICKS(TELEMETRY_INTERVAL_MS));
+    }
+}
+
 static int gatt_access(uint16_t conn_handle, uint16_t attr_handle,
                        struct ble_gatt_access_ctxt *context, void *argument)
 {
@@ -349,6 +674,12 @@ static int gatt_access(uint16_t conn_handle, uint16_t attr_handle,
     const uintptr_t characteristic = (uintptr_t)argument;
 
     if (context->op == BLE_GATT_ACCESS_OP_READ_CHR) {
+        if (characteristic == 7) {
+            if (conn_handle != connection_handle || !link_encrypted) {
+                return BLE_ATT_ERR_INSUFFICIENT_AUTHEN;
+            }
+            return append_authorization_challenge(context->om);
+        }
         const char *value = NULL;
         size_t value_length = 0;
         switch (characteristic) {
@@ -397,6 +728,21 @@ static int gatt_access(uint16_t conn_handle, uint16_t attr_handle,
         return result;
     }
 
+    if (context->op == BLE_GATT_ACCESS_OP_WRITE_CHR && characteristic == 7) {
+        if (conn_handle != connection_handle || !link_encrypted) {
+            return BLE_ATT_ERR_INSUFFICIENT_AUTHEN;
+        }
+        uint8_t buffer[AUTH_MAX_BYTES];
+        const uint16_t length = OS_MBUF_PKTLEN(context->om);
+        if (length == 0 || length > sizeof(buffer) ||
+            os_mbuf_copydata(context->om, 0, length, buffer) != 0) {
+            return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
+        }
+        const bool valid = verify_authorization_receipt(buffer, length);
+        sodium_memzero(buffer, sizeof(buffer));
+        return valid ? 0 : BLE_ATT_ERR_INSUFFICIENT_AUTHEN;
+    }
+
     return BLE_ATT_ERR_UNLIKELY;
 }
 
@@ -405,6 +751,7 @@ static const struct ble_gatt_chr_def characteristics[] = {
         .uuid = &telemetry_uuid.u,
         .access_cb = gatt_access,
         .arg = (void *)0,
+        .val_handle = &telemetry_value_handle,
         .flags = BLE_GATT_CHR_F_NOTIFY,
     },
     {
@@ -433,6 +780,13 @@ static const struct ble_gatt_chr_def characteristics[] = {
         .arg = (void *)1,
         .flags = BLE_GATT_CHR_F_READ,
     },
+    {
+        .uuid = &authorization_uuid.u,
+        .access_cb = gatt_access,
+        .arg = (void *)7,
+        .val_handle = &authorization_value_handle,
+        .flags = BLE_GATT_CHR_F_READ_ENC | BLE_GATT_CHR_F_WRITE_ENC,
+    },
     {0},
 };
 
@@ -455,18 +809,56 @@ static int gap_event(struct ble_gap_event *event, void *argument)
         if (event->connect.status == 0) {
             connection_handle = event->connect.conn_handle;
             advertising = false;
+            link_encrypted = false;
+            telemetry_subscribed = false;
+            telemetry_lease_deadline_us = 0;
+            telemetry_time_anchor_us = 0;
+            if (!make_connection_challenge()) {
+                ESP_LOGE(TAG, "Failed to create connection authorization challenge");
+                ble_gap_terminate(connection_handle, BLE_ERR_REM_USER_CONN_TERM);
+                return 0;
+            }
+            const int security_result =
+                ble_gap_security_initiate(connection_handle);
+            if (security_result != 0) {
+                ESP_LOGE(TAG, "Failed to start BLE link security: %d",
+                         security_result);
+                ble_gap_terminate(connection_handle, BLE_ERR_REM_USER_CONN_TERM);
+            }
         } else {
             start_advertising();
         }
         return 0;
     case BLE_GAP_EVENT_DISCONNECT:
         connection_handle = BLE_HS_CONN_HANDLE_NONE;
-        if (pairing_window_open()) {
+        link_encrypted = false;
+        telemetry_subscribed = false;
+        telemetry_lease_deadline_us = 0;
+        telemetry_time_anchor_us = 0;
+        memset(session_challenge_id, 0, sizeof(session_challenge_id));
+        sodium_memzero(session_nonce, sizeof(session_nonce));
+        if (pairing_window_open() || device_paired) {
             start_advertising();
         }
         return 0;
     case BLE_GAP_EVENT_ADV_COMPLETE:
         advertising = false;
+        return 0;
+    case BLE_GAP_EVENT_ENC_CHANGE: {
+        struct ble_gap_conn_desc descriptor;
+        if (event->enc_change.status == 0 &&
+            ble_gap_conn_find(event->enc_change.conn_handle, &descriptor) == 0) {
+            link_encrypted = descriptor.sec_state.encrypted;
+        } else {
+            link_encrypted = false;
+            ble_gap_terminate(event->enc_change.conn_handle, BLE_ERR_AUTH_FAIL);
+        }
+        return 0;
+    }
+    case BLE_GAP_EVENT_SUBSCRIBE:
+        if (event->subscribe.attr_handle == telemetry_value_handle) {
+            telemetry_subscribed = event->subscribe.cur_notify;
+        }
         return 0;
     default:
         return 0;
@@ -476,7 +868,7 @@ static int gap_event(struct ble_gap_event *event, void *argument)
 static void start_advertising(void)
 {
     if (!ble_synced || advertising || connection_handle != BLE_HS_CONN_HANDLE_NONE ||
-        !pairing_window_open()) {
+        (!pairing_window_open() && !device_paired)) {
         return;
     }
 
@@ -537,7 +929,7 @@ static void pairing_button_task(void *argument)
             }
         }
         was_pressed = pressed;
-        if (!pairing_window_open() && advertising) {
+        if (!pairing_window_open() && !device_paired && advertising) {
             ble_gap_adv_stop();
             advertising = false;
         }
@@ -564,6 +956,14 @@ void app_main(void)
         ESP_LOGE(TAG, "libsodium initialization failed");
         return;
     }
+    if (!authority_public_key_available()) {
+        ESP_LOGE(TAG, "Configure the backend authorization public key before building");
+        return;
+    }
+    uint8_t boot_bytes[16];
+    uuid_from_random_bytes(boot_bytes);
+    format_uuid(boot_bytes, boot_id);
+    sodium_memzero(boot_bytes, sizeof(boot_bytes));
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(load_or_create_identity());
     ESP_ERROR_CHECK(build_device_info());
@@ -573,7 +973,7 @@ void app_main(void)
     ble_hs_cfg.sync_cb = on_sync;
     ble_hs_cfg.sm_sc = 1;
     ble_hs_cfg.sm_bonding = 1;
-    ble_hs_cfg.sm_mitm = 1;
+    ble_hs_cfg.sm_mitm = 0;
     ble_hs_cfg.sm_io_cap = BLE_SM_IO_CAP_NO_IO;
     ESP_ERROR_CHECK(ble_svc_gap_init());
     ESP_ERROR_CHECK(ble_svc_gatt_init());
@@ -583,6 +983,10 @@ void app_main(void)
     nimble_port_freertos_init(ble_host_task);
     if (xTaskCreate(pairing_button_task, "pairing_button", 3072, NULL, 5, NULL) != pdPASS) {
         ESP_LOGE(TAG, "Failed to start pairing-button task");
+        return;
+    }
+    if (xTaskCreate(telemetry_task, "telemetry", 4096, NULL, 4, NULL) != pdPASS) {
+        ESP_LOGE(TAG, "Failed to start telemetry task");
         return;
     }
     ESP_LOGI(TAG, "Device identity ready; press pairing button to advertise");

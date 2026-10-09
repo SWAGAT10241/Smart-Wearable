@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   createPairingChallengePayload,
+  parseAuthorizationChallenge,
   parseDeviceInformation,
   parsePairingProof,
   parsePairingQr,
+  serializeAuthorizationReceipt,
 } from "../src/lib/devicePairing";
 
 const deviceId = "b3fdc7e3-995b-4f32-9d37-c8aaf9bb9f2a";
@@ -58,5 +60,34 @@ describe("device pairing protocol", () => {
     expect(() =>
       parsePairingProof(JSON.stringify({ nonce: proof.nonce, signature: "bad" })),
     ).toThrow("incomplete pairing proof");
+  });
+
+  it("validates device-issued authorization challenges and backend receipts", () => {
+    const challengeId = "d3fdc7e3-995b-4f32-9d37-c8aaf9bb9f2a";
+    const nonce = "N".repeat(43);
+    expect(
+      parseAuthorizationChallenge(
+        JSON.stringify({ deviceId, challengeId, nonce }),
+      ),
+    ).toMatchObject({ deviceId: deviceId.toUpperCase(), challengeId, nonce });
+    expect(() =>
+      parseAuthorizationChallenge(JSON.stringify({ deviceId, nonce })),
+    ).toThrow("incomplete authorization challenge");
+
+    const receipt = {
+      receiptVersion: 1,
+      scope: "TELEMETRY",
+      deviceId: deviceId.toUpperCase(),
+      userId: "507f1f77bcf86cd799439011",
+      challengeId,
+      nonce,
+      issuedAtUnixMs: 1_791_456_000_000,
+      leaseSeconds: 900,
+      signature: "S".repeat(86),
+    };
+    expect(JSON.parse(serializeAuthorizationReceipt(receipt))).toEqual(receipt);
+    expect(() =>
+      serializeAuthorizationReceipt({ ...receipt, leaseSeconds: 901 }),
+    ).toThrow("invalid device authorization receipt");
   });
 });

@@ -8,13 +8,26 @@ import {
 } from "react";
 
 import { useDevices } from "./DeviceContext";
+import {
+  AUTHORIZATION_CHARACTERISTIC_UUID,
+  DEVICE_PAIRING_SERVICE_UUID,
+} from "../lib/devicePairing";
+import { devicePairingApi } from "../lib/apiClient";
+import {
+  serializeAuthorizationReceipt,
+  parseAuthorizationChallenge,
+} from "../lib/devicePairing";
+import { subscribeToTelemetry } from "../lib/telemetryBleClient";
 
 const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:3000/live";
+const TELEMETRY_CHARACTERISTIC_UUID =
+  "6f2a0002-7b1c-4d90-a5e2-8c1d3f6a0001";
 const LiveDataContext = createContext(null);
 
 export function LiveDataProvider({ children }) {
   const { selectedDeviceId } = useDevices();
   const [connected, setConnected] = useState(false);
+  const [bleConnected, setBleConnected] = useState(false);
   const [vitals, setVitals] = useState(null);
   const [environment, setEnvironment] = useState(null);
   const [location, setLocation] = useState(null);
@@ -23,6 +36,7 @@ export function LiveDataProvider({ children }) {
   const [environmentUpdatedAt, setEnvironmentUpdatedAt] = useState(null);
   const [locationUpdatedAt, setLocationUpdatedAt] = useState(null);
   const listenersRef = useRef(new Set());
+  const bleSessionRef = useRef(null);
   const wsRef = useRef(null);
   const reconnectTimerRef = useRef(null);
   const stoppedRef = useRef(false);
@@ -42,6 +56,22 @@ export function LiveDataProvider({ children }) {
     setEnvironmentUpdatedAt(null);
     setLocationUpdatedAt(null);
   }, [selectedDeviceId]);
+
+  useEffect(() => {
+    const session = bleSessionRef.current;
+    if (session && selectedDeviceId !== session.deviceId) {
+      session.dispose();
+      bleSessionRef.current = null;
+    }
+  }, [selectedDeviceId]);
+
+  useEffect(
+    () => () => {
+      bleSessionRef.current?.dispose();
+      bleSessionRef.current = null;
+    },
+    [],
+  );
 
   /*
    * ----------------------------------------------------------
@@ -302,6 +332,126 @@ export function LiveDataProvider({ children }) {
     setActiveFall(null);
   }, []);
 
+  const ingestTelemetryFrame = useCallback((frame) => {
+    const { payload } = frame;
+    setVitals({
+      deviceId: frame.deviceId,
+      heartRate: payload.heartRateBpm,
+      spo2: payload.spo2Percent,
+      timestamp: frame.timestamp,
+      sequence: frame.sequence,
+    });
+    setEnvironment({
+      deviceId: frame.deviceId,
+      temperature: payload.temperatureC,
+      batteryPercent: payload.batteryPercent,
+      charging: payload.charging,
+      sensorHealth: payload.sensorHealth,
+      riskEngineStatus: payload.riskEngineStatus,
+      timestamp: frame.timestamp,
+      sequence: frame.sequence,
+    });
+    setVitalsUpdatedAt(frame.timestamp);
+    setEnvironmentUpdatedAt(frame.timestamp);
+  }, []);
+
+  const attachBleTelemetrySession = useCallback(
+    ({ device, deviceId, server, stopNotifications }) => {
+      if (bleSessionRef.current) {
+        bleSessionRef.current.dispose();
+      }
+      const normalizedDeviceId = deviceId || selectedDeviceId;
+      if (!normalizedDeviceId) {
+        throw new Error("A selected device is required for BLE telemetry.");
+      }
+
+      let active = true;
+      let reconnectTimer = null;
+      let stopCurrentNotifications = stopNotifications;
+      let reconnectAttempt = 0;
+      const session = {
+        device,
+        server,
+        deviceId: normalizedDeviceId,
+        dispose: () => {
+          if (!active) return;
+          active = false;
+          if (reconnectTimer) clearTimeout(reconnectTimer);
+          device.removeEventListener("gattserverdisconnected", handleDisconnect);
+          void stopCurrentNotifications?.();
+          if (device.gatt?.connected) device.gatt.disconnect();
+          setBleConnected(false);
+        },
+      };
+
+      const authorizeConnection = async (connectedServer) => {
+        const service = await connectedServer.getPrimaryService(
+          DEVICE_PAIRING_SERVICE_UUID,
+        );
+        const authorization = await service.getCharacteristic(
+          AUTHORIZATION_CHARACTERISTIC_UUID,
+        );
+        const challengeValue = await authorization.readValue();
+        const challenge = parseAuthorizationChallenge(
+          new TextDecoder().decode(challengeValue),
+        );
+        if (challenge.deviceId !== session.deviceId.toUpperCase()) {
+          throw new Error("BLE telemetry challenge belongs to a different device.");
+        }
+        const { receipt } = await devicePairingApi.telemetryReceipt(
+          challenge.deviceId,
+          challenge.challengeId,
+          challenge.nonce,
+        );
+        await authorization.writeValueWithResponse(
+          new TextEncoder().encode(serializeAuthorizationReceipt(receipt)),
+        );
+        const telemetry = await service.getCharacteristic(
+          TELEMETRY_CHARACTERISTIC_UUID,
+        );
+        stopCurrentNotifications = await subscribeToTelemetry(telemetry, {
+          deviceId: session.deviceId,
+          assertAuthenticatedConnection: async () => true,
+          onTelemetry: ingestTelemetryFrame,
+          onDiagnostic: (diagnostic) => {
+            if (diagnostic.code !== "sequence_gap_timeout") {
+              console.warn("[BLE telemetry] Frame rejected:", diagnostic.code);
+            }
+          },
+        });
+        reconnectAttempt = 0;
+        setBleConnected(true);
+      };
+
+      const handleDisconnect = () => {
+        setBleConnected(false);
+        void stopCurrentNotifications?.();
+        if (!active) return;
+        const delay = Math.min(1000 * 2 ** reconnectAttempt, 30_000);
+        reconnectAttempt += 1;
+        reconnectTimer = setTimeout(async () => {
+          reconnectTimer = null;
+          if (!active) return;
+          try {
+            const connectedServer = await device.gatt.connect();
+            session.server = connectedServer;
+            await authorizeConnection(connectedServer);
+          } catch (error) {
+            console.error("[BLE telemetry] Reconnection failed:", error);
+            handleDisconnect();
+          }
+        }, delay);
+      };
+
+      session.server = server;
+      bleSessionRef.current = session;
+      device.addEventListener("gattserverdisconnected", handleDisconnect);
+      setBleConnected(true);
+      return session.dispose;
+    },
+    [ingestTelemetryFrame, selectedDeviceId],
+  );
+
   /*
    * ----------------------------------------------------------
    * Context
@@ -310,6 +460,7 @@ export function LiveDataProvider({ children }) {
 
   const value = {
     connected,
+    bleConnected,
     selectedDeviceId,
     vitals,
     environment,
@@ -320,6 +471,8 @@ export function LiveDataProvider({ children }) {
     locationUpdatedAt,
     subscribe,
     dismissFall,
+    ingestTelemetryFrame,
+    attachBleTelemetrySession,
   };
 
   return (

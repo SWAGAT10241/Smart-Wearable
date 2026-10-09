@@ -6,6 +6,11 @@ const mongoose = require("mongoose");
 const Device = require("../models/Device");
 const DevicePairing = require("../models/DevicePairing");
 const protect = require("../middleware/authMiddleware");
+const {
+  assertDeviceAuthorizationConfigured,
+  issueDeviceAuthorizationReceipt,
+  TELEMETRY_SESSION_LEASE_SECONDS,
+} = require("../services/deviceAuthorizationReceiptService");
 
 const PAIRING_CHALLENGE_TTL_MS = 5 * 60 * 1000;
 const MAX_PAIRING_ATTEMPTS = 5;
@@ -70,6 +75,14 @@ module.exports = function () {
       }
 
       const normalizedDeviceId = deviceId.trim().toUpperCase();
+      try {
+        assertDeviceAuthorizationConfigured();
+      } catch (error) {
+        console.error("Device authorization signing is unavailable:", error);
+        return res.status(503).json({
+          error: "Secure device authorization is temporarily unavailable",
+        });
+      }
       const bootstrapTokenHash = hash(bootstrapToken);
       const now = new Date();
       const device = await Device.findOne({
@@ -210,6 +223,15 @@ module.exports = function () {
           return res.status(401).json({ error: "Invalid pairing proof" });
         }
 
+        const pairingReceipt = issueDeviceAuthorizationReceipt({
+          scope: "PAIR",
+          deviceId: challenge.deviceId,
+          userId: req.userId,
+          challengeId,
+          nonce,
+          leaseSeconds: 0,
+        });
+
         const session = await mongoose.startSession();
         let pairedDevice;
         try {
@@ -280,6 +302,7 @@ module.exports = function () {
             state: pairedDevice.state,
             status: pairedDevice.status,
           },
+          receipt: pairingReceipt,
         });
       } catch (error) {
         console.error("POST /api/devices/pairing-challenges/:challengeId/complete error:", error);
@@ -287,6 +310,51 @@ module.exports = function () {
       }
     },
   );
+
+  router.post("/telemetry-receipts", protect, userPairingLimiter(), async (req, res) => {
+    try {
+      if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
+        return res.status(400).json({ error: "A JSON object is required" });
+      }
+      const { deviceId, challengeId, nonce } = req.body;
+      if (
+        typeof deviceId !== "string" ||
+        !DEVICE_ID_PATTERN.test(deviceId) ||
+        typeof challengeId !== "string" ||
+        !/^[0-9a-f-]{36}$/i.test(challengeId) ||
+        typeof nonce !== "string" ||
+        !/^[A-Za-z0-9_-]{43}$/.test(nonce)
+      ) {
+        return res.status(400).json({ error: "Invalid telemetry authorization challenge" });
+      }
+
+      const normalizedDeviceId = deviceId.toUpperCase();
+      const device = await Device.findOne({
+        deviceId: normalizedDeviceId,
+        userId: req.userId,
+        state: "PAIRED",
+        status: "active",
+      }).select("deviceId userId");
+      if (!device) {
+        return res.status(404).json({ error: "Paired device not found" });
+      }
+
+      const receipt = issueDeviceAuthorizationReceipt({
+        scope: "TELEMETRY",
+        deviceId: normalizedDeviceId,
+        userId: req.userId,
+        challengeId,
+        nonce,
+        leaseSeconds: TELEMETRY_SESSION_LEASE_SECONDS,
+      });
+      return res.status(200).json({ receipt });
+    } catch (error) {
+      console.error("POST /api/devices/telemetry-receipts error:", error);
+      return res.status(503).json({
+        error: "Secure telemetry authorization is temporarily unavailable",
+      });
+    }
+  });
 
   router.post("/register", protect, (req, res) =>
     res.status(410).json({
