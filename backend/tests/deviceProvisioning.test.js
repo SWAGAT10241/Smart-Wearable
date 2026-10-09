@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+const fs = require("fs");
 const QRCode = require("qrcode");
 
 const mockDeviceCreate = jest.fn();
@@ -17,6 +18,10 @@ const {
   createPairingQrPayload,
   parseArguments,
 } = require("../scripts/provision-device");
+const {
+  generateAuthorityKeys,
+  parseArguments: parseAuthorityArguments,
+} = require("../scripts/generate-device-authority-keys");
 
 describe("device provisioning", () => {
   const deviceId = "b3fdc7e3-995b-4f32-9d37-c8aaf9bb9f2a";
@@ -187,5 +192,33 @@ describe("device provisioning", () => {
     );
     expect(svg).toMatch(/^<svg\b/);
     expect(svg).toContain("<path");
+  });
+
+  test("generates authority keys without overwriting existing output", () => {
+    const os = require("os");
+    const path = require("path");
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "trailguard-authority-"));
+    try {
+      const privateKeyFile = path.join(tempDir, "authority-private.pem");
+      const publicKeyFile = path.join(tempDir, "authority-public.txt");
+      const options = parseAuthorityArguments([
+        "--private-key-file",
+        privateKeyFile,
+        "--public-key-file",
+        publicKeyFile,
+      ]);
+      const result = generateAuthorityKeys(options);
+      const privateKey = crypto.createPrivateKey(
+        fs.readFileSync(privateKeyFile, "utf8"),
+      );
+      expect(privateKey.asymmetricKeyType).toBe("ed25519");
+      expect(result.publicKeyBase64url).toMatch(/^[A-Za-z0-9_-]{43}$/);
+      expect(fs.readFileSync(publicKeyFile, "utf8").trim()).toBe(
+        result.publicKeyBase64url,
+      );
+      expect(() => generateAuthorityKeys(options)).toThrow();
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
   });
 });

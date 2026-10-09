@@ -83,7 +83,7 @@ GATT UUIDs match the architecture contract:
 
 | Characteristic | UUID suffix | Current implementation |
 |---|---|---|
-| Telemetry | `0002` | Notify property reserved; sensor data not connected |
+| Telemetry | `0002` | Emits v1 notifications after the backend-signed per-connection receipt; values explicitly report `not_integrated` until drivers exist |
 | Command/control | `0003` | Read/write challenge-signing operation, physical-window gated |
 | Device status | `0004` | Reports firmware and integration status |
 | Battery | `0005` | Reports `null` until a battery sensor is integrated |
@@ -111,6 +111,10 @@ values are `null` with `not_integrated` health/status fields.
 * The app-side telemetry adapter validates protocol-v1 frames and handles
   ordering, duplicates, and reconnects. It trusts only notifications after
   the firmware accepts a challenge-bound backend signature.
+* Backend ownership is committed before the device confirms receipt
+  installation. If the pairing receipt cannot be written, there is not yet an
+  automatic recovery/reissue flow; do not treat that interrupted pairing as
+  complete.
 * This slice is not a production BLE security profile. Challenge signing is
   gated by a physical button and protects hardware identity. Telemetry is
   authenticated per connection by a backend-signed receipt, but pairing/bond

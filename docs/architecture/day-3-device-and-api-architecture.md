@@ -197,8 +197,7 @@ sequenceDiagram
 
 Use Bluetooth LE GATT with a vendor-specific 128-bit service UUID namespace.
 The UUIDs below are stable protocol identifiers, not secrets. Before hardware
-release, reserve/replace this namespace with UUIDs generated for the product;
-the existing hardware repository does not yet define a BLE GATT service.
+release, reserve/replace this namespace with UUIDs generated for the product.
 
 | GATT item | UUID | Access | Contract |
 |---|---|---|---|
@@ -208,12 +207,17 @@ the existing hardware repository does not yet define a BLE GATT service.
 | Device status | `6f2a0004-7b1c-4d90-a5e2-8c1d3f6a0001` | Authenticated read + notify | State, uptime, firmware, sensor health, risk-engine state |
 | Battery | `6f2a0005-7b1c-4d90-a5e2-8c1d3f6a0001` | Authenticated read + notify | Charge percent 0–100, charging flag, battery-health enum |
 | Device information | `6f2a0006-7b1c-4d90-a5e2-8c1d3f6a0001` | Authenticated read | `deviceId`, model, firmware, protocol version; no credentials |
+| Authorization | `6f2a0007-7b1c-4d90-a5e2-8c1d3f6a0001` | Encrypted read/write | Per-connection device nonce/challenge and backend-signed owner/session receipts |
 
-All characteristics require an encrypted authenticated link after pairing.
+All characteristics require an encrypted link after pairing. LE Secure
+Connections Just Works encrypts the link but does not authenticate the peer;
+the device additionally verifies the backend-signed owner receipt and
+single-use telemetry receipt bound to the current connection challenge.
 Control writes require application-level authorization and an allow-list.
 Pairing advertisements disclose no user identity, location, or health data.
 Use LE Secure Connections, fresh bonded keys, and explicit bond deletion on
-unpair/revoke; reject downgrade to legacy pairing.
+unpair/revoke; reject downgrade to legacy pairing. Unpair/revoke bond deletion
+is not yet synchronized to the current firmware.
 
 ### Telemetry envelope
 
@@ -285,10 +289,11 @@ they define the browser/app-side reference behavior but do not imply that the
 ESP32 firmware currently emits sensor telemetry or that the web dashboard
 stores it. The Web Bluetooth notification adapter in
 [`frontend/src/lib/telemetryBleClient.js`](../../frontend/src/lib/telemetryBleClient.js)
-validates and orders incoming frames and requires the caller to affirm an
-authenticated paired link before enabling notifications. The current firmware
-does not yet provide the authenticated bond/owner-session check needed to use
-that adapter with real device data.
+validates and orders incoming frames. The dashboard first installs a
+challenge-bound owner receipt and then obtains a short-lived, single-use
+backend receipt for the device-generated challenge on every BLE connection.
+The firmware verifies those receipts before enabling notifications. Sensor
+drivers and radio-level verification remain outstanding.
 
 ### Connection state and retries
 
@@ -298,8 +303,9 @@ short-lived flow and does not imply an ongoing data connection.
 
 * Connection timeout: 15 seconds; authentication timeout: 10 seconds.
 * On unexpected disconnect, retain local data and retry after 1, 2, 4, 8, 16,
-  then 30 seconds (±20% jitter), at most 10 attempts. Stop while user has
-  disabled Bluetooth/app access or the device is unpaired/revoked.
+  then 30 seconds. Continue at the 30-second interval while the app session
+  remains active; stop when the session is disposed or the selected device
+  changes.
 * Mark connection stale after 60 seconds without an authenticated status
   heartbeat. Surface stale/offline state; do not fabricate live values.
 * On reconnect, negotiate protocol version and resume from the last acknowledged
@@ -764,12 +770,16 @@ tests), but these are not equivalent to this target:
 * An ESP-IDF/NimBLE firmware slice now generates an Ed25519 device key, uses
   encrypted NVS, opens a time-limited pairing window on a physical button, and
   signs the backend challenge on the documented GATT command characteristic.
-  Device information is readable only inside this physical activation window.
-  It is not hardware-validated; telemetry and battery are not integrated.
-  The Settings dashboard now scans a pairing QR and collects the challenge
-  proof over Web Bluetooth. Authenticated BLE bonding, signed pairing receipts,
-  radio interoperability testing, telemetry, and battery support remain
-  implementation work. Dashboard ID-only pairing is disabled.
+  It verifies backend-signed pairing and per-connection telemetry receipts,
+  and emits schema-v1 notifications containing explicit `not_integrated`
+  readings until sensor drivers are added. Device information is readable only
+  inside the physical activation window. The Settings dashboard scans a
+  pairing QR, completes the proof, installs owner/session receipts, and keeps
+  the authorized BLE session active. The firmware has not been compiled or
+  radio-tested; authenticated user identity is provided by backend receipts
+  over an encrypted Just Works link, not BLE MITM pairing. Sensor/battery
+  integration and unpair/revocation synchronization remain implementation
+  work. Dashboard ID-only pairing is disabled.
 * Pairing challenge records now exist, but ownership history, emergency
   sessions, and an append-oriented audit log are not implemented.
 * Current access tokens and API paths are not yet the versioned contract above.

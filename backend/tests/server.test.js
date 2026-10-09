@@ -516,6 +516,7 @@ describe("TrailGuard Backend API", () => {
       expect(startSession).toHaveBeenCalledTimes(1);
       expect(session.withTransaction).toHaveBeenCalledTimes(1);
       expect(session.endSession).toHaveBeenCalledTimes(1);
+      startSession.mockRestore();
     });
 
     test("issues a short telemetry receipt only for the authenticated owner", async () => {
@@ -567,9 +568,8 @@ describe("TrailGuard Backend API", () => {
           challengeId: crypto.randomUUID(),
           nonce: crypto.randomBytes(32).toString("base64url"),
         });
-
       expect(response.statusCode).toBe(404);
-      startSession.mockRestore();
+      expect(response.statusCode).toBe(404);
     });
 
     test("rejects expired challenges", async () => {

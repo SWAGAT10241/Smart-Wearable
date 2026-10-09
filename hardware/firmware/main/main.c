@@ -70,6 +70,7 @@ static bool ble_synced;
 static bool device_paired;
 static bool link_encrypted;
 static bool telemetry_subscribed;
+static bool session_receipt_consumed;
 static uint8_t own_address_type;
 
 static const ble_uuid128_t service_uuid =
@@ -131,6 +132,16 @@ static bool is_uuid_string(const char *value)
         }
     }
     return true;
+}
+
+static void get_canonical_device_id(char output[37])
+{
+    for (size_t i = 0; i < sizeof(device_id); i++) {
+        const char value = device_id[i];
+        output[i] = value >= 'a' && value <= 'z'
+                        ? (char)(value - ('a' - 'A'))
+                        : value;
+    }
 }
 
 static bool is_base64url_string(const char *value, size_t expected_length)
@@ -325,12 +336,14 @@ static int sign_pairing_challenge(const uint8_t *data, size_t length)
     strlcpy(pending_pair_challenge_id, challenge_value,
             sizeof(pending_pair_challenge_id));
     strlcpy(pending_pair_nonce, nonce_value, sizeof(pending_pair_nonce));
+    char canonical_device[37];
+    get_canonical_device_id(canonical_device);
     char canonical[COMMAND_MAX_BYTES];
     const int canonical_length = snprintf(
         canonical, sizeof(canonical),
         "{\"challengeId\":\"%s\",\"deviceId\":\"%s\",\"userId\":\"%s\","
         "\"nonce\":\"%s\",\"expiresAt\":\"%s\"}",
-        challenge_value, device_id, user_value, nonce_value, expiry_value);
+        challenge_value, canonical_device, user_value, nonce_value, expiry_value);
     if (canonical_length <= 0 || (size_t)canonical_length >= sizeof(canonical)) {
         cJSON_Delete(root);
         return BLE_ATT_ERR_UNLIKELY;
@@ -342,6 +355,7 @@ static int sign_pairing_challenge(const uint8_t *data, size_t length)
                           strlen(nonce_value), NULL, &decoded_nonce_length, NULL,
                           sodium_base64_VARIANT_URLSAFE_NO_PADDING) != 0 ||
         decoded_nonce_length != sizeof(decoded_nonce)) {
+        sodium_memzero(canonical_device, sizeof(canonical_device));
         sodium_memzero(canonical, sizeof(canonical));
         cJSON_Delete(root);
         return BLE_ATT_ERR_UNLIKELY;
@@ -355,6 +369,7 @@ static int sign_pairing_challenge(const uint8_t *data, size_t length)
                              (unsigned long long)canonical_length,
                              secret_key) != 0 ||
         signature_length != SIGNATURE_BYTES) {
+        sodium_memzero(canonical_device, sizeof(canonical_device));
         sodium_memzero(canonical, sizeof(canonical));
         cJSON_Delete(root);
         return BLE_ATT_ERR_UNLIKELY;
@@ -365,6 +380,7 @@ static int sign_pairing_challenge(const uint8_t *data, size_t length)
                           sizeof(signature),
                           sodium_base64_VARIANT_URLSAFE_NO_PADDING) == NULL) {
         sodium_memzero(signature, sizeof(signature));
+        sodium_memzero(canonical_device, sizeof(canonical_device));
         sodium_memzero(canonical, sizeof(canonical));
         cJSON_Delete(root);
         return BLE_ATT_ERR_UNLIKELY;
@@ -375,6 +391,7 @@ static int sign_pairing_challenge(const uint8_t *data, size_t length)
         signature_encoded);
     sodium_memzero(signature, sizeof(signature));
     sodium_memzero(signature_encoded, sizeof(signature_encoded));
+    sodium_memzero(canonical_device, sizeof(canonical_device));
     sodium_memzero(canonical, sizeof(canonical));
     cJSON_Delete(root);
     if (response_length <= 0 || (size_t)response_length >= sizeof(command_response)) {
@@ -477,7 +494,8 @@ static bool verify_authorization_receipt(const uint8_t *data, size_t length)
             ? (strcmp(challenge_value, pending_pair_challenge_id) == 0 &&
                strcmp(nonce_value, pending_pair_nonce) == 0 &&
                lease->valueint == 0)
-            : (device_paired && strcmp(user_value, owner_user_id) == 0 &&
+            : (device_paired && !session_receipt_consumed &&
+               strcmp(user_value, owner_user_id) == 0 &&
                strcmp(challenge_value, session_challenge_id) == 0 &&
                strcmp(nonce_value, session_nonce) == 0 &&
                lease->valueint > 0);
@@ -486,13 +504,15 @@ static bool verify_authorization_receipt(const uint8_t *data, size_t length)
         return false;
     }
 
+    char canonical_device[37];
+    get_canonical_device_id(canonical_device);
     char canonical[AUTH_MAX_BYTES];
     const int canonical_length = snprintf(
         canonical, sizeof(canonical),
         "{\"receiptVersion\":1,\"scope\":\"%s\",\"deviceId\":\"%s\","
         "\"userId\":\"%s\",\"challengeId\":\"%s\",\"nonce\":\"%s\","
         "\"issuedAtUnixMs\":%.0f,\"leaseSeconds\":%d}",
-        scope_value, device_id, user_value, challenge_value, nonce_value,
+        scope_value, canonical_device, user_value, challenge_value, nonce_value,
         issued_at->valuedouble, lease->valueint);
     uint8_t authority_public_key[crypto_sign_PUBLICKEYBYTES];
     size_t authority_length = 0;
@@ -520,6 +540,7 @@ static bool verify_authorization_receipt(const uint8_t *data, size_t length)
             (unsigned long long)canonical_length, authority_public_key) == 0;
     sodium_memzero(authority_public_key, sizeof(authority_public_key));
     sodium_memzero(decoded_signature, sizeof(decoded_signature));
+    sodium_memzero(canonical_device, sizeof(canonical_device));
     sodium_memzero(canonical, sizeof(canonical));
     if (!valid) {
         cJSON_Delete(root);
@@ -550,6 +571,7 @@ static bool verify_authorization_receipt(const uint8_t *data, size_t length)
         telemetry_lease_deadline_us =
             telemetry_time_anchor_us + (int64_t)lease->valueint * 1000000;
         telemetry_sequence = 0;
+        session_receipt_consumed = true;
     }
     cJSON_Delete(root);
     return true;
@@ -557,7 +579,7 @@ static bool verify_authorization_receipt(const uint8_t *data, size_t length)
 
 static int append_authorization_challenge(struct os_mbuf *output)
 {
-    if (!link_encrypted || !device_paired ||
+    if (!link_encrypted || !device_paired || session_receipt_consumed ||
         connection_handle == BLE_HS_CONN_HANDLE_NONE ||
         !make_connection_challenge()) {
         return BLE_ATT_ERR_READ_NOT_PERMITTED;
@@ -669,15 +691,14 @@ static void telemetry_task(void *argument)
 static int gatt_access(uint16_t conn_handle, uint16_t attr_handle,
                        struct ble_gatt_access_ctxt *context, void *argument)
 {
-    (void)conn_handle;
     (void)attr_handle;
     const uintptr_t characteristic = (uintptr_t)argument;
+    if (conn_handle != connection_handle || !link_encrypted) {
+        return BLE_ATT_ERR_INSUFFICIENT_AUTHEN;
+    }
 
     if (context->op == BLE_GATT_ACCESS_OP_READ_CHR) {
         if (characteristic == 7) {
-            if (conn_handle != connection_handle || !link_encrypted) {
-                return BLE_ATT_ERR_INSUFFICIENT_AUTHEN;
-            }
             return append_authorization_challenge(context->om);
         }
         const char *value = NULL;
@@ -729,9 +750,6 @@ static int gatt_access(uint16_t conn_handle, uint16_t attr_handle,
     }
 
     if (context->op == BLE_GATT_ACCESS_OP_WRITE_CHR && characteristic == 7) {
-        if (conn_handle != connection_handle || !link_encrypted) {
-            return BLE_ATT_ERR_INSUFFICIENT_AUTHEN;
-        }
         uint8_t buffer[AUTH_MAX_BYTES];
         const uint16_t length = OS_MBUF_PKTLEN(context->om);
         if (length == 0 || length > sizeof(buffer) ||
@@ -811,6 +829,7 @@ static int gap_event(struct ble_gap_event *event, void *argument)
             advertising = false;
             link_encrypted = false;
             telemetry_subscribed = false;
+            session_receipt_consumed = false;
             telemetry_lease_deadline_us = 0;
             telemetry_time_anchor_us = 0;
             if (!make_connection_challenge()) {
@@ -833,6 +852,7 @@ static int gap_event(struct ble_gap_event *event, void *argument)
         connection_handle = BLE_HS_CONN_HANDLE_NONE;
         link_encrypted = false;
         telemetry_subscribed = false;
+        session_receipt_consumed = false;
         telemetry_lease_deadline_us = 0;
         telemetry_time_anchor_us = 0;
         memset(session_challenge_id, 0, sizeof(session_challenge_id));
