@@ -3,6 +3,7 @@ import {
   createPairingChallengePayload,
   parseAuthorizationChallenge,
   parseDeviceInformation,
+  parseDeviceStatus,
   parsePairingProof,
   parsePairingQr,
   serializeAuthorizationReceipt,
@@ -39,6 +40,42 @@ describe("device pairing protocol", () => {
     expect(() =>
       parseDeviceInformation(JSON.stringify({ protocolVersion: 2, deviceId })),
     ).toThrow("unsupported pairing protocol");
+  });
+
+  it("negotiates the supported connection protocol from device status", () => {
+    const status = {
+      protocolVersion: 1,
+      deviceState: "KEY_READY",
+      firmwareVersion: "0.1.0",
+      uptimeSeconds: 1234,
+      connectionStatus: "PAIRING",
+      signalQuality: "unavailable",
+      rssiDbm: null,
+      batteryPercent: null,
+      charging: null,
+      batteryHealth: "not_integrated",
+      sensorHealth: {
+        heartRate: "not_integrated",
+        spo2: "not_integrated",
+        temperature: "not_integrated",
+      },
+      riskEngineStatus: "not_integrated",
+    };
+    expect(parseDeviceStatus(JSON.stringify(status))).toEqual(status);
+    expect(() =>
+      parseDeviceStatus(JSON.stringify({ ...status, protocolVersion: 2 })),
+    ).toThrow("unsupported connection protocol");
+    expect(() =>
+      parseDeviceStatus(JSON.stringify({ ...status, batteryPercent: 101 })),
+    ).toThrow("unsupported connection protocol");
+    expect(() =>
+      parseDeviceStatus(
+        JSON.stringify({
+          ...status,
+          sensorHealth: { ...status.sensorHealth, heartRate: "unknown" },
+        }),
+      ),
+    ).toThrow("unsupported connection protocol");
   });
 
   it("serializes the challenge in the signed canonical field order", () => {

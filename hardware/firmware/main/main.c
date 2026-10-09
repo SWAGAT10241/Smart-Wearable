@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
@@ -33,6 +34,8 @@
 #define TELEMETRY_MAX_BYTES 512
 #define TELEMETRY_INTERVAL_MS 5000
 #define TELEMETRY_LEASE_MAX_SECONDS (15 * 60)
+#define CONNECTION_AUTH_TIMEOUT_US ((int64_t)10 * 1000000)
+#define CONNECTION_AUTH_CHECK_INTERVAL_MS 250
 #define NONCE_BYTES 32
 #define SIGNATURE_BYTES crypto_sign_BYTES
 
@@ -56,6 +59,8 @@ static char session_nonce[44];
 static char pending_pair_challenge_id[37];
 static char pending_pair_nonce[44];
 static int64_t telemetry_lease_deadline_us;
+static int64_t telemetry_authorization_deadline_us;
+static int64_t telemetry_disconnect_retry_after_us;
 static int64_t telemetry_time_anchor_us;
 static uint64_t telemetry_time_anchor_unix_ms;
 static uint32_t telemetry_sequence;
@@ -570,6 +575,7 @@ static bool verify_authorization_receipt(const uint8_t *data, size_t length)
         telemetry_time_anchor_us = esp_timer_get_time();
         telemetry_lease_deadline_us =
             telemetry_time_anchor_us + (int64_t)lease->valueint * 1000000;
+        telemetry_authorization_deadline_us = 0;
         telemetry_sequence = 0;
         session_receipt_consumed = true;
     }
@@ -660,7 +666,6 @@ static bool build_telemetry_frame(char output[TELEMETRY_MAX_BYTES],
     if (fits) {
         memcpy(output, serialized, serialized_length + 1);
         *output_length = serialized_length;
-        telemetry_sequence += 1;
     }
     cJSON_free(serialized);
     return fits;
@@ -669,22 +674,52 @@ static bool build_telemetry_frame(char output[TELEMETRY_MAX_BYTES],
 static void telemetry_task(void *argument)
 {
     (void)argument;
+    int64_t last_notification_us = 0;
     while (true) {
-        char frame[TELEMETRY_MAX_BYTES + 1];
-        size_t frame_length = 0;
-        if (build_telemetry_frame(frame, &frame_length)) {
-            struct os_mbuf *notification =
-                ble_hs_mbuf_from_flat(frame, (uint16_t)frame_length);
-            if (notification != NULL) {
-                const int result = ble_gatts_notify_custom(
-                    connection_handle, telemetry_value_handle, notification);
-                if (result != 0) {
-                    ESP_LOGW(TAG, "Telemetry notification send failed: %d", result);
-                }
+        const int64_t now_us = esp_timer_get_time();
+        const bool authorization_timed_out =
+            !session_receipt_consumed &&
+            telemetry_authorization_deadline_us > 0 &&
+            now_us >= telemetry_authorization_deadline_us;
+        const bool telemetry_lease_expired =
+            session_receipt_consumed && telemetry_lease_deadline_us > 0 &&
+            now_us >= telemetry_lease_deadline_us;
+        if (device_paired && link_encrypted &&
+            connection_handle != BLE_HS_CONN_HANDLE_NONE &&
+            (authorization_timed_out || telemetry_lease_expired) &&
+            now_us >= telemetry_disconnect_retry_after_us) {
+            const int result =
+                ble_gap_terminate(connection_handle, BLE_ERR_REM_USER_CONN_TERM);
+            if (result == 0) {
+                telemetry_authorization_deadline_us = 0;
+                telemetry_lease_deadline_us = 0;
+                telemetry_disconnect_retry_after_us = INT64_MAX;
+            } else {
+                ESP_LOGW(TAG, "Failed to close unauthorized BLE session: %d",
+                         result);
+                telemetry_disconnect_retry_after_us = now_us + 1000000;
             }
-            sodium_memzero(frame, sizeof(frame));
+        } else if (now_us - last_notification_us >=
+                   (int64_t)TELEMETRY_INTERVAL_MS * 1000) {
+            char frame[TELEMETRY_MAX_BYTES + 1];
+            size_t frame_length = 0;
+            if (build_telemetry_frame(frame, &frame_length)) {
+                last_notification_us = now_us;
+                struct os_mbuf *notification =
+                    ble_hs_mbuf_from_flat(frame, (uint16_t)frame_length);
+                if (notification != NULL) {
+                    const int result = ble_gatts_notify_custom(
+                        connection_handle, telemetry_value_handle, notification);
+                    if (result == 0) {
+                        telemetry_sequence += 1;
+                    } else {
+                        ESP_LOGW(TAG, "Telemetry notification send failed: %d", result);
+                    }
+                }
+                sodium_memzero(frame, sizeof(frame));
+            }
         }
-        vTaskDelay(pdMS_TO_TICKS(TELEMETRY_INTERVAL_MS));
+        vTaskDelay(pdMS_TO_TICKS(CONNECTION_AUTH_CHECK_INTERVAL_MS));
     }
 }
 
@@ -712,11 +747,33 @@ static int gatt_access(uint16_t conn_handle, uint16_t attr_handle,
             value_length = strlen(info_json);
             break;
         case 2:
-            value = "{\"deviceState\":\"KEY_READY\",\"firmwareVersion\":\"0.1.0\","
-                    "\"sensorHealth\":\"not_integrated\","
-                    "\"riskEngineStatus\":\"not_integrated\"}";
-            value_length = strlen(value);
+        {
+            static char status_json[512];
+            const bool authorized =
+                session_receipt_consumed &&
+                telemetry_lease_deadline_us > esp_timer_get_time();
+            const int written = snprintf(
+                status_json, sizeof(status_json),
+                "{\"protocolVersion\":1,\"deviceState\":\"%s\","
+                "\"firmwareVersion\":\"0.1.0\",\"uptimeSeconds\":%lld,"
+                "\"connectionStatus\":\"%s\",\"signalQuality\":\"unavailable\","
+                "\"rssiDbm\":null,\"batteryPercent\":null,\"charging\":null,"
+                "\"batteryHealth\":\"not_integrated\","
+                "\"sensorHealth\":{\"heartRate\":\"not_integrated\","
+                "\"spo2\":\"not_integrated\","
+                "\"temperature\":\"not_integrated\"},"
+                "\"riskEngineStatus\":\"not_integrated\"}",
+                device_paired ? "PAIRED" : "KEY_READY",
+                (long long)(esp_timer_get_time() / 1000000),
+                authorized ? "AUTHORIZED"
+                           : (device_paired ? "AUTHENTICATING" : "PAIRING"));
+            if (written <= 0 || (size_t)written >= sizeof(status_json)) {
+                return BLE_ATT_ERR_UNLIKELY;
+            }
+            value = status_json;
+            value_length = (size_t)written;
             break;
+        }
         case 3:
             value = command_response;
             value_length = command_response_length;
@@ -831,6 +888,8 @@ static int gap_event(struct ble_gap_event *event, void *argument)
             telemetry_subscribed = false;
             session_receipt_consumed = false;
             telemetry_lease_deadline_us = 0;
+            telemetry_authorization_deadline_us = 0;
+            telemetry_disconnect_retry_after_us = 0;
             telemetry_time_anchor_us = 0;
             if (!make_connection_challenge()) {
                 ESP_LOGE(TAG, "Failed to create connection authorization challenge");
@@ -854,6 +913,8 @@ static int gap_event(struct ble_gap_event *event, void *argument)
         telemetry_subscribed = false;
         session_receipt_consumed = false;
         telemetry_lease_deadline_us = 0;
+        telemetry_authorization_deadline_us = 0;
+        telemetry_disconnect_retry_after_us = 0;
         telemetry_time_anchor_us = 0;
         memset(session_challenge_id, 0, sizeof(session_challenge_id));
         sodium_memzero(session_nonce, sizeof(session_nonce));
@@ -869,6 +930,10 @@ static int gap_event(struct ble_gap_event *event, void *argument)
         if (event->enc_change.status == 0 &&
             ble_gap_conn_find(event->enc_change.conn_handle, &descriptor) == 0) {
             link_encrypted = descriptor.sec_state.encrypted;
+            if (link_encrypted && device_paired) {
+                telemetry_authorization_deadline_us =
+                    esp_timer_get_time() + CONNECTION_AUTH_TIMEOUT_US;
+            }
         } else {
             link_encrypted = false;
             ble_gap_terminate(event->enc_change.conn_handle, BLE_ERR_AUTH_FAIL);

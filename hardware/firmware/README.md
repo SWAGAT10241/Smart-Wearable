@@ -70,8 +70,10 @@ firmware command to export the private key or reset identity.
 6. On each encrypted BLE connection the device generates a one-time nonce and
    challenge ID. The authenticated app obtains a 15-minute backend telemetry
    receipt and writes it to Authorization. The device accepts only the
-   persisted owner, current nonce, and current connection; disconnect revokes
-   that in-memory session lease.
+   persisted owner, current nonce, and current connection within 10 seconds;
+   otherwise the device closes the connection. The 15-minute lease also closes
+   the session at expiry so the app must authorize a fresh connection.
+   Disconnect revokes that in-memory session lease.
 
 Challenge writes are capped at 512 bytes. The GATT client must negotiate an
 ATT MTU large enough for the challenge JSON (the firmware advertises a
@@ -85,7 +87,7 @@ GATT UUIDs match the architecture contract:
 |---|---|---|
 | Telemetry | `0002` | Emits v1 notifications after the backend-signed per-connection receipt; values explicitly report `not_integrated` until drivers exist |
 | Command/control | `0003` | Read/write challenge-signing operation, physical-window gated |
-| Device status | `0004` | Reports firmware and integration status |
+| Device status | `0004` | Encrypted read of protocol/device/connection state, uptime, battery, sensor, and risk status |
 | Battery | `0005` | Reports `null` until a battery sensor is integrated |
 | Device information | `0006` | Readable only during the physical pairing window |
 | Authorization | `0007` | Encrypted read/write; verifies backend-signed owner and per-connection telemetry receipts |
@@ -97,6 +99,9 @@ the fresh per-connection device nonce. Telemetry frames are emitted every
 five seconds only while an authorized receipt and notification subscription
 are active. Until sensor drivers are integrated, measurements and battery
 values are `null` with `not_integrated` health/status fields.
+The dashboard refreshes status on connection and every 30 seconds. Web
+Bluetooth does not expose RSSI, so radio signal strength is reported as
+unavailable; live connection state and stale telemetry are shown separately.
 
 ## Important limitations
 

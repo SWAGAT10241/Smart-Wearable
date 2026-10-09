@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import {
   COMMAND_CHARACTERISTIC_UUID,
   AUTHORIZATION_CHARACTERISTIC_UUID,
+  DEVICE_STATUS_CHARACTERISTIC_UUID,
   DEVICE_INFORMATION_CHARACTERISTIC_UUID,
   DEVICE_PAIRING_SERVICE_UUID,
   createPairingChallengePayload,
   getBluetoothSupport,
   parseDeviceInformation,
+  parseDeviceStatus,
   parsePairingProof,
   parsePairingQr,
   parseAuthorizationChallenge,
@@ -14,11 +16,19 @@ import {
 } from "../lib/devicePairing";
 import { devicePairingApi } from "../lib/apiClient";
 import { subscribeToTelemetry } from "../lib/telemetryBleClient";
+import {
+  BLE_AUTHENTICATION_TIMEOUT_MS,
+  BLE_CONNECT_TIMEOUT_MS,
+  BleAuthorizationError,
+  isBleAuthorizationFailure,
+  withBleTimeout,
+} from "../lib/bleConnection";
 
 export default function PairDevicePanel({
   onPaired,
   onTelemetry,
   onTelemetrySession,
+  onConnectionState,
 }) {
   const videoRef = useRef(null);
   const scannerRef = useRef(null);
@@ -97,6 +107,7 @@ export default function PairDevicePanel({
     setBusy(true);
     setError("");
     setMessage("Select the TrailGuard wearable in the Bluetooth prompt.");
+    onConnectionState?.("SCANNING");
     let server;
     let keepConnection = false;
     let stopNotifications;
@@ -104,28 +115,68 @@ export default function PairDevicePanel({
       const device = await navigator.bluetooth.requestDevice({
         filters: [{ services: [DEVICE_PAIRING_SERVICE_UUID] }],
       });
+      onConnectionState?.("CONNECTING");
       if (!device.gatt) {
         throw new Error("This browser could not open a BLE connection to the wearable.");
       }
-      server = await device.gatt.connect();
+      let connectionTimedOut = false;
+      const connectPromise = device.gatt.connect();
+      connectPromise.then((lateServer) => {
+        if (connectionTimedOut && lateServer.connected) lateServer.disconnect();
+      }).catch(() => {});
+      try {
+        server = await withBleTimeout(
+          connectPromise,
+          BLE_CONNECT_TIMEOUT_MS,
+          "BLE connection",
+        );
+      } catch (connectError) {
+        connectionTimedOut = true;
+        throw connectError;
+      }
+      onConnectionState?.("AUTHENTICATING");
       setMessage("Reading device identity; press the wearable pairing button if needed.");
-      const service = await server.getPrimaryService(DEVICE_PAIRING_SERVICE_UUID);
-      const infoCharacteristic = await service.getCharacteristic(
-        DEVICE_INFORMATION_CHARACTERISTIC_UUID,
+      const service = await withBleTimeout(
+        server.getPrimaryService(DEVICE_PAIRING_SERVICE_UUID),
+        BLE_CONNECT_TIMEOUT_MS,
+        "BLE service discovery",
       );
-      const infoValue = await infoCharacteristic.readValue();
+      const infoCharacteristic = await withBleTimeout(
+        service.getCharacteristic(DEVICE_INFORMATION_CHARACTERISTIC_UUID),
+        BLE_CONNECT_TIMEOUT_MS,
+        "BLE device information discovery",
+      );
+      const infoValue = await withBleTimeout(
+        infoCharacteristic.readValue(),
+        BLE_CONNECT_TIMEOUT_MS,
+        "BLE device information read",
+      );
       const info = parseDeviceInformation(new TextDecoder().decode(infoValue));
       if (info.deviceId !== qrData.deviceId) {
         throw new Error("The QR code and connected wearable identify different devices.");
       }
+      const statusCharacteristic = await withBleTimeout(
+        service.getCharacteristic(DEVICE_STATUS_CHARACTERISTIC_UUID),
+        BLE_CONNECT_TIMEOUT_MS,
+        "BLE status characteristic discovery",
+      );
+      const statusValue = await withBleTimeout(
+        statusCharacteristic.readValue(),
+        BLE_CONNECT_TIMEOUT_MS,
+        "BLE protocol negotiation",
+      );
+      parseDeviceStatus(new TextDecoder().decode(statusValue));
 
       setMessage("Requesting a secure pairing challenge.");
-      const challenge = await devicePairingApi.start(
-        qrData.deviceId,
-        qrData.bootstrapToken,
+      const challenge = await withBleTimeout(
+        devicePairingApi.start(qrData.deviceId, qrData.bootstrapToken),
+        BLE_AUTHENTICATION_TIMEOUT_MS,
+        "Pairing challenge request",
       );
-      const commandCharacteristic = await service.getCharacteristic(
-        COMMAND_CHARACTERISTIC_UUID,
+      const commandCharacteristic = await withBleTimeout(
+        service.getCharacteristic(COMMAND_CHARACTERISTIC_UUID),
+        BLE_CONNECT_TIMEOUT_MS,
+        "BLE command characteristic discovery",
       );
       const challengePayload = createPairingChallengePayload({
         ...challenge,
@@ -133,10 +184,18 @@ export default function PairDevicePanel({
       if (new TextEncoder().encode(challengePayload).length > 512) {
         throw new Error("Pairing challenge exceeds the supported BLE payload size.");
       }
-      await commandCharacteristic.writeValueWithResponse(
-        new TextEncoder().encode(challengePayload),
+      await withBleTimeout(
+        commandCharacteristic.writeValueWithResponse(
+          new TextEncoder().encode(challengePayload),
+        ),
+        BLE_CONNECT_TIMEOUT_MS,
+        "BLE pairing challenge write",
       );
-      const proofValue = await commandCharacteristic.readValue();
+      const proofValue = await withBleTimeout(
+        commandCharacteristic.readValue(),
+        BLE_CONNECT_TIMEOUT_MS,
+        "BLE pairing proof read",
+      );
       const proof = parsePairingProof(new TextDecoder().decode(proofValue));
 
       setMessage("Verifying device proof and completing pairing.");
@@ -147,16 +206,36 @@ export default function PairDevicePanel({
       if (!completion.receipt) {
         throw new Error("The backend did not return a signed device authorization receipt.");
       }
-      const authorizationCharacteristic = await service.getCharacteristic(
-        AUTHORIZATION_CHARACTERISTIC_UUID,
+      const authorizationCharacteristic = await withBleTimeout(
+        service.getCharacteristic(AUTHORIZATION_CHARACTERISTIC_UUID),
+        BLE_CONNECT_TIMEOUT_MS,
+        "BLE authorization characteristic discovery",
       );
-      await authorizationCharacteristic.writeValueWithResponse(
-        new TextEncoder().encode(
-          serializeAuthorizationReceipt(completion.receipt),
-        ),
-      );
+      try {
+        await withBleTimeout(
+          authorizationCharacteristic.writeValueWithResponse(
+            new TextEncoder().encode(
+              serializeAuthorizationReceipt(completion.receipt),
+            ),
+          ),
+          BLE_CONNECT_TIMEOUT_MS,
+          "BLE owner receipt installation",
+        );
+      } catch (error) {
+        if (device.gatt.connected) {
+          throw new BleAuthorizationError(
+            "The wearable rejected its signed owner receipt.",
+            { cause: error },
+          );
+        }
+        throw error;
+      }
 
-      const authorizationValue = await authorizationCharacteristic.readValue();
+      const authorizationValue = await withBleTimeout(
+        authorizationCharacteristic.readValue(),
+        BLE_CONNECT_TIMEOUT_MS,
+        "BLE telemetry challenge read",
+      );
       const authorizationChallenge = parseAuthorizationChallenge(
         new TextDecoder().decode(authorizationValue),
       );
@@ -164,18 +243,38 @@ export default function PairDevicePanel({
         throw new Error("The BLE authorization challenge belongs to another device.");
       }
       const { receipt: telemetryReceipt } =
-        await devicePairingApi.telemetryReceipt(
-          authorizationChallenge.deviceId,
-          authorizationChallenge.challengeId,
-          authorizationChallenge.nonce,
+        await withBleTimeout(
+          devicePairingApi.telemetryReceipt(
+            authorizationChallenge.deviceId,
+            authorizationChallenge.challengeId,
+            authorizationChallenge.nonce,
+          ),
+          BLE_AUTHENTICATION_TIMEOUT_MS,
+          "Telemetry authorization request",
         );
-      await authorizationCharacteristic.writeValueWithResponse(
-        new TextEncoder().encode(
-          serializeAuthorizationReceipt(telemetryReceipt),
-        ),
-      );
-      const telemetryCharacteristic = await service.getCharacteristic(
-        "6f2a0002-7b1c-4d90-a5e2-8c1d3f6a0001",
+      try {
+        await withBleTimeout(
+          authorizationCharacteristic.writeValueWithResponse(
+            new TextEncoder().encode(
+              serializeAuthorizationReceipt(telemetryReceipt),
+            ),
+          ),
+          BLE_CONNECT_TIMEOUT_MS,
+          "BLE telemetry receipt installation",
+        );
+      } catch (error) {
+        if (device.gatt.connected) {
+          throw new BleAuthorizationError(
+            "The wearable rejected its signed telemetry receipt.",
+            { cause: error },
+          );
+        }
+        throw error;
+      }
+      const telemetryCharacteristic = await withBleTimeout(
+        service.getCharacteristic("6f2a0002-7b1c-4d90-a5e2-8c1d3f6a0001"),
+        BLE_CONNECT_TIMEOUT_MS,
+        "BLE telemetry characteristic discovery",
       );
       stopNotifications = await subscribeToTelemetry(telemetryCharacteristic, {
         deviceId: qrData.deviceId,
@@ -201,11 +300,24 @@ export default function PairDevicePanel({
         deviceId: info.deviceId,
         server,
         stopNotifications,
+        statusCharacteristic,
+        initialDeviceStatus: parseDeviceStatus(
+          new TextDecoder().decode(
+            await withBleTimeout(
+              statusCharacteristic.readValue(),
+              BLE_CONNECT_TIMEOUT_MS,
+              "BLE device status refresh",
+            ),
+          ),
+        ),
       });
       keepConnection = true;
       setMessage(`${info.deviceId} was paired and telemetry link authorized.`);
     } catch (pairingError) {
       await stopNotifications?.();
+      onConnectionState?.(
+        isBleAuthorizationFailure(pairingError) ? "UNAUTHORIZED" : "DISCONNECTED",
+      );
       setError(pairingError?.message || "Device pairing failed.");
       setMessage("");
     } finally {

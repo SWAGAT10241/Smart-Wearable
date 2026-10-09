@@ -6,6 +6,8 @@ export const COMMAND_CHARACTERISTIC_UUID =
   "6f2a0003-7b1c-4d90-a5e2-8c1d3f6a0001";
 export const AUTHORIZATION_CHARACTERISTIC_UUID =
   "6f2a0007-7b1c-4d90-a5e2-8c1d3f6a0001";
+export const DEVICE_STATUS_CHARACTERISTIC_UUID =
+  "6f2a0004-7b1c-4d90-a5e2-8c1d3f6a0001";
 
 const UUID_V4_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -53,6 +55,53 @@ export function parseDeviceInformation(text) {
     throw new Error("The wearable uses an unsupported pairing protocol.");
   }
   return { ...info, deviceId: info.deviceId.toUpperCase() };
+}
+
+export function parseDeviceStatus(text) {
+  let status;
+  try {
+    status = JSON.parse(text);
+  } catch {
+    throw new Error("The wearable returned invalid device status.");
+  }
+
+  const sensorStates = ["ok", "unavailable", "fault", "not_integrated"];
+  if (
+    status?.protocolVersion !== 1 ||
+    !["KEY_READY", "PAIRED"].includes(status.deviceState) ||
+    typeof status.firmwareVersion !== "string" ||
+    !status.firmwareVersion ||
+    !Number.isSafeInteger(status.uptimeSeconds) ||
+    status.uptimeSeconds < 0 ||
+    !["PAIRING", "AUTHENTICATING", "AUTHORIZED"].includes(
+      status.connectionStatus,
+    ) ||
+    !["unavailable", "weak", "fair", "good"].includes(status.signalQuality) ||
+    (status.rssiDbm !== null &&
+      (!Number.isInteger(status.rssiDbm) ||
+        status.rssiDbm < -127 ||
+        status.rssiDbm > 20)) ||
+    (status.batteryPercent !== null &&
+      (!Number.isInteger(status.batteryPercent) ||
+        status.batteryPercent < 0 ||
+        status.batteryPercent > 100)) ||
+    (status.charging !== null && typeof status.charging !== "boolean") ||
+    !["ok", "unavailable", "fault", "not_integrated"].includes(
+      status.batteryHealth,
+    ) ||
+    !status.sensorHealth ||
+    typeof status.sensorHealth !== "object" ||
+    Array.isArray(status.sensorHealth) ||
+    !["heartRate", "spo2", "temperature"].every((sensor) =>
+      sensorStates.includes(status.sensorHealth[sensor]),
+    ) ||
+    !["normal", "elevated", "critical", "not_integrated"].includes(
+      status.riskEngineStatus,
+    )
+  ) {
+    throw new Error("The wearable uses an unsupported connection protocol.");
+  }
+  return status;
 }
 
 export function createPairingChallengePayload(challenge) {

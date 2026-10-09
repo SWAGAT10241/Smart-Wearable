@@ -38,7 +38,9 @@ async function request(path, { method = "GET", body, auth = false } = {}) {
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(data.error || `Request failed (${response.status})`);
+    const error = new Error(data.error || `Request failed (${response.status})`);
+    error.status = response.status;
+    throw error;
   }
   return data;
 }

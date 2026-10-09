@@ -165,7 +165,14 @@ function DeviceCard({ device, selected, onSelect, onRename, onStatusChange, onRe
 
 export default function Settings() {
   const { user, logout, refreshUser } = useAuth();
-  const { ingestTelemetryFrame, attachBleTelemetrySession } = useLiveData();
+  const {
+    ingestTelemetryFrame,
+    attachBleTelemetrySession,
+    bleConnectionState,
+    setBleConnectionState,
+    deviceStatus,
+    deviceStatusUpdatedAt,
+  } = useLiveData();
   const { theme, setLightTheme, setDarkTheme } = useTheme();
 
   const {
@@ -397,7 +404,109 @@ export default function Settings() {
             onPaired={refreshDevices}
             onTelemetry={ingestTelemetryFrame}
             onTelemetrySession={attachBleTelemetrySession}
+            onConnectionState={setBleConnectionState}
           />
+          <p
+            className="mb-4 text-xs text-[var(--color-text-secondary)]"
+            role="status"
+            aria-live="polite"
+          >
+            BLE connection: {bleConnectionState.toLowerCase().replaceAll("_", " ")}
+            {bleConnectionState === "STALE" &&
+              " — no valid telemetry has arrived for 60 seconds; displayed readings may be outdated."}
+            {bleConnectionState === "UNAUTHORIZED" &&
+              " — device authorization was rejected. Re-pair or verify device access."}
+          </p>
+          {deviceStatus && (
+            <div
+              className="mb-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4"
+              aria-label="Device status"
+            >
+              <div className="mb-3 flex items-baseline justify-between gap-3">
+                <h4 className="text-sm font-semibold text-[var(--color-text)]">
+                  Device status
+                </h4>
+                {deviceStatusUpdatedAt && (
+                  <span className="text-xs text-[var(--color-text-muted)]">
+                    Updated {new Date(deviceStatusUpdatedAt).toLocaleTimeString()}
+                  </span>
+                )}
+              </div>
+              <dl className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-3">
+                <div>
+                  <dt className="text-[var(--color-text-secondary)]">Device state</dt>
+                  <dd className="mt-1 font-medium text-[var(--color-text)]">
+                    {deviceStatus.deviceState}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--color-text-secondary)]">Device connection</dt>
+                  <dd className="mt-1 font-medium text-[var(--color-text)]">
+                    {deviceStatus.connectionStatus.toLowerCase()}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--color-text-secondary)]">Firmware</dt>
+                  <dd className="mt-1 font-medium text-[var(--color-text)]">
+                    {deviceStatus.firmwareVersion}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--color-text-secondary)]">Uptime</dt>
+                  <dd className="mt-1 font-medium text-[var(--color-text)]">
+                    {Math.floor(deviceStatus.uptimeSeconds / 3600)}h{" "}
+                    {Math.floor((deviceStatus.uptimeSeconds % 3600) / 60)}m
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--color-text-secondary)]">Battery</dt>
+                  <dd className="mt-1 font-medium text-[var(--color-text)]">
+                    {deviceStatus.batteryHealth === "not_integrated"
+                      ? "Not integrated"
+                      : deviceStatus.batteryPercent === null
+                        ? "Unavailable"
+                        : `${deviceStatus.batteryPercent}%`}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--color-text-secondary)]">Charging</dt>
+                  <dd className="mt-1 font-medium text-[var(--color-text)]">
+                    {deviceStatus.charging === null
+                      ? "Unavailable"
+                      : deviceStatus.charging
+                        ? "Charging"
+                        : "Not charging"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--color-text-secondary)]">Signal strength</dt>
+                  <dd className="mt-1 font-medium text-[var(--color-text)]">
+                    {deviceStatus.rssiDbm === null
+                      ? "Unavailable in this browser"
+                      : `${deviceStatus.rssiDbm} dBm`}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--color-text-secondary)]">Risk engine</dt>
+                  <dd className="mt-1 font-medium text-[var(--color-text)]">
+                    {deviceStatus.riskEngineStatus}
+                  </dd>
+                </div>
+              </dl>
+              <div className="mt-3 border-t border-[var(--color-border)] pt-3 text-xs">
+                <div className="font-medium text-[var(--color-text-secondary)]">
+                  Sensor health
+                </div>
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[var(--color-text)]">
+                  {Object.entries(deviceStatus.sensorHealth).map(([sensor, health]) => (
+                    <span key={sensor}>
+                      {sensor}: {health.replaceAll("_", " ")}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Device list */}
           {devicesLoading ? (

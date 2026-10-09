@@ -204,7 +204,7 @@ release, reserve/replace this namespace with UUIDs generated for the product.
 | TrailGuard primary service | `6f2a0001-7b1c-4d90-a5e2-8c1d3f6a0001` | — | Contains the characteristics below |
 | Telemetry | `6f2a0002-7b1c-4d90-a5e2-8c1d3f6a0001` | Notify; authenticated app subscribes | Versioned telemetry envelope; max 512 bytes per encoded message |
 | Command/control | `6f2a0003-7b1c-4d90-a5e2-8c1d3f6a0001` | Authenticated write | Allow-listed commands only; never accept arbitrary firmware or owner changes |
-| Device status | `6f2a0004-7b1c-4d90-a5e2-8c1d3f6a0001` | Authenticated read + notify | State, uptime, firmware, sensor health, risk-engine state |
+| Device status | `6f2a0004-7b1c-4d90-a5e2-8c1d3f6a0001` | Encrypted read; app polls every 30 seconds | Protocol/device/connection state, uptime, firmware, battery and charging status, sensor health, risk-engine state, optional RSSI |
 | Battery | `6f2a0005-7b1c-4d90-a5e2-8c1d3f6a0001` | Authenticated read + notify | Charge percent 0–100, charging flag, battery-health enum |
 | Device information | `6f2a0006-7b1c-4d90-a5e2-8c1d3f6a0001` | Authenticated read | `deviceId`, model, firmware, protocol version; no credentials |
 | Authorization | `6f2a0007-7b1c-4d90-a5e2-8c1d3f6a0001` | Encrypted read/write | Per-connection device nonce/challenge and backend-signed owner/session receipts |
@@ -297,20 +297,41 @@ drivers and radio-level verification remain outstanding.
 
 ### Connection state and retries
 
-States: `DISCONNECTED → SCANNING → CONNECTING → AUTHENTICATING → CONNECTED`,
-with any failure/disconnect returning to `DISCONNECTED`. Pairing is a separate
-short-lived flow and does not imply an ongoing data connection.
+States: `DISCONNECTED → SCANNING → CONNECTING → AUTHENTICATING → CONNECTED`.
+Unexpected loss enters `RECONNECTING`; no valid telemetry for the stale
+deadline enters `STALE`; a backend authorization rejection enters
+`UNAUTHORIZED` and stops retries. Pairing is a separate short-lived flow and
+does not imply an ongoing data connection.
 
-* Connection timeout: 15 seconds; authentication timeout: 10 seconds.
-* On unexpected disconnect, retain local data and retry after 1, 2, 4, 8, 16,
-  then 30 seconds. Continue at the 30-second interval while the app session
-  remains active; stop when the session is disposed or the selected device
-  changes.
-* Mark connection stale after 60 seconds without an authenticated status
-  heartbeat. Surface stale/offline state; do not fabricate live values.
-* On reconnect, negotiate protocol version and resume from the last acknowledged
-  sequence. Deduplication makes retries safe. Do not forward the replayed
-  history to the cloud during normal operation.
+* Each GATT connection attempt has a 15-second timeout. Reconnect receipt
+  authorization has a 10-second timeout. Timed-out attempts are abandoned; any
+  late connection is immediately closed. A paired device also terminates an
+  encrypted connection if its fresh telemetry receipt is not accepted within
+  10 seconds.
+* On unexpected disconnect or retryable connection failure, retry after 1, 2,
+  4, 8, 16, then 30 seconds. Continue at 30 seconds while the app session is
+  active. Stop on session disposal, selected-device change, or backend
+  authorization rejection (HTTP 401/403/404).
+* The current firmware's five-second telemetry notification is the live-data
+  heartbeat. Mark the stream stale after 60 seconds without a valid
+  notification and surface an explicit stale state. Retain current readings in
+  dashboard memory while stale, but never label them fresh or fabricate updates.
+  Changing the selected device clears its displayed readings.
+* Every connection requires a fresh device challenge and signed telemetry
+  receipt before notifications are enabled. The client reads device status
+  and negotiates protocol version 1 on pairing and every reconnect. The current
+  protocol has no history replay or acknowledged-sequence resume: each
+  authorized connection establishes a new sequence baseline, validates
+  protocol-v1 frames, and deduplicates within that stream. Unsupported frames
+  are rejected by the validator. Normal-mode telemetry remains app-side and is
+  not uploaded to the cloud.
+* Authorization expiry closes the BLE session; the app reconnects and obtains
+  a new receipt rather than continuing to treat an expired session as live.
+* Device status is refreshed on connect and every 30 seconds. Battery,
+  charging, and sensor values remain explicitly `null`/`not_integrated` until
+  drivers are connected. Web Bluetooth does not expose RSSI; signal strength
+  therefore reports `unavailable`, while the app surfaces link state and
+  telemetry staleness separately.
 
 ## 5. Local-first storage and privacy
 
