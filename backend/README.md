@@ -1,4 +1,4 @@
-# TrailGuard Backend
+# SWAAS Backend
 
 Backend API and realtime service for **Smart Wearable Safety & Health Monitoring System**.
 
