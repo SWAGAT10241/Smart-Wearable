@@ -209,15 +209,46 @@ release, reserve/replace this namespace with UUIDs generated for the product.
 | Device information | `6f2a0006-7b1c-4d90-a5e2-8c1d3f6a0001` | Authenticated read | `deviceId`, model, firmware, protocol version; no credentials |
 | Authorization | `6f2a0007-7b1c-4d90-a5e2-8c1d3f6a0001` | Encrypted read/write | Per-connection device nonce/challenge and backend-signed owner/session receipts |
 
-All characteristics require an encrypted link after pairing. LE Secure
-Connections Just Works encrypts the link but does not authenticate the peer;
-the device additionally verifies the backend-signed owner receipt and
-single-use telemetry receipt bound to the current connection challenge.
-Control writes require application-level authorization and an allow-list.
+### BLE security model
+
+All characteristics require an encrypted, authenticated link after pairing. Control
+writes require application-level authorization and an explicit command allow-list.
 Pairing advertisements disclose no user identity, location, or health data.
-Use LE Secure Connections, fresh bonded keys, and explicit bond deletion on
-unpair/revoke; reject downgrade to legacy pairing. Unpair/revoke bond deletion
-is not yet synchronized to the current firmware.
+
+* **Pairing security mode and peer authentication:** Bluetooth LE Security Mode 1,
+  Security Level 4 (LE Secure Connections pairing with Elliptic Curve Diffie-Hellman
+  P-256 key agreement and authenticated Out-Of-Band [OOB] or Numeric Comparison confirmation).
+  Where Just Works encryption is negotiated, the link is encrypted but the peer is not
+  yet authenticated; the wearable additionally requires verification of the backend-signed
+  owner receipt and single-use telemetry receipt bound to the current connection challenge
+  via characteristic `6f2a0007` before enabling telemetry notifications. Downgrade to
+  legacy pairing is strictly rejected.
+* **Link encryption:** 128-bit AES-CCM link-layer encryption is mandatory for all
+  subsequent GATT communication after pairing. Unencrypted read, write, or notify
+  requests are rejected with `GATT_INSUFFICIENT_ENCRYPTION`.
+* **Authenticated characteristic permissions:**
+  - `Telemetry` (`6f2a0002`): Authenticated notify only. Notifications are disabled
+    until the client affirms an active, authenticated paired link and presents valid receipts.
+  - `Command/control` (`6f2a0003`): Authenticated write only with payload signature
+    and command allow-list (e.g. calibration, ping, pairing challenge proof).
+  - `Device status` (`6f2a0004`): Encrypted read; polled every 30 seconds for state, uptime,
+    firmware, battery and charging status, sensor health, and risk-engine state.
+  - `Battery` (`6f2a0005`): Authenticated read and notify.
+  - `Device information` (`6f2a0006`): Authenticated read during normal operation;
+    unbonded read permitted exclusively during the active 60-second pairing window
+    initiated by physical activation button press.
+  - `Authorization` (`6f2a0007`): Encrypted read/write for connection challenge and
+    backend-signed owner and session receipts.
+* **Bond lifecycle and revocation:** The Long Term Key (LTK) generated during LESC
+  pairing is stored in hardware-backed secure storage (e.g. ESP32 encrypted NVS).
+  On device unpairing or revocation, the companion app and wearable explicitly
+  erase bonded keys. Stale, mismatched, or revoked bonding credentials trigger
+  immediate disconnection and require full reprovisioning and re-pairing.
+* **Replay and spoofing protection:** Telemetry frames over BLE are authenticated by
+  the established LESC link layer and sequenced at the application layer with a
+  random `bootId` and strictly monotonic 32-bit sequence counter. Spoofed, replayed,
+  or out-of-order packets outside the 32-frame buffer window are rejected.
+
 
 ### Telemetry envelope
 
@@ -642,6 +673,22 @@ the minimum audit record until its expiry. Deleting a device's cloud
 emergency package never deletes the device revocation identity or security
 audit metadata before their defined retention expires.
 
+### Uniqueness constraints
+
+To guarantee data integrity, prevent race conditions, and block unauthorized device claiming or session collision, the database enforces the following strict uniqueness constraints:
+
+| Collection / Model | Target Field(s) | Index Definition & Options | Security and Invariant Purpose |
+|---|---|---|---|
+| `Device` | `deviceId` | `{ deviceId: 1 }`, `unique: true` | Guarantees hardware identity uniqueness across the fleet. Rejects duplicate provisioning of the same physical unit. Normalized to uppercase UUIDv4. |
+| `DevicePairing` | `challengeId` | `{ challengeId: 1 }`, `unique: true` | Ensures pairing challenges are globally unique and prevents collision or re-use of active challenges. |
+| `DeviceOwnership` | `deviceId`, `endedAt` | `{ deviceId: 1, endedAt: 1 }`, `unique: true, partialFilterExpression: { endedAt: null }` | **Single-owner invariant:** Strictly guarantees at most one active owner (`endedAt: null`) per device at any time. Race conditions attempting simultaneous pairing fail atomically with a unique key violation (`E11000`). |
+| `EmergencySession` | `sessionId` | `{ sessionId: 1 }`, `unique: true` | Prevents session ID collisions and blocks unauthorized access through predictable or duplicate identifiers (192-bit entropy). |
+| `EmergencySession` | `deviceId`, `state` | `{ deviceId: 1, state: 1 }`, `unique: true, partialFilterExpression: { state: "ACTIVE" }` | **Single active emergency invariant:** Prevents multiple concurrent active emergency sessions for the same device; repeated triggers update the existing session idempotently. |
+| `User` | `email` | `{ email: 1 }`, `unique: true` | Normalized lowercase email. Guarantees singular account identity and blocks account impersonation / collision. |
+| `DeviceAuthNonce` | `deviceId`, `nonce` | `{ deviceId: 1, nonce: 1 }`, `unique: true`, TTL index on `expiresAt` | **Replay prevention:** Enforces single-use verification for cryptographic device nonces within the ±5-minute window; replayed nonces reject with duplicate key error. |
+
+Uniqueness constraints are backed by database-level unique indexes in MongoDB, ensuring that application-level concurrency races cannot violate system invariants.
+
 `DevicePairing.bootstrapTokenHash` and challenge nonce are single-use; enforce
 atomic compare-and-set consumption and TTL, not just application-side checks.
 `EmergencySession.sessionId` must have at least 192 bits of randomness.
@@ -703,41 +750,144 @@ not indexed or returned unless required.
 10. Expired credentials/sessions cannot be renewed implicitly or read through a
     stale cache.
 
-## 10. API and emergency flow diagrams
+## 10. Architecture diagrams
+
+### BLE communication and reconnection sequence
 
 ```mermaid
 sequenceDiagram
-  actor U as Owner
-  participant A as Companion app
-  participant B as Backend
-  participant R as Rescue web
-  U->>A: Confirm SOS / receive signed fall event
-  A->>A: Stage only allowed recent local data
-  A->>B: Create session + bounded package (user token)
-  B->>B: Verify owner/device, validate payload, set ACTIVE
-  B-->>A: Active session + opaque ID
-  U->>B: Invite verified responder
-  B-->>R: One-use short-lived invitation
-  R->>B: Exchange invitation
-  B-->>R: Session-scoped short-lived grant
-  R->>B: Read active session (grant checked each request)
-  B-->>R: Minimum rescue data
-  U->>B: Resolve/cancel, or backend expiry
-  B->>B: Revoke grants; deny reads; delete package
+  actor U as User
+  participant W as Wearable
+  participant A as Companion App
+  participant N as OS Bluetooth Stack
+  U->>W: Press physical activation button
+  W->>W: Open pairing window (60s timeout)
+  W-->>N: BLE advertisement (service 6f2a0001)
+  A->>N: Scan and discover Wearable
+  A->>W: Initiate BLE connection
+  W-->>A: Connected
+  A->>W: Start LESC pairing (ECDH P-256)
+  W->>A: Numeric Comparison / OOB confirmation
+  U->>A: Confirm pairing match
+  W-->>A: Link encrypted (128-bit AES-CCM) and bonded
+  A->>W: Subscribe to Telemetry characteristic (6f2a0002)
+  loop Continuous Telemetry (Normal Mode)
+    W->>A: Notify frame (bootId, sequence, timestamp, payload <= 512B)
+    A->>A: Validate schema & sequence continuity
+    A->>A: Persist to encrypted local SQLite (7-day rolling)
+  end
+  Note over W,A: Disconnect and Reconnection Routine
+  W-x A: Connection lost (out of range / low battery)
+  A->>A: Transition to DISCONNECTED; start exponential backoff (1s, 2s, 4s...)
+  A->>W: Reconnect & verify bonded key
+  W-->>A: Reconnected; resume telemetry stream from last acknowledged sequence
 ```
+
+### User → Device ownership entity diagram
+
+```mermaid
+flowchart TD
+  U["User (Account)"] -->|1 : N| O["DeviceOwnership Record"]
+  D["Device (Hardware UUID)"] -->|1 : N| O
+  D -->|1 : 1 current| S{"Active Owner Invariant"}
+  S -->|"Unique partial index: { deviceId: 1, endedAt: null }"| O
+  P["DevicePairing Challenge"] -->|"Atomically consumes token & establishes"| O
+  P -. "Validates Ed25519 signature proof" .-> D
+  U -. "Authenticated account session" .-> P
+```
+
+### API authentication and authorization flow
+
+```mermaid
+flowchart TD
+  REQ["Incoming HTTPS Request"] --> TLS["TLS 1.2+ Edge Termination"]
+  TLS --> SEC["Helmet Security Headers & CORS Policy"]
+  SEC --> ROUTE{"Route Type"}
+
+  ROUTE -->|"Device Telemetry (/api/device/readings)"| D_AUTH["deviceAuth Middleware"]
+  D_AUTH --> SIG_CHK{"Verify Ed25519 Canonical Signature & Body Digest"}
+  SIG_CHK -->|"Invalid"| D_401["401 INVALID_CREDENTIAL"]
+  SIG_CHK -->|"Valid"| SKEW_CHK{"Clock Skew Window Check (±5 minutes)"}
+  SKEW_CHK -->|"Outside window"| D_SKEW["401 TIMESTAMP_OUT_OF_RANGE"]
+  SKEW_CHK -->|"Within window"| NONCE_CHK{"Atomic Nonce Deduplication in DeviceAuthNonce"}
+  NONCE_CHK -->|"Duplicate"| D_REPLAY["409 REPLAY_DETECTED"]
+  NONCE_CHK -->|"Fresh"| D_DEV{"Verify Device State == PAIRED"}
+  D_DEV -->|"REVOKED / UNREGISTERED"| D_FORBID["403 FORBIDDEN"]
+  D_DEV -->|"Valid active device"| D_EXEC["Execute Ingestion Controller"]
+
+  ROUTE -->|"User & Device APIs (/api/devices)"| U_AUTH["authMiddleware JWT Verification"]
+  U_AUTH --> JWT_CHK{"Verify JWT Signature, Exp, Issuer, Subject"}
+  JWT_CHK -->|"Invalid / Expired"| U_401["401 AUTHENTICATION_REQUIRED"]
+  JWT_CHK -->|"Valid"| RBAC{"authorizeRole Middleware"}
+  RBAC -->|"Unauthorized role"| U_403["403 FORBIDDEN"]
+  RBAC -->|"Permitted role"| OWN_CHK{"Server-side Ownership: Device.userId == req.userId"}
+  OWN_CHK -->|"Mismatch"| U_404["404 NOT_FOUND (Non-enumerating)"]
+  OWN_CHK -->|"Matches owner / Admin"| U_EXEC["Execute Management Controller"]
+
+  ROUTE -->|"Rescue Emergency Web (/emergency-sessions)"| R_AUTH["Verify Session-Scoped Rescue Grant"]
+  R_AUTH --> R_CHK{"Validate Grant Token & Session State == ACTIVE"}
+  R_CHK -->|"Invalid / Expired / Cancelled"| R_404["404 NOT_FOUND"]
+  R_CHK -->|"Valid grant"| R_EXEC["Return Bounded Emergency Package"]
+
+  D_EXEC --> AUDIT["Append to AuditLog (Opaque IDs, redacted payload)"]
+  U_EXEC --> AUDIT
+  R_EXEC --> AUDIT
+  AUDIT --> RES["Send Standard Response Envelope { data, requestId }"]
+```
+
+### Local-first storage and normal-mode boundary
 
 ```mermaid
 flowchart LR
-  subgraph Local["Wearable + companion app (normal mode)"]
-    S[Sensors and risk engine] --> L[Encrypted local 7-day store]
-    L --> UI[Owner's local view]
+  subgraph Local["Wearable + Companion App (Normal Operation)"]
+    S["Sensors (MAX30100, MPU6050, GPS)"] --> WB["Wearable Ring Buffer"]
+    WB -->|Authenticated BLE Notify| AM["App BLE Manager"]
+    AM --> DB[("Encrypted Local SQLite Store\n(SQLCipher, 7-Day Rolling)")]
+    DB --> UI["User Local Dashboard UI"]
   end
-  L -. no routine health/location upload .-> Cloud
-  S -->|Emergency trigger| E[Stage last 6 hours + minimum status]
-  UI -->|Owner confirmation or configured automatic emergency| E
-  E -->|Authorized, bounded upload| Cloud[Backend active emergency package]
-  Cloud -->|Explicit short-lived grant only| Rescue[Authorized rescue user]
-  Cloud -->|Terminal state: deny immediately; purge payload ≤24h| Purge[Deletion job]
+
+  DB -. "NO CONTINUOUS CLOUD UPLOAD\n(Normal Mode Air-Gap)" .x CLOUD["Cloud Backend"]
+
+  subgraph EmergencyMode["Emergency Authorization Path"]
+    S -->|Fall Event / Risk Engine / SOS| STAGE["Stage Last 6 Hours + Status"]
+    UI -->|User Manual SOS / Confirmation| STAGE
+    STAGE -->|TLS Upload with User Token / Device Proof| CLOUD
+    CLOUD --> ACT["Active Emergency Session\n(Max 24h Hard Expiry)"]
+    ACT -->|Single-Use 15m Invite| RW["Rescue Web\n(Scoped Responder Grant)"]
+    ACT -->|Terminal state / Expiry| DEL["Automatic Purge Job\n(Payload deleted <= 24h)"]
+  end
+```
+
+### Emergency session lifecycle sequence
+
+```mermaid
+sequenceDiagram
+  actor U as Device Owner
+  participant A as Companion App
+  participant B as Backend API
+  participant R as Rescue Web Responder
+  U->>A: Confirm SOS / receive wearable fall event
+  A->>A: Stage bounded package (last 6 hours telemetry & location)
+  A->>B: POST /api/v1/emergency-sessions (User JWT)
+  B->>B: Validate payload, verify ownership, transition to ACTIVE
+  B-->>A: Emergency session created (192-bit sessionId)
+  U->>B: POST /emergency-sessions/{sessionId}/invitations
+  B-->>R: Single-use 15-minute invitation token
+  R->>B: POST /emergency-invitations/{token}/exchange
+  B->>B: Invalidate invitation; issue 15-minute scoped rescue grant
+  B-->>R: Scoped rescue grant
+  R->>B: GET /emergency-sessions/{sessionId} (Rescue grant)
+  B-->>R: Bounded emergency data package (no routine history)
+  alt Owner or Responder Resolves
+    U->>B: POST /emergency-sessions/{sessionId}/resolve
+    B->>B: Transition to RESOLVED; revoke all rescue grants
+  else Owner Cancels
+    U->>B: POST /emergency-sessions/{sessionId}/cancel
+    B->>B: Transition to CANCELLED; revoke all rescue grants
+  else 24-Hour Timeout Reached
+    B->>B: Authoritative timer transitions session to EXPIRED; revoke grants
+  end
+  B->>B: Reads denied immediately; purge job hard-deletes payload <= 24 hours
 ```
 
 ## 11. Verification plan
@@ -812,3 +962,71 @@ Production rollout is blocked until device credentials are provisioned
 securely, normal-mode telemetry is local-only, emergency endpoints enforce
 session-scoped access and expiry, retention/deletion jobs are monitored, and
 the security tests in §11 pass.
+
+## 13. Day 3 exit criteria and concrete architectural answers
+
+Day 3 must not move to implementation until the following questions have concrete, definitive answers documented and verified against the architecture contract:
+
+### 1. How does a device prove that it is the legitimate device?
+The device holds a unique Ed25519 private key generated in secure hardware during trusted manufacturing provisioning. The backend stores only the matching SPKI public key (`Device.publicKey`) and key version. When authenticating telemetry or pairing challenges, the device signs a canonical request containing the HTTP method, path, request body digest (SHA-256), timestamp, and a fresh nonce. The backend verifies this digital signature using the pre-enrolled public key. The private key never leaves the physical wearable hardware.
+
+### 2. How does a user prove ownership of a device?
+Ownership is established through an authenticated multi-factor ceremony: (1) an authenticated user account session (verified JWT), (2) possession of the sealed 256-bit bootstrap QR token (valid for 30 days from factory provisioning), (3) physical button activation on the device within a 60-second window, and (4) cryptographic signature of a backend-issued challenge nonce by the device's hardware key. The backend transactionally binds `userId` to `deviceId` in `Device` and `DeviceOwnership`. Subsequent user actions require the user's JWT, and the backend verifies `Device.userId === req.userId` server-side on every request.
+
+### 3. Why can’t knowing deviceId claim a device?
+`deviceId` is public, non-secret metadata (a UUIDv4 identifier). Claiming a device requires: (1) an active, verified user account session, (2) the sealed single-use 256-bit bootstrap token matching the provisioned `bootstrapTokenHash`, (3) physical proximity and manual depression of the hardware pairing button to open the BLE advertising window, and (4) an Ed25519 signature generated by the hardware device signing the fresh 256-bit challenge nonce issued by the backend. A malicious actor possessing only the `deviceId` cannot generate the challenge signature or produce the unhashed bootstrap token, and is rejected with `404` or `401`.
+
+### 4. How does BLE pairing prevent unauthorized connections?
+The wearable does not continuously advertise in connectable mode. Pairing mode is opened exclusively via a manual physical button press and automatically terminates after 60 seconds. Pairing enforces Bluetooth LE Security Mode 1, Level 4 (LE Secure Connections using Elliptic Curve Diffie-Hellman P-256 key exchange) with authenticated Numeric Comparison / Out-Of-Band (OOB) confirmation, prohibiting legacy unauthenticated "Just Works" pairing. All subsequent GATT characteristics (telemetry, control, status, battery) require bonded 128-bit AES-CCM link-layer encryption.
+
+### 5. What data remains local during normal operation?
+All continuous vital signs (heart rate, SpO2, skin temperature, GSR), motion and posture data (MPU6050 accelerometer and gyroscope samples), environmental readings (temperature, humidity, atmospheric pressure), GPS location breadcrumbs, and routine risk engine assessments remain strictly stored in the companion app's encrypted local SQLite database (SQLCipher) under a rolling 7-day retention window. None of this data is continuously uploaded to the cloud backend during normal operation.
+
+### 6. What exact data leaves the app during an emergency?
+Only the strictly bounded emergency data package: (1) `sessionId` (192-bit opaque random token), (2) emergency trigger metadata (source: wearable risk engine / app / manual SOS, type, timestamp), (3) latest location and recent location trail from at most the preceding **6 hours**, (4) latest vitals and relevant telemetry from at most the preceding **6 hours**, (5) current device status (battery percentage, sensor health flags, firmware version), and (6) user display name and emergency contact callback (only if authorized). Older routine history (>6 hours), passwords, private keys, authentication tokens, and unrelated personal data never leave the app.
+
+### 7. Who can access an emergency session?
+Only two parties: (1) The device owner (authenticated via their user JWT), and (2) Authorized emergency responders who have received an explicit session-specific invitation and exchanged it for a short-lived (15-minute), session-scoped rescue grant. General users, unauthenticated clients, and rescue users without a valid grant for that specific `sessionId` cannot view or query the session.
+
+### 8. How does an emergency session expire?
+An active emergency session has a strict, authoritative server-enforced expiration deadline of at most **24 hours** from creation (`expiresAt = createdAt + 24h`). It cannot be extended or renewed implicitly. Once `expiresAt` is reached or the session is explicitly marked `RESOLVED` or `CANCELLED`, the server immediately rejects all subsequent read and write requests with `404` or `410`.
+
+### 9. How are revoked devices/users blocked?
+* **Revoked devices:** A device in state `REVOKED` is permanently denied authentication. `deviceAuthMiddleware` verifies device state on every telemetry request and rejects revoked devices with `403 FORBIDDEN`. Pairing challenges cannot be created for revoked devices.
+* **Revoked users:** User revocation invalidates all issued JWTs and refresh tokens; `authMiddleware` checks user account status against the database on each authenticated request and terminates active sessions immediately.
+
+### 10. How is horizontal privilege escalation prevented?
+Every backend route enforcing resource access applies a strict server-side ownership predicate. User device routes filter by `{ deviceId: normalizedDeviceId, userId: req.userId }`. The backend never trusts client-supplied `userId` parameters in request bodies or query strings to determine resource access. If a user attempts to access or modify a device or session belonging to another user, the server returns a non-enumerating `404 Not Found`.
+
+### 11. How are API requests authenticated?
+* **User/App requests:** Authenticated via short-lived JSON Web Tokens (15-minute validity) passed in the `Authorization: Bearer <token>` header, verified for cryptographic signature, issuer, audience, and expiration. Refresh tokens are opaque, stored as SHA-256 hashes, and rotated on every exchange.
+* **Device telemetry requests:** Authenticated using canonical Ed25519 HTTP signatures generated by the hardware device private key, verified via `X-Device-Id`, `X-Device-Timestamp`, `X-Device-Nonce`, and `X-Device-Signature` headers with raw request body SHA-256 digest validation.
+
+### 12. How are API requests authorized?
+Following successful authentication, authorization is enforced in three sequential tiers: (1) Role-Based Access Control via `authorizeRole` middleware checking user roles (`citizen`, `responder`, `coordinator`, `admin`) against required permissions, (2) Resource Ownership verification matching the authenticated identity (`req.userId`) against database resource records, and (3) Session-Scoped Grant verification for emergency rescue operations. Requests failing any check are denied by default (`403` or `404`).
+
+### 13. How are pairing and replay attacks prevented?
+* **Pairing attacks:** Pairing tokens are single-use 256-bit secrets stored as SHA-256 hashes; challenges include a fresh 256-bit nonce with a 5-minute TTL; pairing completion atomically consumes the challenge and bootstrap token within a database transaction; rate limits enforce a maximum of 5 failed signature attempts per challenge and 10 requests per account per 15 minutes before temporary lockout.
+* **Device telemetry replay attacks:** Telemetry requests require an RFC 3339 timestamp strictly within a ±5-minute window of server time. Every request nonce is recorded in the `DeviceAuthNonce` collection with a unique compound index `{ deviceId: 1, nonce: 1 }` and a MongoDB TTL index. Any duplicated nonce within the valid window is rejected with `409 REPLAY_DETECTED`.
+
+### 14. How are sensitive operations audited?
+All security-sensitive operations (device provisioning, pairing challenge creation, pairing completion, unpairing, device status changes, administrative actions, emergency session creation, responder invitations, invitation exchanges, and cancellations/resolutions) write an append-only entry to `AuditLog`. Each entry includes `eventId`, `actorType`, `actorId`, `action`, `targetId`, `timestamp`, `result`, `requestId`, and client IP. Audit records cannot be modified or deleted through application APIs.
+
+### 15. How is sensitive data prevented from appearing in logs?
+The application logging middleware strictly sanitizes and redacts all sensitive fields: `Authorization` headers, cookies, raw bootstrap QR tokens, pairing challenge nonces, digital signatures, GPS coordinates, vital sign readings, phone numbers, and emergency package request bodies. Logs contain only high-level structural metadata: HTTP method, path, response status code, elapsed duration, request ID, and opaque resource identifiers.
+
+### 16. What happens when the network is unavailable?
+The system operates autonomously in local-first mode. All sensor sampling, telemetry buffering, and on-device risk engine evaluations continue without disruption. Data is saved to the companion app's local encrypted SQLite database. If an emergency is triggered while offline, the app queues the emergency package locally and initiates automatic retries with exponential backoff while alerting the user that cloud transmission is pending network availability.
+
+### 17. What happens when BLE disconnects?
+When the BLE link disconnects, the wearable continues sampling and buffers telemetry frames in its internal circular ring buffer. The companion app transitions its connection state machine to `DISCONNECTED` and immediately surfaces a disconnected status indicator in the UI without fabricating data. The app initiates automatic background reconnection using exponential backoff with jitter (1s, 2s, 4s, 8s, 16s, 30s) up to 10 attempts. Upon reconnecting and verifying the bonded link, telemetry stream sequencing resumes from the last acknowledged sequence number.
+
+### 18. What happens when a device is already paired?
+If a user attempts to initiate a pairing challenge for a device currently in the `PAIRED` state: (1) If requested by an unauthorized user, the backend returns a generic conflict error (`404` or `409 DEVICE_STATE_CONFLICT`) without revealing owner information; (2) If requested by the existing owner, the dashboard notifies them that the device is already paired to their account. A device cannot be claimed by a new owner without the current owner first unpairing it or an authorized administrative recovery.
+
+### 19. What happens when a device is revoked?
+When a device is revoked by an administrator, its state transitions permanently to `REVOKED`. The backend immediately invalidates all active pairing challenges, terminates active emergency sessions associated with the device, and writes an audit event. Any subsequent telemetry or pairing requests signed by the device are rejected with `403 FORBIDDEN`. A revoked device cannot transition back to `PROVISIONED` or `PAIRED`; replacement requires enrolling a new physical device record.
+
+### 20. What happens when an emergency session expires?
+When an active emergency session reaches its 24-hour lifetime limit, it transitions authoritatively to the terminal `EXPIRED` state. All active rescue responder grants are immediately revoked. Any subsequent attempt to read or modify the emergency session returns `404` or `410`. An automated asynchronous cleanup job permanently purges the stored emergency telemetry and location package within 24 hours of expiration, retaining only minimal non-sensitive audit metadata for 30 days.
+

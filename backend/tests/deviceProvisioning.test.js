@@ -69,9 +69,9 @@ describe("device provisioning", () => {
 
   test("requires a UUIDv4 device identity", () => {
     expect(() => validateDeviceId("TG-000001")).toThrow("valid UUIDv4");
-    expect(() => validateDeviceId("b3fdc7e3-995b-4f32-1d37-c8aaf9bb9f2a")).toThrow(
-      "valid UUIDv4",
-    );
+    expect(() =>
+      validateDeviceId("b3fdc7e3-995b-4f32-1d37-c8aaf9bb9f2a"),
+    ).toThrow("valid UUIDv4");
   });
 
   test("accepts only Ed25519 SPKI public keys", () => {
@@ -92,7 +92,9 @@ describe("device provisioning", () => {
     duplicate.code = 11000;
     mockDeviceCreate.mockRejectedValue(duplicate);
 
-    await expect(provisionDevice({ deviceId, publicKeyPem })).rejects.toBe(duplicate);
+    await expect(provisionDevice({ deviceId, publicKeyPem })).rejects.toBe(
+      duplicate,
+    );
     expect(mockDeviceFindOneAndUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
         deviceId: deviceId.toUpperCase(),
@@ -160,12 +162,12 @@ describe("device provisioning", () => {
         "--qr-output",
         "private/device.svg",
       ]),
-      ).toEqual({
-        deviceId,
-        publicKeyFile: "device-public.pem",
-        deviceName: "TrailGuard One",
-        qrOutput: "private/device.svg",
-      });
+    ).toEqual({
+      deviceId,
+      publicKeyFile: "device-public.pem",
+      deviceName: "TrailGuard One",
+      qrOutput: "private/device.svg",
+    });
     expect(() => parseArguments(["--bootstrap-token", "secret"])).toThrow(
       "Unknown argument",
     );
