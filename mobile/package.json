@@ -5,7 +5,11 @@
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
-    "ios": "expo start --ios"
+    "ios": "expo start --ios",
+    "check:syntax": "node scripts/check-syntax.js",
+    "doctor": "npx expo-doctor",
+    "export:check": "npx expo export -p android --no-bytecode",
+    "check": "node scripts/check-syntax.js && npx expo-doctor"
   },
   "dependencies": {
     "@react-navigation/bottom-tabs": "^6.5.0",
