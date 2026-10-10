@@ -191,18 +191,30 @@ git status
 
 Make sure no real credentials, tokens, private keys, or local environment files are staged.
 
-## 🛠️ Development Workflow
+## 🛠️ Development & CI/CD Workflow
 
 ```bash
 # Install dependencies
 pnpm install --frozen-lockfile
 
-# Validate Expo project
-npx expo-doctor
+# Validate JS syntax across all mobile files
+pnpm run check:syntax
+
+# Validate Expo project health and dependency compatibility
+pnpm run doctor
+
+# Validate production bundle export
+pnpm run export:check
+
+# Run full project check
+pnpm run check
 
 # Start development server
 pnpm exec expo start -c
 ```
+
+Automated validation for the mobile app runs on every push and pull request to `main` via the GitHub Actions [Smart-Wearable CI](.github/workflows/ci.yml) workflow.
+
 
 ## 📌 Current Status
 
