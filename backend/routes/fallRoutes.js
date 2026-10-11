@@ -1,9 +1,11 @@
 const express = require("express");
 const protect = require("../middleware/authMiddleware");
+const { queryLimiter } = require("../middleware/rateLimiter");
 const fallController = require("../controllers/fallController");
 
 module.exports = function (broadcast) {
   const router = express.Router();
+  router.use(queryLimiter);
   router.use(protect);
 
   // GET /api/falls

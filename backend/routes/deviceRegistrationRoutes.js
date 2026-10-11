@@ -1,7 +1,7 @@
 const express = require("express");
 const crypto = require("crypto");
-const rateLimit = require("express-rate-limit");
 const mongoose = require("mongoose");
+const { createLimiter } = require("../middleware/rateLimiter");
 
 const Device = require("../models/Device");
 const DevicePairing = require("../models/DevicePairing");
@@ -43,12 +43,10 @@ function pairingMessage({ challengeId, deviceId, userId, nonce, expiresAt }) {
 }
 
 function userPairingLimiter() {
-  return rateLimit({
+  return createLimiter({
     windowMs: 15 * 60 * 1000,
     limit: 10,
     keyGenerator: (req) => String(req.userId),
-    standardHeaders: true,
-    legacyHeaders: false,
     message: { error: "Too many pairing attempts. Please try again later." },
   });
 }
