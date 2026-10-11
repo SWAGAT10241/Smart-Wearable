@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FiLink, FiX } from "react-icons/fi";
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
 import { MdHistory } from "react-icons/md";
@@ -15,42 +15,14 @@ const NAV_ITEMS = [
 ];
 
 export default function Sidebar() {
-  const { selectedDevice, registerDevice, removeDevice } = useDevices();
+  const { selectedDevice, removeDevice } = useDevices();
+  const navigate = useNavigate();
 
-  const [showPairModal, setShowPairModal] = useState(false);
   const [showUnpairModal, setShowUnpairModal] = useState(false);
-  const [deviceId, setDeviceId] = useState("");
-  const [pairing, setPairing] = useState(false);
   const [unpairing, setUnpairing] = useState(false);
-  const [pairError, setPairError] = useState("");
 
   const deviceName =
     selectedDevice?.deviceName || selectedDevice?.name || "TrailGuard Wearable";
-
-  const handlePair = async (event) => {
-    event?.preventDefault();
-
-    const id = deviceId.trim().toUpperCase();
-
-    if (!id) {
-      setPairError("Enter your TrailGuard device ID.");
-      return;
-    }
-
-    setPairError("");
-    setPairing(true);
-
-    try {
-      await registerDevice(id, "TrailGuard Wearable");
-      setDeviceId("");
-      setShowPairModal(false);
-    } catch (error) {
-      console.error("Failed to pair device:", error);
-      setPairError(error?.message || "Failed to pair device.");
-    } finally {
-      setPairing(false);
-    }
-  };
 
   const handleUnpair = async () => {
     if (!selectedDevice?.deviceId) return;
@@ -68,9 +40,7 @@ export default function Sidebar() {
   };
 
   const openPairModal = () => {
-    setPairError("");
-    setDeviceId("");
-    setShowPairModal(true);
+    navigate("/settings");
   };
 
   return (
@@ -193,9 +163,7 @@ export default function Sidebar() {
                       </div>
 
                       <p className="mt-1 text-[10px] leading-4 text-slate-400">
-                        Pair your TrailGuard wearable
-                        <br />
-                        to start monitoring.
+                        Pair using the QR and Bluetooth flow in Settings.
                       </p>
                     </div>
 
@@ -218,51 +186,8 @@ export default function Sidebar() {
       </aside>
 
       {/* MODAL BACKDROP */}
-      {(showPairModal || showUnpairModal) && (
+      {showUnpairModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-[2px]">
-          {/* PAIR MODAL */}
-          {showPairModal && (
-            <div className="w-full max-w-[400px] rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-2xl">
-              <ModalHeader
-                title="Pair TrailGuard Device"
-                text="Enter the device ID printed on your TrailGuard wearable."
-                onClose={() => setShowPairModal(false)}
-              />
-
-              <form onSubmit={handlePair} className="mt-5 space-y-4">
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-[var(--color-text-secondary)]">
-                    Device ID
-                  </label>
-
-                  <input
-                    type="text"
-                    value={deviceId}
-                    onChange={(e) => setDeviceId(e.target.value)}
-                    placeholder="Enter your device ID"
-                    autoFocus
-                    disabled={pairing}
-                    className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-3 py-3 font-mono text-sm uppercase text-[var(--color-text)] outline-none placeholder:text-[var(--color-text-muted)] focus:border-teal-400"
-                  />
-                </div>
-
-                {pairError && (
-                  <div className="rounded-xl border border-red-400/20 bg-red-400/10 px-3 py-2.5 text-xs text-red-400">
-                    {pairError}
-                  </div>
-                )}
-
-                <ModalButtons
-                  onCancel={() => setShowPairModal(false)}
-                  onConfirm={handlePair}
-                  cancelText="Cancel"
-                  confirmText={pairing ? "Pairing…" : "Pair Device"}
-                  disabled={pairing || !deviceId.trim()}
-                />
-              </form>
-            </div>
-          )}
-
           {/* UNPAIR MODAL */}
           {showUnpairModal && selectedDevice && (
             <div className="w-full max-w-[440px] rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-2xl">

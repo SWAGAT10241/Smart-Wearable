@@ -5,8 +5,10 @@ import Field from "../components/auth/Field";
 import Button from "../components/auth/Button";
 import { useAuth } from "../context/AuthContext";
 import { useDevices } from "../context/DeviceContext";
+import { useLiveData } from "../context/LiveDataContext";
 import { authApi } from "../lib/apiClient";
 import PhoneField from "../components/auth/PhoneField";
+import PairDevicePanel from "../components/PairDevicePanel";
 
 function Row({ label, value, badge }) {
   return (
@@ -163,6 +165,14 @@ function DeviceCard({ device, selected, onSelect, onRename, onStatusChange, onRe
 
 export default function Settings() {
   const { user, logout, refreshUser } = useAuth();
+  const {
+    ingestTelemetryFrame,
+    attachBleTelemetrySession,
+    bleConnectionState,
+    setBleConnectionState,
+    deviceStatus,
+    deviceStatusUpdatedAt,
+  } = useLiveData();
   const { theme, setLightTheme, setDarkTheme } = useTheme();
 
   const {
@@ -170,18 +180,13 @@ export default function Settings() {
     selectedDevice,
     selectedDeviceId,
     selectDevice,
-    registerDevice,
     renameDevice,
     updateDeviceStatus,
     removeDevice,
+    refreshDevices,
     loading: devicesLoading,
   } = useDevices();
 
-  const [deviceIdInput, setDeviceIdInput] = useState("");
-  const [deviceNameInput, setDeviceNameInput] = useState("TrailGuard Wearable");
-  const [registeringDevice, setRegisteringDevice] = useState(false);
-  const [deviceError, setDeviceError] = useState("");
-  const [deviceSuccess, setDeviceSuccess] = useState("");
 
   const [editingSafety, setEditingSafety] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -237,33 +242,6 @@ export default function Settings() {
       weight: user?.weight ?? "",
     });
     setEditingSafety(false);
-  };
-
-  const register = async (e) => {
-    e.preventDefault();
-    setDeviceError("");
-    setDeviceSuccess("");
-
-    const id = deviceIdInput.trim().toUpperCase();
-    const name = deviceNameInput.trim() || "TrailGuard Wearable";
-
-    if (!id) {
-      setDeviceError("Enter your TrailGuard device ID.");
-      return;
-    }
-
-    setRegisteringDevice(true);
-
-    try {
-      const device = await registerDevice(id, name);
-      setDeviceSuccess(`${device?.deviceId || id} is connected to your account.`);
-      setDeviceIdInput("");
-      setDeviceNameInput("TrailGuard Wearable");
-    } catch (e) {
-      setDeviceError(e?.message || "Failed to connect device.");
-    } finally {
-      setRegisteringDevice(false);
-    }
   };
 
   const toggleStatus = async (deviceId, status) => {
@@ -422,53 +400,113 @@ export default function Settings() {
             </span>
           </div>
 
-          {/* Connect */}
-          <div className="mb-5 rounded-2xl border border-teal-400/20 bg-teal-400/5 p-4">
-            <h4 className="text-sm font-semibold text-[var(--color-text)]">
-              Connect TrailGuard Wearable
-            </h4>
-
-            <p className="mt-1 text-xs leading-5 text-[var(--color-text-secondary)]">
-              Enter the device ID printed on your physical TrailGuard wearable.
-              This is a one-time setup.
-            </p>
-
-            <form onSubmit={register} className="mt-4 space-y-3">
-              <Field
-                label="Device ID"
-                name="deviceId"
-                value={deviceIdInput}
-                onChange={(e) => setDeviceIdInput(e.target.value)}
-                placeholder="Enter device ID"
-                disabled={registeringDevice}
-              />
-
-              <Field
-                label="Device name"
-                name="deviceName"
-                value={deviceNameInput}
-                onChange={(e) => setDeviceNameInput(e.target.value)}
-                placeholder="TrailGuard Wearable"
-                disabled={registeringDevice}
-              />
-
-              {deviceError && (
-                <div className="rounded-xl border border-red-400/20 bg-red-400/10 px-3 py-2 text-sm text-red-400">
-                  {deviceError}
+          <PairDevicePanel
+            onPaired={refreshDevices}
+            onTelemetry={ingestTelemetryFrame}
+            onTelemetrySession={attachBleTelemetrySession}
+            onConnectionState={setBleConnectionState}
+          />
+          <p
+            className="mb-4 text-xs text-[var(--color-text-secondary)]"
+            role="status"
+            aria-live="polite"
+          >
+            BLE connection: {bleConnectionState.toLowerCase().replaceAll("_", " ")}
+            {bleConnectionState === "STALE" &&
+              " — no valid telemetry has arrived for 60 seconds; displayed readings may be outdated."}
+            {bleConnectionState === "UNAUTHORIZED" &&
+              " — device authorization was rejected. Re-pair or verify device access."}
+          </p>
+          {deviceStatus && (
+            <div
+              className="mb-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4"
+              aria-label="Device status"
+            >
+              <div className="mb-3 flex items-baseline justify-between gap-3">
+                <h4 className="text-sm font-semibold text-[var(--color-text)]">
+                  Device status
+                </h4>
+                {deviceStatusUpdatedAt && (
+                  <span className="text-xs text-[var(--color-text-muted)]">
+                    Updated {new Date(deviceStatusUpdatedAt).toLocaleTimeString()}
+                  </span>
+                )}
+              </div>
+              <dl className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-3">
+                <div>
+                  <dt className="text-[var(--color-text-secondary)]">Device state</dt>
+                  <dd className="mt-1 font-medium text-[var(--color-text)]">
+                    {deviceStatus.deviceState}
+                  </dd>
                 </div>
-              )}
-
-              {deviceSuccess && (
-                <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-sm text-emerald-400">
-                  {deviceSuccess}
+                <div>
+                  <dt className="text-[var(--color-text-secondary)]">Device connection</dt>
+                  <dd className="mt-1 font-medium text-[var(--color-text)]">
+                    {deviceStatus.connectionStatus.toLowerCase()}
+                  </dd>
                 </div>
-              )}
-
-              <Button type="submit" disabled={registeringDevice || !deviceIdInput.trim()}>
-                {registeringDevice ? "Connecting…" : "Connect Device"}
-              </Button>
-            </form>
-          </div>
+                <div>
+                  <dt className="text-[var(--color-text-secondary)]">Firmware</dt>
+                  <dd className="mt-1 font-medium text-[var(--color-text)]">
+                    {deviceStatus.firmwareVersion}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--color-text-secondary)]">Uptime</dt>
+                  <dd className="mt-1 font-medium text-[var(--color-text)]">
+                    {Math.floor(deviceStatus.uptimeSeconds / 3600)}h{" "}
+                    {Math.floor((deviceStatus.uptimeSeconds % 3600) / 60)}m
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--color-text-secondary)]">Battery</dt>
+                  <dd className="mt-1 font-medium text-[var(--color-text)]">
+                    {deviceStatus.batteryHealth === "not_integrated"
+                      ? "Not integrated"
+                      : deviceStatus.batteryPercent === null
+                        ? "Unavailable"
+                        : `${deviceStatus.batteryPercent}%`}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--color-text-secondary)]">Charging</dt>
+                  <dd className="mt-1 font-medium text-[var(--color-text)]">
+                    {deviceStatus.charging === null
+                      ? "Unavailable"
+                      : deviceStatus.charging
+                        ? "Charging"
+                        : "Not charging"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--color-text-secondary)]">Signal strength</dt>
+                  <dd className="mt-1 font-medium text-[var(--color-text)]">
+                    {deviceStatus.rssiDbm === null
+                      ? "Unavailable in this browser"
+                      : `${deviceStatus.rssiDbm} dBm`}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--color-text-secondary)]">Risk engine</dt>
+                  <dd className="mt-1 font-medium text-[var(--color-text)]">
+                    {deviceStatus.riskEngineStatus}
+                  </dd>
+                </div>
+              </dl>
+              <div className="mt-3 border-t border-[var(--color-border)] pt-3 text-xs">
+                <div className="font-medium text-[var(--color-text-secondary)]">
+                  Sensor health
+                </div>
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[var(--color-text)]">
+                  {Object.entries(deviceStatus.sensorHealth).map(([sensor, health]) => (
+                    <span key={sensor}>
+                      {sensor}: {health.replaceAll("_", " ")}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Device list */}
           {devicesLoading ? (
@@ -481,7 +519,7 @@ export default function Settings() {
                 No devices connected
               </div>
               <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-                Enter your device ID above to connect your TrailGuard wearable.
+                Use the QR scanner above to pair a wearable over Bluetooth.
               </p>
             </div>
           ) : (

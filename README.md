@@ -36,7 +36,16 @@ TrailGuard is designed around four major goals:
 - 📍 **Location awareness**
 - 🌡️ **Environmental monitoring**
 
-The wearable collects sensor data and sends telemetry to the backend. The backend validates and processes the data, stores historical readings in MongoDB, and broadcasts real-time events to connected dashboard clients.
+The existing prototype/simulator uploads sensor readings to the backend, which validates and stores historical records and broadcasts dashboard events. The separate Day 3 ESP-IDF BLE target uses encrypted, backend-authorized app-side telemetry; it does not upload normal-mode data directly to the backend.
+
+## Architecture and security design
+
+The target device lifecycle, secure pairing, BLE protocol, local-first data
+boundary, emergency sharing flow, API contract, data models, threat model, and
+verification requirements are documented in the
+[Day 3 device and API architecture](docs/architecture/day-3-device-and-api-architecture.md).
+That document distinguishes the intended design from prototype behavior that
+is not yet production-safe.
 
 ---
 
@@ -66,6 +75,7 @@ TrailGuard is currently under active development.
 - Real-time dashboard
 - Interactive map visualization using MapLibre GL
 - ESP32 telemetry simulator
+- ESP32-S3 BLE v1 telemetry notifications with signed per-connection owner authorization (sensor drivers not yet integrated)
 - Backend automated testing
 - Frontend automated testing
 - Security middleware and rate limiting
@@ -424,6 +434,13 @@ Backend
 ## Hardware
 
 The hardware layer is based around an ESP32-class microcontroller and wearable sensor modules.
+
+The initial ESP32-S3 BLE pairing firmware project is in
+[hardware/firmware](hardware/firmware/README.md). It is a new ESP-IDF target;
+the existing `hardware/Drivers` Python files remain MicroPython sensor
+experiments and are not yet ported. The target implements signed pairing and
+telemetry receipts and emits protocol-v1 `not_integrated` readings, but it has
+not been compiled, flashed, or tested on a physical board in this environment.
 
 Potential sensor categories include:
 

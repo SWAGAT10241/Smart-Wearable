@@ -26,10 +26,11 @@ const isProduction = process.env.NODE_ENV === "production";
 
 app.disable("x-powered-by");
 
-if (isProduction) {app.set("trust proxy", 1)}
+if (isProduction) {
+  app.set("trust proxy", 1);
+}
 // Security headers
-app.use(helmet({crossOriginResourcePolicy: {policy: "cross-origin"}}));
-// CORS
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 const allowedOrigins = (process.env.CLIENT_URLS || process.env.CLIENT_URL || "")
   .split(",")
   .map((origin) => origin.trim())
@@ -63,7 +64,17 @@ app.use(
 // packets are relatively small.
 //
 
-app.use(express.json({limit: "100kb"}));
+app.use(
+  express.json({
+    limit: "100kb",
+
+    verify: (req, res, buffer) => {
+      if (req.originalUrl === "/api/device/readings") {
+        req.rawBody = Buffer.from(buffer);
+      }
+    },
+  }),
+);
 // ─────────────────────────────────────────────
 // Session configuration
 // ─────────────────────────────────────────────
@@ -128,8 +139,7 @@ function broadcast(message) {
 // Routes
 // Authentication
 app.use("/api/auth", authRoutes);
-// One-time physical device activation.
-// Logged-in user claims a TrailGuard wearable.
+// Secure pairing requires a one-time bootstrap token and device-key proof.
 app.use("/api/devices", deviceRegistrationRoutes());
 // Device → Backend
 // Physical hardware sends telemetry here.
@@ -174,4 +184,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-module.exports = {app,clients};
+module.exports = { app, clients };

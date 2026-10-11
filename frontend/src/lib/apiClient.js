@@ -38,7 +38,9 @@ async function request(path, { method = "GET", body, auth = false } = {}) {
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(data.error || `Request failed (${response.status})`);
+    const error = new Error(data.error || `Request failed (${response.status})`);
+    error.status = response.status;
+    throw error;
   }
   return data;
 }
@@ -183,19 +185,6 @@ export const devicesApi = {
     }),
 
   /*
-   * Pair a TrailGuard device.
-   */
-  register: (deviceId, deviceName = "TrailGuard Wearable") =>
-    request("/devices/register", {
-      method: "POST",
-      body: {
-        deviceId,
-        deviceName,
-      },
-      auth: true,
-    }),
-
-  /*
    * Rename device.
    */
   rename: (deviceId, deviceName) =>
@@ -213,6 +202,27 @@ export const devicesApi = {
   remove: (deviceId) =>
     request(`/devices/${encodeURIComponent(deviceId)}`, {
       method: "DELETE",
+      auth: true,
+    }),
+};
+
+export const devicePairingApi = {
+  start: (deviceId, bootstrapToken) =>
+    request("/devices/pairing-challenges", {
+      method: "POST",
+      body: { deviceId, bootstrapToken },
+      auth: true,
+    }),
+  complete: (challengeId, proof) =>
+    request(`/devices/pairing-challenges/${encodeURIComponent(challengeId)}/complete`, {
+      method: "POST",
+      body: proof,
+      auth: true,
+    }),
+  telemetryReceipt: (deviceId, challengeId, nonce) =>
+    request("/devices/telemetry-receipts", {
+      method: "POST",
+      body: { deviceId, challengeId, nonce },
       auth: true,
     }),
 };

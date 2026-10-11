@@ -1,8 +1,6 @@
-# TrailGuard Backend
+# SWAAS Backend
 
-Backend API and realtime service for **TrailGuard — Smart Wearable Safety & Health Monitoring System**.
-
-The backend connects the TrailGuard wearable/ESP32 device with the web dashboard and MongoDB. It provides authentication, device registration and management, health telemetry storage, fall-event handling, environmental monitoring, GPS/location history, realtime WebSocket updates, and emergency SMS/WhatsApp notifications.
+Backend API and realtime service for **Smart Wearable Safety & Health Monitoring System**.
 
 ---
 
@@ -38,7 +36,7 @@ The backend connects the TrailGuard wearable/ESP32 device with the web dashboard
 
 # Overview
 
-TrailGuard is a smart wearable safety system designed to monitor:
+SWAAS is a smart wearable safety system designed to monitor:
 
 - ❤️ Heart rate
 - 🫁 SpO₂ / blood oxygen
@@ -60,8 +58,8 @@ The backend is implemented using **Node.js + Express + MongoDB/Mongoose** with a
 
 ```text
                          ┌─────────────────────────┐
-                         │    TrailGuard Web App    │
-                         │       Dashboard          │
+                         │        Web App          │
+                         │       Dashboard         │
                          └────────────┬────────────┘
                                       │
                               REST API + JWT
@@ -132,6 +130,7 @@ backend/
 │
 ├── models/
 │   ├── Device.js
+│   ├── DevicePairing.js
 │   ├── EnvironmentReading.js
 │   ├── FallEvent.js
 │   ├── LocationReading.js
@@ -150,8 +149,12 @@ backend/
 │   └── vitalsRoutes.js
 │
 ├── services/
+│   ├── deviceProvisioningService.js
 │   ├── smsService.js
 │   └── whatsappService.js
+│
+├── scripts/
+│   └── provision-device.js
 │
 ├── tests/
 │   └── server.test.js
@@ -487,15 +490,21 @@ Google OAuth is enabled only when the Google client credentials are configured.
 
 # Device Management
 
-TrailGuard uses a permanent physical `deviceId` to identify each wearable.
+TrailGuard uses a permanent UUID `deviceId` to identify each wearable. An ID
+alone cannot prove hardware identity or claim ownership. Device identity is
+pre-provisioned with an Ed25519 public key and a one-time bootstrap-token hash.
+The private key remains on the wearable; the bootstrap token is supplied by a
+sealed QR and is never returned by the API.
 
-The backend associates that physical device with the authenticated user.
-
-A device contains:
+Device records include:
 
 ```text
 deviceId
 deviceName
+state
+publicKey
+bootstrapTokenHash
+bootstrapTokenExpiresAt
 userId
 status
 lastSeen
@@ -503,49 +512,170 @@ createdAt
 updatedAt
 ```
 
-Device status is either:
+Lifecycle states are `UNREGISTERED`, `PROVISIONED`, `PAIRED`, and `REVOKED`.
+`publicKey`, `bootstrapTokenHash`, and `bootstrapTokenExpiresAt` are excluded
+from normal model selection and API responses. Status remains `active`/`inactive`
+for current dashboard compatibility.
 
-```text
-active
-inactive
+### Trusted device provisioning prerequisite
+
+There is intentionally no public device-provisioning API. A trusted operator
+uses the backend CLI to create a device record from the device-generated
+Ed25519 public key. The device must generate and retain its private key before
+this step; the private key must never be copied to the backend.
+
+```powershell
+cd backend
+corepack pnpm provision-device -- `
+  --device-id b3fdc7e3-995b-4f32-9d37-c8aaf9bb9f2a `
+  --public-key-file C:\secure-provisioning\device-public.pem `
+  --device-name "TrailGuard One" `
+  --qr-output C:\secure-provisioning\device-pairing.svg
 ```
 
-The physical `deviceId` is normalized to uppercase.
+The command requires `DEVICE_PROVISIONING_MONGODB_URI`, loaded from the
+operator environment. Use a dedicated MongoDB principal scoped to read and
+write only the `devices` collection; do not reuse the backend application's
+credential. The command accepts only a UUIDv4 and an Ed25519 SPKI public-key
+PEM. It creates a new record with `state: "PROVISIONED"`, `userId: null`,
+`status: "inactive"`, and `keyVersion: 1`. The unique device ID is never
+overwritten; a duplicate causes an error and requires an explicit operator
+investigation.
 
----
+With `--qr-output`, the CLI creates a new SVG containing the versioned pairing
+payload used by the dashboard scanner and prints its path, device ID, and
+expiry. The output file must not already exist; protect it as a secret and
+transfer it only through the controlled labeling process. The raw token is not
+printed in this mode. Without that option, the CLI prints one JSON object with
+the device ID, 32-byte random base64url bootstrap token, and its expiry (30
+days); handle the token as a secret and do not paste it into tickets, chat,
+shell arguments, CI logs, or source control. If output is lost or exposed,
+the same command can issue a replacement token only when the record is
+`PROVISIONED`, has no owner, the submitted public key matches exactly, and the
+prior token is absent or expired. It cannot overwrite an active token or
+reprovision a paired/revoked record. A record with a different key or state
+fails closed; investigate it rather than modifying it manually. If QR file
+creation fails, the device record is not written; if database persistence fails
+after file creation, the newly created QR file is removed.
 
-## Register Device
+Never store the raw QR token or device private key in the database, repository,
+logs, or normal API response. After successful pairing the server atomically
+sets `state: "PAIRED"` and the authenticated `userId`, consumes the QR-token
+hash and expiry, and activates the record. An unpair returns it to `PROVISIONED` without
+restoring a bootstrap token; trusted reprovisioning is required before it can
+be paired again.
+
+Existing device records have not been auto-migrated or trusted. Review them
+before deployment; do not mark an existing user-claimed ID as `PROVISIONED`
+without verifying physical-device key custody.
+
+### Secure pairing API
+
+ID-only registration is disabled at both legacy paths:
 
 ```http
-POST /api/devices/register
+POST /api/device/register       -> 410 Gone
+POST /api/devices/register      -> 410 Gone
 ```
 
-Authentication required.
+The user must be authenticated. Pairing start requires the device UUID and
+one-time bootstrap token:
 
-### Request
+```http
+POST /api/devices/pairing-challenges
+Authorization: Bearer <user access token>
+Content-Type: application/json
+```
 
 ```json
 {
-  "deviceId": "TRAILGUARD-DEMO-001",
-  "deviceName": "My TrailGuard"
+  "deviceId": "b3fdc7e3-995b-4f32-9d37-c8aaf9bb9f2a",
+  "bootstrapToken": "<32-byte-random-base64url-token>"
 }
 ```
 
-### Successful response
+The backend verifies the token hash against a `PROVISIONED` record and returns
+a random 256-bit nonce and a challenge UUID with a five-minute expiry. The
+bootstrap QR token itself is valid for 30 days from provisioning. The
+wearable must sign UTF-8 bytes of this exact JSON serialization (keys in the
+order shown) with its Ed25519 private key:
 
 ```json
 {
-  "success": true,
-  "message": "Device registered successfully",
-  "device": {
-    "deviceId": "TRAILGUARD-DEMO-001",
-    "deviceName": "My TrailGuard",
-    "status": "active"
-  }
+  "challengeId": "<returned challengeId>",
+  "deviceId": "<uppercase canonical deviceId>",
+  "userId": "<authenticated user's database ID>",
+  "nonce": "<returned nonce>",
+  "expiresAt": "<returned expiresAt as UTC ISO-8601>"
 }
 ```
 
-A device already belonging to another user cannot be registered again.
+The authenticated user submits the device proof:
+
+```http
+POST /api/devices/pairing-challenges/{challengeId}/complete
+Authorization: Bearer <user access token>
+Content-Type: application/json
+```
+
+```json
+{"nonce":"<returned nonce>","signature":"<Ed25519 signature, base64url>"}
+```
+
+On success, the backend returns the paired device and a signed `PAIR`
+authorization receipt bound to the exact device challenge. The wearable
+verifies this receipt with its compiled-in backend authority public key before
+persisting the owner ID. Generate one authority key pair per deployment:
+
+```powershell
+corepack pnpm generate-device-authority-keys -- `
+  --private-key-file C:\secure-provisioning\device-authority-private.pem `
+  --public-key-file C:\secure-provisioning\device-authority-public.txt
+```
+
+Keep the private key in the backend secret manager as
+`DEVICE_AUTHORITY_PRIVATE_KEY`; never check it into source control. Configure
+the base64url public key in ESP-IDF `menuconfig` as
+`CONFIG_TRAILGUARD_AUTHORITY_PUBLIC_KEY_B64URL`. A telemetry session is
+authorized separately on each BLE connection using a device-generated
+challenge and this endpoint:
+
+```http
+POST /api/devices/telemetry-receipts
+Authorization: Bearer <access token>
+Content-Type: application/json
+```
+
+```json
+{
+  "deviceId": "B3FDC7E3-995B-4F32-9D37-C8AAF9BB9F2A",
+  "challengeId": "<device-generated UUID>",
+  "nonce": "<device-generated 256-bit base64url nonce>"
+}
+```
+
+The endpoint returns a signed `TELEMETRY` receipt with a 15-minute lease.
+The firmware accepts it only over an encrypted BLE link, for the current
+connection's nonce/challenge ID, and for its persisted owner. Disconnect
+immediately ends the lease; reconnecting requires a fresh authenticated API
+receipt. The browser cannot read or modify the private signing key.
+
+The backend verifies the user/device/challenge binding, expiry, nonce hash,
+device key and signature, then consumes the challenge and bootstrap token and
+atomically claims only a `PROVISIONED`, ownerless device. A challenge permits
+at most five invalid signature attempts. Each pairing endpoint is limited to
+ten requests per authenticated account in a 15-minute window. Expired
+challenges return `410`; invalid proof
+returns `401`; ID-only registration returns `410`; stale/already-used
+challenges and state races return `404` or `409` without assigning ownership.
+The Settings page scans the sealed QR with the camera and uses Web Bluetooth
+to read the device identity, send the authenticated user's challenge, collect
+the Ed25519 proof, install the signed owner receipt, and authorize the
+encrypted telemetry session. This browser flow requires a secure origin and a
+supported Chromium browser. It has not been validated against a physical
+ESP32-S3.
+The pairing update uses a MongoDB transaction; deployments must use a
+transaction-capable replica set or sharded cluster.
 
 ---
 
@@ -1592,7 +1722,8 @@ Make sure its API URL points to the backend port configured in `PORT`.
 | GET | `/api/auth/google/callback` | OAuth | Google OAuth callback |
 | GET | `/api/auth/me` | JWT | Get current user |
 | PATCH | `/api/auth/complete-profile` | JWT | Complete profile |
-| POST | `/api/devices/register` | JWT | Register wearable |
+| POST | `/api/devices/pairing-challenges` | JWT + one-time QR token | Start secure device pairing |
+| POST | `/api/devices/pairing-challenges/:challengeId/complete` | JWT + device Ed25519 proof | Complete secure device pairing |
 | GET | `/api/devices` | JWT | List user's devices |
 | PATCH | `/api/devices/:deviceId` | JWT | Rename device |
 | PATCH | `/api/devices/:deviceId/status` | JWT | Activate/deactivate |
@@ -1726,11 +1857,9 @@ The backend requires the device to exist and have:
 status = active
 ```
 
-Register the device first through:
-
-```http
-POST /api/devices/register
-```
+ID-only registration is disabled. A securely paired device record is required.
+The current telemetry route still does not verify Ed25519 device signatures,
+so it is not a production device-authentication mechanism.
 
 ---
 

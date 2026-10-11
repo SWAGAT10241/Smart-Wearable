@@ -11,6 +11,7 @@ const { sendEmergencySMS } = require("../services/smsService");
 const { sendEmergencyWhatsApp } = require("../services/whatsappService");
 
 const protect = require("../middleware/authMiddleware");
+const deviceAuth = require("../middleware/deviceAuthMiddleware");
 
 module.exports = function (broadcast) {
   const router = express.Router();
@@ -23,138 +24,12 @@ module.exports = function (broadcast) {
       error: "Too many device requests. Please try again later.",
     },
   });
-  // ─────────────────────────────────────────────
-  // POST /api/device/register
-  //
-  // User connects/provisions a device.
-  //
-  // userId ALWAYS comes from JWT.
-  // It is never accepted from request body.
-  // ─────────────────────────────────────────────
-
-  router.post("/register", protect, async (req, res) => {
-    try {
-      const { deviceId, deviceName } = req.body;
-
-      if (!deviceId) {
-        return res.status(400).json({
-          error: "deviceId is required",
-        });
-      }
-
-      const normalizedDeviceId = deviceId.trim().toUpperCase();
-
-      const existingDevice = await Device.findOne({
-        deviceId: normalizedDeviceId,
-      });
-
-      if (existingDevice) {
-        /*
-         * Device belongs to another user.
-         */
-        if (
-          existingDevice.userId &&
-          existingDevice.userId.toString() !== req.userId.toString()
-        ) {
-          return res.status(409).json({
-            error: "Device is already registered",
-          });
-        }
-
-        /*
-         * Device is already paired to this user.
-         */
-        if (
-          existingDevice.userId &&
-          existingDevice.userId.toString() === req.userId.toString()
-        ) {
-          return res.status(409).json({
-            error: "Device already connected",
-          });
-        }
-
-        /*
-         * Device exists but is currently unpaired.
-         *
-         * Reclaim the existing physical device instead
-         * of creating a duplicate Device document.
-         */
-        const device = await Device.findOneAndUpdate(
-          {
-            deviceId: normalizedDeviceId,
-            userId: null,
-          },
-          {
-            $set: {
-              userId: req.userId,
-              status: "active",
-              deviceName:
-                typeof deviceName === "string" && deviceName.trim()
-                  ? deviceName.trim()
-                  : "TrailGuard Wearable",
-            },
-          },
-          {
-            new: true,
-            runValidators: true,
-          },
-        );
-
-        if (!device) {
-          return res.status(409).json({
-            error: "Device could not be paired",
-          });
-        }
-
-        return res.status(200).json({
-          success: true,
-          device: {
-            deviceId: device.deviceId,
-            deviceName: device.deviceName,
-            status: device.status,
-          },
-        });
-      }
-
-      const device = await Device.create({
-        deviceId: normalizedDeviceId,
-
-        // Hardware/default name.
-        deviceName:
-          typeof deviceName === "string" && deviceName.trim()
-            ? deviceName.trim()
-            : "TrailGuard Wearable",
-
-        // Ownership comes from authenticated user.
-        userId: req.userId,
-
-        status: "active",
-      });
-
-      return res.status(201).json({
-        success: true,
-
-        device: {
-          deviceId: device.deviceId,
-          deviceName: device.deviceName,
-          status: device.status,
-        },
-      });
-    } catch (error) {
-      console.error("POST /api/device/register error:", error);
-
-      // MongoDB duplicate-key protection.
-      if (error.code === 11000) {
-        return res.status(409).json({
-          error: "Device already registered",
-        });
-      }
-
-      return res.status(500).json({
-        error: "Failed to register device",
-      });
-    }
-  });
+  router.post("/register", protect, (req, res) =>
+    res.status(410).json({
+      error:
+        "ID-only device registration is disabled; use the secure pairing flow",
+    }),
+  );
 
   // ─────────────────────────────────────────────
   // PATCH /api/device/:deviceId/name
@@ -237,7 +112,7 @@ module.exports = function (broadcast) {
   // Device authentication will be added here.
   // ─────────────────────────────────────────────
 
-  router.post("/readings", async (req, res) => {
+  router.post("/readings", deviceAuth, async (req, res) => {
     try {
       const {
         deviceId,
@@ -268,24 +143,19 @@ module.exports = function (broadcast) {
         timestamp,
       } = req.body;
 
-      // Device identity is required.
-      if (!deviceId) {
-        return res.status(400).json({
-          error: "deviceId is required",
-        });
-      }
-      const normalizedDeviceId = deviceId.trim().toUpperCase();
-      // Find active device.
-      const device = await Device.findOne({
-        deviceId: normalizedDeviceId,
-        status: "active",
-      });
-
-      if (!device) {
+      const authenticatedDeviceId = req.deviceId;
+      if (
+        typeof deviceId !== "string" ||
+        deviceId.trim().toUpperCase() !== authenticatedDeviceId
+      ) {
         return res.status(401).json({
-          error: "Unknown or inactive device",
+          error:
+            "Telemetry device identity does not match authenticated device",
         });
       }
+
+      const device = req.device;
+      const normalizedDeviceId = req.deviceId;
 
       // Validate timestamp.
       const readingTimestamp = timestamp ? new Date(timestamp) : new Date();
@@ -492,7 +362,7 @@ module.exports = function (broadcast) {
   // Only the owner can see their device.
   // ─────────────────────────────────────────────
 
-  router.get("/:deviceId", deviceReadLimiter,protect, async (req, res) => {
+  router.get("/:deviceId", deviceReadLimiter, protect, async (req, res) => {
     try {
       const device = await Device.findOne({
         deviceId: req.params.deviceId.trim().toUpperCase(),
