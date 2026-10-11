@@ -11,7 +11,6 @@ export const API_URL = normalizedApi.endsWith("/api")
   : `${normalizedApi}/api`;
 
 export const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:3000/live";
-
 export const APP_NAME = import.meta.env.VITE_APP_NAME || "TrailGuard";
 
 export const IS_PRODUCTION = import.meta.env.PROD;

@@ -487,7 +487,7 @@ The current project uses **pnpm 11.20.0**.
 # Project Structure
 
 ```text
-Smart-Wearable/ (TrailGuard)
+Smart-Wearable/
 │
 ├── .github/
 │   └── workflows/ci.yml
@@ -611,7 +611,6 @@ Smart-Wearable/ (TrailGuard)
 │   │   └── ...
 │   └── Test/
 │
-├── ARCHITECTURE_REFACTORING.md
 ├── LICENSE
 └── README.md
 ```
