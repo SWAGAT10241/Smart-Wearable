@@ -21,6 +21,9 @@ app.disable("x-powered-by");
 
 if (config.isProduction) {
   app.set("trust proxy", 1);
+  if (config.clientUrls.length === 0) {
+    throw new Error("CLIENT_URLS must be configured in production");
+  }
 }
 
 // Security headers
@@ -41,12 +44,28 @@ app.use(
     },
     credentials: true,
     methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Device-ID",
+      "X-Device-Timestamp",
+      "X-Device-Nonce",
+      "X-Device-Signature",
+    ],
   }),
 );
 
-// JSON body parser with strict size limit
-app.use(express.json({ limit: "100kb" }));
+// JSON body parser with strict size limit and rawBody capture for device auth
+app.use(
+  express.json({
+    limit: "100kb",
+    verify: (req, res, buffer) => {
+      if (req.originalUrl === "/api/device/readings") {
+        req.rawBody = Buffer.from(buffer);
+      }
+    },
+  }),
+);
 
 // Session configuration
 const sessionOptions = {

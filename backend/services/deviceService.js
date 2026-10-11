@@ -119,6 +119,10 @@ async function registerDevice(userId, { deviceId, deviceName }, isRegistrationRo
   };
 }
 
+const pairedOrLegacyDeviceState = {
+  $or: [{ state: "PAIRED" }, { state: { $exists: false } }],
+};
+
 /**
  * Update the friendly name of a user's device.
  *
@@ -128,20 +132,18 @@ async function registerDevice(userId, { deviceId, deviceName }, isRegistrationRo
  * @returns {Promise<object>}
  */
 async function renameDevice(userId, deviceId, deviceName) {
-  if (typeof deviceName !== "string" || !deviceName.trim()) {
-    throw new AppError(
-      typeof deviceName !== "string"
-        ? "deviceName must be a string"
-        : "deviceName is required",
-      400,
-      "VALIDATION_ERROR",
-    );
+  if (typeof deviceName !== "string") {
+    throw new AppError("deviceName must be a string", 400, "VALIDATION_ERROR");
   }
 
   const trimmedName = deviceName.trim();
+  if (!trimmedName) {
+    throw new AppError("deviceName cannot be empty", 400, "VALIDATION_ERROR");
+  }
+
   if (trimmedName.length > 50) {
     throw new AppError(
-      "deviceName must be 50 characters or less",
+      "deviceName cannot exceed 50 characters",
       400,
       "VALIDATION_ERROR",
     );
@@ -153,9 +155,12 @@ async function renameDevice(userId, deviceId, deviceName) {
     {
       deviceId: normalizedDeviceId,
       userId,
+      ...pairedOrLegacyDeviceState,
     },
     {
-      deviceName: trimmedName,
+      $set: {
+        deviceName: trimmedName,
+      },
     },
     {
       new: true,
@@ -169,14 +174,7 @@ async function renameDevice(userId, deviceId, deviceName) {
 
   return {
     success: true,
-    device: {
-      deviceId: device.deviceId,
-      deviceName: device.deviceName,
-      status: device.status,
-      lastSeen: device.lastSeen,
-      createdAt: device.createdAt,
-      updatedAt: device.updatedAt,
-    },
+    device,
   };
 }
 
@@ -229,10 +227,12 @@ async function unpairDevice(userId, deviceId) {
     {
       deviceId: normalizedDeviceId,
       userId,
+      ...pairedOrLegacyDeviceState,
     },
     {
       $set: {
         status: "inactive",
+        state: "PROVISIONED",
         userId: null,
       },
     },
@@ -276,6 +276,7 @@ async function updateDeviceStatus(userId, deviceId, status) {
     {
       deviceId: normalizedDeviceId,
       userId,
+      ...pairedOrLegacyDeviceState,
     },
     {
       $set: {

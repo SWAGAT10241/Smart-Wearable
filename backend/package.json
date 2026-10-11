@@ -7,6 +7,8 @@
     "start": "node server.js",
     "dev": "node server.js",
     "simulate": "node simulate-esp32.js",
+    "provision-device": "node scripts/provision-device.js",
+    "generate-device-authority-keys": "node scripts/generate-device-authority-keys.js",
     "test": "jest --runInBand"
   },
   "dependencies": {
@@ -23,6 +25,7 @@
     "mongoose": "^9.10.4",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
+    "qrcode": "^1.5.4",
     "twilio": "^6.1.2",
     "ws": "^8.22.0"
   },

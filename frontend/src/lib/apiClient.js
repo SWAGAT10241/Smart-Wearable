@@ -69,7 +69,7 @@ export async function request(path, { method = "GET", body, auth = false } = {})
   }
 
   if (!response.ok) {
-    const message = data.error || data.message || `Request failed with status ${response.status}`;
+    const message = data.error || data.message || `Request failed (${response.status})`;
     throw new ApiError(message, response.status, data.code || "REQUEST_FAILED", data.details);
   }
 
@@ -245,6 +245,31 @@ export const devicesApi = {
     }),
 };
 
+// ------------------------------------------------------------
+// DEVICE PAIRING (DAY 3 SECURE PAIRING & TELEMETRY RECEIPTS)
+// ------------------------------------------------------------
+
+export const devicePairingApi = {
+  start: (deviceId, bootstrapToken) =>
+    request("/devices/pairing-challenges", {
+      method: "POST",
+      body: { deviceId, bootstrapToken },
+      auth: true,
+    }),
+  complete: (challengeId, proof) =>
+    request(`/devices/pairing-challenges/${encodeURIComponent(challengeId)}/complete`, {
+      method: "POST",
+      body: proof,
+      auth: true,
+    }),
+  telemetryReceipt: (deviceId, challengeId, nonce) =>
+    request("/devices/telemetry-receipts", {
+      method: "POST",
+      body: { deviceId, challengeId, nonce },
+      auth: true,
+    }),
+};
+
 export default {
   authApi,
   vitalsApi,
@@ -252,6 +277,7 @@ export default {
   locationApi,
   fallsApi,
   devicesApi,
+  devicePairingApi,
   getToken,
   saveToken,
   clearToken,
