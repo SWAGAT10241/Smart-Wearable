@@ -3,15 +3,17 @@ const passport = require("passport");
 const authController = require("../controllers/authController");
 const authService = require("../services/authService");
 const protect = require("../middleware/authMiddleware");
+const { authLimiter } = require("../middleware/rateLimiter");
 const config = require("../config/env");
 
 const router = express.Router();
 
 // POST /api/auth/register — local signup
-router.post("/register", authController.register);
+router.post("/register", authLimiter, authController.register);
 
 // POST /api/auth/login — local login
-router.post("/login", authController.login);
+router.post("/login", authLimiter, authController.login);
+
 
 // GET /api/auth/google — start Google OAuth
 router.get(

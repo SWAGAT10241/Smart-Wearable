@@ -4,7 +4,6 @@ const session = require("express-session");
 const { MongoStore } = require("connect-mongo");
 const passport = require("passport");
 const helmet = require("helmet");
-const rateLimit = require("express-rate-limit");
 
 const config = require("./config/env");
 require("./config/passport");
@@ -13,8 +12,10 @@ const { clients, broadcast } = require("./realtime/socketManager");
 const { createApiRouter } = require("./routes");
 const notFoundHandler = require("./middleware/notFoundHandler");
 const errorHandler = require("./middleware/errorHandler");
+const { apiLimiter, authLimiter } = require("./middleware/rateLimiter");
 
 const app = express();
+
 
 // Disable x-powered-by header
 app.disable("x-powered-by");
@@ -77,16 +78,6 @@ app.use(session(sessionOptions));
 app.use(passport.initialize());
 
 // Authentication rate limiting to prevent brute-force attacks
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 20,
-  standardHeaders: "draft-8",
-  legacyHeaders: false,
-  message: {
-    error: "Too many authentication attempts. Please try again later.",
-  },
-});
-
 app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/register", authLimiter);
 
@@ -97,8 +88,9 @@ app.get("/", (req, res) => {
   });
 });
 
-// Scalable API Router
-app.use("/api", createApiRouter(broadcast));
+// Scalable API Router protected by global API rate limiter
+app.use("/api", apiLimiter, createApiRouter(broadcast));
+
 
 // 404 Route Handler
 app.use(notFoundHandler);
