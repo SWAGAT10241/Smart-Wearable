@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const { hasPermission } = require("../config/permissions");
+const logger = require("../utils/logger");
 
 // Middleware to restrict access based on user roles
 function authorizeRole(...allowedRoles) {
@@ -29,7 +30,7 @@ function authorizeRole(...allowedRoles) {
 
       next();
     } catch (error) {
-      console.error("Authorization error:", error);
+      logger.error("authorization.role_check_failed", { error });
 
       return res.status(500).json({
         error: "Authorization failed",
@@ -66,7 +67,7 @@ function authorizePermission(permission) {
 
       next();
     } catch (error) {
-      console.error("Authorization error:", error);
+      logger.error("authorization.permission_check_failed", { error });
 
       return res.status(500).json({
         error: "Authorization failed",

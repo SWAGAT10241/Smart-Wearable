@@ -92,8 +92,13 @@ async function processReadings(payload, broadcast = () => {}, existingDevice = n
 
     broadcast({
       type: "vitals",
+      userId: String(device.userId),
       deviceId: normalizedDeviceId,
-      data: reading,
+      data: {
+        heartRate: reading.heartRate,
+        spo2: reading.spo2,
+        timestamp: reading.timestamp,
+      },
     });
   }
 
@@ -120,8 +125,14 @@ async function processReadings(payload, broadcast = () => {}, existingDevice = n
 
     broadcast({
       type: "environment",
+      userId: String(device.userId),
       deviceId: normalizedDeviceId,
-      data: reading,
+      data: {
+        temperature: reading.temperature,
+        humidity: reading.humidity,
+        pressure: reading.pressure,
+        timestamp: reading.timestamp,
+      },
     });
   }
 
@@ -151,8 +162,15 @@ async function processReadings(payload, broadcast = () => {}, existingDevice = n
 
     broadcast({
       type: "location",
+      userId: String(device.userId),
       deviceId: normalizedDeviceId,
-      data: reading,
+      data: {
+        latitude: reading.latitude,
+        longitude: reading.longitude,
+        altitude: reading.altitude,
+        satellites: reading.satellites,
+        timestamp: reading.timestamp,
+      },
     });
   }
 
@@ -195,8 +213,18 @@ async function processReadings(payload, broadcast = () => {}, existingDevice = n
 
     broadcast({
       type: "fall_detected",
+      userId: String(device.userId),
       deviceId: normalizedDeviceId,
-      data: fallEvent,
+      data: {
+        _id: fallEvent._id,
+        severity: fallEvent.severity,
+        status: fallEvent.status,
+        timestamp: fallEvent.timestamp,
+        latitude: fallEvent.latitude,
+        longitude: fallEvent.longitude,
+        tiltAngle: fallEvent.tiltAngle,
+        totalAcceleration: fallEvent.totalAcceleration,
+      },
     });
   }
 

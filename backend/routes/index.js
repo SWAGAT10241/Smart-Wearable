@@ -7,6 +7,7 @@ const vitalsRoutes = require("./vitalsRoutes");
 const fallRoutes = require("./fallRoutes");
 const environmentRoutes = require("./environmentRoutes");
 const locationRoutes = require("./locationRoutes");
+const emergencySessionRoutes = require("./emergencySessionRoutes");
 
 /**
  * Configure and return the unified API routes.
@@ -34,6 +35,7 @@ function createApiRouter(broadcast) {
   router.use("/falls", fallRoutes(broadcast));
   router.use("/environment", environmentRoutes());
   router.use("/location", locationRoutes());
+  router.use("/emergency", emergencySessionRoutes);
 
   return router;
 }

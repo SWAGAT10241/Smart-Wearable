@@ -1,6 +1,7 @@
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("../models/User");
+const logger = require("../utils/logger");
 
 const {
   GOOGLE_CLIENT_ID,
@@ -51,9 +52,7 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
     ),
   );
 } else {
-  console.warn(
-    "Google OAuth disabled: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are not configured.",
-  );
+  logger.warn("auth.google_oauth_disabled");
 }
 
 module.exports = passport;

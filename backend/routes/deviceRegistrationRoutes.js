@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const Device = require("../models/Device");
 const DevicePairing = require("../models/DevicePairing");
 const protect = require("../middleware/authMiddleware");
+const logger = require("../utils/logger");
 const {
   assertDeviceAuthorizationConfigured,
   issueDeviceAuthorizationReceipt,
@@ -79,7 +80,7 @@ module.exports = function () {
       try {
         assertDeviceAuthorizationConfigured();
       } catch (error) {
-        console.error("Device authorization signing is unavailable:", error);
+        logger.error("device.authorization.signing_unavailable", { error });
         return res.status(503).json({
           error: "Secure device authorization is temporarily unavailable",
         });
@@ -120,7 +121,7 @@ module.exports = function () {
         expiresAt: expiresAt.toISOString(),
       });
     } catch (error) {
-      console.error("POST /api/devices/pairing-challenges error:", error);
+      logger.error("device.pairing.challenge_failed", { error });
 
       return res.status(500).json({ error: "Failed to start device pairing" });
     }
@@ -306,7 +307,7 @@ module.exports = function () {
           receipt: pairingReceipt,
         });
       } catch (error) {
-        console.error("POST /api/devices/pairing-challenges/:challengeId/complete error:", error);
+        logger.error("device.pairing.completion_failed", { error });
         return res.status(500).json({ error: "Failed to complete device pairing" });
       }
     },
@@ -350,7 +351,7 @@ module.exports = function () {
       });
       return res.status(200).json({ receipt });
     } catch (error) {
-      console.error("POST /api/devices/telemetry-receipts error:", error);
+      logger.error("device.telemetry_receipt.issue_failed", { error });
       return res.status(503).json({
         error: "Secure telemetry authorization is temporarily unavailable",
       });

@@ -27,7 +27,7 @@ async function dispatchEmergencyAlerts({ to, userName, latitude, longitude }) {
       longitude,
     });
   } catch (smsError) {
-    logger.error("[SMS] Failed to send emergency SMS:", smsError.message);
+    logger.error("emergency.sms.failed", { error: smsError });
   }
 
   try {
@@ -38,7 +38,7 @@ async function dispatchEmergencyAlerts({ to, userName, latitude, longitude }) {
       longitude,
     });
   } catch (whatsappError) {
-    logger.error("[WhatsApp] Failed to send emergency WhatsApp:", whatsappError.message);
+    logger.error("emergency.whatsapp.failed", { error: whatsappError });
   }
 
   return results;

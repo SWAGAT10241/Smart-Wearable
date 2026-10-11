@@ -7,6 +7,8 @@ const ROLE_PERMISSIONS = {
     "emergency:create",
     "emergency:read:own",
     "emergency:update:own",
+    "emergency:session:create",
+    "emergency:session:close",
   ],
 
   responder: [
@@ -15,6 +17,8 @@ const ROLE_PERMISSIONS = {
     "incident:read:authorized",
     "response:update",
     "observation:create",
+    "emergency:session:read",
+    "emergency:session:close",
   ],
 
   coordinator: [
@@ -23,6 +27,9 @@ const ROLE_PERMISSIONS = {
     "incident:read:authorized",
     "response:read",
     "response:update",
+    "emergency:session:assign",
+    "emergency:session:read",
+    "emergency:session:close",
   ],
 
   admin: [
@@ -32,6 +39,10 @@ const ROLE_PERMISSIONS = {
     "emergency:manage",
     "incident:manage",
     "system:manage",
+    "emergency:session:assign",
+    "emergency:session:read",
+    "emergency:session:close",
+    "emergency:session:audit",
   ],
 };
 

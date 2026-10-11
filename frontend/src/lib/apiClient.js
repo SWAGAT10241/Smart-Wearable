@@ -101,6 +101,11 @@ export const authApi = {
     request("/auth/me", {
       auth: true,
     }),
+  webSocketTicket: () =>
+    request("/auth/ws-ticket", {
+      method: "POST",
+      auth: true,
+    }),
   googleLoginUrl: () => `${API_URL}/auth/google`,
 };
 

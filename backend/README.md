@@ -1596,6 +1596,57 @@ per 15 minutes
 
 ---
 
+## Structured Logging
+
+Backend runtime logs use `utils/logger.js`. Production emits newline-delimited JSON;
+development emits readable level/event lines. Only explicitly allowlisted operational
+metadata is included. Do not pass request bodies, credentials, health readings,
+location data, provider identifiers, raw URLs, or error messages to the logger.
+
+---
+
+## Emergency Data Access
+
+Emergency history is available only through the controlled session API:
+
+- `POST /api/emergency/sessions` — a citizen requests help for their own active,
+  paired device.
+- `GET /api/emergency/sessions/requests` — a coordinator/admin lists pending
+  requests without receiving health or contact data.
+- `PATCH /api/emergency/sessions/:sessionId/assign` — a coordinator or admin
+  assigns a responder; only responder accounts can be assigned.
+- `GET /api/emergency/sessions/:sessionId/data` — the assigned responder or
+  authorizing coordinator can retrieve data while the session is active.
+- `PATCH /api/emergency/sessions/:sessionId/close` — a session participant or
+  admin ends the authorization.
+- `GET /api/emergency/sessions/:sessionId/audit` — an admin reviews access and
+  state-change audit metadata for a session.
+
+Emergency data access is fixed to the previous six hours, scoped to the citizen
+and device on the session, returns only necessary sensor fields, and is capped at
+500 readings per data type. Every request, assignment, data access, and closure is
+recorded in the `SecurityAuditLog` collection. The read endpoint records its audit
+entry before accessing protected health/location collections and fails closed if
+the audit write fails. Emergency sessions remain in the database after closure;
+they are retained as authorization/audit context and do not themselves contain
+health or location readings. Health/location records retain the existing MongoDB
+retention behavior (no TTL deletion is configured); responder access remains
+restricted to the six-hour window above.
+
+---
+
+## Live WebSocket Security
+
+`/live` requires a short-lived, single-use ticket issued by the authenticated
+`POST /api/auth/ws-ticket` endpoint. The ticket expires after 30 seconds and is
+consumed once during the WebSocket upgrade via the WebSocket subprotocol header,
+not the URL. Ticket values must not be logged.
+Live data events are routed only to sockets authenticated as the owning user and
+are reduced to allowlisted fields before transmission. If an `Origin` header is
+present, it must match a configured client URL.
+
+---
+
 ## Device Request Rate Limiting
 
 The individual device lookup endpoint is rate limited to:

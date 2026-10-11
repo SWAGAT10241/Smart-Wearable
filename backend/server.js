@@ -3,6 +3,7 @@ const config = require("./config/env");
 const connectDB = require("./config/db");
 const { app } = require("./app");
 const { initWebSocket } = require("./realtime/socketManager");
+const logger = require("./utils/logger");
 
 const server = http.createServer(app);
 
@@ -13,11 +14,11 @@ initWebSocket(server);
 connectDB()
   .then(() => {
     server.listen(config.port, () => {
-      console.log(`TrailGuard backend listening on port ${config.port} (${config.env})`);
-      console.log(`WebSocket live channel active at /live`);
+      logger.info("server.started", { port: config.port });
+      logger.info("websocket.server_started", { route: "/live" });
     });
   })
   .catch((error) => {
-    console.error("Failed to connect to MongoDB:", error);
+    logger.error("server.database_startup_failed", { error });
     process.exit(1);
   });

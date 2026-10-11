@@ -20,6 +20,7 @@
 require("dotenv").config();
 
 const crypto = require("crypto");
+const logger = require("./utils/logger");
 
 // ─────────────────────────────────────────────
 // Configuration
@@ -254,48 +255,20 @@ async function sendTelemetry() {
       body: JSON.stringify(packet),
     });
 
-    let data = {};
-
     try {
-      data = await response.json();
+      await response.json();
     } catch {
-      data = {};
+      // Ignore non-JSON responses; only the status is logged below.
     }
 
     if (!response.ok) {
-      console.error(`[DEVICE] Telemetry rejected: ${response.status}`, data);
+      logger.warn("simulator.telemetry.rejected", { statusCode: response.status });
       return;
     }
 
-    console.log(`[DEVICE] ✓ Telemetry accepted | ${DEVICE_ID}`);
-
-    console.log(
-      `[MAX30100] HR: ${packet.heartRate} BPM | SpO₂: ${packet.spo2}%`,
-    );
-
-    console.log(
-      `[BME280] ${packet.temperature}°C | ` +
-        `${packet.humidity}% | ` +
-        `${packet.pressure} hPa`,
-    );
-
-    console.log(
-      `[NEO-6M] ${packet.latitude}, ` +
-        `${packet.longitude} | ` +
-        `${packet.satellites} satellites`,
-    );
-
-    console.log(
-      `[MPU6050] Accel: ` +
-        `${packet.totalAcceleration}g | ` +
-        `Tilt: ${packet.tiltAngle}°`,
-    );
-
-    console.log(`[AUTH] HMAC: ` + `${packet.signature.slice(0, 16)}...`);
-
-    console.log("");
+    logger.info("simulator.telemetry.accepted");
   } catch (error) {
-    console.error("[DEVICE] Network error:", error.message);
+    logger.error("simulator.telemetry.request_failed", { error });
   }
 }
 
@@ -355,32 +328,20 @@ async function simulateFall() {
       body: JSON.stringify(packet),
     });
 
-    let data = {};
-
     try {
-      data = await response.json();
+      await response.json();
     } catch {
-      data = {};
+      // Ignore non-JSON responses; only the status is logged below.
     }
 
     if (!response.ok) {
-      console.error(`[FALL] Rejected: ${response.status}`, data);
+      logger.warn("simulator.fall.rejected", { statusCode: response.status });
       return;
     }
 
-    console.log(
-      `[MPU6050] ⚠️ FALL DETECTED | ` +
-        `${tiltAngle}° | ` +
-        `${totalAcceleration.toFixed(2)}g`,
-    );
-
-    console.log(`[FALL] Severity: ${packet.severity}`);
-
-    console.log(`[AUTH] HMAC accepted`);
-
-    console.log("");
+    logger.info("simulator.fall.accepted");
   } catch (error) {
-    console.error("[FALL] Network error:", error.message);
+    logger.error("simulator.fall.request_failed", { error });
   }
 }
 
@@ -390,49 +351,14 @@ async function simulateFall() {
 
 function simulateLoRa() {
   const connected = Math.random() > 0.05;
-
-  const rssi = randomInt(-110, -55);
-
-  const snr = Number(random(-10, 12).toFixed(1));
-
-  console.log(
-    `[LoRa] ${
-      connected ? "CONNECTED" : "DISCONNECTED"
-    } | RSSI: ${rssi} dBm | SNR: ${snr} dB`,
-  );
+  logger.info(connected ? "simulator.lora.connected" : "simulator.lora.disconnected");
 }
 
 // ─────────────────────────────────────────────
 // Startup
 // ─────────────────────────────────────────────
 
-console.log("");
-console.log("==========================================");
-console.log(" TrailGuard Wearable Simulator");
-console.log("==========================================");
-console.log(`Device : ${DEVICE_ID}`);
-console.log(`Server : ${BASE_URL}`);
-console.log("");
-
-console.log("Sensors:");
-console.log(" ✓ MAX30100  → HR / SpO₂ / PPG");
-console.log(" ✓ BME280    → Temperature / Humidity / Pressure");
-console.log(" ✓ NEO-6M    → GPS");
-console.log(" ✓ MPU6050   → Motion / Fall detection");
-console.log(" ✓ LoRa      → Link simulation");
-
-console.log("");
-
-console.log("Security:");
-console.log(" ✓ deviceId authentication");
-console.log(" ✓ HMAC-SHA256");
-console.log(" ✓ timestamp");
-console.log(" ✓ no userId from device");
-console.log(" ✓ backend resolves device → user");
-
-console.log("");
-console.log("==========================================");
-console.log("");
+logger.info("simulator.started");
 
 // Start loops
 setInterval(sendTelemetry, TELEMETRY_INTERVAL_MS);

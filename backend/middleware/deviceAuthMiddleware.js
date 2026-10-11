@@ -2,6 +2,7 @@ const crypto = require("crypto");
 
 const Device = require("../models/Device");
 const DeviceAuthNonce = require("../models/DeviceAuthNonce");
+const logger = require("../utils/logger");
 
 const DEVICE_ID_PATTERN =
   /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/;
@@ -79,7 +80,7 @@ async function deviceAuthMiddleware(req, res, next) {
     }
 
     if (!Buffer.isBuffer(req.rawBody)) {
-      console.error("Device authentication requires the raw request body");
+      logger.error("device.auth.raw_body_missing");
 
       return res.status(500).json({
         error: "Device authentication is unavailable",
@@ -183,7 +184,7 @@ async function deviceAuthMiddleware(req, res, next) {
 
     next();
   } catch (error) {
-    console.error("Device authentication error:", error);
+    logger.error("device.auth.internal_error", { error });
 
     return res.status(500).json({
       error: "Device authentication failed",

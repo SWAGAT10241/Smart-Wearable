@@ -1,4 +1,5 @@
 const twilio = require("twilio");
+const logger = require("../utils/logger");
 
 const { TWILIO_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER } = process.env;
 
@@ -42,7 +43,7 @@ async function sendEmergencySMS({
     to,
   });
 
-  console.log(`[SMS] Emergency SMS sent. SID: ${message.sid}`);
+  logger.info("emergency.sms.sent");
 
   return {
     success: true,

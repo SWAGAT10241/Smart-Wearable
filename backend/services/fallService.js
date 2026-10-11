@@ -53,6 +53,8 @@ async function updateFallStatus(userId, fallId, status, broadcast = () => {}) {
 
   broadcast({
     type: "fall_status_update",
+    userId: String(userId),
+    deviceId: event.deviceId,
     data: event,
   });
 

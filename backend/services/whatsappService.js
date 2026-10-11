@@ -1,4 +1,5 @@
 const twilio = require("twilio");
+const logger = require("../utils/logger");
 
 const {
   TWILIO_SID,
@@ -45,9 +46,7 @@ async function sendEmergencyWhatsApp({
     body,
   });
 
-  console.log(
-    `[WhatsApp] Emergency message sent. SID: ${message.sid}`,
-  );
+  logger.info("emergency.whatsapp.sent");
 
   return {
     success: true,

@@ -1,13 +1,14 @@
 const mongoose = require('mongoose');
+const logger = require('../utils/logger');
 
 // Connects to MongoDB (works for local Mongo, MongoDB Atlas, or IBM Cloud
 // Databases for MongoDB — just change MONGODB_URI in .env, no code changes needed)
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('MongoDB connected:', mongoose.connection.host);
+    logger.info('database.connected');
   } catch (err) {
-    console.error('MongoDB connection failed:', err.message);
+    logger.error('database.connection_failed', { error: err });
     process.exit(1);
   }
 };

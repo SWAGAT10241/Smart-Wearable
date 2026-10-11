@@ -14,7 +14,7 @@ import {
   DEVICE_STATUS_CHARACTERISTIC_UUID,
   DEVICE_PAIRING_SERVICE_UUID,
 } from "../lib/devicePairing";
-import { devicePairingApi } from "../lib/apiClient";
+import { authApi, devicePairingApi } from "../lib/apiClient";
 import {
   serializeAuthorizationReceipt,
   parseAuthorizationChallenge,
@@ -232,7 +232,7 @@ export function LiveDataProvider({ children }) {
    * ----------------------------------------------------------
    */
 
-  const connect = useCallback(() => {
+  const connect = useCallback(async () => {
     if (stoppedRef.current) {
       return;
     }
@@ -243,13 +243,22 @@ export function LiveDataProvider({ children }) {
     ) {
       return;
     }
-    console.log("[LiveData] Connecting:", WS_URL);
     let ws;
     try {
-      ws = new WebSocket(WS_URL);
+      const { ticket } = await authApi.webSocketTicket();
+      if (stoppedRef.current) {
+        return;
+      }
+      ws = new WebSocket(WS_URL, ["trailguard", `ticket.${ticket}`]);
     } catch (error) {
-      console.error("[LiveData] Failed to create WebSocket:", error);
+      console.error("[LiveData] WebSocket authorization or connection failed");
       setConnected(false);
+      if (!stoppedRef.current && !reconnectTimerRef.current) {
+        reconnectTimerRef.current = setTimeout(() => {
+          reconnectTimerRef.current = null;
+          connect();
+        }, 3000);
+      }
       return;
     }
 

@@ -2,8 +2,16 @@ const express = require("express");
 const passport = require("passport");
 const protect = require("../middleware/authMiddleware");
 const authController = require("../controllers/authController");
+const rateLimit = require("express-rate-limit");
 
 const router = express.Router();
+const authorizeRole = require("../middleware/authorizeRole");
+const webSocketTicketLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // POST /api/auth/register — local signup
 router.post("/register", authController.register);
@@ -35,5 +43,12 @@ router.patch("/complete-profile", protect, authController.completeProfile);
 
 // GET /api/auth/me
 router.get("/me", protect, authController.getMe);
+router.post(
+  "/ws-ticket",
+  webSocketTicketLimiter,
+  protect,
+  authorizeRole("citizen", "responder", "coordinator", "admin"),
+  authController.createWebSocketTicket,
+);
 
 module.exports = router;

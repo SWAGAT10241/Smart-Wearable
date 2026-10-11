@@ -1,5 +1,7 @@
 const authService = require("../services/authService");
 const asyncHandler = require("../utils/asyncHandler");
+const logger = require("../utils/logger");
+const webSocketTicketService = require("../services/webSocketTicketService");
 
 /**
  * Handle user registration.
@@ -31,7 +33,7 @@ const handleGoogleCallback = (req, res) => {
       )}&redirect=${encodeURIComponent(destination)}`,
     );
   } catch (err) {
-    console.error("Google OAuth callback error:", err);
+    logger.error("auth.google_callback_failed", { error: err });
     res.redirect(`${process.env.CLIENT_URL}/login?error=oauth_failed`);
   }
 };
@@ -52,10 +54,16 @@ const getMe = asyncHandler(async (req, res) => {
   res.json({ user });
 });
 
+const createWebSocketTicket = asyncHandler(async (req, res) => {
+  const ticket = await webSocketTicketService.issueTicket(req.userId);
+  res.status(201).json({ ticket, expiresInSeconds: webSocketTicketService.TICKET_TTL_SECONDS });
+});
+
 module.exports = {
   register,
   login,
   handleGoogleCallback,
   completeProfile,
   getMe,
+  createWebSocketTicket,
 };

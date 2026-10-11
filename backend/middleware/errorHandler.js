@@ -11,7 +11,6 @@ function errorHandler(err, req, res, next) {
     return next(err);
   }
 
-  const isProduction = process.env.NODE_ENV === "production";
   let statusCode = err.statusCode || err.status || 500;
   let message = err.message || "Internal server error";
   let code = err.code;
@@ -19,16 +18,14 @@ function errorHandler(err, req, res, next) {
   // Handle Mongoose Validation Error
   if (err.name === "ValidationError") {
     statusCode = 400;
-    message = Object.values(err.errors)
-      .map((e) => e.message)
-      .join(", ");
+    message = "Invalid request data";
     code = "VALIDATION_ERROR";
   }
 
   // Handle Mongoose Bad ObjectId / Cast Error
   if (err.name === "CastError") {
     statusCode = 400;
-    message = `Invalid ${err.path}: ${err.value}`;
+    message = "Invalid resource identifier";
     code = "INVALID_ID";
   }
 
@@ -51,26 +48,42 @@ function errorHandler(err, req, res, next) {
     code = "TOKEN_EXPIRED";
   }
 
-  // Sanitize internal server errors in production
-  if (statusCode === 500 && isProduction) {
+  // Never expose internal errors, database details, or stack information to clients.
+  if (statusCode >= 500) {
     message = "Internal server error";
+    code = "INTERNAL_ERROR";
   }
 
   if (statusCode >= 500) {
-    logger.error(`[500 ERROR] ${req.method} ${req.originalUrl}:`, err);
+    logger.error("http.request.failed", {
+      method: req.method,
+      route: req.route?.path || "unmatched",
+      statusCode,
+      error: err,
+    });
   } else {
-    logger.warn(`[${statusCode} CLIENT ERROR] ${req.method} ${req.originalUrl}: ${message}`);
+    logger.warn("http.request.rejected", {
+      method: req.method,
+      route: req.route?.path || "unmatched",
+      statusCode,
+      error: err,
+    });
   }
 
   const responseBody = {
     error: message,
   };
 
-  if (code && typeof code === "string" && code !== "INTERNAL_ERROR") {
+  if (
+    code &&
+    typeof code === "string" &&
+    code !== "INTERNAL_ERROR" &&
+    (err instanceof AppError || statusCode < 500)
+  ) {
     responseBody.code = code;
   }
 
-  if (err.details) {
+  if (err instanceof AppError && statusCode < 500 && err.details) {
     responseBody.details = err.details;
   }
 
