@@ -1,16 +1,7 @@
 import { getToken } from "./storage";
+import { API_URL, WS_URL } from "../config/env";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, "");
-
-if (!API_URL) {
-  throw new Error("EXPO_PUBLIC_API_URL is not configured");
-}
-
-export const WS_URL = process.env.EXPO_PUBLIC_WS_URL;
-
-if (!WS_URL) {
-  throw new Error("EXPO_PUBLIC_WS_URL is not configured");
-}
+export { WS_URL };
 
 async function request(path, { method = "GET", body, auth = false } = {}) {
   const headers = {

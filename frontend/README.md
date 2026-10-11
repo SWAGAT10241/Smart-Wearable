@@ -777,7 +777,7 @@ The backend uses this ID to associate wearable telemetry with its registered own
 The current frontend follows this general structure:
 
 ```text
-frontend/
+frontend/src/
 │
 ├── assets/
 │   └── images/
@@ -785,6 +785,21 @@ frontend/
 ├── components/
 │   ├── app/
 │   ├── auth/
+│   ├── charts/
+│   │   ├── ChartCard.jsx
+│   │   └── Sparkline.jsx
+│   ├── common/
+│   │   ├── ErrorBoundary.jsx
+│   │   ├── ErrorMessage.jsx
+│   │   ├── InfoRow.jsx
+│   │   └── LoadingSpinner.jsx
+│   ├── dashboard/
+│   │   ├── DashboardHeader.jsx
+│   │   ├── LiveLocationCard.jsx
+│   │   ├── QuickStatsGrid.jsx
+│   │   └── RecentEventsCard.jsx
+│   ├── devices/
+│   │   └── DeviceCard.jsx
 │   ├── ActivitySummary.jsx
 │   ├── FallAlertModal.jsx
 │   ├── LiveMap.jsx
@@ -793,14 +808,28 @@ frontend/
 │   ├── StatCard.jsx
 │   └── icons.jsx
 │
+├── config/
+│   └── env.js
+│
 ├── context/
 │   ├── AuthContext.jsx
 │   ├── DeviceContext.jsx
-│   └── LiveDataContext.jsx
+│   ├── LiveDataContext.jsx
+│   └── ThemeContext.jsx
+│
+├── hooks/
+│   ├── useDashboardData.js
+│   ├── useDeviceManagement.js
+│   └── useTelemetryHistory.js
 │
 ├── lib/
 │   ├── apiClient.js
 │   └── profileCompletion.js
+│
+├── utils/
+│   ├── errors.js
+│   ├── formatters.js
+│   └── metrics.js
 │
 ├── pages/
 │   ├── CompleteProfile.jsx
@@ -813,16 +842,7 @@ frontend/
 │
 ├── App.jsx
 ├── index.css
-├── main.jsx
-│
-├── .env.example
-├── index.html
-├── package.json
-├── pnpm-lock.yaml
-├── pnpm-workspace.yaml
-├── vercel.json
-├── vite.config.js
-└── README.md
+└── main.jsx
 ```
 
 ---

@@ -8,8 +8,8 @@ import {
 } from "react";
 
 import { useDevices } from "./DeviceContext";
+import { WS_URL } from "../config/env";
 
-const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:3000/live";
 const LiveDataContext = createContext(null);
 
 export function LiveDataProvider({ children }) {

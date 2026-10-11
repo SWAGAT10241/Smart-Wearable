@@ -487,20 +487,30 @@ The current project uses **pnpm 11.20.0**.
 # Project Structure
 
 ```text
-Smart-Wearable/
+Smart-Wearable/ (TrailGuard)
 │
 ├── .github/
-│   └── ...
+│   └── workflows/ci.yml
 │
 ├── backend/
 │   ├── config/
 │   │   ├── db.js
 │   │   ├── env.js
-│   │   └── passport.js
-│   │
+│   │   ├── passport.js
+│   │   └── permissions.js
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── deviceController.js
+│   │   ├── environmentController.js
+│   │   ├── fallController.js
+│   │   ├── locationController.js
+│   │   ├── telemetryController.js
+│   │   └── vitalsController.js
 │   ├── middleware/
-│   │   └── authMiddleware.js
-│   │
+│   │   ├── authMiddleware.js
+│   │   ├── authorizeRole.js
+│   │   ├── errorHandler.js
+│   │   └── notFoundHandler.js
 │   ├── models/
 │   │   ├── Device.js
 │   │   ├── EnvironmentReading.js
@@ -509,8 +519,10 @@ Smart-Wearable/
 │   │   ├── PhoneOtp.js
 │   │   ├── User.js
 │   │   └── VitalsReading.js
-│   │
+│   ├── realtime/
+│   │   └── socketManager.js
 │   ├── routes/
+│   │   ├── index.js
 │   │   ├── authRoutes.js
 │   │   ├── deviceManagementRoutes.js
 │   │   ├── deviceRegistrationRoutes.js
@@ -519,10 +531,25 @@ Smart-Wearable/
 │   │   ├── fallRoutes.js
 │   │   ├── locationRoutes.js
 │   │   └── vitalsRoutes.js
-│   │
+│   ├── services/
+│   │   ├── authService.js
+│   │   ├── deviceService.js
+│   │   ├── emergencyService.js
+│   │   ├── environmentService.js
+│   │   ├── fallService.js
+│   │   ├── locationService.js
+│   │   ├── smsService.js
+│   │   ├── telemetryService.js
+│   │   ├── vitalsService.js
+│   │   └── whatsappService.js
+│   ├── utils/
+│   │   ├── appError.js
+│   │   ├── asyncHandler.js
+│   │   ├── logger.js
+│   │   └── response.js
 │   ├── tests/
+│   │   ├── auth.test.js
 │   │   └── server.test.js
-│   │
 │   ├── app.js
 │   ├── server.js
 │   ├── simulate-esp32.js
@@ -532,28 +559,59 @@ Smart-Wearable/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
+│   │   │   ├── app/
+│   │   │   ├── auth/
+│   │   │   ├── charts/
+│   │   │   ├── common/
+│   │   │   ├── dashboard/
+│   │   │   └── devices/
+│   │   ├── config/
+│   │   │   └── env.js
 │   │   ├── context/
+│   │   │   ├── AuthContext.jsx
+│   │   │   ├── DeviceContext.jsx
+│   │   │   ├── LiveDataContext.jsx
+│   │   │   └── ThemeContext.jsx
+│   │   ├── hooks/
+│   │   │   ├── useDashboardData.js
+│   │   │   ├── useDeviceManagement.js
+│   │   │   └── useTelemetryHistory.js
 │   │   ├── lib/
+│   │   │   ├── apiClient.js
+│   │   │   └── profileCompletion.js
+│   │   ├── utils/
+│   │   │   ├── errors.js
+│   │   │   ├── formatters.js
+│   │   │   └── metrics.js
 │   │   ├── pages/
 │   │   ├── App.jsx
 │   │   ├── index.css
 │   │   └── main.jsx
-│   │
-│   ├── test/
-│   │
-│   ├── .env.example
-│   ├── index.html
 │   ├── package.json
-│   ├── pnpm-lock.yaml
-│   ├── pnpm-workspace.yaml
-│   ├── vercel.json
-│   ├── vite.config.js
+│   └── README.md
+│
+├── mobile/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── config/
+│   │   │   └── env.js
+│   │   ├── context/
+│   │   ├── navigation/
+│   │   ├── screens/
+│   │   ├── theme/
+│   │   └── lib/
+│   ├── App.js
+│   ├── package.json
 │   └── README.md
 │
 ├── hardware/
 │   ├── Drivers/
+│   │   ├── max30100.py (Raspberry Pi smbus)
+│   │   ├── max30100_micropython.py (MicroPython I2C)
+│   │   └── ...
 │   └── Test/
 │
+├── ARCHITECTURE_REFACTORING.md
 ├── LICENSE
 └── README.md
 ```
