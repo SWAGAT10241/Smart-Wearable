@@ -127,8 +127,34 @@ backend/
 │   ├── env.js
 │   └── passport.js
 │
+├── controllers/
+│   ├── authController.js
+│   ├── deviceController.js
+│   ├── environmentController.js
+│   ├── fallController.js
+│   ├── locationController.js
+│   ├── telemetryController.js
+│   └── vitalsController.js
+│
+├── services/
+│   ├── authService.js
+│   ├── deviceService.js
+│   ├── emergencyService.js
+│   ├── environmentService.js
+│   ├── fallService.js
+│   ├── locationService.js
+│   ├── smsService.js
+│   ├── telemetryService.js
+│   ├── vitalsService.js
+│   └── whatsappService.js
+│
+├── realtime/
+│   └── socketManager.js
+│
 ├── middleware/
-│   └── authMiddleware.js
+│   ├── authMiddleware.js
+│   ├── errorHandler.js
+│   └── notFoundHandler.js
 │
 ├── models/
 │   ├── Device.js
@@ -140,6 +166,7 @@ backend/
 │   └── VitalsReading.js
 │
 ├── routes/
+│   ├── index.js
 │   ├── authRoutes.js
 │   ├── deviceManagementRoutes.js
 │   ├── deviceRegistrationRoutes.js
@@ -149,19 +176,20 @@ backend/
 │   ├── locationRoutes.js
 │   └── vitalsRoutes.js
 │
-├── services/
-│   ├── smsService.js
-│   └── whatsappService.js
+├── utils/
+│   ├── appError.js
+│   ├── asyncHandler.js
+│   ├── logger.js
+│   └── response.js
 │
 ├── tests/
+│   ├── auth.test.js
 │   └── server.test.js
 │
 ├── .env.example
 ├── .gitignore
 ├── app.js
 ├── package.json
-├── pnpm-lock.yaml
-├── pnpm-workspace.yaml
 ├── server.js
 ├── simulate-esp32.js
 └── README.md

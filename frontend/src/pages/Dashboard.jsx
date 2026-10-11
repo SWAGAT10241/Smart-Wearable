@@ -25,195 +25,23 @@ import {
   locationApi,
   fallsApi,
 } from "../lib/apiClient";
-
-/*
- * ==========================================================
- * HELPERS
- * ==========================================================
- */
-
-/*
- * Calculate distance between two GPS coordinates.
- *
- * Returns kilometers.
- */
-function distanceBetweenPoints(a, b) {
-  const R = 6371;
-
-  const lat1 = Number(a?.latitude);
-  const lat2 = Number(b?.latitude);
-  const lon1 = Number(a?.longitude);
-  const lon2 = Number(b?.longitude);
-
-  if (
-    !Number.isFinite(lat1) ||
-    !Number.isFinite(lat2) ||
-    !Number.isFinite(lon1) ||
-    !Number.isFinite(lon2)
-  ) {
-    return 0;
-  }
-
-  const toRadians = (degrees) => (degrees * Math.PI) / 180;
-  const dLat = toRadians(lat2 - lat1);
-  const dLon = toRadians(lon2 - lon1);
-  const lat1Rad = toRadians(lat1);
-  const lat2Rad = toRadians(lat2);
-
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.sin(dLon / 2) ** 2;
-
-  return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
-}
-
-/*
- * Convert milliseconds to HH:MM:SS.
- */
-function formatDuration(milliseconds) {
-  if (!Number.isFinite(milliseconds) || milliseconds <= 0) return null;
-
-  const totalSeconds = Math.floor(milliseconds / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  return [
-    String(hours).padStart(2, "0"),
-    String(minutes).padStart(2, "0"),
-    String(seconds).padStart(2, "0"),
-  ].join(":");
-}
-
-/*
- * ==========================================================
- * NUMERIC STATISTICS
- * ==========================================================
- */
-
-function calculateNumericStats(values) {
-  const numbers = values.map(Number).filter(Number.isFinite);
-
-  if (!numbers.length) {
-    return { min: null, average: null, max: null };
-  }
-
-  return {
-    min: Math.min(...numbers),
-    average: numbers.reduce((sum, value) => sum + value, 0) / numbers.length,
-    max: Math.max(...numbers),
-  };
-}
-
-/*
- * ==========================================================
- * READING TIMESTAMP
- * ==========================================================
- */
-
-function getReadingTimestamp(reading, fallback) {
-  const timestamp =
-    reading?.timestamp ||
-    reading?.createdAt ||
-    reading?.recordedAt ||
-    reading?._receivedAt ||
-    fallback;
-
-  if (!timestamp) return null;
-
-  const date = new Date(timestamp);
-  return Number.isNaN(date.getTime()) ? null : date;
-}
-
-/*
- * ==========================================================
- * HUMAN-READABLE UPDATED TEXT
- * ==========================================================
- */
-
-function formatUpdatedText(timestamp) {
-  const date =
-    timestamp instanceof Date ? timestamp : getReadingTimestamp(timestamp);
-
-  if (!date) return "Waiting for data";
-
-  const seconds = Math.floor(Math.max(0, Date.now() - date.getTime()) / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-
-  if (seconds < 10) return "Just now";
-  if (seconds < 60) return `${seconds} sec ago`;
-  if (minutes === 1) return "1 min ago";
-  if (minutes < 60) return `${minutes} min ago`;
-  if (hours === 1) return "1 hour ago";
-
-  return `${hours} hours ago`;
-}
-
-/*
- * ==========================================================
- * CALORIE ESTIMATION
- * ==========================================================
- *
- * Calories are estimated from:
- *
- * - distance
- * - duration
- * - trail intensity
- * - elevation gain
- *
- * This is NOT a direct calorie measurement from the ESP32.
- */
-
-function calculateCalories(distanceKm, durationMs, elevationGain = 0) {
-  if (
-    !Number.isFinite(distanceKm) ||
-    !Number.isFinite(durationMs) ||
-    distanceKm <= 0 ||
-    durationMs <= 0
-  ) {
-    return null;
-  }
-
-  const hours = durationMs / 3600000;
-  if (hours <= 0) return null;
-
-  const speed = distanceKm / hours;
-
-  /*
-   * Estimated MET for trail activity.
-   */
-  let met = 5;
-
-  if (speed >= 7) met = 8;
-  else if (speed >= 5) met = 7;
-  else if (speed >= 3) met = 6;
-
-  /*
-   * Default reference weight.
-   *
-   * Replace with the user's actual
-   * profile weight when available.
-   */
-  const weightKg = 70;
-
-  let calories = met * weightKg * hours;
-
-  /*
-   * Small elevation contribution.
-   */
-  if (Number.isFinite(Number(elevationGain)) && Number(elevationGain) > 0) {
-    calories += Number(elevationGain) * 0.05;
-  }
-
-  return Math.round(calories);
-}
+import {
+  distanceBetweenPoints,
+  calculateCalories,
+  calculateNumericStats,
+} from "../utils/metrics";
+import {
+  formatDuration,
+  getReadingTimestamp,
+  formatUpdatedText,
+} from "../utils/formatters";
 
 /*
  * ==========================================================
  * DASHBOARD
  * ==========================================================
  */
+
 
 export default function Dashboard() {
   const { user } = useAuth();

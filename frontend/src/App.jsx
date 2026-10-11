@@ -7,6 +7,7 @@ import { LiveDataProvider } from "./context/LiveDataContext";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import FallAlertModal from "./components/FallAlertModal";
+import ErrorBoundary from "./components/common/ErrorBoundary";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -18,12 +19,14 @@ import Settings from "./pages/Settings";
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <DeviceProvider>
-          <LiveDataProvider>
-            <BrowserRouter>
-              <FallAlertModal />
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AuthProvider>
+          <DeviceProvider>
+            <LiveDataProvider>
+              <BrowserRouter>
+                <FallAlertModal />
+
 
               <Routes>
                 <Route path="/login" element={<Login />} />
@@ -51,5 +54,6 @@ export default function App() {
         </DeviceProvider>
       </AuthProvider>
     </ThemeProvider>
-  );
+  </ErrorBoundary>
+);
 }

@@ -1,24 +1,39 @@
-// ------------------------------------------------------------
-// API BASE URL
-// ------------------------------------------------------------
-
-const configuredApiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
-const normalizedApiUrl = configuredApiUrl.replace(/\/+$/, "");
-const API_URL = normalizedApiUrl.endsWith("/api") ? normalizedApiUrl : `${normalizedApiUrl}/api`;
+import { API_URL } from "../config/env";
+import { ApiError } from "../utils/errors";
 
 // ------------------------------------------------------------
 // AUTH TOKEN
 // ------------------------------------------------------------
 
-function getToken() {
-  return localStorage.getItem("trailguard_token")
+export function getToken() {
+  try {
+    return localStorage.getItem("trailguard_token");
+  } catch {
+    return null;
+  }
+}
+
+export function saveToken(token) {
+  try {
+    localStorage.setItem("trailguard_token", token);
+  } catch (err) {
+    console.error("[Auth] Failed to persist token:", err);
+  }
+}
+
+export function clearToken() {
+  try {
+    localStorage.removeItem("trailguard_token");
+  } catch (err) {
+    console.error("[Auth] Failed to clear token:", err);
+  }
 }
 
 // ------------------------------------------------------------
-// GENERIC REQUEST
+// GENERIC REQUEST WITH ERROR HANDLING
 // ------------------------------------------------------------
 
-async function request(path, { method = "GET", body, auth = false } = {}) {
+export async function request(path, { method = "GET", body, auth = false } = {}) {
   const headers = {
     "Content-Type": "application/json",
   };
@@ -26,20 +41,38 @@ async function request(path, { method = "GET", body, auth = false } = {}) {
   if (auth) {
     const token = getToken();
     if (!token) {
-      throw new Error("Authentication required");
+      throw new ApiError("Authentication required", 401, "UNAUTHENTICATED");
     }
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_URL}${path}`, {
-    method,
-    headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(data.error || `Request failed (${response.status})`);
+  let response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      method,
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+  } catch (networkError) {
+    throw new ApiError(
+      networkError.message || "Network error. Please check your internet connection.",
+      0,
+      "NETWORK_ERROR",
+    );
   }
+
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    data = {};
+  }
+
+  if (!response.ok) {
+    const message = data.error || data.message || `Request failed (${response.status})`;
+    throw new ApiError(message, response.status, data.code || "REQUEST_FAILED", data.details);
+  }
+
   return data;
 }
 
@@ -174,17 +207,11 @@ export const fallsApi = {
 // ------------------------------------------------------------
 
 export const devicesApi = {
-  /*
-   * Get devices belonging to the logged-in user.
-   */
   all: () =>
     request("/devices", {
       auth: true,
     }),
 
-  /*
-   * Pair a TrailGuard device.
-   */
   register: (deviceId, deviceName = "TrailGuard Wearable") =>
     request("/devices/register", {
       method: "POST",
@@ -195,9 +222,6 @@ export const devicesApi = {
       auth: true,
     }),
 
-  /*
-   * Rename device.
-   */
   rename: (deviceId, deviceName) =>
     request(`/devices/${encodeURIComponent(deviceId)}`, {
       method: "PATCH",
@@ -207,27 +231,29 @@ export const devicesApi = {
       auth: true,
     }),
 
-  /*
-   * Unpair device.
-   */
+  updateStatus: (deviceId, status) =>
+    request(`/devices/${encodeURIComponent(deviceId)}/status`, {
+      method: "PATCH",
+      body: { status },
+      auth: true,
+    }),
+
   remove: (deviceId) =>
     request(`/devices/${encodeURIComponent(deviceId)}`, {
       method: "DELETE",
       auth: true,
     }),
 };
-// ------------------------------------------------------------
-// TOKEN MANAGEMENT
-// ------------------------------------------------------------
 
-export function saveToken(token) {
-  localStorage.setItem("trailguard_token", token);
-}
-
-export function clearToken() {
-  localStorage.removeItem("trailguard_token");
-}
-
-export { getToken };
-
-console.log("[API] Base URL:", API_URL);
+export default {
+  authApi,
+  vitalsApi,
+  environmentApi,
+  locationApi,
+  fallsApi,
+  devicesApi,
+  getToken,
+  saveToken,
+  clearToken,
+  request,
+};

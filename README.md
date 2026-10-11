@@ -487,7 +487,7 @@ The current project uses **pnpm 11.20.0**.
 # Project Structure
 
 ```text
-Smart-Wearable/
+TrailGuard/
 │
 ├── .github/
 │   └── ...
@@ -497,10 +497,31 @@ Smart-Wearable/
 │   │   ├── db.js
 │   │   ├── env.js
 │   │   └── passport.js
-│   │
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── deviceController.js
+│   │   ├── environmentController.js
+│   │   ├── fallController.js
+│   │   ├── locationController.js
+│   │   ├── telemetryController.js
+│   │   └── vitalsController.js
+│   ├── services/
+│   │   ├── authService.js
+│   │   ├── deviceService.js
+│   │   ├── emergencyService.js
+│   │   ├── environmentService.js
+│   │   ├── fallService.js
+│   │   ├── locationService.js
+│   │   ├── smsService.js
+│   │   ├── telemetryService.js
+│   │   ├── vitalsService.js
+│   │   └── whatsappService.js
+│   ├── realtime/
+│   │   └── socketManager.js
 │   ├── middleware/
-│   │   └── authMiddleware.js
-│   │
+│   │   ├── authMiddleware.js
+│   │   ├── errorHandler.js
+│   │   └── notFoundHandler.js
 │   ├── models/
 │   │   ├── Device.js
 │   │   ├── EnvironmentReading.js
@@ -509,8 +530,8 @@ Smart-Wearable/
 │   │   ├── PhoneOtp.js
 │   │   ├── User.js
 │   │   └── VitalsReading.js
-│   │
 │   ├── routes/
+│   │   ├── index.js
 │   │   ├── authRoutes.js
 │   │   ├── deviceManagementRoutes.js
 │   │   ├── deviceRegistrationRoutes.js
@@ -519,10 +540,14 @@ Smart-Wearable/
 │   │   ├── fallRoutes.js
 │   │   ├── locationRoutes.js
 │   │   └── vitalsRoutes.js
-│   │
+│   ├── utils/
+│   │   ├── appError.js
+│   │   ├── asyncHandler.js
+│   │   ├── logger.js
+│   │   └── response.js
 │   ├── tests/
+│   │   ├── auth.test.js
 │   │   └── server.test.js
-│   │
 │   ├── app.js
 │   ├── server.js
 │   ├── simulate-esp32.js
@@ -532,31 +557,52 @@ Smart-Wearable/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
+│   │   │   ├── charts/
+│   │   │   ├── common/
+│   │   │   ├── dashboard/
+│   │   │   ├── devices/
+│   │   │   └── ...
+│   │   ├── config/
+│   │   │   └── env.js
 │   │   ├── context/
+│   │   │   ├── AuthContext.jsx
+│   │   │   ├── DeviceContext.jsx
+│   │   │   ├── LiveDataContext.jsx
+│   │   │   └── ThemeContext.jsx
+│   │   ├── hooks/
+│   │   │   ├── useDashboardData.js
+│   │   │   └── useTelemetryHistory.js
 │   │   ├── lib/
+│   │   │   └── apiClient.js
 │   │   ├── pages/
+│   │   ├── utils/
+│   │   │   ├── errors.js
+│   │   │   ├── formatters.js
+│   │   │   └── metrics.js
 │   │   ├── App.jsx
 │   │   ├── index.css
 │   │   └── main.jsx
-│   │
 │   ├── test/
-│   │
-│   ├── .env.example
 │   ├── index.html
 │   ├── package.json
-│   ├── pnpm-lock.yaml
-│   ├── pnpm-workspace.yaml
-│   ├── vercel.json
 │   ├── vite.config.js
 │   └── README.md
 │
+├── mobile/
+│   ├── src/
+│   │   ├── config/env.js
+│   │   └── lib/apiClient.js
+│   └── package.json
+│
 ├── hardware/
 │   ├── Drivers/
+│   │   └── max30100_micropython.py
 │   └── Test/
 │
 ├── LICENSE
 └── README.md
 ```
+
 
 ---
 
