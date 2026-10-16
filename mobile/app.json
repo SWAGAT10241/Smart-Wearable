@@ -5,6 +5,29 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.trailguard.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "TrailGuard uses your location to track hike routes and broadcast GPS coordinates during emergencies.",
+        "NSBluetoothAlwaysUsageDescription": "TrailGuard connects with your wearable device via Bluetooth Low Energy to stream vitals and fall detection telemetry.",
+        "NSBluetoothPeripheralUsageDescription": "TrailGuard pairs with smart wearable sensors via BLE."
+      }
+    },
+    "android": {
+      "package": "com.trailguard.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#022c22"
+      },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "BLUETOOTH",
+        "BLUETOOTH_ADMIN",
+        "BLUETOOTH_SCAN",
+        "BLUETOOTH_CONNECT"
+      ]
+    },
     "plugins": [
       "expo-status-bar"
     ]
