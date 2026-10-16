@@ -93,6 +93,7 @@ async function processReadings(payload, broadcast = () => {}, existingDevice = n
     broadcast({
       type: "vitals",
       deviceId: normalizedDeviceId,
+      userId: device.userId,
       data: reading,
     });
   }
@@ -121,6 +122,7 @@ async function processReadings(payload, broadcast = () => {}, existingDevice = n
     broadcast({
       type: "environment",
       deviceId: normalizedDeviceId,
+      userId: device.userId,
       data: reading,
     });
   }
@@ -152,6 +154,7 @@ async function processReadings(payload, broadcast = () => {}, existingDevice = n
     broadcast({
       type: "location",
       deviceId: normalizedDeviceId,
+      userId: device.userId,
       data: reading,
     });
   }
@@ -196,6 +199,7 @@ async function processReadings(payload, broadcast = () => {}, existingDevice = n
     broadcast({
       type: "fall_detected",
       deviceId: normalizedDeviceId,
+      userId: device.userId,
       data: fallEvent,
     });
   }

@@ -25,6 +25,7 @@ const auditLogSchema = new mongoose.Schema(
     action: {
       type: String,
       enum: [
+        "EMERGENCY_SESSION_CREATED",
         "EMERGENCY_SESSION_ACCESSED",
         "HISTORICAL_VITALS_REQUESTED",
         "DEVICE_PAIRING_INITIATED",
@@ -32,6 +33,9 @@ const auditLogSchema = new mongoose.Schema(
         "DEVICE_REVOKED",
         "EMERGENCY_STATUS_UPDATED",
         "EMERGENCY_SESSION_RESOLVED",
+        "RESPONDER_ASSIGNED",
+        "EMERGENCY_LOCATION_UPDATED",
+        "EMERGENCY_RISK_UPDATED",
         "USER_ROLE_UPDATED",
       ],
       required: true,

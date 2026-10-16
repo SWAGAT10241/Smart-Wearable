@@ -28,7 +28,7 @@ async function getLatestFall(userId) {
 /**
  * Update the status of a fall event (e.g., detected, dismissed, resolved).
  */
-async function updateFallStatus(userId, fallId, status, broadcast = () => {}) {
+async function updateFallStatus(userId, fallId, status, broadcast = () => { }) {
   if (!status) {
     throw new AppError("status is required", 400, "VALIDATION_ERROR");
   }
@@ -53,6 +53,7 @@ async function updateFallStatus(userId, fallId, status, broadcast = () => {}) {
 
   broadcast({
     type: "fall_status_update",
+    userId,
     data: event,
   });
 

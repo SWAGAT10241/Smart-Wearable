@@ -7,6 +7,7 @@ const vitalsRoutes = require("./vitalsRoutes");
 const fallRoutes = require("./fallRoutes");
 const environmentRoutes = require("./environmentRoutes");
 const locationRoutes = require("./locationRoutes");
+const emergencyRoutes = require("./emergencyRoutes");
 
 /**
  * Configure and return the unified API routes.
@@ -28,6 +29,9 @@ function createApiRouter(broadcast) {
 
   // User Device management (/api/devices, /api/devices/:deviceId, /api/devices/admin/all)
   router.use("/devices", deviceManagementRoutes());
+
+  // Emergency session and rescue communication (/api/emergency/*)
+  router.use("/emergency", emergencyRoutes());
 
   // Dashboard Telemetry endpoints
   router.use("/vitals", vitalsRoutes());

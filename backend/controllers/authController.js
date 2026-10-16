@@ -52,10 +52,21 @@ const getMe = asyncHandler(async (req, res) => {
   res.json({ user });
 });
 
+const webSocketTicketService = require("../services/webSocketTicketService");
+
+/**
+ * Generate a single-use WebSocket authentication ticket.
+ */
+const generateWsTicket = asyncHandler(async (req, res) => {
+  const result = await webSocketTicketService.createTicket(req.userId, req.user?.role);
+  res.status(201).json(result);
+});
+
 module.exports = {
   register,
   login,
   handleGoogleCallback,
   completeProfile,
   getMe,
+  generateWsTicket,
 };
