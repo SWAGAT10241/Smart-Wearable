@@ -37,4 +37,7 @@ router.patch("/complete-profile", protect, authController.completeProfile);
 // GET /api/auth/me
 router.get("/me", protect, authController.getMe);
 
+// POST /api/auth/ws-ticket — Single-use authenticated ticket for WebSocket handshake
+router.post("/ws-ticket", protect, authController.generateWsTicket);
+
 module.exports = router;
