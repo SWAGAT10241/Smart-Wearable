@@ -1,0 +1,40 @@
+name: 🚀 Feature Request
+description: Suggest an idea or architectural improvement for TrailGuard / SWAAS
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please check existing issues and Phase 1 roadmap before submitting a new feature request.
+  - type: dropdown
+    id: component
+    attributes:
+      label: Targeted Component
+      description: Which part of the architecture does this feature impact?
+      options:
+        - Backend API / Real-time Engine
+        - Frontend Web (Rescue / Dashboard)
+        - Mobile App
+        - Wearable Hardware / Firmware
+        - Security & Privacy Architecture
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: Is your feature request related to a problem? Please describe.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe how this feature should work and its impact on the data flow.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Describe any alternative solutions or features you've considered.

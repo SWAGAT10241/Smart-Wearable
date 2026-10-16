@@ -120,7 +120,7 @@ jobs:
         run: node scripts/check-syntax.js
 
       - name: Validate Expo project health
-        run: npx expo-doctor
+        run: npx --yes expo-doctor
 
       - name: Validate bundle export
         run: npx expo export -p android --no-bytecode
