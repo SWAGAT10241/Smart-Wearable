@@ -23,7 +23,7 @@
     "mongoose": "^9.11.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "twilio": "^6.1.2",
+    "twilio": "^6.2.0",
     "ws": "^8.22.0"
   },
   "devDependencies": {
