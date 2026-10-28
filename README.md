@@ -42,10 +42,14 @@ The existing prototype/simulator uploads sensor readings to the backend, which v
 
 The target device lifecycle, secure pairing, BLE protocol, local-first data
 boundary, emergency sharing flow, API contract, data models, threat model, and
-verification requirements are documented in the
-[Day 3 device and API architecture](docs/architecture/day-3-device-and-api-architecture.md).
-That document distinguishes the intended design from prototype behavior that
-is not yet production-safe.
+verification requirements are documented across the architectural specifications:
+
+- **[System Architecture Diagram (arc.md)](arc.md)**: Component topology and interactive GitDiagram map.
+- **[AI Agent Directives (AGENTS.md)](AGENTS.md)**: Operational rules, invariant enforcement, and multi-agent workflow.
+- **[Day 3 — Device & API Architecture](docs/architecture/day-3-device-and-api-architecture.md)**: Ed25519 pairing challenges and BLE link security.
+- **[Day 4 — Risk & Emergency Models](docs/architecture/day-4-risk-and-emergency-models.md)**: Ephemeral models and TTL-backed data lifecycle.
+- **[Day 5 — WebSocket & Emergency Communication](docs/architecture/day-5-websocket-and-emergency-communication.md)**: Ephemeral single-use tickets and session-scoped real-time subscriptions.
+- **[Day 6 — Privacy, Security & Authorization](docs/architecture/day-6-privacy-security-authorization.md)**: Fail-closed audit logging, redacted structured logging, and 6-hour bounded replay.
 
 ---
 

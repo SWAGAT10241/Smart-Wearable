@@ -1596,6 +1596,50 @@ per 15 minutes
 
 ---
 
+## Structured Logging
+
+Backend runtime logs use `utils/logger.js`. Production emits newline-delimited JSON;
+development emits readable level/event lines. Sensitive fields (credentials, health readings,
+location coordinates, private keys, pairing nonces, and phone numbers) are automatically redacted.
+
+---
+
+## Emergency Data Access
+
+Emergency history is available only through the controlled session API:
+
+- `POST /api/emergency/sessions` — a citizen requests help for their own active,
+  paired device.
+- `GET /api/emergency/sessions/active` — citizens list own active sessions; coordinators
+  and responders list active incidents.
+- `POST /api/emergency/sessions/:sessionId/responders` — a coordinator or admin
+  assigns a responder, or an authorized responder self-joins.
+- `GET /api/emergency/sessions/:sessionId/historical` — the assigned responder or
+  authorizing coordinator retrieves bounded 6-hour data while the session is active.
+- `PATCH /api/emergency/sessions/:sessionId/status` — updates status to escalated,
+  resolved, or cancelled.
+- `GET /api/emergency/sessions/:sessionId/audit` — an admin or coordinator reviews
+  audit metadata for a session.
+
+Emergency data access is fixed to the previous six hours, scoped to the citizen
+and device on the session, returns only necessary sensor fields, and is capped at
+100 readings per data type. Every request, assignment, data access, and closure is
+recorded in the `AuditLog` collection. The read endpoint records its audit
+entry before accessing protected health/location collections and fails closed if
+the audit write fails.
+
+---
+
+## Live WebSocket Security
+
+`/live` requires a short-lived, single-use ticket issued by the authenticated
+`POST /api/emergency/ws-ticket` endpoint. The ticket expires after 60 seconds and is
+consumed once during the WebSocket upgrade via the WebSocket subprotocol header (`trailguard, ticket.<ticket>`).
+Ticket values are not logged. Live data events are routed strictly to sockets authenticated
+as the owning user (for telemetry) or subscribed to that specific session (for emergency events).
+
+---
+
 ## Device Request Rate Limiting
 
 The individual device lookup endpoint is rate limited to:

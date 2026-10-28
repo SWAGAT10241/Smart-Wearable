@@ -28,7 +28,7 @@ function errorHandler(err, req, res, next) {
   // Handle Mongoose Bad ObjectId / Cast Error
   if (err.name === "CastError") {
     statusCode = 400;
-    message = `Invalid ${err.path}: ${err.value}`;
+    message = isProduction ? "Invalid identifier provided" : `Invalid ${err.path}: ${err.value}`;
     code = "INVALID_ID";
   }
 
