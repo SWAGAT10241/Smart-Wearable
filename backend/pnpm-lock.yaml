@@ -183,8 +183,8 @@ importers:
         specifier: ^2.8.5
         version: 2.8.6
       dotenv:
-        specifier: ^18.0.7
-        version: 18.0.7
+        specifier: ^18.0.8
+        version: 18.0.9
       express:
         specifier: ^5.3.0
         version: 5.3.0(supports-color@8.1.1)
@@ -213,8 +213,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       twilio:
-        specifier: ^6.1.2
-        version: 6.1.2(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)
+        specifier: ^6.2.0
+        version: 6.2.0(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)
       ws:
         specifier: ^8.22.0
         version: 8.22.0
@@ -1073,8 +1073,8 @@ packages:
   dezalgo@1.0.4:
     resolution: {integrity: sha512-rXSP0bf+5n0Qonsb+SVVfNfIsimO4HEtmnIpPHY8Q1UCzKlQrDMfdobr8nJOOsRgWCyMRqeSBQzmWUMq7zvVig==}
 
-  dotenv@18.0.7:
-    resolution: {integrity: sha512-QEvMEF8ca3GNZJJnAbOgxpj5ULhBvnMcURp+XKrtvqFNPgjBvYoswQ0Jl2cO7JzCjxZjJhr9ZuIEhlrRxMft/Q==}
+  dotenv@18.0.9:
+    resolution: {integrity: sha512-3fVOW4cB02R066PUSwn8O4TJyz9NckQl7F81blIbaq9jKBm2tSmOKky7ZHIXzGvkVPXCSn6jkpziBPZdGFs8Tw==}
     engines: {node: '>=12'}
     hasBin: true
 
@@ -1910,10 +1910,6 @@ packages:
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  scmp@2.1.0:
-    resolution: {integrity: sha512-o/mRQGk9Rcer/jEEw/yw4mwo3EU/NvYvp577/Btqrym9Qy5/MdWGBqipbALgd2lrdWTJ5/gqDusxfnQBxOxT2Q==}
-    deprecated: Just use Node.js's crypto.timingSafeEqual()
-
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
     hasBin: true
@@ -2053,8 +2049,8 @@ packages:
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
-  twilio@6.1.2:
-    resolution: {integrity: sha512-jlZTCIo0sUhX9qoap2SDtHgVvYtz5VI+G0bzxb/BoqJxE7awxNoDsQJYaAToedZ3F3dD4ZS2+kT8Bj4RKyImvQ==}
+  twilio@6.2.0:
+    resolution: {integrity: sha512-zuwVhRa8gGIvaTjXIkRNcf7cPPQCeghMukMcG9WnhWmm7SLnregVpdIoYOSrOvlqMUYf6xP9A2ivsJNf6URoSg==}
     engines: {node: '>=20.0.0'}
 
   type-detect@4.0.8:
@@ -3081,7 +3077,7 @@ snapshots:
       asap: 2.0.6
       wrappy: 1.0.2
 
-  dotenv@18.0.7: {}
+  dotenv@18.0.9: {}
 
   dunder-proto@1.0.1:
     dependencies:
@@ -4063,8 +4059,6 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  scmp@2.1.0: {}
-
   semver@6.3.1: {}
 
   semver@7.8.5: {}
@@ -4230,14 +4224,13 @@ snapshots:
   tslib@2.8.1:
     optional: true
 
-  twilio@6.1.2(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1):
+  twilio@6.2.0(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1):
     dependencies:
       axios: 1.20.0(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)
       dayjs: 1.11.23
       https-proxy-agent: 5.0.1(supports-color@8.1.1)
       jsonwebtoken: 9.0.3
       qs: 6.16.0
-      scmp: 2.1.0
       xmlbuilder: 13.0.2
     transitivePeerDependencies:
       - debug

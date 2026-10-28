@@ -11,21 +11,37 @@ updates:
     directory: "/backend"
     schedule:
       interval: "weekly"
+    groups:
+      backend-dependencies:
+        patterns:
+          - "*"
 
   # Frontend dependencies
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
       interval: "weekly"
+    groups:
+      frontend-dependencies:
+        patterns:
+          - "*"
 
   # Hardware/Python dependencies
   - package-ecosystem: "pip"
     directory: "/hardware"
     schedule:
       interval: "weekly"
+    groups:
+      hardware-dependencies:
+        patterns:
+          - "*"
       
   # GitHub Actions dependencies
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      actions:
+        patterns:
+          - "*"
