@@ -1,7 +1,7 @@
 # System Architecture & Component Topology
 
 **Project:** SWAAS (Smart Wearable Assistance & Alert System) / TrailGuard  
-**Reference:** [GitDiagram System Topology](https://gitdiagram.com/swagat10241/smart-wearable)  
+**Reference:** [GitDiagram System Topology](https://gitdiagram.com/swagat10241/smart-wearable)
 
 [![Architecture diagram of swagat10241/smart-wearable](https://gitdiagram.com/swagat10241/smart-wearable/diagram.png)](https://gitdiagram.com/swagat10241/smart-wearable?utm_source=readme&utm_medium=picture)
 
@@ -122,6 +122,7 @@ class node_wearer_device toneIndigo
 ## 2. Architectural Subsystem Breakdown
 
 ### 2.1 Hardware Sensing Tier (`hardware/`)
+
 - **Device Platform:** Espressif ESP32-S3 microcontroller with BLE 5.0 and LoRa transceivers.
 - **Sensor Drivers:**
   - `MAX30100`: Photoplethysmography (PPG) sensor for continuous Heart Rate and SpO2 calculation.
@@ -130,12 +131,14 @@ class node_wearer_device toneIndigo
   - `SX1278 LoRa`: Long-range sub-GHz emergency beacon broadcasting when cellular connectivity is degraded.
 
 ### 2.2 Local-First Mobile Companion (`mobile/`)
+
 - **Framework:** React Native / Expo SDK 57.
 - **Local Storage:** SQLite (SQLCipher) retaining 7-day rolling window of sensor readings.
 - **Edge Risk Engine:** Evaluates sensor streams in real time for anomalies and potential falls without sending data to the cloud.
 - **BLE Management:** Authenticated pairing via LE Secure Connections (ECDH P-256) and bonded link-layer encryption.
 
 ### 2.3 Express & MongoDB Backend (`backend/`)
+
 - **Framework:** Node.js / Express 5 with Mongoose 9 ODM.
 - **Security & RBAC:** Hierarchical role authorization (`citizen`, `responder`, `coordinator`, `admin`).
 - **Cryptographic Device Ingestion:** Hardware requests authenticated using Ed25519 digital signatures (`X-Device-Signature`) and anti-replay nonces.
@@ -143,6 +146,7 @@ class node_wearer_device toneIndigo
 - **Ephemeral Retention:** Automatic TTL cleanup for emergency sessions and WebSocket upgrade tickets.
 
 ### 2.4 Monitoring & Rescue Dashboard (`frontend/`)
+
 - **Framework:** React 19 / Vite 6 / Tailwind CSS / MapLibre GL.
 - **Emergency Live View:** Ephemeral session tracking, real-time GPS coordinate plotting, and 6-hour bounded vitals replay.
 - **WebSocket Protocol:** Ephemeral ticket authentication (`trailguard, ticket.<ticket>`) over `/live`.
@@ -152,8 +156,10 @@ class node_wearer_device toneIndigo
 ## 3. Related Specifications & Architecture Documentation
 
 For in-depth architectural and implementation contracts across all phases:
-- **[AGENTS.md](file:///Users/swagatsouravdhar/WEB DEVELOPMENT/TrailGuard/AGENTS.md)**: AI Agent Directives, Golden Rules, Verification Suites & Workflow Protocol.
-- **[Day 3 — Device & API Architecture](file:///Users/swagatsouravdhar/WEB DEVELOPMENT/TrailGuard/docs/architecture/day-3-device-and-api-architecture.md)**: Device Provisioning, Ed25519 Challenges, BLE Contracts.
-- **[Day 4 — Risk & Emergency Models](file:///Users/swagatsouravdhar/WEB DEVELOPMENT/TrailGuard/docs/architecture/day-4-risk-and-emergency-models.md)**: `EmergencySession`, `RiskAssessment`, Ephemeral Data Models.
-- **[Day 5 — WebSocket & Emergency Communication](file:///Users/swagatsouravdhar/WEB DEVELOPMENT/TrailGuard/docs/architecture/day-5-websocket-and-emergency-communication.md)**: Ephemeral Tickets, Real-Time Protocols, Session Subscriptions.
-- **[Day 6 — Privacy, Security & Authorization](file:///Users/swagatsouravdhar/WEB DEVELOPMENT/TrailGuard/docs/architecture/day-6-privacy-security-authorization.md)**: Fail-Closed Auditing, Redacted Logging, 6-Hour Bounded Access.
+
+- **[AGENTS.md](AGENTS.md)**: AI Agent Directives, Golden Rules, Verification Suites & Workflow Protocol.
+- **[SECURITY_AUDIT.md](SECURITY_AUDIT.md)**: Comprehensive Multi-Tier Security & Risk Audit.
+- **[Day 3 — Device & API Architecture](docs/architecture/day-3-device-and-api-architecture.md)**: Device Provisioning, Ed25519 Challenges, BLE Contracts.
+- **[Day 4 — Risk & Emergency Models](docs/architecture/day-4-risk-and-emergency-models.md)**: `EmergencySession`, `RiskAssessment`, Ephemeral Data Models.
+- **[Day 5 — WebSocket & Emergency Communication](docs/architecture/day-5-websocket-and-emergency-communication.md)**: Ephemeral Tickets, Real-Time Protocols, Session Subscriptions.
+- **[Day 6 — Privacy, Security & Authorization](docs/architecture/day-6-privacy-security-authorization.md)**: Fail-Closed Auditing, Redacted Logging, 6-Hour Bounded Access.

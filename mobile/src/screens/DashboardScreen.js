@@ -1,5 +1,4 @@
 import React from "react";
-
 import {
   RefreshControl,
   ScrollView,
@@ -7,29 +6,36 @@ import {
   Text,
   View,
 } from "react-native";
-
 import { SafeAreaView } from "react-native-safe-area-context";
+
 import AppHeader from "../components/AppHeader";
 import StatCard from "../components/StatCard";
 import DeviceCard from "../components/DeviceCard";
 import SectionCard from "../components/SectionCard";
 import AlertCard from "../components/AlertCard";
 
-import { useDevices } from "../context/DeviceContext";
-import { useLiveData } from "../context/LiveDataContext";
-import { useAuth } from "../context/AuthContext";
+import { useDashboardData } from "../hooks/useDashboardData";
 import { useAppTheme } from "../theme/theme";
 
+/**
+ * Main dashboard screen on mobile companion app.
+ * Displays live wearable status, health metrics, environment stats, and recent safety alerts.
+ */
 export default function DashboardScreen() {
   const theme = useAppTheme();
-  const { user } = useAuth();
-  const { selectedDevice } = useDevices();
-  const { vitals, environment, location, falls, connected, loading, refresh } = useLiveData();
-  const heartRate = vitals?.heartRate ?? vitals?.hr ?? vitals?.heart_rate;
-  const spo2 = vitals?.spo2 ?? vitals?.oxygenSaturation ?? vitals?.oxygen;
-  const temperature = environment?.temperature ?? vitals?.temperature ?? vitals?.temp;
-  const humidity = environment?.humidity ?? vitals?.humidity;
-  const pressure = environment?.pressure ?? vitals?.pressure;
+  const {
+    user,
+    selectedDevice,
+    location,
+    recentFalls,
+    connected,
+    loading,
+    refresh,
+    metrics,
+    statuses,
+  } = useDashboardData();
+
+  const { heartRate, spo2, temperature, humidity, pressure } = metrics;
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
@@ -84,11 +90,7 @@ export default function DashboardScreen() {
             value={heartRate}
             unit="BPM"
             icon="❤️"
-            status={
-              heartRate && (heartRate < 50 || heartRate > 120)
-                ? "danger"
-                : "success"
-            }
+            status={statuses.heartRate}
           />
 
           <StatCard
@@ -96,7 +98,7 @@ export default function DashboardScreen() {
             value={spo2}
             unit="%"
             icon="🫁"
-            status={spo2 && spo2 < 94 ? "danger" : "success"}
+            status={statuses.spo2}
           />
 
           <StatCard
@@ -106,36 +108,58 @@ export default function DashboardScreen() {
             icon="🌡️"
           />
 
-          <StatCard title="Humidity" value={humidity} unit="%" icon="💧" />
-          <StatCard title="Pressure" value={pressure} unit="hPa" icon="⛰️" />
+          <StatCard
+            title="Humidity"
+            value={humidity}
+            unit="%"
+            icon="💧"
+          />
 
           <StatCard
-            title="GPS"
-            value={location?.latitude ? "Active" : "Offline"}
-            icon="📍"
+            title="Pressure"
+            value={pressure}
+            unit="hPa"
+            icon="🧭"
           />
         </View>
 
-        <SectionCard title="Current Location">
-          <Text style={[styles.coordinate, { color: theme.text }]}>
-            {location?.latitude
-              ? `${Number(location.latitude).toFixed(5)}, ${Number(
-                  location.longitude,
-                ).toFixed(5)}`
-              : "Location unavailable"}
-          </Text>
+        <Text style={[styles.heading, { color: theme.text }]}>Location</Text>
 
-          <Text style={[styles.muted, { color: theme.secondaryText }]}>
-            GPS position from your TrailGuard wearable.
-          </Text>
+        <SectionCard title="Current Position">
+          <View style={styles.locationRow}>
+            <Text style={{ color: theme.secondaryText }}>Latitude</Text>
+            <Text style={[styles.locationValue, { color: theme.text }]}>
+              {location?.latitude ?? "--"}
+            </Text>
+          </View>
+
+          <View style={styles.locationRow}>
+            <Text style={{ color: theme.secondaryText }}>Longitude</Text>
+            <Text style={[styles.locationValue, { color: theme.text }]}>
+              {location?.longitude ?? "--"}
+            </Text>
+          </View>
+
+          <View style={styles.locationRow}>
+            <Text style={{ color: theme.secondaryText }}>Altitude</Text>
+            <Text style={[styles.locationValue, { color: theme.text }]}>
+              {location?.altitude ? `${location.altitude} m` : "--"}
+            </Text>
+          </View>
         </SectionCard>
 
-        {falls?.length > 0 && (
-          <SectionCard title="Recent Alerts">
-            {falls.slice(0, 3).map((fall, index) => (
-              <AlertCard key={fall._id || fall.id || index} alert={fall} />
-            ))}
-          </SectionCard>
+        <Text style={[styles.heading, { color: theme.text }]}>
+          Recent Safety Alerts
+        </Text>
+
+        {recentFalls.length === 0 ? (
+          <Text style={[styles.empty, { color: theme.secondaryText }]}>
+            No recent falls or SOS events.
+          </Text>
+        ) : (
+          recentFalls.map((fall, index) => (
+            <AlertCard key={fall._id || fall.id || index} alert={fall} />
+          ))
         )}
       </ScrollView>
     </SafeAreaView>
@@ -146,49 +170,46 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
   },
-
   container: {
     padding: 16,
     paddingBottom: 30,
   },
-
   connection: {
-    borderWidth: 1,
-    borderRadius: 14,
-    padding: 12,
     flexDirection: "row",
     alignItems: "center",
-    gap: 9,
-    marginBottom: 14,
+    padding: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    marginBottom: 16,
   },
-
   connectionDot: {
-    width: 9,
-    height: 9,
+    width: 10,
+    height: 10,
     borderRadius: 5,
+    marginRight: 8,
   },
-
   heading: {
-    fontSize: 19,
-    fontWeight: "900",
-    marginTop: 5,
-    marginBottom: 12,
+    fontSize: 18,
+    fontWeight: "700",
+    marginTop: 20,
+    marginBottom: 10,
   },
-
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
-
-  coordinate: {
-    fontSize: 17,
-    fontWeight: "800",
+  locationRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 6,
   },
-
-  muted: {
-    marginTop: 6,
-    fontSize: 12,
-    lineHeight: 18,
+  locationValue: {
+    fontWeight: "600",
+  },
+  empty: {
+    textAlign: "center",
+    marginVertical: 20,
+    fontSize: 14,
   },
 });

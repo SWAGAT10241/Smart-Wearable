@@ -204,7 +204,7 @@ Safety-critical and remotely exploitable vulnerabilities receive the highest pri
 
 ## Security Practices
 
-SWAAS uses multiple layers of security controls.
+SWAAS uses multiple layers of security controls. For a comprehensive multi-tier assessment of open and resolved security findings across hardware, backend, mobile, and web tiers, refer to the [Security Audit Report](SECURITY_AUDIT.md).
 
 Current security measures include:
 

@@ -1,96 +1,56 @@
-import React, { useEffect, useState } from "react";
-
+import React from "react";
 import {
   ActivityIndicator,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 import AppHeader from "../components/AppHeader";
 import SectionCard from "../components/SectionCard";
-import { vitalsApi, environmentApi } from "../lib/apiClient";
 import { useDevices } from "../context/DeviceContext";
 import { useAppTheme } from "../theme/theme";
+import { useHistoryData } from "../hooks/useHistoryData";
+import { formatReadingValue } from "../utils/formatters";
 
+/**
+ * 24-hour historical telemetry viewer for Mobile.
+ */
 export default function HistoryScreen() {
   const theme = useAppTheme();
   const { selectedDeviceId } = useDevices();
-  const [vitals, setVitals] = useState([]);
-  const [environment, setEnvironment] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!selectedDeviceId) {
-      return;
-    }
-
-    load();
-  }, [selectedDeviceId]);
-
-  async function load() {
-    try {
-      setLoading(true);
-
-      const [vitalsResponse, environmentResponse] = await Promise.all([
-        vitalsApi.history(selectedDeviceId, 24),
-        environmentApi.history(selectedDeviceId, 24),
-      ]);
-
-      setVitals(
-        Array.isArray(vitalsResponse)
-          ? vitalsResponse
-          : vitalsResponse?.vitals || vitalsResponse?.data || [],
-      );
-
-      setEnvironment(
-        Array.isArray(environmentResponse)
-          ? environmentResponse
-          : environmentResponse?.environment || environmentResponse?.data || [],
-      );
-    } catch (error) {
-      console.log("History error:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function value(item, ...keys) {
-    for (const key of keys) {
-      if (item?.[key] !== undefined) {
-        return item[key];
-      }
-    }
-
-    return "--";
-  }
+  const { vitals, environment, loading, error, refresh } = useHistoryData(24);
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
       <AppHeader title="History" subtitle="Last 24 hours" />
 
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={refresh} />
+        }
+      >
         {loading && <ActivityIndicator color={theme.primary} size="large" />}
 
+        {error && (
+          <Text style={[styles.errorText, { color: theme.danger || "#EF4444" }]}>
+            {error}
+          </Text>
+        )}
+
         {!selectedDeviceId && (
-          <Text
-            style={{
-              color: theme.secondaryText,
-              textAlign: "center",
-            }}
-          >
+          <Text style={[styles.emptyText, { color: theme.secondaryText }]}>
             Pair a TrailGuard device first.
           </Text>
         )}
 
         <SectionCard title="Vitals">
           {vitals.length === 0 ? (
-            <Text
-              style={{
-                color: theme.secondaryText,
-              }}
-            >
+            <Text style={{ color: theme.secondaryText }}>
               No historical vitals available.
             </Text>
           ) : (
@@ -98,94 +58,58 @@ export default function HistoryScreen() {
               .slice()
               .reverse()
               .slice(0, 20)
-              .map((item, index) => (
-                <View
-                  key={item._id || index}
-                  style={[
-                    styles.row,
-                    {
-                      borderBottomColor: theme.border,
-                    },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.time,
-                      {
-                        color: theme.secondaryText,
-                      },
-                    ]}
+              .map((reading, index) => {
+                const date = reading.timestamp
+                  ? new Date(reading.timestamp).toLocaleTimeString()
+                  : "--";
+
+                return (
+                  <View
+                    key={reading._id || reading.id || index}
+                    style={styles.historyRow}
                   >
-                    {item.timestamp
-                      ? new Date(item.timestamp).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
-                      : "--"}
-                  </Text>
+                    <Text style={{ color: theme.secondaryText }}>{date}</Text>
 
-                  <Text style={[styles.metric, { color: theme.text }]}>
-                    ❤️ {value(item, "heartRate", "hr")}
-                  </Text>
-
-                  <Text style={[styles.metric, { color: theme.text }]}>
-                    🫁 {value(item, "spo2", "oxygenSaturation")}
-                  </Text>
-                </View>
-              ))
+                    <Text style={{ color: theme.text, fontWeight: "600" }}>
+                      HR: {formatReadingValue(reading.heartRate ?? reading.hr, 0)} BPM | SpO2:{" "}
+                      {formatReadingValue(reading.spo2 ?? reading.oxygen, 0)}%
+                    </Text>
+                  </View>
+                );
+              })
           )}
         </SectionCard>
 
         <SectionCard title="Environment">
           {environment.length === 0 ? (
-            <Text
-              style={{
-                color: theme.secondaryText,
-              }}
-            >
-              No environment history available.
+            <Text style={{ color: theme.secondaryText }}>
+              No historical environment readings available.
             </Text>
           ) : (
             environment
               .slice()
               .reverse()
               .slice(0, 20)
-              .map((item, index) => (
-                <View
-                  key={item._id || index}
-                  style={[
-                    styles.row,
-                    {
-                      borderBottomColor: theme.border,
-                    },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.time,
-                      {
-                        color: theme.secondaryText,
-                      },
-                    ]}
+              .map((reading, index) => {
+                const date = reading.timestamp
+                  ? new Date(reading.timestamp).toLocaleTimeString()
+                  : "--";
+
+                return (
+                  <View
+                    key={reading._id || reading.id || index}
+                    style={styles.historyRow}
                   >
-                    {item.timestamp
-                      ? new Date(item.timestamp).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
-                      : "--"}
-                  </Text>
+                    <Text style={{ color: theme.secondaryText }}>{date}</Text>
 
-                  <Text style={[styles.metric, { color: theme.text }]}>
-                    🌡️ {value(item, "temperature", "temp")}
-                    °C
-                  </Text>
-
-                  <Text style={[styles.metric, { color: theme.text }]}>
-                    💧 {value(item, "humidity")}%
-                  </Text>
-                </View>
-              ))
+                    <Text style={{ color: theme.text, fontWeight: "600" }}>
+                      {formatReadingValue(reading.temperature, 1)}°C |{" "}
+                      {formatReadingValue(reading.humidity, 0)}% |{" "}
+                      {formatReadingValue(reading.pressure, 0)} hPa
+                    </Text>
+                  </View>
+                );
+              })
           )}
         </SectionCard>
       </ScrollView>
@@ -197,27 +121,26 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
   },
-
   container: {
     padding: 16,
-    paddingBottom: 30,
+    paddingBottom: 40,
   },
-
-  row: {
+  historyRow: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
+    paddingVertical: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#E2E8F0",
   },
-
-  time: {
-    width: 60,
-    fontSize: 11,
+  emptyText: {
+    textAlign: "center",
+    marginVertical: 20,
+    fontSize: 14,
   },
-
-  metric: {
-    flex: 1,
-    fontSize: 12,
-    fontWeight: "700",
+  errorText: {
+    textAlign: "center",
+    marginVertical: 10,
+    fontSize: 13,
   },
 });

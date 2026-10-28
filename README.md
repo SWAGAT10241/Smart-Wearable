@@ -44,7 +44,7 @@ The target device lifecycle, secure pairing, BLE protocol, local-first data
 boundary, emergency sharing flow, API contract, data models, threat model, and
 verification requirements are documented across the architectural specifications:
 
-- **[System Architecture Diagram (arc.md)](arc.md)**: Component topology and interactive GitDiagram map.
+- **[System Architecture Diagram (ARCHITECTURE.md)](ARCHITECTURE.md)**: Component topology and interactive GitDiagram map.
 - **[AI Agent Directives (AGENTS.md)](AGENTS.md)**: Operational rules, invariant enforcement, and multi-agent workflow.
 - **[Day 3 — Device & API Architecture](docs/architecture/day-3-device-and-api-architecture.md)**: Ed25519 pairing challenges and BLE link security.
 - **[Day 4 — Risk & Emergency Models](docs/architecture/day-4-risk-and-emergency-models.md)**: Ephemeral models and TTL-backed data lifecycle.

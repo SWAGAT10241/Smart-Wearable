@@ -2,7 +2,7 @@
 
 **Status:** Implementation Complete  
 **Scope:** SWAAS Backend, Rescue Web Dashboard, Security Audit Trails, Ephemeral Retention, and Error Hardening  
-**Parent Issue:** [#63 (Day 6 — Privacy, Security & Authorization)](https://github.com/SWAGAT10241/Smart-Wearable/issues/63)  
+**Parent Issue:** [#63 (Day 6 — Privacy, Security & Authorization)](https://github.com/SWAGAT10241/Smart-Wearable/issues/63)
 
 ---
 
@@ -11,6 +11,7 @@
 Day 6 establishes the final layer of defense-in-depth security, strict local-first privacy controls, fail-closed access auditing, and redaction protocols for SWAAS / TrailGuard.
 
 ### Key Invariants:
+
 1. **Fail-Closed Security Audit Logging**:
    - Access to sensitive citizen health data (`GET /api/emergency/sessions/:sessionId/historical`) requires writing an immutable security record to `AuditLog` **prior** to querying database collections.
    - If writing the audit record fails for any reason, the request immediately terminates with HTTP 500 (`AUDIT_FAILURE`), returning zero health or location data.
@@ -71,17 +72,18 @@ Day 6 establishes the final layer of defense-in-depth security, strict local-fir
 
 ### 3.1 Historical Replay Authorization Matrix
 
-| Caller Identity | Session Relationship | Access Result | Audit Action |
-| :--- | :--- | :---: | :--- |
-| Unauthenticated | N/A | `401 Unauthorized` | Rejected before service |
-| Citizen (Victim Owner) | Owner | `403 Forbidden` | Citizens view live summary; replay is rescue-only |
-| Citizen (Stranger) | None | `403 Forbidden` | Access denied |
-| Unassigned Responder | None | `403 Forbidden` | Responders only access assigned sessions |
-| Assigned Responder | In `activeResponders` | `200 OK` | `HISTORICAL_VITALS_REQUESTED` (Audited) |
-| Rescue Coordinator | Incident Commander | `200 OK` | `HISTORICAL_VITALS_REQUESTED` (Audited) |
-| System Admin | Root | `200 OK` | `HISTORICAL_VITALS_REQUESTED` (Audited) |
+| Caller Identity        | Session Relationship  |   Access Result    | Audit Action                                      |
+| :--------------------- | :-------------------- | :----------------: | :------------------------------------------------ |
+| Unauthenticated        | N/A                   | `401 Unauthorized` | Rejected before service                           |
+| Citizen (Victim Owner) | Owner                 |  `403 Forbidden`   | Citizens view live summary; replay is rescue-only |
+| Citizen (Stranger)     | None                  |  `403 Forbidden`   | Access denied                                     |
+| Unassigned Responder   | None                  |  `403 Forbidden`   | Responders only access assigned sessions          |
+| Assigned Responder     | In `activeResponders` |      `200 OK`      | `HISTORICAL_VITALS_REQUESTED` (Audited)           |
+| Rescue Coordinator     | Incident Commander    |      `200 OK`      | `HISTORICAL_VITALS_REQUESTED` (Audited)           |
+| System Admin           | Root                  |      `200 OK`      | `HISTORICAL_VITALS_REQUESTED` (Audited)           |
 
 ### 3.2 Ephemeral Data Retention Rules
+
 - **`EmergencySession`**: Preserved for 48 hours following creation/resolution via MongoDB TTL index on `expiresAt` (`expireAfterSeconds: 0`).
 - **`WebSocketTicket`**: Preserved for 60 seconds from generation; atomically consumed via `findOneAndUpdate` on upgrade.
 - **`DeviceAuthNonce`**: Preserved for ±5 minutes from timestamp via TTL index to block replay attacks.
@@ -96,7 +98,17 @@ The backend utilizes `backend/utils/logger.js` to protect user privacy:
 - **Production Mode (`NODE_ENV === "production"`)**:
   Emits single-line JSON with `timestamp`, `level`, `message`, and sanitized `details`:
   ```json
-  {"timestamp":"2026-10-28T21:20:00.000Z","level":"INFO","message":"Emergency location updated","details":[{"sessionId":"...","location":{"latitude":"[REDACTED]","longitude":"[REDACTED]"}}]}
+  {
+    "timestamp": "2026-10-28T21:20:00.000Z",
+    "level": "INFO",
+    "message": "Emergency location updated",
+    "details": [
+      {
+        "sessionId": "...",
+        "location": { "latitude": "[REDACTED]", "longitude": "[REDACTED]" }
+      }
+    ]
+  }
   ```
 - **Development Mode**:
   Emits human-readable logs with timestamps and scrubbed objects.
@@ -104,6 +116,7 @@ The backend utilizes `backend/utils/logger.js` to protect user privacy:
   Suppresses output unless `DEBUG=true` to keep CI test suites fast and readable.
 
 ### Sanitized Key Patterns:
+
 - Passwords (`password`, `pass`)
 - Authentication tokens (`token`, `secret`, `jwt`, `ticket`, `bearer`)
 - Cryptographic keys (`privateKey`, `bootstrapToken`, `nonce`, `signature`)
@@ -125,6 +138,7 @@ Time:        1.904 s
 ```
 
 ### Verified Test Suites:
+
 1. `tests/securityHardening.test.js` — Fail-closed auditing, responder role validation, structured logger redaction.
 2. `tests/server.test.js` — Core API routing, root status, environment configuration.
 3. `tests/auth.test.js` — JWT issuance, password hashing, user registration and login.
@@ -146,6 +160,5 @@ Time:        1.904 s
 - [x] Production error handling hardened against CastError path leakage and internal database disclosures (`middleware/errorHandler.js`).
 - [x] Dedicated security hardening test suite passing (`backend/tests/securityHardening.test.js`).
 - [x] Comprehensive AI Agent guidelines published (`AGENTS.md`).
-- [x] Complete architecture diagram documented and cross-linked (`arc.md`).
+- [x] Complete architecture diagram documented and cross-linked (`ARCHITECTURE.md`).
 - [x] All 108 backend tests, 23 frontend tests, and mobile syntax validation passing cleanly.
-

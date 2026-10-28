@@ -12,7 +12,7 @@ import {
   ThermometerIcon,
   HumidityIcon,
   PressureIcon,
-} from "../components/icons";
+} from "../components/Icons";
 
 import { useAuth } from "../context/AuthContext";
 import { useDevices } from "../context/DeviceContext";

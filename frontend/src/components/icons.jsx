@@ -1,6 +1,6 @@
 import { FaHeart, FaDroplet } from "react-icons/fa6";
 import { CiTempHigh } from "react-icons/ci";
-import { Droplets, Gauge, MapPin} from "lucide-react";
+import { Droplets, Gauge, MapPin, Watch } from "lucide-react";
 
 export function HeartIcon({ size = 23 }) {
   return <FaHeart size={size} className="text-[#FF3B5C]" />;
@@ -21,6 +21,7 @@ export function HumidityIcon({ size = 30 }) {
 export function PressureIcon({ size = 27 }) {
   return <Gauge size={size} className="text-[#8B5CF6]" />;
 }
+
 export function WatchIcon({ size = 20 }) {
   return <Watch size={size} strokeWidth={2} className="text-[#0F766E]" />;
 }
