@@ -80,27 +80,28 @@ jobs:
             if (fs.existsSync(manifestPath)) {
               const lstat = fs.lstatSync(manifestPath);
               if (lstat.isSymbolicLink()) {
-                console.error("Manifest cannot be a symlink; aborting prune.");
-                process.exit(1);
-              }
-              try {
-                const oldFiles = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
-                const newFiles = fs.readdirSync("graphify-out/wiki").filter(f => f.endsWith(".md"));
-                if (Array.isArray(oldFiles)) {
-                  for (const oldFile of oldFiles) {
-                    if (typeof oldFile === "string" && path.basename(oldFile) === oldFile && oldFile.endsWith(".md")) {
-                      if (!newFiles.includes(oldFile)) {
-                        const targetPath = path.resolve(".wiki", oldFile);
-                        if (targetPath.startsWith(wikiDir + path.sep) && fs.existsSync(targetPath)) {
-                          fs.unlinkSync(targetPath);
-                          console.log("Pruned obsolete wiki page:", oldFile);
+                console.warn("Manifest is a symlink; unlinking it to reset safely.");
+                fs.unlinkSync(manifestPath);
+              } else {
+                try {
+                  const oldFiles = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+                  const newFiles = fs.readdirSync("graphify-out/wiki").filter(f => f.endsWith(".md"));
+                  if (Array.isArray(oldFiles)) {
+                    for (const oldFile of oldFiles) {
+                      if (typeof oldFile === "string" && path.basename(oldFile) === oldFile && oldFile.endsWith(".md")) {
+                        if (!newFiles.includes(oldFile)) {
+                          const targetPath = path.resolve(".wiki", oldFile);
+                          if (targetPath.startsWith(wikiDir + path.sep) && fs.existsSync(targetPath)) {
+                            fs.unlinkSync(targetPath);
+                            console.log("Pruned obsolete wiki page:", oldFile);
+                          }
                         }
                       }
                     }
                   }
+                } catch (e) {
+                  console.warn("Could not parse previous manifest:", e.message);
                 }
-              } catch (e) {
-                console.warn("Could not parse previous manifest:", e.message);
               }
             }
             const currentExportFiles = fs.readdirSync("graphify-out/wiki").filter(f => f.endsWith(".md"));
@@ -122,18 +123,48 @@ jobs:
             grep -E '^\- \[Community ' .wiki/index.md | head -n 30 | sed -E 's/\(([^)]+)\.md\)/(\1)/' >> .wiki/_Sidebar.md || true
           fi
 
-          # Convert all relative markdown links (.md) to extensionless wiki links across all pages, excluding absolute paths and external URLs
+          # Convert all relative markdown links (.md) to extensionless wiki links across all pages, handling arbitrary nested parentheses
           node -e '
             const fs = require("fs");
             const path = require("path");
-            const linkRegex = /\]\((?!https?:\/\/|\/|mailto:)([^)#\s]+)\.md(#[^)]*)?\)/g;
             const files = fs.readdirSync(".wiki").filter(f => f.endsWith(".md"));
             for (const file of files) {
               const filePath = path.join(".wiki", file);
-              let content = fs.readFileSync(filePath, "utf-8");
-              const updated = content.replace(linkRegex, "]($1$2)");
-              if (updated !== content) {
-                fs.writeFileSync(filePath, updated, "utf-8");
+              const content = fs.readFileSync(filePath, "utf-8");
+              let result = "";
+              let i = 0;
+              while (i < content.length) {
+                const openIdx = content.indexOf("](", i);
+                if (openIdx === -1) {
+                  result += content.slice(i);
+                  break;
+                }
+                result += content.slice(i, openIdx + 2);
+                const startDest = openIdx + 2;
+                let depth = 1;
+                let j = startDest;
+                while (j < content.length && depth > 0) {
+                  if (content[j] === "(") depth++;
+                  else if (content[j] === ")") depth--;
+                  j++;
+                }
+                if (depth === 0) {
+                  const dest = content.slice(startDest, j - 1);
+                  const hashIdx = dest.indexOf("#");
+                  const urlPart = hashIdx !== -1 ? dest.slice(0, hashIdx) : dest;
+                  const hashPart = hashIdx !== -1 ? dest.slice(hashIdx) : "";
+                  if (urlPart.toLowerCase().endsWith(".md") && !/^(?:[a-z][a-z0-9+.-]*:|\/)/i.test(urlPart)) {
+                    result += urlPart.slice(0, -3) + hashPart + ")";
+                  } else {
+                    result += dest + ")";
+                  }
+                  i = j;
+                } else {
+                  i = openIdx + 2;
+                }
+              }
+              if (result !== content) {
+                fs.writeFileSync(filePath, result, "utf-8");
               }
             }
           '
