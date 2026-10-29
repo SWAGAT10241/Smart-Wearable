@@ -1611,18 +1611,19 @@ Emergency history is available only through the controlled session API:
 - `POST /api/emergency/sessions` — a citizen requests help for their own active,
   paired device.
 - `GET /api/emergency/sessions/active` — citizens list own active sessions; coordinators
-  and responders list active incidents.
+  list all active incidents; responders list only assigned active incidents.
 - `POST /api/emergency/sessions/:sessionId/responders` — a coordinator or admin
   assigns a responder, or an authorized responder self-joins.
 - `GET /api/emergency/sessions/:sessionId/historical` — the assigned responder or
-  authorizing coordinator retrieves bounded 6-hour data while the session is active.
+  authorizing coordinator retrieves data for the active incident plus up to six preceding hours.
 - `PATCH /api/emergency/sessions/:sessionId/status` — updates status to escalated,
   resolved, or cancelled.
 - `GET /api/emergency/sessions/:sessionId/audit` — an admin or coordinator reviews
   audit metadata for a session.
 
-Emergency data access is fixed to the previous six hours, scoped to the citizen
-and device on the session, returns only necessary sensor fields, and is capped at
+Emergency data access covers the active incident plus up to six hours before the
+trigger, from the session’s `historicalWindowStart` through request time. It is scoped
+to the citizen and device on the session, returns only necessary sensor fields, and is capped at
 100 readings per data type. Every request, assignment, data access, and closure is
 recorded in the `AuditLog` collection. The read endpoint records its audit
 entry before accessing protected health/location collections and fails closed if

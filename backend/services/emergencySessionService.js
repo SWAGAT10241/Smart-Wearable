@@ -140,6 +140,8 @@ async function getActiveSessions(user) {
 
   if (user.role === "citizen") {
     query.userId = user._id;
+  } else if (user.role === "responder") {
+    query["activeResponders.responderId"] = user._id;
   }
 
   const sessions = await EmergencySession.find(query)
@@ -173,7 +175,7 @@ async function getSessionById(sessionId, user, requestMeta = {}) {
   );
   const isRescueStaff = ["responder", "coordinator", "admin"].includes(user.role);
 
-  if (!isOwner && !isAssigned && !isRescueStaff) {
+  if ((user.role === "responder" && !isAssigned) || (!isOwner && !isAssigned && !isRescueStaff)) {
     throw new AppError("Access to this emergency session is forbidden", 403, "FORBIDDEN");
   }
 

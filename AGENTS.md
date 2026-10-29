@@ -94,7 +94,7 @@ Work across this repository is partitioned among 6 specialized personas. Every a
 - **Scope:** ESP32-S3 FreeRTOS/C, NimBLE Bluetooth stack, sensor drivers (MAX30100, MPU6050, GPS, LoRa), Flash Encryption & Secure Boot.
 - **Owned Files:** `hardware/*`.
 - **Forbidden Files:** Cloud Node.js backend, React frontend components, mobile application screens.
-- **Verification Gate:** `python3 -m compileall -q hardware`
+- **Verification Gate:** Firmware: with ESP-IDF 5.3+ configured for ESP32-S3, run `cd hardware/firmware && idf.py set-target esp32s3 && idf.py build`. Python drivers only: `python3 -m compileall -q hardware` from the repository root.
 
 ### 🖥️ Agent 5: Rescue Web & Frontend Specialist
 
@@ -118,12 +118,12 @@ Every agent MUST uphold the following 7 invariants. **A client-side check is nev
 
 ### Invariant 1: Local-First Privacy (No Continuous Cloud Telemetry)
 
-- Continuous vitals and location data (heart rate, SpO2, GPS coordinates, accelerometer/gyroscope samples, temperature, pressure) are strictly stored **locally** on the mobile device in a rolling 7-day SQLite buffer.
+- **Target architecture:** Continuous vitals and location data (heart rate, SpO2, GPS coordinates, accelerometer/gyroscope samples, temperature, pressure) should stay **local** to the mobile device in a rolling 7-day SQLite buffer. This is not enforced by the current mobile storage path: `HistoryScreen` uses `useHistoryData`, which fetches cloud history APIs; an encrypted local telemetry buffer is not yet implemented.
 - **Strict Prohibition:** Never implement automatic cloud streaming of normal background health telemetry. The backend is an incident coordinator, NOT a continuous cloud health data lake.
 
 ### Invariant 2: Emergency-Bounded Cloud Sharing
 
-- Telemetry leaves the user app and enters the cloud backend ONLY when an authorized emergency session is active (SOS button or uncancelled fall countdown).
+- **Target architecture:** Telemetry should leave the user app and enter the cloud backend only during an authorized emergency session (SOS button or uncancelled fall countdown). This is not an enforced current guarantee: prototype/simulator telemetry uploads and mobile cloud history access still exist.
 - **Strict Bound:** Cloud sharing is strictly bounded to the active incident plus at most the preceding **6 hours**.
 - **Query Cap:** Historical replay queries are capped at a maximum of 100 readings per sensor type.
 
@@ -144,7 +144,7 @@ Every agent MUST uphold the following 7 invariants. **A client-side check is nev
 
 - All emergency sessions and WebSocket authentication tickets are ephemeral:
   - `WebSocketTicket`: Single-use, expires in 60 seconds via MongoDB TTL index (`expireAfterSeconds: 0`), atomically consumed via `findOneAndUpdate`.
-  - `EmergencySession`: Automatically purged 48 hours after resolution/expiration via MongoDB TTL index on `expiresAt`.
+  - `EmergencySession`: `expiresAt` is set to 48 hours after creation, independent of resolution or status expiration. Records become eligible for automatic purge at that time via the MongoDB TTL index; deletion occurs on a subsequent TTL sweep.
 
 ### Invariant 6: Authenticated, Session-Scoped Real-Time Delivery
 
@@ -167,7 +167,7 @@ Every agent MUST uphold the following 7 invariants. **A client-side check is nev
 | Endpoint / Capability                                |    Citizen     |    Responder     | Coordinator |   Admin    | Notes                                              |
 | :--------------------------------------------------- | :------------: | :--------------: | :---------: | :--------: | :------------------------------------------------- |
 | `POST /api/emergency/ws-ticket`                      |       ✅       |        ✅        |     ✅      |     ✅     | Single-use 60s ticket for WebSocket upgrade        |
-| `POST /api/emergency/sessions`                       |       ✅       |        ❌        |     ✅      |     ✅     | Citizens initiate for own paired devices           |
+| `POST /api/emergency/sessions`                       |       ✅       |        ❌        |     ❌      |     ✅     | Citizens initiate for own paired devices           |
 | `GET /api/emergency/sessions/active`                 |    Own only    |     Assigned     |     All     |    All     | Scoped by role in `emergencySessionService`        |
 | `GET /api/emergency/sessions/:sessionId`             |     Owner      |     Assigned     |     All     |    All     | Audited access                                     |
 | `PATCH /api/emergency/sessions/:sessionId/status`    | Cancel/Resolve | Escalate/Resolve |     All     |    All     | Only owner/admin can cancel; rescue staff escalate |
@@ -180,7 +180,7 @@ Every agent MUST uphold the following 7 invariants. **A client-side check is nev
 
 ## 6. Prohibited Anti-Patterns (Anti-Hallucination Directives)
 
-1. **NEVER accept raw tokens in WebSocket URL queries:** Do not use `/live?token=...`; query strings leak into access logs. Always use `POST /api/emergency/ws-ticket` to obtain a single-use ticket.
+1. **NEVER accept raw tokens in WebSocket URL queries:** Do not use `/live?token=...`; query strings leak into access logs. Always use `POST /api/emergency/ws-ticket` to obtain a single-use ticket and send it in the WebSocket subprotocol header (`trailguard, ticket.<ticket>`). Fail closed if ticket acquisition fails; never fall back to URL credentials. The backend must not accept credentials in query parameters.
 2. **NEVER swallow audit log errors:** Catching an audit write error without re-throwing causes a fail-open security hole. Always throw `AUDIT_FAILURE` (HTTP 500).
 3. **NEVER trust client-provided IDs without ownership validation:** Always verify `Device.userId === req.userId` in the database.
 4. **NEVER expose MongoDB internal `_id` in public session routes:** Always use the opaque UUID `sessionId`.

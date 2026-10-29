@@ -61,6 +61,33 @@ describe("Security Hardening & Privacy Controls", () => {
     });
   });
 
+  describe("Logger message redaction", () => {
+    test.each(["production", "development"])("sanitizes all message forms in %s", (mode) => {
+      const originalEnv = process.env.NODE_ENV;
+      const log = jest.spyOn(console, "log").mockImplementation(() => {});
+      process.env.NODE_ENV = mode;
+      try {
+        const message = "GET /live?token=query-secret&ticket=ticket-secret&%70assword=password-secret&latitude=coordinate-secret&safe=public Bearer bearer-secret";
+        logger.info(message);
+        logger.info({ password: "object-secret", url: message });
+        logger.info(new Error(message), { nested: [message] });
+
+        for (const [output] of log.mock.calls) {
+          for (const secret of ["query-secret", "ticket-secret", "password-secret", "coordinate-secret", "bearer-secret", "object-secret"]) {
+            expect(output).not.toContain(secret);
+          }
+          expect(output).toContain("[REDACTED]");
+          expect(output).toContain("safe=public");
+          if (mode === "production") expect(() => JSON.parse(output)).not.toThrow();
+        }
+        expect(log).toHaveBeenCalledTimes(3);
+      } finally {
+        process.env.NODE_ENV = originalEnv;
+        log.mockRestore();
+      }
+    });
+  });
+
   describe("Responder Assignment Role Enforcement", () => {
     test("rejects assigning an ordinary citizen as an emergency responder", async () => {
       const mockSession = {

@@ -14,7 +14,7 @@ import {
   DEVICE_STATUS_CHARACTERISTIC_UUID,
   DEVICE_PAIRING_SERVICE_UUID,
 } from "../lib/devicePairing";
-import { devicePairingApi, emergencyApi, getToken } from "../lib/apiClient";
+import { devicePairingApi, emergencyApi } from "../lib/apiClient";
 import {
   serializeAuthorizationReceipt,
   parseAuthorizationChallenge,
@@ -246,28 +246,16 @@ export function LiveDataProvider({ children }) {
     console.log("[LiveData] Connecting:", WS_URL);
     let ws;
     try {
-      const token = getToken();
-      let ticket = null;
-      if (token) {
-        try {
-          const res = await emergencyApi.getWsTicket();
-          ticket = res.ticket;
-        } catch {
-          // Graceful fallback to query token if ticket endpoint is unavailable
-        }
+      const { ticket } = await emergencyApi.getWsTicket();
+      if (!ticket) {
+        throw new Error("WebSocket ticket is required");
       }
 
       if (stoppedRef.current) {
         return;
       }
 
-      if (ticket) {
-        ws = new WebSocket(WS_URL, ["trailguard", `ticket.${ticket}`]);
-      } else if (token) {
-        ws = new WebSocket(`${WS_URL}?token=${encodeURIComponent(token)}`);
-      } else {
-        ws = new WebSocket(WS_URL);
-      }
+      ws = new WebSocket(WS_URL, ["trailguard", `ticket.${ticket}`]);
     } catch (error) {
       console.error("[LiveData] Failed to create WebSocket:", error);
       setConnected(false);
