@@ -25,6 +25,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
+          ref: main
           fetch-depth: 1
 
       - name: Setup Python
@@ -64,6 +65,31 @@ jobs:
             echo "::error::Failed to locate or generate graphify-out/wiki"
             exit 1
           fi
+
+          # Prune previously generated wiki pages that are no longer part of the export
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+            const manifestPath = path.join(".wiki", ".graphify_manifest.json");
+            const newFiles = fs.readdirSync("graphify-out/wiki").filter(f => f.endsWith(".md"));
+            if (fs.existsSync(manifestPath)) {
+              try {
+                const oldFiles = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+                for (const oldFile of oldFiles) {
+                  if (!newFiles.includes(oldFile)) {
+                    const toDelete = path.join(".wiki", oldFile);
+                    if (fs.existsSync(toDelete)) {
+                      fs.unlinkSync(toDelete);
+                      console.log("Pruned obsolete wiki page:", oldFile);
+                    }
+                  }
+                }
+              } catch (e) {
+                console.warn("Could not read previous manifest:", e.message);
+              }
+            }
+            fs.writeFileSync(manifestPath, JSON.stringify(newFiles, null, 2), "utf-8");
+          '
 
           echo "Copying wiki pages into .wiki directory..."
           cp -r graphify-out/wiki/* .wiki/
