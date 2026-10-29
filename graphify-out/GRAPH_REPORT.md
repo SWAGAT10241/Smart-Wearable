@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `777195c5`
+- Built from commit: `139491e7`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -42,17 +42,17 @@
 - SX1278
 - Security Policy
 - simulate-esp32.js
-- supertest
+- passport
 - LiveDataContext.jsx
 - updates
-- VitalsReading.js
+- supertest
 - MPU6050
-- Environment Configuration
+- VitalsReading.js
 - overrides
 - body
 - body
 - dependency-review.yml
-- passport
+- Environment Configuration
 - AppError
 - XglcdFont
 - authService.js
@@ -235,9 +235,9 @@ Nodes (18): Authentication, Authorization, CI/CD Security, Data Security, Device
 Cohesion: 0.26
 Nodes (14): buildTelemetryPacket(), clamp(), createSignature(), crypto, generateEnvironment(), generateLocation(), generateMotion(), generatePPG() (+6 more)
 
-### Community 28 - "supertest"
-Cohesion: 0.40
-Nodes (5): devDependencies, jest@^30.5.2, supertest@^7.3.1, jest, supertest
+### Community 28 - "passport"
+Cohesion: 0.33
+Nodes (5): passport, passport@^0.7.0, passport-google-oauth20@^2.0.0, passport, passport-google-oauth20
 
 ### Community 29 - "LiveDataContext.jsx"
 Cohesion: 0.50
@@ -247,9 +247,9 @@ Nodes (3): API_URL, WS_URL, LiveDataContext
 Cohesion: 0.12
 Nodes (15): patterns, patterns, patterns, actions, backend-dependencies, frontend-dependencies, hardware-dependencies, patterns (+7 more)
 
-### Community 33 - "Environment Configuration"
-Cohesion: 0.67
-Nodes (3): Environment Configuration, Environment Variables, Important
+### Community 31 - "supertest"
+Cohesion: 0.40
+Nodes (5): devDependencies, jest@^30.5.2, supertest@^7.3.1, jest, supertest
 
 ### Community 34 - "overrides"
 Cohesion: 0.14
@@ -267,9 +267,9 @@ Nodes (13): description, label, placeholder, value, body, attributes, id, type (
 Cohesion: 0.14
 Nodes (13): name, runs-on, steps, jobs, dependency-review, name, on, pull_request (+5 more)
 
-### Community 38 - "passport"
-Cohesion: 0.33
-Nodes (5): passport, passport@^0.7.0, passport-google-oauth20@^2.0.0, passport, passport-google-oauth20
+### Community 38 - "Environment Configuration"
+Cohesion: 0.67
+Nodes (3): Environment Configuration, Environment Variables, Important
 
 ### Community 39 - "AppError"
 Cohesion: 0.15
