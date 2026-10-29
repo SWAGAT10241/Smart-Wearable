@@ -5,7 +5,7 @@ import { formatUpdatedText } from "../utils/formatters";
  * Custom hook that updates every 10 seconds to display fresh relative time strings.
  *
  * @param {Date|string|number} timestamp
- * @returns {string} Formatted relative time (e.g., "Just now", "2 min ago")
+ * @returns {string|null} Formatted relative time (e.g., "Just now", "2 min ago")
  */
 export function useUpdatedTime(timestamp) {
   const [, setNow] = useState(Date.now());
@@ -17,7 +17,7 @@ export function useUpdatedTime(timestamp) {
     return () => clearInterval(interval);
   }, [timestamp]);
 
-  return formatUpdatedText(timestamp);
+  return timestamp ? formatUpdatedText(timestamp) : null;
 }
 
 export default useUpdatedTime;

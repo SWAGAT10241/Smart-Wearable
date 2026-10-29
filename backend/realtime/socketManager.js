@@ -255,29 +255,15 @@ function initWebSocket(server) {
       }
     }
 
-    // 2. Check query parameters (?ticket=... or ?token=...)
+    // Non-browser clients may authenticate via the Authorization header.
     if (!authIdentity) {
-      const queryTicket = requestUrl.searchParams.get("ticket");
-      if (queryTicket) {
-        try {
-          authIdentity = await webSocketTicketService.consumeTicket(queryTicket);
-        } catch (err) {
-          logger.error("Error consuming query WebSocket ticket:", err.message);
-        }
-      }
-    }
+      const headerToken = request.headers.authorization?.startsWith("Bearer ")
+        ? request.headers.authorization.slice(7)
+        : null;
 
-    // 3. Check JWT token in query (?token=...) or Authorization header
-    if (!authIdentity) {
-      const queryToken =
-        requestUrl.searchParams.get("token") ||
-        (request.headers.authorization?.startsWith("Bearer ")
-          ? request.headers.authorization.slice(7)
-          : null);
-
-      if (queryToken && config.jwtSecret) {
+      if (headerToken && config.jwtSecret) {
         try {
-          const decoded = jwt.verify(queryToken, config.jwtSecret);
+          const decoded = jwt.verify(headerToken, config.jwtSecret);
           if (decoded && decoded.id) {
             authIdentity = {
               userId: String(decoded.id),

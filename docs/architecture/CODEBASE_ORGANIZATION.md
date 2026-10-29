@@ -2,7 +2,7 @@
 
 **Project:** Smart Wearable Assistance & Alert System (SWAAS) / TrailGuard  
 **Classification:** Engineering Architecture, Folder Structure & Modular Conventions  
-**Companion Documents:** [Multi-Agent System Directives](../../MULTI_AGENT_SYSTEM.md) | [Security Audit Assessment](../../SECURITY_AUDIT.md)
+**Companion Documents:** [Unified Agent Directives](../../AGENTS.md) | [Security Audit Assessment](../../SECURITY_AUDIT.md)
 
 ---
 

@@ -209,6 +209,21 @@ describe("Emergency Session API & Real-time Integration", () => {
       );
     });
 
+    test("filters responder lists by assignment", async () => {
+      mockCurrentUser = { _id: "responder-id", role: "responder" };
+      mockEmergencySessionFind.mockReturnValue({
+        sort: jest.fn().mockReturnValue({ populate: jest.fn().mockResolvedValue([]) }),
+      });
+
+      const response = await request(app).get("/api/emergency/sessions/active");
+
+      expect(response.statusCode).toBe(200);
+      expect(mockEmergencySessionFind).toHaveBeenCalledWith({
+        status: { $in: ["active", "escalated"] },
+        "activeResponders.responderId": "responder-id",
+      });
+    });
+
     test("returns all active emergency sessions for coordinator", async () => {
       mockCurrentUser = {
         _id: "coordinator-id",
@@ -260,6 +275,29 @@ describe("Emergency Session API & Real-time Integration", () => {
           targetResource: `EmergencySession:${testSessionId}`,
         }),
       );
+    });
+
+    test.each([
+      ["responder", false, false, 403],
+      ["responder", false, true, 403],
+      ["responder", true, false, 200],
+      ["coordinator", false, false, 200],
+      ["admin", false, false, 200],
+    ])("checks role=%s assigned=%s owner=%s -> %s", async (role, assigned, owner, status) => {
+      mockCurrentUser = { _id: "reader-id", role };
+      mockEmergencySessionFindOne.mockReturnValue({
+        populate: jest.fn().mockResolvedValue({
+          sessionId: testSessionId,
+          userId: { _id: owner ? "reader-id" : "owner-id" },
+          activeResponders: [{ responderId: assigned ? "reader-id" : "other-id" }],
+          status: "active",
+        }),
+      });
+
+      const response = await request(app).get(`/api/emergency/sessions/${testSessionId}`);
+
+      expect(response.statusCode).toBe(status);
+      if (status === 403) expect(mockAuditLogCreate).not.toHaveBeenCalled();
     });
 
     test("forbids access to unauthorized citizens", async () => {

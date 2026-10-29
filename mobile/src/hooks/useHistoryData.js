@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { vitalsApi, environmentApi } from "../lib/apiClient";
 import { useDevices } from "../context/DeviceContext";
 
@@ -15,10 +15,15 @@ export function useHistoryData(hours = 24) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const requestSequence = useRef(0);
+
   const load = useCallback(async () => {
+    const requestId = ++requestSequence.current;
     if (!selectedDeviceId) {
       setVitals([]);
       setEnvironment([]);
+      setError(null);
+      setLoading(false);
       return;
     }
 
@@ -30,6 +35,8 @@ export function useHistoryData(hours = 24) {
         vitalsApi.history(selectedDeviceId, hours),
         environmentApi.history(selectedDeviceId, hours),
       ]);
+
+      if (requestId !== requestSequence.current) return;
 
       setVitals(
         Array.isArray(vitalsResponse)
@@ -43,15 +50,19 @@ export function useHistoryData(hours = 24) {
           : environmentResponse?.environment || environmentResponse?.data || [],
       );
     } catch (err) {
+      if (requestId !== requestSequence.current) return;
       console.log("History fetch error:", err);
       setError(err?.message || "Failed to load telemetry history");
     } finally {
-      setLoading(false);
+      if (requestId === requestSequence.current) setLoading(false);
     }
   }, [selectedDeviceId, hours]);
 
   useEffect(() => {
     load();
+    return () => {
+      requestSequence.current += 1;
+    };
   }, [load]);
 
   return {

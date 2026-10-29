@@ -143,7 +143,7 @@ export default function DashboardScreen() {
           <View style={styles.locationRow}>
             <Text style={{ color: theme.secondaryText }}>Altitude</Text>
             <Text style={[styles.locationValue, { color: theme.text }]}>
-              {location?.altitude ? `${location.altitude} m` : "--"}
+              {location?.altitude != null ? `${location.altitude} m` : "--"}
             </Text>
           </View>
         </SectionCard>

@@ -4,9 +4,6 @@
  * to prevent accidental PII/secret leakage in logs.
  */
 
-const isTest = process.env.NODE_ENV === "test";
-const isProduction = process.env.NODE_ENV === "production";
-
 const SENSITIVE_KEY_PATTERNS = [
   /passw(or)?d/i,
   /token/i,
@@ -33,17 +30,29 @@ function sanitizeValue(value, depth = 0) {
   if (depth > 5) return "[DEPTH_LIMIT]";
   if (value === null || value === undefined) return value;
   if (typeof value === "string") {
-    return value.replace(/Bearer\s+[A-Za-z0-9._-]+/gi, "Bearer [REDACTED]");
+    return value
+      .replace(/([?&])([^=&#\s]+)=([^&#\s]*)/g, (match, separator, key) => {
+        let decodedKey;
+        try {
+          decodedKey = decodeURIComponent(key.replace(/\+/g, " "));
+        } catch {
+          decodedKey = key;
+        }
+        return SENSITIVE_KEY_PATTERNS.some((pattern) => pattern.test(decodedKey))
+          ? `${separator}${key}=[REDACTED]`
+          : match;
+      })
+      .replace(/Bearer\s+[A-Za-z0-9._-]+/gi, "Bearer [REDACTED]");
   }
   if (typeof value !== "object") return value;
 
   if (value instanceof Error) {
-    return {
+    return sanitizeValue({
       name: value.name,
-      message: value.message ? value.message.replace(/Bearer\s+[A-Za-z0-9._-]+/gi, "Bearer [REDACTED]") : "",
-      stack: isProduction ? undefined : value.stack,
+      message: value.message || "",
+      stack: isProductionEnv() ? undefined : value.stack,
       code: value.code,
-    };
+    }, depth + 1);
   }
 
   if (Array.isArray(value)) {
@@ -72,12 +81,13 @@ function isTestEnv() {
 function formatLog(level, message, ...meta) {
   const timestamp = new Date().toISOString();
   const sanitizedMeta = meta.map((m) => sanitizeValue(m));
+  const sanitizedMessage = sanitizeValue(message);
 
   if (isProductionEnv()) {
     const logObject = {
       timestamp,
       level,
-      message: typeof message === "string" ? message : sanitizeValue(message),
+      message: sanitizedMessage,
       ...(sanitizedMeta.length > 0 ? { details: sanitizedMeta } : {}),
     };
     return JSON.stringify(logObject);
@@ -87,7 +97,7 @@ function formatLog(level, message, ...meta) {
     sanitizedMeta.length > 0
       ? " " + sanitizedMeta.map((m) => (typeof m === "object" ? JSON.stringify(m) : m)).join(" ")
       : "";
-  return `[${level}] ${timestamp} ${message}${metaStr}`;
+  return `[${level}] ${timestamp} ${typeof sanitizedMessage === "object" ? JSON.stringify(sanitizedMessage) : sanitizedMessage}${metaStr}`;
 }
 
 const logger = {

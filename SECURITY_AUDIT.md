@@ -123,7 +123,7 @@ cd ../frontend
 cd ../mobile
 node scripts/check-syntax.js
 
-# 4. Hardware Driver Compilation
+# 4. Python Driver Syntax Validation (does not build C firmware)
 cd ..
 python3 -m compileall -q hardware
 ```

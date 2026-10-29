@@ -53,7 +53,8 @@ Day 6 establishes the final layer of defense-in-depth security, strict local-fir
 │    • Actor: userId, role, IP, User-Agent                    │
 │    • [If write fails] ──> Abort (500 AUDIT_FAILURE)         │
 │ 4. Bound Historical Query Window:                           │
-│    • [windowStart = session.windowStart (now - 6h)]         │
+│    • [windowStart = session.historicalWindowStart]         │
+│    • historicalWindowStart = trigger time - 6h             │
 │    • [windowEnd = now]                                      │
 │ 5. Read Sanitized Projections (max 100 per type):           │
 │    • VitalsReading: { heartRate, spo2, timestamp }          │

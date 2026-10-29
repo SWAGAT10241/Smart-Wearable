@@ -180,13 +180,15 @@ describe("socketManager", () => {
   describe("initWebSocket upgrade authentication", () => {
     let mockServer;
     let mockSocket;
+    let handleUpgrade;
 
     beforeEach(() => {
       mockServer = new EventEmitter();
       mockSocket = new PassThrough();
       mockSocket.destroy = jest.fn();
       mockSocket.write = jest.fn();
-      socketManager.initWebSocket(mockServer);
+      const wss = socketManager.initWebSocket(mockServer);
+      handleUpgrade = jest.spyOn(wss, "handleUpgrade").mockImplementation(() => {});
     });
 
     test("rejects upgrade when request path is not /live", () => {
@@ -197,7 +199,7 @@ describe("socketManager", () => {
       expect(mockSocket.destroy).not.toHaveBeenCalled();
     });
 
-    test("rejects upgrade with 401 when no ticket or token is provided", async () => {
+    test("rejects upgrade with 401 when no credential is provided", async () => {
       const req = {
         url: "/live",
         headers: {},
@@ -229,42 +231,55 @@ describe("socketManager", () => {
       await new Promise((resolve) => setImmediate(resolve));
 
       expect(webSocketTicketService.consumeTicket).toHaveBeenCalledWith("valid-ticket-string");
-      expect(mockSocket.write).not.toHaveBeenCalledWith(expect.stringContaining("401"));
+      expect(handleUpgrade).toHaveBeenCalledTimes(1);
     });
 
-    test("authenticates upgrade using query param ticket", async () => {
+    test.each(["ticket", "token"])("rejects %s credentials in query parameters", async (parameter) => {
+      const credential = parameter === "token"
+        ? jwt.sign({ id: "jwt-user-789", role: "coordinator" }, config.jwtSecret)
+        : "query-ticket-123";
       webSocketTicketService.consumeTicket.mockResolvedValue({
         userId: "user-456",
         role: "citizen",
       });
 
-      const req = {
-        url: "/live?ticket=query-ticket-123",
+      mockServer.emit("upgrade", {
+        url: `/live?${parameter}=${credential}`,
         headers: {},
-      };
-
-      mockServer.emit("upgrade", req, mockSocket, Buffer.alloc(0));
+      }, mockSocket, Buffer.alloc(0));
       await new Promise((resolve) => setImmediate(resolve));
 
-      expect(webSocketTicketService.consumeTicket).toHaveBeenCalledWith("query-ticket-123");
-      expect(mockSocket.write).not.toHaveBeenCalledWith(expect.stringContaining("401"));
+      expect(webSocketTicketService.consumeTicket).not.toHaveBeenCalled();
+      expect(handleUpgrade).not.toHaveBeenCalled();
+      expect(mockSocket.write).toHaveBeenCalledWith(expect.stringContaining("401 Unauthorized"));
+      expect(mockSocket.destroy).toHaveBeenCalled();
     });
 
-    test("authenticates upgrade using valid JWT query parameter", async () => {
-      const testToken = jwt.sign(
-        { id: "jwt-user-789", role: "coordinator" },
-        config.jwtSecret,
-      );
-
-      const req = {
-        url: `/live?token=${testToken}`,
-        headers: {},
-      };
-
-      mockServer.emit("upgrade", req, mockSocket, Buffer.alloc(0));
+    test.each([null, new Error("ticket store unavailable")])("rejects an invalid or failed subprotocol ticket: %s", async (result) => {
+      if (result instanceof Error) {
+        webSocketTicketService.consumeTicket.mockRejectedValue(result);
+      } else {
+        webSocketTicketService.consumeTicket.mockResolvedValue(result);
+      }
+      mockServer.emit("upgrade", {
+        url: "/live",
+        headers: { "sec-websocket-protocol": "trailguard, ticket.invalid" },
+      }, mockSocket, Buffer.alloc(0));
       await new Promise((resolve) => setImmediate(resolve));
 
-      expect(mockSocket.write).not.toHaveBeenCalledWith(expect.stringContaining("401"));
+      expect(handleUpgrade).not.toHaveBeenCalled();
+      expect(mockSocket.write).toHaveBeenCalledWith(expect.stringContaining("401 Unauthorized"));
+    });
+
+    test("preserves Authorization header authentication for non-browser clients", async () => {
+      const token = jwt.sign({ id: "header-user", role: "citizen" }, config.jwtSecret);
+      mockServer.emit("upgrade", {
+        url: "/live",
+        headers: { authorization: `Bearer ${token}` },
+      }, mockSocket, Buffer.alloc(0));
+      await new Promise((resolve) => setImmediate(resolve));
+
+      expect(handleUpgrade).toHaveBeenCalledTimes(1);
     });
   });
 });
