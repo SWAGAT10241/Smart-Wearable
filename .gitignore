@@ -28,3 +28,5 @@ __pycache__/
 # Agent artifacts
 .agents/
 skills-lock.json
+graphify-out/cache/
+graphify-out/.*
