@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+    branches: [main, SWAAS]
 
 permissions:
   contents: read
@@ -25,7 +25,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 22.13.0
+          node-version: 22
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -57,7 +57,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 22.13.0
+          node-version: 22
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -105,7 +105,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 22.13.0
+          node-version: 22
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
