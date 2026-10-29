@@ -78,9 +78,9 @@ Work across this repository is partitioned among 6 specialized personas. Every a
 ### ☁️ Agent 2: Cloud Backend & Realtime Architect
 
 - **Scope:** Express 5 REST APIs, session-scoped WebSockets, ephemeral TTL collections, rate limiting, and database models.
-- **Owned Files:** `backend/server.js`, `backend/app.js`, `backend/routes/*`, `backend/controllers/*`, `backend/services/*`, `backend/realtime/*`, `backend/models/*`, `backend/config/*`.
+- **Owned Files:** `backend/server.js`, `backend/app.js`, `backend/routes/*`, `backend/controllers/*`, `backend/services/*`, `backend/realtime/*`, `backend/models/*`, `backend/config/*`, `backend/tests/phase1Integration.test.js`.
 - **Forbidden Files:** Firmware C code, mobile UI presentation.
-- **Verification Gate:** `cd backend && ./node_modules/.bin/jest tests/securityHardening.test.js tests/socketManager.test.js tests/emergencyModels.test.js tests/webSocketTicketService.test.js`
+- **Verification Gate:** `cd backend && ./node_modules/.bin/jest tests/securityHardening.test.js tests/socketManager.test.js tests/emergencyModels.test.js tests/webSocketTicketService.test.js tests/phase1Integration.test.js`
 
 ### 📱 Agent 3: Mobile & Edge Risk Engine Specialist
 
@@ -187,3 +187,19 @@ Every agent MUST uphold the following 7 invariants. **A client-side check is nev
 5. **NEVER remove or bypass rate limiters on public endpoints:** Ensure `authLimiter`, `deviceLimiter`, and `telemetryLimiter` remain intact.
 6. **NEVER commit plain-text credentials or API secrets:** All secrets must be loaded from validated environment configurations via `config/env.js`.
 7. **NEVER invent new database schemas or remove TTL indexes:** All emergency data must expire automatically.
+
+---
+
+## 7. Knowledge Graph & Architecture Navigation (Graphify)
+
+This project has an automated knowledge graph at `graphify-out/` with god nodes, community structure, and cross-file relationships.
+
+When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
+
+**Operational Rules for All AI Agents:**
+- When `graphify-out/graph.json` exists, run `graphify query "<question>"` before your first grep, search, or raw source-file read for any codebase or architectural question. Include this rule in every subagent prompt that explores code. Read raw files only for specific lines that the graph or an earlier query already identified.
+- Use `graphify path "<A>" "<B>"` for relationship tracing and `graphify explain "<concept>"` for focused concept exploration. These return a scoped subgraph, significantly smaller than `GRAPH_REPORT.md` or raw grep output.
+- If `graphify-out/wiki/index.md` exists, use it for broad navigation instead of raw source browsing.
+- Read `graphify-out/GRAPH_REPORT.md` only for broad architecture review or when `query`/`path`/`explain` do not surface sufficient context.
+- After modifying code files, run `graphify update .` to keep the graph current (deterministic AST extraction, zero API cost).
+- A committed `graphify-out/graph.json` is rebuilt whole on every commit/merge via Git hooks; large diffs in pull requests to `graph.json` are expected and should never be flagged as churn.
