@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "en-US"
+tone_instructions: "Be concise, objective, and adhere strictly to SWAAS architectural invariants (local-first privacy, emergency TTL, fail-closed audit logging, and Ed25519 device authentication)."
+
+reviews:
+  profile: "chill"
+  review_status: true
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - "main"
+      - "SWAAS"
+  path_filters:
+    - "!graphify-out/**"
+    - "!**/pnpm-lock.yaml"
+    - "!**/package-lock.json"
+
+chat:
+  auto_reply: true
