@@ -18,6 +18,12 @@ updates:
     schedule:
       interval: "weekly"
 
+  # Mobile App dependencies
+  - package-ecosystem: "npm"
+    directory: "/mobile"
+    schedule:
+      interval: "weekly"
+
   # Hardware/Python dependencies
   - package-ecosystem: "pip"
     directory: "/hardware"

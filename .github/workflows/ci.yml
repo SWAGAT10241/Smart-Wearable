@@ -2,9 +2,13 @@ name: Smart-Wearable CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, SWAAS]
   pull_request:
     branches: [main, SWAAS]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
