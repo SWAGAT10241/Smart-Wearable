@@ -27,6 +27,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 1
+          persist-credentials: false
 
       - name: Setup Python
         uses: actions/setup-python@v7
@@ -38,7 +39,19 @@ jobs:
         with:
           node-version: 22
 
-      - name: Sync Knowledge Graph to Wiki
+      - name: Export Knowledge Graph to Wiki
+        run: |
+          echo "Refreshing graphify wiki export from latest graph..."
+          pip install --upgrade pip
+          pip install graphifyy
+          python -m graphify export wiki
+
+          if [ ! -d "graphify-out/wiki" ]; then
+            echo "::error::Failed to locate or generate graphify-out/wiki"
+            exit 1
+          fi
+
+      - name: Publish to GitHub Wiki
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -57,39 +70,41 @@ jobs:
             fi
           fi
 
-          echo "Refreshing graphify wiki export from latest graph..."
-          pip install --upgrade pip
-          pip install graphifyy
-          python -m graphify export wiki
-
-          if [ ! -d "graphify-out/wiki" ]; then
-            echo "::error::Failed to locate or generate graphify-out/wiki"
-            exit 1
-          fi
-
-          # Prune previously generated wiki pages that are no longer part of the export
+          # Prune previously generated wiki pages that are no longer part of the export with traversal & symlink guards
           node -e '
             const fs = require("fs");
             const path = require("path");
             const manifestPath = path.join(".wiki", ".graphify_manifest.json");
-            const newFiles = fs.readdirSync("graphify-out/wiki").filter(f => f.endsWith(".md"));
+            const wikiDir = path.resolve(".wiki");
+
             if (fs.existsSync(manifestPath)) {
+              const lstat = fs.lstatSync(manifestPath);
+              if (lstat.isSymbolicLink()) {
+                console.error("Manifest cannot be a symlink; aborting prune.");
+                process.exit(1);
+              }
               try {
                 const oldFiles = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
-                for (const oldFile of oldFiles) {
-                  if (!newFiles.includes(oldFile)) {
-                    const toDelete = path.join(".wiki", oldFile);
-                    if (fs.existsSync(toDelete)) {
-                      fs.unlinkSync(toDelete);
-                      console.log("Pruned obsolete wiki page:", oldFile);
+                const newFiles = fs.readdirSync("graphify-out/wiki").filter(f => f.endsWith(".md"));
+                if (Array.isArray(oldFiles)) {
+                  for (const oldFile of oldFiles) {
+                    if (typeof oldFile === "string" && path.basename(oldFile) === oldFile && oldFile.endsWith(".md")) {
+                      if (!newFiles.includes(oldFile)) {
+                        const targetPath = path.resolve(".wiki", oldFile);
+                        if (targetPath.startsWith(wikiDir + path.sep) && fs.existsSync(targetPath)) {
+                          fs.unlinkSync(targetPath);
+                          console.log("Pruned obsolete wiki page:", oldFile);
+                        }
+                      }
                     }
                   }
                 }
               } catch (e) {
-                console.warn("Could not read previous manifest:", e.message);
+                console.warn("Could not parse previous manifest:", e.message);
               }
             }
-            fs.writeFileSync(manifestPath, JSON.stringify(newFiles, null, 2), "utf-8");
+            const currentExportFiles = fs.readdirSync("graphify-out/wiki").filter(f => f.endsWith(".md"));
+            fs.writeFileSync(manifestPath, JSON.stringify(currentExportFiles, null, 2), "utf-8");
           '
 
           echo "Copying wiki pages into .wiki directory..."
@@ -107,15 +122,16 @@ jobs:
             grep -E '^\- \[Community ' .wiki/index.md | head -n 30 | sed -E 's/\(([^)]+)\.md\)/(\1)/' >> .wiki/_Sidebar.md || true
           fi
 
-          # Convert all relative markdown links (.md) to extensionless wiki links across all pages
+          # Convert all relative markdown links (.md) to extensionless wiki links across all pages, excluding absolute paths and external URLs
           node -e '
             const fs = require("fs");
             const path = require("path");
+            const linkRegex = /\]\((?!https?:\/\/|\/|mailto:)([^)#\s]+)\.md(#[^)]*)?\)/g;
             const files = fs.readdirSync(".wiki").filter(f => f.endsWith(".md"));
             for (const file of files) {
               const filePath = path.join(".wiki", file);
               let content = fs.readFileSync(filePath, "utf-8");
-              const updated = content.replace(/\]\(([A-Za-z0-9_.-]+)\.md\)/g, "]($1)");
+              const updated = content.replace(linkRegex, "]($1$2)");
               if (updated !== content) {
                 fs.writeFileSync(filePath, updated, "utf-8");
               }
