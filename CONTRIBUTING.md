@@ -7,6 +7,7 @@ Thank you for your interest in contributing to **SWAAS** (Smart Wearable Safety 
 ## 🏗️ System Architecture Overview
 
 TrailGuard is composed of 4 key sub-systems:
+
 1. **Hardware / Wearable**: ESP32-S3 firmware with BLE peripheral, secure boot, flash encryption, and Ed25519 signing keys.
 2. **Companion Mobile App**: React Native / Expo application that maintains the local 7-day rolling telemetry database and communicates with the wearable over BLE.
 3. **Backend Service**: Node.js, Express, MongoDB with strict privacy-preserving rules. Telemetry is local-first; the backend only receives bounded packages during an authorized emergency.
@@ -22,12 +23,14 @@ TrailGuard is composed of 4 key sub-systems:
 - **Python**: `3.11+` for hardware sensor drivers and firmware scripts
 
 ### 1. Clone the repository
+
 ```bash
 git clone https://github.com/SWAGAT10241/Smart-Wearable.git
 cd Smart-Wearable
 ```
 
 ### 2. Install dependencies
+
 ```bash
 # Backend
 cd backend && pnpm install
@@ -40,6 +43,7 @@ cd ../mobile && pnpm install
 ```
 
 ### 3. Run with Docker Compose
+
 ```bash
 docker compose up -d
 ```

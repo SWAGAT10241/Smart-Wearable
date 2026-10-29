@@ -16,10 +16,14 @@ const MAX_READINGS_PER_KIND = 100;
 
 /**
  * Helper to record security audit logs.
+ * When failClosed is true, errors cause an AppError to be thrown to prevent unaudited operations.
  */
-async function recordAudit({ actorId, actorRole, action, targetResource, metadata, ipAddress, userAgent }) {
+async function recordAudit(
+  { actorId, actorRole, action, targetResource, metadata, ipAddress, userAgent },
+  failClosed = false,
+) {
   try {
-    await AuditLog.create({
+    return await AuditLog.create({
       actorId,
       actorRole: actorRole || "citizen",
       action,
@@ -31,6 +35,9 @@ async function recordAudit({ actorId, actorRole, action, targetResource, metadat
     });
   } catch (error) {
     console.error("Failed to write audit log:", error.message);
+    if (failClosed) {
+      throw new AppError("Security audit logging failed; operation aborted", 500, "AUDIT_FAILURE");
+    }
   }
 }
 
@@ -389,6 +396,10 @@ async function assignOrJoinResponder(sessionId, { responderId }, user, requestMe
     throw new AppError("Responder user not found", 404, "USER_NOT_FOUND");
   }
 
+  if (!["responder", "coordinator", "admin"].includes(responderUser.role)) {
+    throw new AppError("Assigned user must possess responder, coordinator, or admin privileges", 400, "INVALID_ROLE");
+  }
+
   const alreadyJoined = session.activeResponders.some(
     (r) => String(r.responderId) === String(targetResponderId),
   );
@@ -465,16 +476,19 @@ async function getHistoricalData(sessionId, user, requestMeta = {}) {
   const windowEnd = new Date();
   const windowStart = session.historicalWindowStart || new Date(windowEnd.getTime() - EMERGENCY_HISTORY_HOURS * 60 * 60 * 1000);
 
-  // Pre-access audit logging
-  await recordAudit({
-    actorId: user._id,
-    actorRole: user.role,
-    action: "HISTORICAL_VITALS_REQUESTED",
-    targetResource: `EmergencySession:${sessionId}`,
-    metadata: { windowStart, windowEnd },
-    ipAddress: requestMeta.ipAddress,
-    userAgent: requestMeta.userAgent,
-  });
+  // Pre-access fail-closed audit logging
+  await recordAudit(
+    {
+      actorId: user._id,
+      actorRole: user.role,
+      action: "HISTORICAL_VITALS_REQUESTED",
+      targetResource: `EmergencySession:${sessionId}`,
+      metadata: { windowStart, windowEnd },
+      ipAddress: requestMeta.ipAddress,
+      userAgent: requestMeta.userAgent,
+    },
+    true,
+  );
 
   const query = {
     userId: session.userId,
