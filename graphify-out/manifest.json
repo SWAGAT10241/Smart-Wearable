@@ -1308,9 +1308,9 @@
     "semantic_hash": ""
   },
   "AGENTS.md": {
-    "mtime": 1793267070.875284,
-    "seen": 1793277852.847466,
-    "ast_hash": "6a701e70fff67ba16429af5c36741069",
+    "mtime": 1793278414.004051,
+    "seen": 1793278450.8362901,
+    "ast_hash": "587e67fe9a50de0a6a7e97481018a202",
     "semantic_hash": ""
   },
   "ARCHITECTURE.md": {
@@ -1431,6 +1431,24 @@
     "mtime": 1787214603.4819024,
     "seen": 1793277852.847483,
     "ast_hash": "e20d4bab072836400ce8229468a7d0b5",
+    "semantic_hash": ""
+  },
+  ".codex/hooks.json": {
+    "mtime": 1793278314.5665488,
+    "seen": 1793278450.8360431,
+    "ast_hash": "4463e143c50ad360d9d457477dd2854c",
+    "semantic_hash": ""
+  },
+  ".gemini/settings.json": {
+    "mtime": 1793278350.2135143,
+    "seen": 1793278450.836046,
+    "ast_hash": "06bfde396838c5093d5951023182855c",
+    "semantic_hash": ""
+  },
+  "GEMINI.md": {
+    "mtime": 1793278350.2132156,
+    "seen": 1793278450.836294,
+    "ast_hash": "67d88e9d0760c3ba54c75dfd9551c1c5",
     "semantic_hash": ""
   },
   "backend/pnpm-lock.yaml": {
