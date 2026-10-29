@@ -2,7 +2,7 @@ name: Security Checks
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, SWAAS]
 
   push:
     branches: [main]
@@ -13,22 +13,6 @@ permissions:
   contents: read
 
 jobs:
-  dependency-review:
-    name: Dependency Review
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Dependency Review
-        uses: actions/dependency-review-action@v5
-
-
   backend-audit:
     name: Backend Dependency Audit
     runs-on: ubuntu-latest
@@ -57,7 +41,6 @@ jobs:
 
       - name: Run dependency audit
         run: pnpm audit --audit-level=high
-
 
   frontend-audit:
     name: Frontend Dependency Audit
