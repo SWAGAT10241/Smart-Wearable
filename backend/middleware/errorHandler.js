@@ -9,7 +9,7 @@ const errorHandler = (err, req, res, next) => {
   if (statusCode >= 500 && process.env.NODE_ENV !== "test") {
     const sanitizedMethod = String(req.method || "").replace(/\n|\r/g, "").slice(0, 10);
     const sanitizedUrl = encodeURI(String(req.originalUrl || "").replace(/\n|\r/g, "")).slice(0, 500);
-    console.error(`[ERROR] ${sanitizedMethod} ${sanitizedUrl}:`, err);
+    console.error("[ERROR]", sanitizedMethod, sanitizedUrl, err);
   }
 
   res.status(statusCode).json({
