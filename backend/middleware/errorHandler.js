@@ -56,10 +56,14 @@ function errorHandler(err, req, res, next) {
     message = "Internal server error";
   }
 
+  const sanitizedMethod = String(req.method || "").replace(/[\r\n\t]/g, " ").slice(0, 10);
+  const sanitizedUrl = String(req.originalUrl || "").replace(/[\r\n\t]/g, " ").slice(0, 500);
+  const sanitizedLogMessage = String(message || "").replace(/[\r\n\t]/g, " ").slice(0, 500);
+
   if (statusCode >= 500) {
-    logger.error(`[500 ERROR] ${req.method} ${req.originalUrl}:`, err);
+    logger.error(`[500 ERROR] ${sanitizedMethod} ${sanitizedUrl}:`, err);
   } else {
-    logger.warn(`[${statusCode} CLIENT ERROR] ${req.method} ${req.originalUrl}: ${message}`);
+    logger.warn(`[${statusCode} CLIENT ERROR] ${sanitizedMethod} ${sanitizedUrl}: ${sanitizedLogMessage}`);
   }
 
   const responseBody = {

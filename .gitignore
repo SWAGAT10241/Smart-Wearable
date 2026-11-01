@@ -30,3 +30,7 @@ __pycache__/
 skills-lock.json
 graphify-out/cache/
 graphify-out/.*
+
+# Local previews
+mobile_ui_preview.html
+*.local.html

@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Platform,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -13,6 +14,16 @@ import StatCard from "../components/StatCard";
 import DeviceCard from "../components/DeviceCard";
 import SectionCard from "../components/SectionCard";
 import AlertCard from "../components/AlertCard";
+import {
+  HeartIcon,
+  OxygenIcon,
+  ThermometerIcon,
+  DropletIcon,
+  PressureIcon,
+  ShieldIcon,
+  PulseWave,
+  PinIcon,
+} from "../components/Icons";
 
 import { useDashboardData } from "../hooks/useDashboardData";
 import { useAppTheme } from "../theme/theme";
@@ -21,7 +32,7 @@ import { useAppTheme } from "../theme/theme";
  * Main dashboard screen on mobile companion app.
  * Displays live wearable status, health metrics, environment stats, and recent safety alerts.
  */
-export default function DashboardScreen() {
+export default function DashboardScreen({ navigation }) {
   const theme = useAppTheme();
   const {
     user,
@@ -42,6 +53,10 @@ export default function DashboardScreen() {
       <AppHeader
         title="TrailGuard"
         subtitle={`Hello, ${user?.username || "Explorer"}`}
+        badgeCount={recentFalls?.length || 0}
+        onNotification={() => navigation.navigate("Alerts")}
+        onProfile={() => navigation.navigate("Profile")}
+        user={user}
       />
 
       <ScrollView
@@ -59,29 +74,48 @@ export default function DashboardScreen() {
             },
           ]}
         >
-          <View
-            style={[
-              styles.connectionDot,
-              {
-                backgroundColor: connected ? theme.success : theme.warning,
-              },
-            ]}
-          />
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <View
+              style={[
+                styles.connectionDot,
+                {
+                  backgroundColor: connected ? theme.success : theme.warning,
+                },
+              ]}
+            />
 
-          <Text
-            style={{
-              color: theme.text,
-              fontWeight: "700",
-            }}
-          >
-            {connected ? "Live connection active" : "Using latest server data"}
-          </Text>
+            <Text
+              style={{
+                color: theme.text,
+                fontWeight: "700",
+                fontSize: 12,
+              }}
+            >
+              {connected ? "Live BLE connection" : "Using latest data"}
+            </Text>
+          </View>
+
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+            <ShieldIcon
+              size={13}
+              color={connected ? theme.success : theme.secondaryText}
+            />
+            <Text
+              style={{
+                fontSize: 11,
+                fontWeight: "700",
+                color: connected ? theme.success : theme.secondaryText,
+              }}
+            >
+              Background Shield
+            </Text>
+          </View>
         </View>
 
         <DeviceCard device={selectedDevice} />
 
         <Text style={[styles.heading, { color: theme.text }]}>
-          Health & Environment
+          Heart & Vital Signs
         </Text>
 
         <View style={styles.grid}>
@@ -89,7 +123,7 @@ export default function DashboardScreen() {
             title="Heart Rate"
             value={heartRate}
             unit="BPM"
-            icon="❤️"
+            icon={<HeartIcon size={20} color={theme.danger || "#EF4444"} />}
             status={statuses.heartRate}
           />
 
@@ -97,35 +131,81 @@ export default function DashboardScreen() {
             title="Blood Oxygen"
             value={spo2}
             unit="%"
-            icon="🫁"
+            icon={<OxygenIcon size={20} color={theme.blue || "#3B82F6"} />}
             status={statuses.spo2}
           />
+        </View>
 
+        {/* Pulse Rhythm & Conditioning Strip */}
+        <View
+          style={[
+            styles.pulseCard,
+            { backgroundColor: theme.card, borderColor: theme.border },
+          ]}
+        >
+          <View style={styles.pulseHeader}>
+            <Text style={[styles.pulseTitle, { color: theme.secondaryText }]}>
+              Rhythm & Baseline
+            </Text>
+            <Text style={[styles.pulseSubtitle, { color: theme.text }]}>
+              Resting ~64 · Peak today 112 BPM
+            </Text>
+          </View>
+          <PulseWave color={theme.danger || "#EF4444"} height={22} />
+        </View>
+
+        <Text style={[styles.heading, { color: theme.text }]}>
+          Trail Climate & Conditions
+        </Text>
+
+        <View style={styles.envGrid}>
           <StatCard
             title="Temperature"
             value={temperature}
             unit="°C"
-            icon="🌡️"
+            icon={<ThermometerIcon size={20} color={theme.warning || "#F59E0B"} />}
+            style={styles.envCard}
           />
 
           <StatCard
             title="Humidity"
             value={humidity}
             unit="%"
-            icon="💧"
+            icon={<DropletIcon size={20} color={theme.primary || "#06B6D4"} />}
+            style={styles.envCard}
           />
 
           <StatCard
             title="Pressure"
             value={pressure}
             unit="hPa"
-            icon="🧭"
+            icon={<PressureIcon size={20} color={theme.purple || "#8B5CF6"} />}
+            style={styles.envCard}
           />
         </View>
 
-        <Text style={[styles.heading, { color: theme.text }]}>Location</Text>
+        <Text style={[styles.heading, { color: theme.text }]}>
+          Current Trail Position
+        </Text>
 
-        <SectionCard title="Current Position">
+        <SectionCard
+          title="Current Position"
+          right={
+            <TouchableOpacity
+              onPress={() => navigation.navigate("LiveMap")}
+              style={[
+                styles.mapButton,
+                { backgroundColor: theme.primaryLight, borderColor: theme.border },
+              ]}
+              activeOpacity={0.7}
+            >
+              <PinIcon size={12} color={theme.primary} />
+              <Text style={[styles.mapButtonText, { color: theme.primary }]}>
+                Live Map
+              </Text>
+            </TouchableOpacity>
+          }
+        >
           <View style={styles.locationRow}>
             <Text style={{ color: theme.secondaryText }}>Latitude</Text>
             <Text style={[styles.locationValue, { color: theme.text }]}>
@@ -177,6 +257,7 @@ const styles = StyleSheet.create({
   connection: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     padding: 12,
     borderRadius: 14,
     borderWidth: 1,
@@ -189,8 +270,9 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   heading: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "700",
+    fontFamily: Platform.select({ ios: "System", android: "sans-serif-medium" }),
     marginTop: 20,
     marginBottom: 10,
   },
@@ -198,6 +280,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
+  },
+  envGrid: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  envCard: {
+    width: "31.5%",
+    padding: 11,
   },
   locationRow: {
     flexDirection: "row",
@@ -211,5 +301,42 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginVertical: 20,
     fontSize: 14,
+  },
+  pulseCard: {
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 4,
+    gap: 8,
+  },
+  pulseHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  pulseTitle: {
+    fontSize: 11,
+    fontFamily: Platform.select({ ios: "System", android: "sans-serif" }),
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
+  },
+  pulseSubtitle: {
+    fontSize: 11,
+    fontWeight: "600",
+    fontFamily: Platform.select({ ios: "System", android: "sans-serif-medium" }),
+  },
+  mapButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3.5,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  mapButtonText: {
+    fontSize: 11,
+    fontWeight: "700",
+    fontFamily: Platform.select({ ios: "System", android: "sans-serif-medium" }),
   },
 });

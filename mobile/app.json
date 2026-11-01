@@ -4,28 +4,41 @@
     "slug": "trailguard",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.trailguard.app",
       "infoPlist": {
+        "UIBackgroundModes": [
+          "location",
+          "bluetooth-central",
+          "fetch"
+        ],
         "NSLocationWhenInUseUsageDescription": "TrailGuard uses your location to track hike routes and broadcast GPS coordinates during emergencies.",
-        "NSBluetoothAlwaysUsageDescription": "TrailGuard connects with your wearable device via Bluetooth Low Energy to stream vitals and fall detection telemetry.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "TrailGuard monitors your GPS location in the background during active hikes to record emergency coordinates if a fall occurs.",
+        "NSBluetoothAlwaysUsageDescription": "TrailGuard maintains a Bluetooth Low Energy link with your wearable in the background to monitor vitals and detect sudden fall impacts.",
         "NSBluetoothPeripheralUsageDescription": "TrailGuard pairs with smart wearable sensors via BLE."
       }
     },
     "android": {
       "package": "com.trailguard.app",
       "adaptiveIcon": {
-        "backgroundColor": "#022c22"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#07111F"
       },
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
         "BLUETOOTH",
         "BLUETOOTH_ADMIN",
         "BLUETOOTH_SCAN",
-        "BLUETOOTH_CONNECT"
+        "BLUETOOTH_CONNECT",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION",
+        "FOREGROUND_SERVICE_CONNECTED_DEVICE",
+        "WAKE_LOCK"
       ]
     },
     "plugins": [

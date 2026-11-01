@@ -18,9 +18,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/ci.yml": {
-    "mtime": 1793286916.373526,
-    "seen": 1793286918.761184,
-    "ast_hash": "58ac2e5fe986a6d3276d3d936f3c65fd",
+    "mtime": 1793536287.6885872,
+    "seen": 1793536885.55278,
+    "ast_hash": "c033f6d85d42f6d798f5b5942aa445c6",
     "semantic_hash": ""
   },
   ".github/workflows/codeql.yml": {
@@ -36,15 +36,15 @@
     "semantic_hash": ""
   },
   ".github/workflows/security.yml": {
-    "mtime": 1793286916.3755598,
-    "seen": 1793286918.761187,
-    "ast_hash": "b6dcc5d6cade4e8b1588512b73344baa",
+    "mtime": 1793536491.7973979,
+    "seen": 1793536885.552784,
+    "ast_hash": "4f7090075af0dd84184dc004dfaf1aed",
     "semantic_hash": ""
   },
   "backend/app.js": {
-    "mtime": 1793279290.002927,
-    "seen": 1793279292.335816,
-    "ast_hash": "083eaa8b29eabae6fae8535cc5e2eb03",
+    "mtime": 1793536246.2136798,
+    "seen": 1793536885.5527859,
+    "ast_hash": "80c0ccbf9a10f85ddc2261d5b1b023e5",
     "semantic_hash": ""
   },
   "backend/config/db.js": {
@@ -144,9 +144,9 @@
     "semantic_hash": ""
   },
   "backend/middleware/errorHandler.js": {
-    "mtime": 1793279290.0076792,
-    "seen": 1793279292.335834,
-    "ast_hash": "f031d83702dd75d22f8cbda1e4694835",
+    "mtime": 1793536224.9567897,
+    "seen": 1793536885.552806,
+    "ast_hash": "215acafcb7f26639b8a5d7a5bf896ffa",
     "semantic_hash": ""
   },
   "backend/middleware/notFoundHandler.js": {
@@ -342,9 +342,9 @@
     "semantic_hash": ""
   },
   "backend/services/authService.js": {
-    "mtime": 1793279290.0157058,
-    "seen": 1793279292.3358688,
-    "ast_hash": "d9095b38fc1e43d6736faa4da2f5f4ac",
+    "mtime": 1793536557.869313,
+    "seen": 1793536885.552842,
+    "ast_hash": "c6ef4118834ca1acda78b83577850f08",
     "semantic_hash": ""
   },
   "backend/services/deviceAuthorizationReceiptService.js": {
@@ -432,9 +432,9 @@
     "semantic_hash": ""
   },
   "backend/simulate-esp32.js": {
-    "mtime": 1791056646.675848,
-    "seen": 1793277852.8473291,
-    "ast_hash": "262873b047d2a0d9655f9b0c730a1eb5",
+    "mtime": 1793536260.661544,
+    "seen": 1793536885.552862,
+    "ast_hash": "9a8d099cebb39511125b2738eb3b162e",
     "semantic_hash": ""
   },
   "backend/tests/auth.test.js": {
@@ -516,9 +516,9 @@
     "semantic_hash": ""
   },
   "backend/utils/logger.js": {
-    "mtime": 1793279290.0222065,
-    "seen": 1793279292.3358989,
-    "ast_hash": "ca4b9d11bc84c5f2ce6ad76a51b94038",
+    "mtime": 1793536233.4610932,
+    "seen": 1793536885.552896,
+    "ast_hash": "b24a52ec599bd0e6e9702bf474117d20",
     "semantic_hash": ""
   },
   "backend/utils/response.js": {
@@ -1098,9 +1098,9 @@
     "semantic_hash": ""
   },
   "mobile/app.json": {
-    "mtime": 1793455032.8119462,
-    "seen": 1793535484.613197,
-    "ast_hash": "24d672debbe97b906c8866f4958a1cfb",
+    "mtime": 1793535730.3373713,
+    "seen": 1793536885.553013,
+    "ast_hash": "da493d2044b688baa3eb19b94780075d",
     "semantic_hash": ""
   },
   "mobile/eas.json": {
@@ -1116,9 +1116,9 @@
     "semantic_hash": ""
   },
   "mobile/pnpm-workspace.yaml": {
-    "mtime": 1793267070.8857243,
-    "seen": 1793277852.8474371,
-    "ast_hash": "3363fa157c4191a5440d30483f0c0fd4",
+    "mtime": 1793535488.0842798,
+    "seen": 1793536885.5530171,
+    "ast_hash": "f0940f19f06fbf6c8bd28c52079ec693",
     "semantic_hash": ""
   },
   "mobile/scripts/check-syntax.js": {
@@ -1458,9 +1458,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/wiki-sync.yml": {
-    "mtime": 1793290552.2482758,
-    "seen": 1793290553.587708,
-    "ast_hash": "c1fa65d6b796143323df810885b6bfae",
+    "mtime": 1793536846.9270468,
+    "seen": 1793536885.552785,
+    "ast_hash": "0a214a68aaaedfe8a0958a875e5b8e1e",
     "semantic_hash": ""
   },
   "mobile/src/components/Icons.js": {
@@ -1506,9 +1506,9 @@
     "semantic_hash": ""
   },
   "mobile/pnpm-lock.yaml": {
-    "mtime": 1793267070.885142,
-    "seen": 1793277852.847486,
-    "ast_hash": "a103e8566df439f081403986e8c3547a",
+    "mtime": 1793535566.3254979,
+    "seen": 1793536885.553091,
+    "ast_hash": "f711fedf7776c82e1a9a149bb9eb28a7",
     "semantic_hash": ""
   }
 }

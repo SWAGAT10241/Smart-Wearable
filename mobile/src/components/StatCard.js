@@ -1,10 +1,8 @@
 import React from "react";
-
-import { StyleSheet, Text, View } from "react-native";
-
+import { Platform, StyleSheet, Text, View } from "react-native";
 import { useAppTheme } from "../theme/theme";
 
-export default function StatCard({ title, value, unit, icon, status }) {
+export default function StatCard({ title, value, unit, icon, status, style: customStyle }) {
   const theme = useAppTheme();
 
   const statusColor =
@@ -24,11 +22,16 @@ export default function StatCard({ title, value, unit, icon, status }) {
           backgroundColor: theme.card,
           borderColor: theme.border,
         },
+        customStyle,
       ]}
     >
       <View style={styles.top}>
         <View style={[styles.iconBox, { backgroundColor: theme.primaryLight }]}>
-          <Text style={styles.icon}>{icon}</Text>
+          {React.isValidElement(icon) ? (
+            icon
+          ) : (
+            <Text style={styles.icon}>{icon}</Text>
+          )}
         </View>
 
         <View style={[styles.dot, { backgroundColor: statusColor }]} />
@@ -89,6 +92,7 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 12,
+    fontFamily: Platform.select({ ios: "System", android: "sans-serif" }),
     marginBottom: 5,
   },
 
@@ -98,12 +102,14 @@ const styles = StyleSheet.create({
   },
 
   value: {
-    fontSize: 25,
-    fontWeight: "800",
+    fontSize: 24,
+    fontWeight: "700",
+    fontFamily: Platform.select({ ios: "System", android: "sans-serif-medium" }),
   },
 
   unit: {
-    fontSize: 11,
+    fontSize: 12,
+    fontFamily: Platform.select({ ios: "System", android: "sans-serif" }),
     marginLeft: 4,
   },
 });

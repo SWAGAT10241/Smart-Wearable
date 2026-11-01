@@ -13,14 +13,19 @@ import AlertCard from "../components/AlertCard";
 import { useLiveData } from "../context/LiveDataContext";
 import { useAppTheme } from "../theme/theme";
 
-export default function AlertsScreen() {
+export default function AlertsScreen({ navigation }) {
   const theme = useAppTheme();
 
   const { falls, refresh, loading } = useLiveData();
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
-      <AppHeader title="Alerts" subtitle="Safety events" />
+      <AppHeader
+        title="Safety Alerts"
+        subtitle="Active incidents & falls"
+        showBack={true}
+        onBack={() => navigation.goBack()}
+      />
 
       <ScrollView
         contentContainerStyle={styles.container}

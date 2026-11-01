@@ -31,6 +31,7 @@ function sanitizeValue(value, depth = 0) {
   if (value === null || value === undefined) return value;
   if (typeof value === "string") {
     return value
+      .replace(/[\r\n\t]/g, " ")
       .replace(/([?&])([^=&#\s]+)=([^&#\s]*)/g, (match, separator, key) => {
         let decodedKey;
         try {

@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 const User = require("../models/User");
 const AppError = require("../utils/appError");
 
@@ -36,6 +37,9 @@ async function registerUser(userData) {
     !username ||
     !password ||
     !email ||
+    typeof username !== "string" ||
+    typeof password !== "string" ||
+    typeof email !== "string" ||
     !phoneNumber ||
     !emergencyContactName ||
     !emergencyContactPhone ||
@@ -49,15 +53,16 @@ async function registerUser(userData) {
     );
   }
 
-  const existing = await User.findOne({ email });
+  const sanitizedEmail = String(email).trim().toLowerCase();
+  const existing = await User.findOne({ email: sanitizedEmail });
   if (existing) {
     throw new AppError("Email already registered", 409, "DUPLICATE_EMAIL");
   }
 
   const user = await User.create({
-    username,
+    username: String(username).trim(),
     password,
-    email,
+    email: sanitizedEmail,
     phoneNumber,
     emergencyContactName,
     emergencyContactPhone,
@@ -89,11 +94,18 @@ async function registerUser(userData) {
  * @returns {Promise<{token: string, user: object}>}
  */
 async function loginUser({ email, password }) {
-  if (!email || !password) {
+  if (
+    !email ||
+    !password ||
+    typeof email !== "string" ||
+    typeof password !== "string" ||
+    !email.trim()
+  ) {
     throw new AppError("Invalid email or password", 401, "INVALID_CREDENTIALS");
   }
 
-  const user = await User.findOne({ email }).select("+password");
+  const sanitizedEmail = String(email).trim().toLowerCase();
+  const user = await User.findOne({ email: sanitizedEmail }).select("+password");
   if (!user || !user.password) {
     throw new AppError("Invalid email or password", 401, "INVALID_CREDENTIALS");
   }
@@ -124,13 +136,17 @@ async function loginUser({ email, password }) {
  * @returns {Promise<object>}
  */
 async function completeUserProfile(userId, updateData) {
+  if (!userId || !mongoose.isValidObjectId(userId)) {
+    throw new AppError("Invalid user ID provided", 400, "INVALID_ID");
+  }
+
   const {
     phoneNumber,
     emergencyContactName,
     emergencyContactPhone,
     height,
     weight,
-  } = updateData;
+  } = updateData || {};
 
   if (
     !phoneNumber ||
@@ -149,9 +165,9 @@ async function completeUserProfile(userId, updateData) {
   const user = await User.findByIdAndUpdate(
     userId,
     {
-      phoneNumber,
-      emergencyContactName,
-      emergencyContactPhone,
+      phoneNumber: String(phoneNumber),
+      emergencyContactName: String(emergencyContactName),
+      emergencyContactPhone: String(emergencyContactPhone),
       height,
       weight,
       profileComplete: true,
@@ -189,6 +205,9 @@ async function completeUserProfile(userId, updateData) {
  * @returns {Promise<object>}
  */
 async function getUserProfile(userId) {
+  if (!userId || !mongoose.isValidObjectId(userId)) {
+    throw new AppError("Invalid user ID provided", 400, "INVALID_ID");
+  }
   const user = await User.findById(userId);
   if (!user) {
     throw new AppError("User not found", 404, "USER_NOT_FOUND");
