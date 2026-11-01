@@ -60,8 +60,8 @@ function clamp(value, min, max) {
 }
 
 function random(min, max) {
-  const buf = crypto.randomBytes(4);
-  const rand01 = buf.readUInt32LE(0) / 0xffffffff;
+  const precision = 1000000;
+  const rand01 = crypto.randomInt(0, precision) / precision;
   return rand01 * (max - min) + min;
 }
 
@@ -307,7 +307,7 @@ async function sendTelemetry() {
 
 async function simulateFall() {
   // 20% chance every minute.
-  if (Math.random() >= 0.2) {
+  if (random(0, 1) >= 0.2) {
     return;
   }
 
@@ -391,7 +391,7 @@ async function simulateFall() {
 // ─────────────────────────────────────────────
 
 function simulateLoRa() {
-  const connected = Math.random() > 0.05;
+  const connected = random(0, 1) > 0.05;
 
   const rssi = randomInt(-110, -55);
 

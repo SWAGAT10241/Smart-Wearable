@@ -86,12 +86,11 @@ async function main(args = process.argv.slice(2)) {
     throw new TypeError("deviceName must be 50 characters or less");
   }
   const publicKeyPath = path.resolve(process.cwd(), options.publicKeyFile);
-  if (fs.statSync(publicKeyPath).size > 16 * 1024) {
+  const rawKey = fs.readFileSync(publicKeyPath, "utf8");
+  if (Buffer.byteLength(rawKey, "utf8") > 16 * 1024) {
     throw new TypeError("public key file must be 16 KiB or smaller");
   }
-  const publicKeyPem = validatePublicKey(
-    fs.readFileSync(publicKeyPath, "utf8"),
-  );
+  const publicKeyPem = validatePublicKey(rawKey);
   let qrOutputPath;
   if (options.qrOutput) {
     qrOutputPath = path.resolve(process.cwd(), options.qrOutput);

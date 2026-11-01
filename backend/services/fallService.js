@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const FallEvent = require("../models/FallEvent");
 const AppError = require("../utils/appError");
 
@@ -5,8 +6,11 @@ const AppError = require("../utils/appError");
  * Fetch all fall events for the authenticated user.
  */
 async function getUserFalls(userId) {
+  if (!userId || (typeof userId !== "string" && !mongoose.isValidObjectId(userId))) {
+    throw new AppError("Invalid user ID provided", 400, "INVALID_ID");
+  }
   return FallEvent.find({
-    userId,
+    userId: String(userId),
   }).sort({
     timestamp: -1,
   });
@@ -16,8 +20,11 @@ async function getUserFalls(userId) {
  * Fetch latest fall event for the authenticated user.
  */
 async function getLatestFall(userId) {
+  if (!userId || (typeof userId !== "string" && !mongoose.isValidObjectId(userId))) {
+    throw new AppError("Invalid user ID provided", 400, "INVALID_ID");
+  }
   const event = await FallEvent.findOne({
-    userId,
+    userId: String(userId),
   }).sort({
     timestamp: -1,
   });
@@ -29,17 +36,25 @@ async function getLatestFall(userId) {
  * Update the status of a fall event (e.g., detected, dismissed, resolved).
  */
 async function updateFallStatus(userId, fallId, status, broadcast = () => { }) {
-  if (!status) {
+  if (!status || typeof status !== "string") {
     throw new AppError("status is required", 400, "VALIDATION_ERROR");
+  }
+  if (!fallId || typeof fallId !== "string" || !mongoose.isValidObjectId(fallId)) {
+    throw new AppError("Invalid fall event ID provided", 400, "INVALID_ID");
+  }
+  if (!userId || (typeof userId !== "string" && !mongoose.isValidObjectId(userId))) {
+    throw new AppError("Invalid user ID provided", 400, "INVALID_ID");
   }
 
   const event = await FallEvent.findOneAndUpdate(
     {
-      _id: fallId,
-      userId,
+      _id: String(fallId),
+      userId: String(userId),
     },
     {
-      status,
+      $set: {
+        status: String(status).trim(),
+      },
     },
     {
       new: true,

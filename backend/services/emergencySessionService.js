@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+const mongoose = require("mongoose");
 const EmergencySession = require("../models/EmergencySession");
 const RiskAssessment = require("../models/RiskAssessment");
 const AuditLog = require("../models/AuditLog");
@@ -383,17 +384,21 @@ async function assignOrJoinResponder(sessionId, { responderId }, user, requestMe
   let targetResponderId = responderId;
 
   if (targetResponderId) {
+    if (typeof targetResponderId !== "string" || !targetResponderId.trim()) {
+      throw new AppError("Invalid responder ID provided", 400, "INVALID_ID");
+    }
     if (!["coordinator", "admin"].includes(user.role)) {
       throw new AppError("Only coordinators or admins can assign responders", 403, "FORBIDDEN");
     }
+    targetResponderId = String(targetResponderId).trim();
   } else {
     if (user.role !== "responder" && user.role !== "coordinator" && user.role !== "admin") {
       throw new AppError("Only authorized responders can join emergency sessions", 403, "FORBIDDEN");
     }
-    targetResponderId = user._id;
+    targetResponderId = String(user._id);
   }
 
-  const responderUser = await User.findById(targetResponderId).select("role username");
+  const responderUser = await User.findById(String(targetResponderId)).select("role username");
   if (!responderUser) {
     throw new AppError("Responder user not found", 404, "USER_NOT_FOUND");
   }

@@ -162,14 +162,15 @@ async function completeUserProfile(userId, updateData) {
     );
   }
 
+  const safeUserId = String(userId);
   const user = await User.findByIdAndUpdate(
-    userId,
+    safeUserId,
     {
-      phoneNumber: String(phoneNumber),
-      emergencyContactName: String(emergencyContactName),
-      emergencyContactPhone: String(emergencyContactPhone),
-      height,
-      weight,
+      phoneNumber: String(phoneNumber).trim(),
+      emergencyContactName: String(emergencyContactName).trim(),
+      emergencyContactPhone: String(emergencyContactPhone).trim(),
+      height: Number(height),
+      weight: Number(weight),
       profileComplete: true,
     },
     {
@@ -208,7 +209,7 @@ async function getUserProfile(userId) {
   if (!userId || !mongoose.isValidObjectId(userId)) {
     throw new AppError("Invalid user ID provided", 400, "INVALID_ID");
   }
-  const user = await User.findById(userId);
+  const user = await User.findById(String(userId));
   if (!user) {
     throw new AppError("User not found", 404, "USER_NOT_FOUND");
   }
