@@ -1,5 +1,5 @@
 # TrailGuard Hardware Environment Requirements
-smbus2>=0.4.3
+smbus2>=0.6.1
 paho-mqtt>=1.6.1
 requests>=2.31.0
 pyserial>=3.5
