@@ -1,7 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const session = require("express-session");
-const { MongoStore } = require("connect-mongo");
 const passport = require("passport");
 const helmet = require("helmet");
 
@@ -52,29 +50,6 @@ app.use(
 // JSON body parser with strict size limit
 app.use(express.json({ limit: "100kb" }));
 
-// Session configuration
-const sessionOptions = {
-  secret: config.sessionSecret,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    secure: config.isProduction,
-    sameSite: config.isProduction ? "none" : "lax",
-    maxAge: 14 * 24 * 60 * 60 * 1000,
-  },
-};
-
-// Use MongoDB-backed sessions when MongoDB is configured and not testing
-if (config.mongoUri && !config.isTest) {
-  sessionOptions.store = MongoStore.create({
-    mongoUrl: config.mongoUri,
-    collectionName: "sessions",
-    ttl: 14 * 24 * 60 * 60,
-  });
-}
-
-app.use(session(sessionOptions));
 app.use(passport.initialize());
 
 // Authentication rate limiting to prevent brute-force attacks
