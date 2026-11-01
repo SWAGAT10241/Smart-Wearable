@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Community Discussions
+    url: https://github.com/SWAGAT10241/Smart-Wearable/discussions
+    about: Ask questions, share ideas, and connect with other contributors
+  - name: Security Vulnerability Reporting
+    url: https://github.com/SWAGAT10241/Smart-Wearable/security/policy
+    about: Please report potential security vulnerabilities privately according to our security policy
