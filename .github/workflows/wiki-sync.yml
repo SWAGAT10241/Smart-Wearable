@@ -1,0 +1,191 @@
+name: Sync Graphify Wiki to GitHub Wiki
+
+on:
+  push:
+    branches: [main, SWAAS]
+    paths:
+      - 'graphify-out/**'
+      - '.github/workflows/wiki-sync.yml'
+
+  workflow_dispatch:
+
+concurrency:
+  group: wiki-sync
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  sync-wiki:
+    name: Sync Knowledge Graph to GitHub Wiki
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Export Knowledge Graph to Wiki
+        run: |
+          echo "Refreshing graphify wiki export from latest graph..."
+          pip install --upgrade pip
+          pip install graphifyy
+          python -m graphify export wiki
+
+          if [ ! -d "graphify-out/wiki" ]; then
+            echo "::error::Failed to locate or generate graphify-out/wiki"
+            exit 1
+          fi
+
+      - name: Publish to GitHub Wiki
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SOURCE_SHA=$(git rev-parse HEAD)
+          echo "Checking GitHub Wiki availability for ${{ github.repository }}..."
+
+          # Attempt to clone the wiki repository
+          CLONE_OUTPUT=$(git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.wiki.git" .wiki 2>&1 || true)
+          if [ ! -d ".wiki" ]; then
+            if echo "$CLONE_OUTPUT" | grep -qiE "repository not found|could not read from remote|not found"; then
+              echo "::warning title=Wiki Not Initialized::The GitHub Wiki repository (${{ github.repository }}.wiki) does not exist or has not been initialized. Please visit https://github.com/${{ github.repository }}/wiki and click 'Create the first page' to initialize it."
+              exit 0
+            else
+              echo "::error::Failed to clone wiki repository: $CLONE_OUTPUT"
+              exit 1
+            fi
+          fi
+
+          # Prune previously generated wiki pages that are no longer part of the export with traversal & symlink guards
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+            const manifestPath = path.join(".wiki", ".graphify_manifest.json");
+            const wikiDir = path.resolve(".wiki");
+
+            if (fs.existsSync(manifestPath)) {
+              const lstat = fs.lstatSync(manifestPath);
+              if (lstat.isSymbolicLink()) {
+                console.warn("Manifest is a symlink; unlinking it to reset safely.");
+                fs.unlinkSync(manifestPath);
+              } else {
+                try {
+                  const oldFiles = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+                  const newFiles = fs.readdirSync("graphify-out/wiki").filter(f => f.endsWith(".md"));
+                  if (Array.isArray(oldFiles)) {
+                    for (const oldFile of oldFiles) {
+                      if (typeof oldFile === "string" && path.basename(oldFile) === oldFile && oldFile.endsWith(".md")) {
+                        if (/^(Home|_Sidebar|_Footer|\d{2}---.*)\.md$/i.test(oldFile)) {
+                          continue;
+                        }
+                        if (!newFiles.includes(oldFile)) {
+                          const targetPath = path.resolve(".wiki", oldFile);
+                          if (targetPath.startsWith(wikiDir + path.sep) && fs.existsSync(targetPath)) {
+                            fs.unlinkSync(targetPath);
+                            console.log("Pruned obsolete wiki page:", oldFile);
+                          }
+                        }
+                      }
+                    }
+                  }
+                } catch (e) {
+                  console.warn("Could not parse previous manifest:", e.message);
+                }
+              }
+            }
+            const currentExportFiles = fs.readdirSync("graphify-out/wiki").filter(f => f.endsWith(".md"));
+            fs.writeFileSync(manifestPath, JSON.stringify(currentExportFiles, null, 2), "utf-8");
+          '
+
+          echo "Copying graphify community articles into .wiki directory (preserving curated chapters)..."
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+            const sourceDir = "graphify-out/wiki";
+            const targetDir = ".wiki";
+            const files = fs.readdirSync(sourceDir);
+
+            for (const file of files) {
+              // Never overwrite Home.md, _Sidebar.md, _Footer.md, or the curated 01--- through 20--- chapters
+              if (/^(Home|_Sidebar|_Footer|\d{2}---.*)\.md$/i.test(file)) {
+                continue;
+              }
+              const srcPath = path.join(sourceDir, file);
+              // Map index.md to Knowledge-Graph-Index.md to keep Home.md safe
+              const destFile = file === "index.md" ? "Knowledge-Graph-Index.md" : file;
+              const destPath = path.join(targetDir, destFile);
+              fs.copyFileSync(srcPath, destPath);
+            }
+          '
+
+          # Convert all relative markdown links (.md) to extensionless wiki links across all pages, handling arbitrary nested parentheses
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+            const files = fs.readdirSync(".wiki").filter(f => f.endsWith(".md"));
+            for (const file of files) {
+              const filePath = path.join(".wiki", file);
+              const content = fs.readFileSync(filePath, "utf-8");
+              let result = "";
+              let i = 0;
+              while (i < content.length) {
+                const openIdx = content.indexOf("](", i);
+                if (openIdx === -1) {
+                  result += content.slice(i);
+                  break;
+                }
+                result += content.slice(i, openIdx + 2);
+                const startDest = openIdx + 2;
+                let depth = 1;
+                let j = startDest;
+                while (j < content.length && depth > 0) {
+                  if (content[j] === "(") depth++;
+                  else if (content[j] === ")") depth--;
+                  j++;
+                }
+                if (depth === 0) {
+                  const dest = content.slice(startDest, j - 1);
+                  const hashIdx = dest.indexOf("#");
+                  const urlPart = hashIdx !== -1 ? dest.slice(0, hashIdx) : dest;
+                  const hashPart = hashIdx !== -1 ? dest.slice(hashIdx) : "";
+                  if (urlPart.toLowerCase().endsWith(".md") && !/^(?:[a-z][a-z0-9+.-]*:|\/)/i.test(urlPart)) {
+                    result += urlPart.slice(0, -3) + hashPart + ")";
+                  } else {
+                    result += dest + ")";
+                  }
+                  i = j;
+                } else {
+                  i = openIdx + 2;
+                }
+              }
+              if (result !== content) {
+                fs.writeFileSync(filePath, result, "utf-8");
+              }
+            }
+          '
+
+          cd .wiki
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+
+          if git diff --staged --quiet; then
+            echo "GitHub Wiki is already up to date with the latest knowledge graph."
+          else
+            git commit -m "docs(wiki): auto-sync knowledge graph from commit ${SOURCE_SHA}"
+            git push origin HEAD
+            echo "GitHub Wiki published successfully!"
+          fi

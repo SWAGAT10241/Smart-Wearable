@@ -1,24 +1,29 @@
 /**
- * Standardized API response wrappers.
+ * Response helper utilities providing standardized payload generation
+ * while preserving full backwards compatibility with existing clients and test suites.
  */
 
-function sendSuccess(res, data = {}, statusCode = 200) {
+function successResponse(res, data = {}, statusCode = 200) {
   return res.status(statusCode).json(data);
 }
 
-function sendCreated(res, data = {}) {
-  return res.status(201).json(data);
-}
-
-function sendError(res, message = "An error occurred", statusCode = 500, code = "ERROR") {
-  return res.status(statusCode).json({
+function errorResponse(res, message, statusCode = 500, code = "ERROR", details = null) {
+  const payload = {
     error: message,
-    code,
-  });
+  };
+
+  if (code && code !== "ERROR") {
+    payload.code = code;
+  }
+
+  if (details) {
+    payload.details = details;
+  }
+
+  return res.status(statusCode).json(payload);
 }
 
 module.exports = {
-  sendSuccess,
-  sendCreated,
-  sendError,
+  successResponse,
+  errorResponse,
 };

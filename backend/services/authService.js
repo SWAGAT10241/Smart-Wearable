@@ -1,27 +1,27 @@
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 const User = require("../models/User");
 const AppError = require("../utils/appError");
-const config = require("../config/env");
 
 /**
- * Generate a signed JWT for the given user ID.
+ * Sign a JWT token for a given user ID.
  *
- * @param {string} userId - Mongo ID of the user
+ * @param {string|object} userId
  * @returns {string} Signed JWT
  */
 function signToken(userId) {
-  return jwt.sign({ userId }, config.jwtSecret, {
+  return jwt.sign({ userId }, process.env.JWT_SECRET, {
     expiresIn: "30d",
   });
 }
 
 /**
- * Register a new user with local credentials.
+ * Register a new local user.
  *
- * @param {object} payload
+ * @param {object} userData
  * @returns {Promise<{token: string, user: object}>}
  */
-async function registerUser(payload) {
+async function registerUser(userData) {
   const {
     username,
     password,
@@ -31,12 +31,15 @@ async function registerUser(payload) {
     emergencyContactPhone,
     height,
     weight,
-  } = payload;
+  } = userData;
 
   if (
     !username ||
     !password ||
     !email ||
+    typeof username !== "string" ||
+    typeof password !== "string" ||
+    typeof email !== "string" ||
     !phoneNumber ||
     !emergencyContactName ||
     !emergencyContactPhone ||
@@ -50,15 +53,16 @@ async function registerUser(payload) {
     );
   }
 
-  const existing = await User.findOne({ email });
+  const sanitizedEmail = String(email).trim().toLowerCase();
+  const existing = await User.findOne({ email: sanitizedEmail });
   if (existing) {
-    throw new AppError("Email already registered", 409, "EMAIL_EXISTS");
+    throw new AppError("Email already registered", 409, "DUPLICATE_EMAIL");
   }
 
   const user = await User.create({
-    username,
+    username: String(username).trim(),
     password,
-    email,
+    email: sanitizedEmail,
     phoneNumber,
     emergencyContactName,
     emergencyContactPhone,
@@ -82,7 +86,7 @@ async function registerUser(payload) {
 }
 
 /**
- * Authenticate user with email and password.
+ * Authenticate an existing user with email and password.
  *
  * @param {object} credentials
  * @param {string} credentials.email
@@ -90,8 +94,18 @@ async function registerUser(payload) {
  * @returns {Promise<{token: string, user: object}>}
  */
 async function loginUser({ email, password }) {
-  const user = await User.findOne({ email }).select("+password");
+  if (
+    !email ||
+    !password ||
+    typeof email !== "string" ||
+    typeof password !== "string" ||
+    !email.trim()
+  ) {
+    throw new AppError("Invalid email or password", 401, "INVALID_CREDENTIALS");
+  }
 
+  const sanitizedEmail = String(email).trim().toLowerCase();
+  const user = await User.findOne({ email: sanitizedEmail }).select("+password");
   if (!user || !user.password) {
     throw new AppError("Invalid email or password", 401, "INVALID_CREDENTIALS");
   }
@@ -115,20 +129,24 @@ async function loginUser({ email, password }) {
 }
 
 /**
- * Complete additional profile details for OAuth registered users.
+ * Complete missing profile fields for an authenticated user.
  *
- * @param {string} userId - Authenticated user ID
- * @param {object} payload
- * @returns {Promise<{message: string, user: object}>}
+ * @param {string} userId
+ * @param {object} updateData
+ * @returns {Promise<object>}
  */
-async function completeProfile(userId, payload) {
+async function completeUserProfile(userId, updateData) {
+  if (!userId || !mongoose.isValidObjectId(userId)) {
+    throw new AppError("Invalid user ID provided", 400, "INVALID_ID");
+  }
+
   const {
     phoneNumber,
     emergencyContactName,
     emergencyContactPhone,
     height,
     weight,
-  } = payload;
+  } = updateData || {};
 
   if (
     !phoneNumber ||
@@ -147,9 +165,9 @@ async function completeProfile(userId, payload) {
   const user = await User.findByIdAndUpdate(
     userId,
     {
-      phoneNumber,
-      emergencyContactName,
-      emergencyContactPhone,
+      phoneNumber: String(phoneNumber),
+      emergencyContactName: String(emergencyContactName),
+      emergencyContactPhone: String(emergencyContactPhone),
       height,
       weight,
       profileComplete: true,
@@ -181,12 +199,15 @@ async function completeProfile(userId, payload) {
 }
 
 /**
- * Retrieve the current authenticated user's profile.
+ * Retrieve user profile by user ID.
  *
  * @param {string} userId
  * @returns {Promise<object>}
  */
-async function getCurrentUser(userId) {
+async function getUserProfile(userId) {
+  if (!userId || !mongoose.isValidObjectId(userId)) {
+    throw new AppError("Invalid user ID provided", 400, "INVALID_ID");
+  }
   const user = await User.findById(userId);
   if (!user) {
     throw new AppError("User not found", 404, "USER_NOT_FOUND");
@@ -198,6 +219,6 @@ module.exports = {
   signToken,
   registerUser,
   loginUser,
-  completeProfile,
-  getCurrentUser,
+  completeUserProfile,
+  getUserProfile,
 };

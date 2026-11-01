@@ -1,0 +1,27 @@
+menu "TrailGuard wearable"
+
+config TRAILGUARD_PAIRING_BUTTON_GPIO
+    int "Pairing activation button GPIO"
+    range -1 48
+    default -1
+    help
+        GPIO connected to a physical momentary button wired to ground.
+        The device only advertises pairing and signs a challenge for 60 seconds
+        after this button is pressed. Confirm the board's actual wiring before
+        building; no GPIO is selected by default.
+
+config TRAILGUARD_PAIRING_WINDOW_SECONDS
+    int "Pairing activation window in seconds"
+    range 10 60
+    default 60
+
+config TRAILGUARD_AUTHORITY_PUBLIC_KEY_B64URL
+    string "Backend Ed25519 authority public key (base64url)"
+    default ""
+    help
+        The 32-byte Ed25519 verification key generated with the backend
+        generate-device-authority-keys command. Only the public key is embedded
+        in firmware. A valid backend-signed receipt is required before the
+        device stores an owner or sends telemetry.
+
+endmenu

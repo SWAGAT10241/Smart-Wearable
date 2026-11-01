@@ -1,11 +1,10 @@
 /**
- * 404 Not Found Middleware.
+ * 404 Route Not Found middleware.
  */
-const notFoundHandler = (req, res) => {
+function notFoundHandler(req, res) {
   res.status(404).json({
-    error: `Cannot ${req.method} ${req.originalUrl}`,
-    code: "NOT_FOUND",
+    error: "Route not found",
   });
-};
+}
 
 module.exports = notFoundHandler;

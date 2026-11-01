@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 
 import { useAppTheme } from "../theme/theme";
 
@@ -45,7 +45,8 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 17,
-    fontWeight: "800",
+    fontSize: 16,
+    fontWeight: "700",
+    fontFamily: Platform.select({ ios: "System", android: "sans-serif-medium" }),
   },
 });

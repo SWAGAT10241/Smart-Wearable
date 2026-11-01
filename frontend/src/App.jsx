@@ -27,7 +27,6 @@ export default function App() {
               <BrowserRouter>
                 <FallAlertModal />
 
-
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
@@ -55,5 +54,5 @@ export default function App() {
       </AuthProvider>
     </ThemeProvider>
   </ErrorBoundary>
-);
+  );
 }

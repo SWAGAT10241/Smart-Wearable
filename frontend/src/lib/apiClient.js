@@ -245,6 +245,89 @@ export const devicesApi = {
     }),
 };
 
+// ------------------------------------------------------------
+// DEVICE PAIRING (DAY 3 SECURE PAIRING & TELEMETRY RECEIPTS)
+// ------------------------------------------------------------
+
+export const devicePairingApi = {
+  start: (deviceId, bootstrapToken) =>
+    request("/devices/pairing-challenges", {
+      method: "POST",
+      body: { deviceId, bootstrapToken },
+      auth: true,
+    }),
+  complete: (challengeId, proof) =>
+    request(`/devices/pairing-challenges/${encodeURIComponent(challengeId)}/complete`, {
+      method: "POST",
+      body: proof,
+      auth: true,
+    }),
+  telemetryReceipt: (deviceId, challengeId, nonce) =>
+    request("/devices/telemetry-receipts", {
+      method: "POST",
+      body: { deviceId, challengeId, nonce },
+      auth: true,
+    }),
+};
+
+// ------------------------------------------------------------
+// EMERGENCY & RESCUE SESSIONS (DAY 5 REAL-TIME COMMUNICATION)
+// ------------------------------------------------------------
+
+export const emergencyApi = {
+  getWsTicket: () =>
+    request("/emergency/ws-ticket", {
+      method: "POST",
+      auth: true,
+    }),
+  createSession: (payload) =>
+    request("/emergency/sessions", {
+      method: "POST",
+      body: payload,
+      auth: true,
+    }),
+  activeSessions: () =>
+    request("/emergency/sessions/active", {
+      auth: true,
+    }),
+  getSession: (sessionId) =>
+    request(`/emergency/sessions/${encodeURIComponent(sessionId)}`, {
+      auth: true,
+    }),
+  updateStatus: (sessionId, status, resolutionNote) =>
+    request(`/emergency/sessions/${encodeURIComponent(sessionId)}/status`, {
+      method: "PATCH",
+      body: { status, resolutionNote },
+      auth: true,
+    }),
+  updateLocation: (sessionId, location) =>
+    request(`/emergency/sessions/${encodeURIComponent(sessionId)}/location`, {
+      method: "POST",
+      body: location,
+      auth: true,
+    }),
+  updateRisk: (sessionId, risk) =>
+    request(`/emergency/sessions/${encodeURIComponent(sessionId)}/risk`, {
+      method: "POST",
+      body: risk,
+      auth: true,
+    }),
+  joinSession: (sessionId, responderId) =>
+    request(`/emergency/sessions/${encodeURIComponent(sessionId)}/responders`, {
+      method: "POST",
+      body: { responderId },
+      auth: true,
+    }),
+  getAudit: (sessionId) =>
+    request(`/emergency/sessions/${encodeURIComponent(sessionId)}/audit`, {
+      auth: true,
+    }),
+  getHistoricalData: (sessionId) =>
+    request(`/emergency/sessions/${encodeURIComponent(sessionId)}/historical`, {
+      auth: true,
+    }),
+};
+
 export default {
   authApi,
   vitalsApi,
@@ -252,6 +335,8 @@ export default {
   locationApi,
   fallsApi,
   devicesApi,
+  devicePairingApi,
+  emergencyApi,
   getToken,
   saveToken,
   clearToken,

@@ -1,58 +1,68 @@
-import { Sparkline } from "./Sparkline";
+import Sparkline from "./Sparkline";
 
-export function ChartCard({
-  title,
-  value,
-  unit = "",
-  trend,
-  data = [],
-  color = "#10b981",
-  icon: Icon,
-  badgeText,
-  badgeClass = "bg-slate-800 text-slate-300",
-}) {
+export default function ChartCard({ title, points, color, unit }) {
+  const values = Array.isArray(points)
+    ? points.map(Number).filter(Number.isFinite)
+    : [];
+
+  const latest = values.length > 0 ? values[values.length - 1] : null;
+  const minimum = values.length > 0 ? Math.min(...values) : null;
+  const maximum = values.length > 0 ? Math.max(...values) : null;
+
+  const average =
+    values.length > 0
+      ? values.reduce((sum, value) => sum + value, 0) / values.length
+      : null;
+
+  const formatValue = (value) => {
+    if (!Number.isFinite(value)) {
+      return "--";
+    }
+    return Number.isInteger(value) ? String(value) : value.toFixed(1);
+  };
+
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 backdrop-blur-sm relative overflow-hidden flex flex-col justify-between">
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2.5">
-            {Icon && (
-              <div
-                className="p-2 rounded-xl"
-                style={{ backgroundColor: `${color}15`, color }}
-              >
-                <Icon className="w-5 h-5" />
-              </div>
-            )}
-            <span className="text-sm font-medium text-slate-400">{title}</span>
-          </div>
-          {badgeText && (
-            <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${badgeClass}`}>
-              {badgeText}
-            </span>
-          )}
+    <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)] transition hover:shadow-md">
+      {/* Header */}
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <h3 className="text-base font-semibold text-[var(--color-text)]">{title}</h3>
+          <p className="mt-1 text-xs text-[var(--color-text-muted)]">Historical trend</p>
         </div>
-
-        <div className="flex items-baseline gap-2 mb-2">
-          <span className="text-3xl font-bold tracking-tight text-white">
-            {value != null ? value : "—"}
-          </span>
-          {unit && <span className="text-sm font-medium text-slate-400">{unit}</span>}
+        <div className="text-right">
+          <div className="text-xl font-bold tabular-nums text-[var(--color-text)]">
+            {latest != null ? formatValue(latest) : "--"}
+          </div>
+          {unit && <div className="text-[11px] text-[var(--color-text-muted)]">{unit}</div>}
         </div>
       </div>
 
-      <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-end justify-between">
-        <div>
-          {trend && (
-            <span className="text-xs text-slate-400 font-medium">
-              {trend}
-            </span>
-          )}
+      {/* Chart */}
+      <div className="rounded-2xl bg-[var(--color-surface-alt)] p-3">
+        <Sparkline points={values} color={color} />
+      </div>
+
+      {/* Statistics */}
+      <div className="mt-4 grid grid-cols-3 border-t border-[var(--color-border)] pt-4">
+        <div className="pr-3">
+          <div className="text-sm font-semibold tabular-nums text-[var(--color-text)]">
+            {minimum != null ? formatValue(minimum) : "--"}
+          </div>
+          <div className="mt-1 text-[10px] font-medium text-[var(--color-text-muted)]">MIN</div>
         </div>
-        <Sparkline data={data} color={color} width={100} height={32} />
+        <div className="border-l border-[var(--color-border)] px-3">
+          <div className="text-sm font-semibold tabular-nums text-[var(--color-text)]">
+            {average != null ? formatValue(average) : "--"}
+          </div>
+          <div className="mt-1 text-[10px] font-medium text-[var(--color-text-muted)]">AVG</div>
+        </div>
+        <div className="border-l border-[var(--color-border)] pl-3">
+          <div className="text-sm font-semibold tabular-nums text-[var(--color-text)]">
+            {maximum != null ? formatValue(maximum) : "--"}
+          </div>
+          <div className="mt-1 text-[10px] font-medium text-[var(--color-text-muted)]">MAX</div>
+        </div>
       </div>
     </div>
   );
 }
-
-export default ChartCard;

@@ -2,48 +2,33 @@ const FallEvent = require("../models/FallEvent");
 const AppError = require("../utils/appError");
 
 /**
- * Get fall events belonging to the authenticated user.
- *
- * @param {string} userId
- * @param {string} [deviceId]
- * @returns {Promise<Array>}
+ * Fetch all fall events for the authenticated user.
  */
-async function getFalls(userId, deviceId) {
-  const query = { userId };
-  if (deviceId) {
-    query.deviceId = deviceId.toUpperCase();
-  }
-
-  return FallEvent.find(query).sort({ timestamp: -1 });
+async function getUserFalls(userId) {
+  return FallEvent.find({
+    userId,
+  }).sort({
+    timestamp: -1,
+  });
 }
 
 /**
- * Get latest recorded fall event for user.
- *
- * @param {string} userId
- * @param {string} [deviceId]
- * @returns {Promise<object>}
+ * Fetch latest fall event for the authenticated user.
  */
-async function getLatestFall(userId, deviceId) {
-  const query = { userId };
-  if (deviceId) {
-    query.deviceId = deviceId.toUpperCase();
-  }
+async function getLatestFall(userId) {
+  const event = await FallEvent.findOne({
+    userId,
+  }).sort({
+    timestamp: -1,
+  });
 
-  const event = await FallEvent.findOne(query).sort({ timestamp: -1 });
   return event || {};
 }
 
 /**
- * Update fall event resolution status (e.g., confirmed, false alarm, dismissed).
- *
- * @param {string} userId
- * @param {string} fallId
- * @param {string} status
- * @param {Function} [broadcast]
- * @returns {Promise<object>}
+ * Update the status of a fall event (e.g., detected, dismissed, resolved).
  */
-async function updateFallStatus(userId, fallId, status, broadcast = () => {}) {
+async function updateFallStatus(userId, fallId, status, broadcast = () => { }) {
   if (!status) {
     throw new AppError("status is required", 400, "VALIDATION_ERROR");
   }
@@ -54,7 +39,7 @@ async function updateFallStatus(userId, fallId, status, broadcast = () => {}) {
       userId,
     },
     {
-      $set: { status },
+      status,
     },
     {
       new: true,
@@ -63,11 +48,12 @@ async function updateFallStatus(userId, fallId, status, broadcast = () => {}) {
   );
 
   if (!event) {
-    throw new AppError("Fall event not found", 404, "FALL_NOT_FOUND");
+    throw new AppError("Fall event not found", 404, "EVENT_NOT_FOUND");
   }
 
   broadcast({
     type: "fall_status_update",
+    userId,
     data: event,
   });
 
@@ -75,7 +61,7 @@ async function updateFallStatus(userId, fallId, status, broadcast = () => {}) {
 }
 
 module.exports = {
-  getFalls,
+  getUserFalls,
   getLatestFall,
   updateFallStatus,
 };

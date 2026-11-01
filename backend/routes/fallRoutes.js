@@ -1,7 +1,7 @@
 const express = require("express");
-const fallController = require("../controllers/fallController");
 const protect = require("../middleware/authMiddleware");
 const { queryLimiter } = require("../middleware/rateLimiter");
+const fallController = require("../controllers/fallController");
 
 module.exports = function (broadcast) {
   const router = express.Router();
@@ -9,7 +9,7 @@ module.exports = function (broadcast) {
   router.use(protect);
 
   // GET /api/falls
-  router.get("/", fallController.getFalls);
+  router.get("/", fallController.getUserFalls);
 
   // GET /api/falls/latest
   router.get("/latest", fallController.getLatest);

@@ -1,33 +1,49 @@
-export function Sparkline({ data = [], color = "#10b981", height = 40, width = 120 }) {
-  if (!data || data.length < 2) {
-    return <div style={{ height, width }} className="flex items-center justify-center text-xs text-slate-600">—</div>;
+export default function Sparkline({ points, color = "#14b8a6" }) {
+  const values = Array.isArray(points)
+    ? points.map(Number).filter(Number.isFinite)
+    : [];
+
+  if (values.length < 2) {
+    return (
+      <div className="flex h-[140px] items-center justify-center text-sm text-[var(--color-text-muted)]">
+        Not enough data yet
+      </div>
+    );
   }
 
-  const values = data.map((d) => (typeof d === "number" ? d : d.value ?? 0));
   const min = Math.min(...values);
   const max = Math.max(...values);
+
+  const width = 560;
+  const height = 140;
+  const padding = 12;
+
   const range = max - min || 1;
 
-  const points = values
-    .map((val, idx) => {
-      const x = (idx / (values.length - 1)) * (width - 4) + 2;
-      const y = height - ((val - min) / range) * (height - 8) - 4;
-      return `${x},${y}`;
+  const pointsString = values
+    .map((value, index) => {
+      const x = padding + (index / (values.length - 1)) * (width - padding * 2);
+      const y = padding + (1 - (value - min) / range) * (height - padding * 2);
+      return `${index === 0 ? "M" : "L"} ${x} ${y}`;
     })
     .join(" ");
 
   return (
-    <svg width={width} height={height} className="overflow-visible">
-      <polyline
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      width="100%"
+      height={height}
+      preserveAspectRatio="none"
+      className="overflow-visible"
+    >
+      <path
+        d={pointsString}
         fill="none"
         stroke={color}
-        strokeWidth="2"
+        strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        points={points}
       />
     </svg>
   );
 }
-
-export default Sparkline;

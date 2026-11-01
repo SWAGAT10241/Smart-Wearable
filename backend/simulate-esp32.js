@@ -60,11 +60,13 @@ function clamp(value, min, max) {
 }
 
 function random(min, max) {
-  return Math.random() * (max - min) + min;
+  const buf = crypto.randomBytes(4);
+  const rand01 = buf.readUInt32LE(0) / 0xffffffff;
+  return rand01 * (max - min) + min;
 }
 
 function randomInt(min, max) {
-  return Math.round(random(min, max));
+  return crypto.randomInt(Math.floor(min), Math.floor(max) + 1);
 }
 
 function round(value, decimals = 2) {

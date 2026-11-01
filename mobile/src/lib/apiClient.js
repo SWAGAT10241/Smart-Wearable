@@ -1,7 +1,8 @@
 import { getToken } from "./storage";
 import { API_URL, WS_URL } from "../config/env";
+import { ApiError } from "../utils/errors";
 
-export { WS_URL };
+export { WS_URL, ApiError };
 
 async function request(path, { method = "GET", body, auth = false } = {}) {
   const headers = {
@@ -12,7 +13,7 @@ async function request(path, { method = "GET", body, auth = false } = {}) {
     const token = await getToken();
 
     if (!token) {
-      throw new Error("Authentication required");
+      throw new ApiError("Authentication required", 401, "UNAUTHENTICATED");
     }
 
     headers.Authorization = `Bearer ${token}`;
@@ -27,15 +28,23 @@ async function request(path, { method = "GET", body, auth = false } = {}) {
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
   } catch (error) {
-    throw new Error(
-      "Could not connect to TrailGuard server. Make sure your Mac and device are on the same Wi-Fi network and the backend is running.",
+    throw new ApiError(
+      "Could not connect to TrailGuard server. Make sure your device and server are reachable.",
+      0,
+      "NETWORK_ERROR",
+      error,
     );
   }
 
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data.error || `Request failed (${response.status})`);
+    throw new ApiError(
+      data.error || `Request failed (${response.status})`,
+      response.status,
+      data.code || "REQUEST_FAILED",
+      data.details,
+    );
   }
 
   return data;

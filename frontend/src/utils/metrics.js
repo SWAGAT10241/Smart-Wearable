@@ -1,108 +1,16 @@
 /**
- * Health telemetry domain thresholds and assessment functions.
+ * Metric calculations for GPS distance, telemetry summary statistics, and caloric expenditure.
  */
 
-export const THRESHOLDS = {
-  HEART_RATE: {
-    MIN_NORMAL: 60,
-    MAX_NORMAL: 100,
-    WARNING_LOW: 50,
-    WARNING_HIGH: 120,
-  },
-  SPO2: {
-    NORMAL: 95,
-    WARNING: 90,
-  },
-  TEMPERATURE: {
-    MIN_NORMAL: 20,
-    MAX_NORMAL: 37.5,
-    WARNING_HIGH: 38.5,
-  },
-};
-
 /**
- * Assess heart rate status and return state colors/labels.
- *
- * @param {number|null|undefined} bpm
- * @returns {{status: string, color: string, badgeClass: string}}
- */
-export function getHeartRateStatus(bpm) {
-  if (bpm == null) return { status: "Offline", color: "slate", badgeClass: "badge-slate" };
-
-  if (bpm < THRESHOLDS.HEART_RATE.WARNING_LOW || bpm > THRESHOLDS.HEART_RATE.WARNING_HIGH) {
-    return { status: "Critical", color: "red", badgeClass: "badge-red" };
-  }
-  if (bpm < THRESHOLDS.HEART_RATE.MIN_NORMAL || bpm > THRESHOLDS.HEART_RATE.MAX_NORMAL) {
-    return { status: "Warning", color: "amber", badgeClass: "badge-amber" };
-  }
-  return { status: "Normal", color: "emerald", badgeClass: "badge-emerald" };
-}
-
-/**
- * Assess blood oxygen (SpO2) status.
- *
- * @param {number|null|undefined} spo2
- * @returns {{status: string, color: string, badgeClass: string}}
- */
-export function getSpo2Status(spo2) {
-  if (spo2 == null) return { status: "Offline", color: "slate", badgeClass: "badge-slate" };
-
-  if (spo2 < THRESHOLDS.SPO2.WARNING) {
-    return { status: "Hypoxia Risk", color: "red", badgeClass: "badge-red" };
-  }
-  if (spo2 < THRESHOLDS.SPO2.NORMAL) {
-    return { status: "Low", color: "amber", badgeClass: "badge-amber" };
-  }
-  return { status: "Optimal", color: "emerald", badgeClass: "badge-emerald" };
-}
-
-/**
- * Assess ambient/body temperature status.
- *
- * @param {number|null|undefined} tempC
- * @returns {{status: string, color: string, badgeClass: string}}
- */
-export function getTemperatureStatus(tempC) {
-  if (tempC == null) return { status: "Offline", color: "slate", badgeClass: "badge-slate" };
-
-  if (tempC > THRESHOLDS.TEMPERATURE.WARNING_HIGH) {
-    return { status: "High Heat", color: "red", badgeClass: "badge-red" };
-  }
-  if (tempC > THRESHOLDS.TEMPERATURE.MAX_NORMAL) {
-    return { status: "Warm", color: "amber", badgeClass: "badge-amber" };
-  }
-  return { status: "Comfortable", color: "emerald", badgeClass: "badge-emerald" };
-}
-
-/**
- * Get color representation for fall severity.
- *
- * @param {string} severity
- * @returns {string}
- */
-export function getSeverityColor(severity) {
-  switch ((severity || "").toLowerCase()) {
-    case "critical":
-    case "severe":
-      return "text-red-500 bg-red-500/10 border-red-500/30";
-    case "moderate":
-      return "text-amber-500 bg-amber-500/10 border-amber-500/30";
-    case "minor":
-    case "low":
-    default:
-      return "text-blue-500 bg-blue-500/10 border-blue-500/30";
-  }
-}
-
-/**
- * Calculate distance between two GPS coordinates using Haversine formula.
+ * Calculate distance between two GPS coordinates using the Haversine formula.
  *
  * @param {{latitude: number, longitude: number}} a
  * @param {{latitude: number, longitude: number}} b
- * @returns {number} distance in kilometers
+ * @returns {number} Distance in kilometers
  */
 export function distanceBetweenPoints(a, b) {
-  const R = 6371;
+  const R = 6371; // Earth radius in km
 
   const lat1 = Number(a?.latitude);
   const lat2 = Number(b?.latitude);
@@ -132,13 +40,13 @@ export function distanceBetweenPoints(a, b) {
 }
 
 /**
- * Calculate statistical summary (min, avg, max) from numeric values.
+ * Calculate min, average, and max for an array of numbers.
  *
- * @param {Array<number|string>} values
+ * @param {Array<number>} values
  * @returns {{min: number|null, average: number|null, max: number|null}}
  */
-export function calculateNumericStats(values = []) {
-  const numbers = values.map(Number).filter(Number.isFinite);
+export function calculateNumericStats(values) {
+  const numbers = (values || []).map(Number).filter(Number.isFinite);
 
   if (!numbers.length) {
     return { min: null, average: null, max: null };
@@ -152,12 +60,12 @@ export function calculateNumericStats(values = []) {
 }
 
 /**
- * Calculate calories estimated from activity distance, duration, and elevation.
+ * Estimate calories burned during trail activity based on distance, duration, and elevation.
  *
  * @param {number} distanceKm
  * @param {number} durationMs
  * @param {number} [elevationGain=0]
- * @returns {number|null}
+ * @returns {number|null} Estimated calories burned
  */
 export function calculateCalories(distanceKm, durationMs, elevationGain = 0) {
   if (
@@ -174,14 +82,17 @@ export function calculateCalories(distanceKm, durationMs, elevationGain = 0) {
 
   const speed = distanceKm / hours;
 
+  // Estimated MET for trail activity
   let met = 5;
   if (speed >= 7) met = 8;
   else if (speed >= 5) met = 7;
   else if (speed >= 3) met = 6;
 
+  // Reference body weight in kg (default 70kg)
   const weightKg = 70;
   let calories = met * weightKg * hours;
 
+  // Elevation contributor
   if (Number.isFinite(Number(elevationGain)) && Number(elevationGain) > 0) {
     calories += Number(elevationGain) * 0.05;
   }

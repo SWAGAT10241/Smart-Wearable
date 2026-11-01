@@ -1,8 +1,7 @@
 import React from "react";
-
-import { StyleSheet, Text, View } from "react-native";
-
+import { Platform, StyleSheet, Text, View } from "react-native";
 import { useAppTheme } from "../theme/theme";
+import { WatchIcon, BatteryIcon } from "./Icons";
 
 export default function DeviceCard({ device }) {
   const theme = useAppTheme();
@@ -43,7 +42,7 @@ export default function DeviceCard({ device }) {
         <View
           style={[styles.deviceIcon, { backgroundColor: theme.primaryLight }]}
         >
-          <Text style={styles.icon}>⌚</Text>
+          <WatchIcon size={20} color={theme.primary} />
         </View>
 
         <View style={{ flex: 1 }}>
@@ -52,33 +51,48 @@ export default function DeviceCard({ device }) {
           </Text>
 
           <Text style={[styles.id, { color: theme.secondaryText }]}>
-            {device.deviceId}
+            {device.deviceId} · BLE Connected
           </Text>
         </View>
 
-        <View
-          style={[
-            styles.status,
-            {
-              backgroundColor:
-                device.status === "active"
-                  ? theme.primaryLight
-                  : theme.background,
-            },
-          ]}
-        >
-          <Text
-            style={{
-              color:
-                device.status === "active"
-                  ? theme.success
-                  : theme.secondaryText,
-              fontSize: 11,
-              fontWeight: "700",
-            }}
+        <View style={styles.rightActions}>
+          <View
+            style={[
+              styles.batteryPill,
+              { backgroundColor: theme.background, borderColor: theme.border },
+            ]}
           >
-            {device.status === "active" ? "ACTIVE" : "INACTIVE"}
-          </Text>
+            <BatteryIcon size={12} color={theme.success} level={88} />
+            <Text style={[styles.batteryText, { color: theme.success }]}>
+              88%
+            </Text>
+          </View>
+
+          <View
+            style={[
+              styles.status,
+              {
+                backgroundColor:
+                  device.status === "active"
+                    ? theme.primaryLight
+                    : theme.background,
+              },
+            ]}
+          >
+            <Text
+              style={{
+                color:
+                  device.status === "active"
+                    ? theme.success
+                    : theme.secondaryText,
+                fontSize: 10,
+                fontWeight: "700",
+                fontFamily: Platform.select({ ios: "System", android: "sans-serif-medium" }),
+              }}
+            >
+              {device.status === "active" ? "ACTIVE" : "INACTIVE"}
+            </Text>
+          </View>
         </View>
       </View>
     </View>
@@ -113,12 +127,14 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 15,
-    fontWeight: "800",
+    fontWeight: "700",
+    fontFamily: Platform.select({ ios: "System", android: "sans-serif-medium" }),
   },
 
   id: {
     marginTop: 3,
     fontSize: 11,
+    fontFamily: Platform.select({ ios: "Courier", android: "monospace" }),
   },
 
   subtitle: {
@@ -127,8 +143,29 @@ const styles = StyleSheet.create({
   },
 
   status: {
-    paddingHorizontal: 9,
-    paddingVertical: 6,
-    borderRadius: 9,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+
+  rightActions: {
+    alignItems: "flex-end",
+    gap: 6,
+  },
+
+  batteryPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2.5,
+    borderRadius: 6,
+    borderWidth: 1,
+  },
+
+  batteryText: {
+    fontSize: 10,
+    fontWeight: "700",
+    fontFamily: Platform.select({ ios: "System", android: "sans-serif-medium" }),
   },
 });

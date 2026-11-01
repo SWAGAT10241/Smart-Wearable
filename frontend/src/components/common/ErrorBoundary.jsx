@@ -1,7 +1,6 @@
-import { Component } from "react";
-import { AlertTriangle, RefreshCw } from "lucide-react";
+import React from "react";
 
-export class ErrorBoundary extends Component {
+export class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -22,27 +21,49 @@ export class ErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
-        return this.props.fallback;
+        return this.props.fallback({
+          error: this.state.error,
+          reset: this.handleReset,
+        });
       }
 
       return (
-        <div className="flex flex-col items-center justify-center p-8 bg-red-500/5 border border-red-500/20 rounded-2xl text-center">
-          <div className="p-3 bg-red-500/10 rounded-full text-red-500 mb-4">
-            <AlertTriangle className="w-8 h-8" />
+        <div className="flex min-h-[320px] flex-col items-center justify-center rounded-2xl border border-red-500/20 bg-red-500/5 p-8 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10 text-red-400">
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
           </div>
-          <h2 className="text-lg font-semibold text-white mb-2">
+          <h3 className="mt-4 text-lg font-semibold text-[var(--color-text)]">
             Something went wrong
-          </h2>
-          <p className="text-sm text-slate-400 max-w-md mb-6">
-            {this.state.error?.message || "An unexpected error occurred in this component."}
+          </h3>
+          <p className="mt-2 max-w-md text-sm text-[var(--color-text-muted)]">
+            {this.state.error?.message || "An unexpected error occurred while rendering this component."}
           </p>
-          <button
-            onClick={this.handleReset}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition-colors"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Try again
-          </button>
+          <div className="mt-6 flex gap-3">
+            <button
+              onClick={this.handleReset}
+              className="rounded-xl bg-teal-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-400 transition"
+            >
+              Try again
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] transition"
+            >
+              Reload page
+            </button>
+          </div>
         </div>
       );
     }

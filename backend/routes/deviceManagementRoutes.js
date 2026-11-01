@@ -1,10 +1,20 @@
 const express = require("express");
 const protect = require("../middleware/authMiddleware");
-const { deviceLimiter } = require("../middleware/rateLimiter");
+const authorizeRole = require("../middleware/authorizeRole");
+const { deviceLimiter, adminLimiter } = require("../middleware/rateLimiter");
 const deviceController = require("../controllers/deviceController");
 
 module.exports = function () {
   const router = express.Router();
+
+  // GET /api/devices/admin/all — Administrator-only device management
+  router.get(
+    "/admin/all",
+    adminLimiter,
+    protect,
+    authorizeRole("admin"),
+    deviceController.getAllDevicesAdmin,
+  );
 
   // GET /api/devices — User's connected devices
   router.get("/", deviceLimiter, protect, deviceController.getUserDevices);

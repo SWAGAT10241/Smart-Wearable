@@ -2,13 +2,9 @@ const EnvironmentReading = require("../models/EnvironmentReading");
 const AppError = require("../utils/appError");
 
 /**
- * Get latest recorded environment reading for a user's device.
- *
- * @param {string} userId
- * @param {string} deviceId
- * @returns {Promise<object>}
+ * Fetch latest environment reading for a device belonging to the user.
  */
-async function getLatestEnvironment(userId, deviceId) {
+async function getLatest(userId, deviceId) {
   if (!deviceId) {
     throw new AppError("deviceId is required", 400, "VALIDATION_ERROR");
   }
@@ -16,57 +12,55 @@ async function getLatestEnvironment(userId, deviceId) {
   const reading = await EnvironmentReading.findOne({
     userId,
     deviceId: deviceId.toUpperCase(),
-  }).sort({ timestamp: -1 });
+  }).sort({
+    timestamp: -1,
+  });
 
   return reading || {};
 }
 
 /**
- * Get historical environment readings within a time window.
- *
- * @param {string} userId
- * @param {string} deviceId
- * @param {number} hours
- * @returns {Promise<Array>}
+ * Fetch environment history for a given duration.
  */
-async function getEnvironmentHistory(userId, deviceId, hours = 1) {
+async function getHistory(userId, deviceId, hours = 1) {
+  const numericHours = Number(hours);
+
   if (!deviceId) {
     throw new AppError("deviceId is required", 400, "VALIDATION_ERROR");
   }
 
-  const hoursNum = Number(hours);
-  if (!Number.isFinite(hoursNum) || hoursNum <= 0) {
+  if (!Number.isFinite(numericHours) || numericHours <= 0) {
     throw new AppError("hours must be a positive number", 400, "VALIDATION_ERROR");
   }
 
-  const since = new Date(Date.now() - hoursNum * 60 * 60 * 1000);
+  const since = new Date(Date.now() - numericHours * 60 * 60 * 1000);
 
   return EnvironmentReading.find({
     userId,
     deviceId: deviceId.toUpperCase(),
-    timestamp: { $gte: since },
-  }).sort({ timestamp: 1 });
+    timestamp: {
+      $gte: since,
+    },
+  }).sort({
+    timestamp: 1,
+  });
 }
 
 /**
- * Compute statistical aggregates (min, avg, max) for temperature, humidity, pressure.
- *
- * @param {string} userId
- * @param {string} deviceId
- * @param {number} hours
- * @returns {Promise<object>}
+ * Calculate environment statistics (min, avg, max for temperature, humidity, pressure).
  */
-async function getEnvironmentStats(userId, deviceId, hours = 1) {
+async function getStats(userId, deviceId, hours = 1) {
+  const numericHours = Number(hours);
+
   if (!deviceId) {
     throw new AppError("deviceId is required", 400, "VALIDATION_ERROR");
   }
 
-  const hoursNum = Number(hours);
-  if (!Number.isFinite(hoursNum) || hoursNum <= 0) {
+  if (!Number.isFinite(numericHours) || numericHours <= 0) {
     throw new AppError("hours must be a positive number", 400, "VALIDATION_ERROR");
   }
 
-  const since = new Date(Date.now() - hoursNum * 60 * 60 * 1000);
+  const since = new Date(Date.now() - numericHours * 60 * 60 * 1000);
 
   const result = await EnvironmentReading.aggregate([
     {
@@ -94,6 +88,7 @@ async function getEnvironmentStats(userId, deviceId, hours = 1) {
   ]);
 
   const stats = result[0];
+
   if (!stats) {
     return {
       minTemperature: null,
@@ -124,7 +119,7 @@ async function getEnvironmentStats(userId, deviceId, hours = 1) {
 }
 
 module.exports = {
-  getLatestEnvironment,
-  getEnvironmentHistory,
-  getEnvironmentStats,
+  getLatest,
+  getHistory,
+  getStats,
 };

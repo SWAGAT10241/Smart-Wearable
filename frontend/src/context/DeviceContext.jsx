@@ -89,40 +89,6 @@ export function DeviceProvider({ children }) {
 
   /*
    * ----------------------------------------------------------
-   * One-time device registration / activation
-   * ----------------------------------------------------------
-   *
-   * The logged-in user claims the physical TrailGuard device.
-   *
-   * IMPORTANT:
-   * - deviceId comes from the wearable
-   * - userId comes from the authenticated JWT
-   * - frontend does NOT send userId
-   * ----------------------------------------------------------
-   */
-
-  const registerDevice = useCallback(
-    async (deviceId, deviceName = "TrailGuard Wearable") => {
-      if (!deviceId || !String(deviceId).trim()) {
-        throw new Error("Device ID is required");
-      }
-
-      const normalizedDeviceId = String(deviceId).trim().toUpperCase();
-      const normalizedDeviceName = String(deviceName || "").trim() || "TrailGuard Wearable";
-      const response = await devicesApi.register(normalizedDeviceId,normalizedDeviceName);
-
-      /*
-       * Reload devices so the newly connected device
-       * immediately appears in the application.
-       */
-      await loadDevices();
-      return response?.device || response;
-    },
-    [loadDevices],
-  );
-
-  /*
-   * ----------------------------------------------------------
    * Load devices when provider starts
    * ----------------------------------------------------------
    */
@@ -325,7 +291,6 @@ const removeDevice = useCallback(
       selectedDevice,
 
       selectDevice,
-      registerDevice,
 
       renameDevice,
       updateDeviceStatus,
@@ -342,7 +307,6 @@ const removeDevice = useCallback(
       selectedDevice,
 
       selectDevice,
-      registerDevice,
 
       renameDevice,
       updateDeviceStatus,
