@@ -12,8 +12,8 @@ importers:
   .:
     dependencies:
       '@zxing/browser':
-        specifier: ^0.1.5
-        version: 0.1.5(@zxing/library@0.21.3)
+        specifier: ^0.2.1
+        version: 0.2.1(@zxing/library@0.23.0)
       lucide-react:
         specifier: ^1.55.0
         version: 1.62.0(@types/react@18.3.31)(react@19.3.1)
@@ -749,14 +749,14 @@ packages:
   '@vitest/spy@5.0.5':
     resolution: {integrity: sha512-lwJRExuH417257Q5wv9QYugN9IMJkoxcrKrYxGPQkBzl7wlNpTUxD/5yNX4ESKVUIShKPgkGchYPFMWOOk0wzw==}
 
-  '@zxing/browser@0.1.5':
-    resolution: {integrity: sha512-4Lmrn/il4+UNb87Gk8h1iWnhj39TASEHpd91CwwSJtY5u+wa0iH9qS0wNLAWbNVYXR66WmT5uiMhZ7oVTrKfxw==}
+  '@zxing/browser@0.2.1':
+    resolution: {integrity: sha512-92pVfVDUXbc15xu9vIEmhNyqIEASMEkDF92CwT6T+7sg2EHXJRktH9CQKoQSXe51UtbNsj+Fm09H/JBWHMs/Sw==}
     peerDependencies:
-      '@zxing/library': ^0.21.0
+      '@zxing/library': ^0.23.0
 
-  '@zxing/library@0.21.3':
-    resolution: {integrity: sha512-hZHqFe2JyH/ZxviJZosZjV+2s6EDSY0O24R+FQmlWZBZXP9IqMo7S3nb3+2LBWxodJQkSurdQGnqE7KXqrYgow==}
-    engines: {node: '>= 10.4.0'}
+  '@zxing/library@0.23.0':
+    resolution: {integrity: sha512-6fkkoFwP8CHxl6ugnPsj74PLJgX2iRv5zczGAyt5OBzQgxFhuhF0NCEc4t4OvSr8xAv2MRLlI0Iu9ZGDZQ2urA==}
+    engines: {node: '>= 24.0.0'}
 
   '@zxing/text-encoding@0.9.0':
     resolution: {integrity: sha512-U/4aVJ2mxI0aDNI8Uq0wEhMgY+u4CNtEb0om3+y3+niDAsoTCOB33UF0sxpzqzdqXLqmvc+vZyAt4O8pPdfkwA==}
@@ -2003,13 +2003,13 @@ snapshots:
 
   '@vitest/spy@5.0.5': {}
 
-  '@zxing/browser@0.1.5(@zxing/library@0.21.3)':
+  '@zxing/browser@0.2.1(@zxing/library@0.23.0)':
     dependencies:
-      '@zxing/library': 0.21.3
+      '@zxing/library': 0.23.0
     optionalDependencies:
       '@zxing/text-encoding': 0.9.0
 
-  '@zxing/library@0.21.3':
+  '@zxing/library@0.23.0':
     dependencies:
       ts-custom-error: 3.3.1
     optionalDependencies:
