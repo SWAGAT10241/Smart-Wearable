@@ -2,7 +2,7 @@
 
 > God node · 19 connections · `frontend/src/context/AuthContext.jsx`
 
-**Community:** [Community 13](Community_13.md)
+**Community:** [analyze](analyze.md)
 
 ## Connections by Relation
 
@@ -22,7 +22,7 @@
 
 ### imports
 - Dashboard.jsx `EXTRACTED`
-- Settings.jsx `EXTRACTED`
+- [Settings.jsx](Settings.jsx.md) `EXTRACTED`
 - Login.jsx `EXTRACTED`
 - Register.jsx `EXTRACTED`
 - CompleteProfile.jsx `EXTRACTED`

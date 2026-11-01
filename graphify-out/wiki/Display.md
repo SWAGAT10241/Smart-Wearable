@@ -2,7 +2,7 @@
 
 > God node · 41 connections · `hardware/Drivers/ili9341.py`
 
-**Community:** [Community 26](Community_26.md)
+**Community:** [Security Policy](Security_Policy.md)
 
 ## Connections by Relation
 

@@ -2,7 +2,7 @@
 
 > God node · 19 connections · `mobile/src/context/AuthContext.js`
 
-**Community:** [Community 16](Community_16.md)
+**Community:** [🛡️ TrailGuard / SWAAS](🛡️_TrailGuard_-_SWAAS.md)
 
 ## Connections by Relation
 
@@ -26,7 +26,7 @@
 - SettingsScreen.js `EXTRACTED`
 - LiveMapScreen.js `EXTRACTED`
 - App.js `EXTRACTED`
-- LoginScreen.js `EXTRACTED`
+- [LoginScreen.js](LoginScreen.js.md) `EXTRACTED`
 - RegisterScreen.js `EXTRACTED`
 - CompleteProfileScreen.js `EXTRACTED`
 - mobile/src/hooks/useDashboardData.js `EXTRACTED`

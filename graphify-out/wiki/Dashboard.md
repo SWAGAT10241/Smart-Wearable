@@ -2,7 +2,7 @@
 
 > God node · 17 connections · `frontend/src/pages/Dashboard.jsx`
 
-**Community:** [Community 18](Community_18.md)
+**Community:** [🖥️ TrailGuard Rescue Web Dashboard](🖥️_TrailGuard_Rescue_Web_Dashboard.md)
 
 ## Connections by Relation
 
@@ -27,7 +27,7 @@
 - Dashboard.jsx `EXTRACTED`
 
 ### imports
-- App.jsx `EXTRACTED`
+- [App.jsx](App.jsx.md) `EXTRACTED`
 
 ---
 

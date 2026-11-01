@@ -2,7 +2,7 @@
 
 > God node · 33 connections · `mobile/src/theme/theme.js`
 
-**Community:** [Community 9](Community_9.md)
+**Community:** [ref_react](ref_react.md)
 
 ## Connections by Relation
 
@@ -28,13 +28,13 @@
 - theme.js `EXTRACTED`
 
 ### imports
-- DashboardScreen.js `EXTRACTED`
+- [DashboardScreen.js](DashboardScreen.js.md) `EXTRACTED`
 - HistoryScreen.js `EXTRACTED`
 - SettingsScreen.js `EXTRACTED`
 - LiveMapScreen.js `EXTRACTED`
 - AppHeader.js `EXTRACTED`
 - AlertsScreen.js `EXTRACTED`
-- LoginScreen.js `EXTRACTED`
+- [LoginScreen.js](LoginScreen.js.md) `EXTRACTED`
 - RegisterScreen.js `EXTRACTED`
 - ActivityCard.js `EXTRACTED`
 - FallAlertModal.js `EXTRACTED`
