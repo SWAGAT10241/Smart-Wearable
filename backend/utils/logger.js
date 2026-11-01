@@ -104,25 +104,25 @@ function formatLog(level, message, ...meta) {
 const logger = {
   info: (message, ...meta) => {
     if (!isTestEnv()) {
-      const output = String(formatLog("INFO", message, ...meta)).replace(/[\r\n]+/g, " ");
+      const output = String(formatLog("INFO", message, ...meta)).replace(/\n|\r/g, "");
       console.log(output);
     }
   },
   warn: (message, ...meta) => {
     if (!isTestEnv()) {
-      const output = String(formatLog("WARN", message, ...meta)).replace(/[\r\n]+/g, " ");
+      const output = String(formatLog("WARN", message, ...meta)).replace(/\n|\r/g, "");
       console.warn(output);
     }
   },
   error: (message, ...meta) => {
     if (!isTestEnv()) {
-      const output = String(formatLog("ERROR", message, ...meta)).replace(/[\r\n]+/g, " ");
+      const output = String(formatLog("ERROR", message, ...meta)).replace(/\n|\r/g, "");
       console.error(output);
     }
   },
   debug: (message, ...meta) => {
     if (process.env.DEBUG === "true" && !isTestEnv()) {
-      const output = String(formatLog("DEBUG", message, ...meta)).replace(/[\r\n]+/g, " ");
+      const output = String(formatLog("DEBUG", message, ...meta)).replace(/\n|\r/g, "");
       console.debug(output);
     }
   },

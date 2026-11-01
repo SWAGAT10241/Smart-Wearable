@@ -56,9 +56,9 @@ function errorHandler(err, req, res, next) {
     message = "Internal server error";
   }
 
-  const sanitizedMethod = String(req.method || "").replace(/[\r\n\t]/g, " ").slice(0, 10);
-  const sanitizedUrl = String(req.originalUrl || "").replace(/[\r\n\t]/g, " ").slice(0, 500);
-  const sanitizedLogMessage = String(message || "").replace(/[\r\n\t]/g, " ").slice(0, 500);
+  const sanitizedMethod = String(req.method || "").replace(/\n|\r/g, "").slice(0, 10);
+  const sanitizedUrl = encodeURI(String(req.originalUrl || "").replace(/\n|\r/g, "")).slice(0, 500);
+  const sanitizedLogMessage = String(message || "").replace(/\n|\r/g, "").slice(0, 500);
 
   if (statusCode >= 500) {
     logger.error(`[500 ERROR] ${sanitizedMethod} ${sanitizedUrl}:`, err);
