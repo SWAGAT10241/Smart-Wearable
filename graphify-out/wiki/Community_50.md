@@ -1,13 +1,12 @@
 # Community 50
 
-> 14 nodes
+> 13 nodes
 
 ## Key Concepts
 
 - **ili9341.py** (10 connections) — `hardware/Drivers/ili9341.py`
 - **display_code.py** (6 connections) — `hardware/Test/display_code.py`
 - **xglcd_font.py** (4 connections) — `hardware/Drivers/xglcd_font.py`
-- **dht22_code.py** (3 connections) — `hardware/Test/dht22_code.py`
 - **display_new.py** (3 connections) — `hardware/Test/display_new.py`
 - **color565()** (2 connections) — `hardware/Drivers/ili9341.py`
 - **dht** (2 connections)
@@ -21,7 +20,7 @@
 
 ## Relationships
 
-- [Community 32](Community_32.md) (6 shared connections)
+- [Community 32](Community_32.md) (5 shared connections)
 - [Community 26](Community_26.md) (1 shared connections)
 - [Community 56](Community_56.md) (1 shared connections)
 
@@ -29,13 +28,12 @@
 
 - `hardware/Drivers/ili9341.py`
 - `hardware/Drivers/xglcd_font.py`
-- `hardware/Test/dht22_code.py`
 - `hardware/Test/display_code.py`
 - `hardware/Test/display_new.py`
 
 ## Audit Trail
 
-- EXTRACTED: 23 (100%)
+- EXTRACTED: 21 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

@@ -1,28 +1,35 @@
 # Community 105
 
-> 4 nodes
+> 8 nodes
 
 ## Key Concepts
 
-- **environmentController.js** (6 connections) — `backend/controllers/environmentController.js`
-- **getHistory** (1 connections) — `backend/controllers/environmentController.js`
-- **getLatest** (1 connections) — `backend/controllers/environmentController.js`
-- **getStats** (1 connections) — `backend/controllers/environmentController.js`
+- **deviceRegistrationRoutes.js** (8 connections) — `backend/routes/deviceRegistrationRoutes.js`
+- **rateLimiter.test.js** (6 connections) — `backend/tests/rateLimiter.test.js`
+- **createLimiter()** (5 connections) — `backend/middleware/rateLimiter.js`
+- **userPairingLimiter()** (2 connections) — `backend/routes/deviceRegistrationRoutes.js`
+- **rateLimit** (2 connections) — `backend/middleware/rateLimiter.js`
+- **express** (1 connections) — `backend/routes/deviceRegistrationRoutes.js`
+- **express** (1 connections) — `backend/tests/rateLimiter.test.js`
+- **request** (1 connections) — `backend/tests/rateLimiter.test.js`
 
 ## Relationships
 
+- [Community 37](Community_37.md) (4 shared connections)
+- [Community 24](Community_24.md) (4 shared connections)
 - [Community 11](Community_11.md) (1 shared connections)
-- [Community 40](Community_40.md) (1 shared connections)
-- [Community 24](Community_24.md) (1 shared connections)
+- [Community 48](Community_48.md) (1 shared connections)
 
 ## Source Files
 
-- `backend/controllers/environmentController.js`
+- `backend/middleware/rateLimiter.js`
+- `backend/routes/deviceRegistrationRoutes.js`
+- `backend/tests/rateLimiter.test.js`
 
 ## Audit Trail
 
-- EXTRACTED: 6 (100%)
-- INFERRED: 0 (0%)
+- EXTRACTED: 17 (94%)
+- INFERRED: 1 (6%)
 - AMBIGUOUS: 0 (0%)
 
 ---

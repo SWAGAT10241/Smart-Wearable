@@ -20,7 +20,7 @@
 ## Relationships
 
 - [Community 11](Community_11.md) (1 shared connections)
-- [Community 47](Community_47.md) (1 shared connections)
+- [Community 35](Community_35.md) (1 shared connections)
 - [Community 40](Community_40.md) (1 shared connections)
 - [Community 71](Community_71.md) (1 shared connections)
 

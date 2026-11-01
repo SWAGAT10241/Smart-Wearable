@@ -1,51 +1,48 @@
 # Community 47
 
-> 14 nodes
+> 28 nodes
 
 ## Key Concepts
 
-- **User.js** (14 connections) — `backend/models/User.js`
-- **webSocketTicketService.js** (13 connections) — `backend/services/webSocketTicketService.js`
-- **WebSocketTicket.js** (7 connections) — `backend/models/WebSocketTicket.js`
-- **webSocketTicketService.test.js** (5 connections) — `backend/tests/webSocketTicketService.test.js`
-- **createTicket()** (1 connections) — `backend/services/webSocketTicketService.js`
-- **mongoose** (1 connections) — `mongoose`
-- **bcrypt** (1 connections) — `backend/models/User.js`
-- **mongoose** (1 connections) — `backend/models/User.js`
-- **userSchema** (1 connections) — `backend/models/User.js`
-- **crypto** (1 connections) — `backend/models/WebSocketTicket.js`
-- **mongoose** (1 connections) — `backend/models/WebSocketTicket.js`
-- **webSocketTicketSchema** (1 connections) — `backend/models/WebSocketTicket.js`
-- **crypto** (1 connections) — `backend/services/webSocketTicketService.js`
-- **mongoose** (1 connections) — `backend/tests/webSocketTicketService.test.js`
+- **with** (6 connections) — `.github/workflows/wiki-sync.yml`
+- **steps** (6 connections) — `.github/workflows/wiki-sync.yml`
+- **wiki-sync.yml** (5 connections) — `.github/workflows/wiki-sync.yml`
+- **sync-wiki** (4 connections) — `.github/workflows/wiki-sync.yml`
+- **concurrency** (3 connections) — `.github/workflows/wiki-sync.yml`
+- **on** (3 connections) — `.github/workflows/wiki-sync.yml`
+- **push** (3 connections) — `.github/workflows/wiki-sync.yml`
+- **jobs** (2 connections) — `.github/workflows/wiki-sync.yml`
+- **permissions** (2 connections) — `.github/workflows/wiki-sync.yml`
+- **env** (2 connections) — `.github/workflows/wiki-sync.yml`
+- **cancel-in-progress** (1 connections) — `.github/workflows/wiki-sync.yml`
+- **group** (1 connections) — `.github/workflows/wiki-sync.yml`
+- **GITHUB_TOKEN** (1 connections) — `.github/workflows/wiki-sync.yml`
+- **name** (1 connections) — `.github/workflows/wiki-sync.yml`
+- **workflow_dispatch** (1 connections) — `.github/workflows/wiki-sync.yml`
+- **contents** (1 connections) — `.github/workflows/wiki-sync.yml`
+- **branches** (1 connections) — `.github/workflows/wiki-sync.yml`
+- **paths** (1 connections) — `.github/workflows/wiki-sync.yml`
+- **name** (1 connections) — `.github/workflows/wiki-sync.yml`
+- **run** (1 connections) — `.github/workflows/wiki-sync.yml`
+- **uses** (1 connections) — `.github/workflows/wiki-sync.yml`
+- **name** (1 connections) — `.github/workflows/wiki-sync.yml`
+- **runs-on** (1 connections) — `.github/workflows/wiki-sync.yml`
+- **fetch-depth** (1 connections) — `.github/workflows/wiki-sync.yml`
+- **node-version** (1 connections) — `.github/workflows/wiki-sync.yml`
+- *... and 3 more nodes in this community*
 
 ## Relationships
 
-- [Community 10](Community_10.md) (3 shared connections)
-- [Community 7](Community_7.md) (2 shared connections)
-- [Community 46](Community_46.md) (2 shared connections)
-- [Community 64](Community_64.md) (2 shared connections)
-- [Community 42](Community_42.md) (2 shared connections)
-- [Community 24](Community_24.md) (1 shared connections)
-- [Community 71](Community_71.md) (1 shared connections)
-- [Community 11](Community_11.md) (1 shared connections)
-- [Community 58](Community_58.md) (1 shared connections)
-- [Community 54](Community_54.md) (1 shared connections)
-- [Community 15](Community_15.md) (1 shared connections)
-- [Community 70](Community_70.md) (1 shared connections)
+- No strong cross-community connections detected
 
 ## Source Files
 
-- `backend/models/User.js`
-- `backend/models/WebSocketTicket.js`
-- `backend/services/webSocketTicketService.js`
-- `backend/tests/webSocketTicketService.test.js`
-- `mongoose`
+- `.github/workflows/wiki-sync.yml`
 
 ## Audit Trail
 
-- EXTRACTED: 32 (94%)
-- INFERRED: 2 (6%)
+- EXTRACTED: 27 (100%)
+- INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 
 ---

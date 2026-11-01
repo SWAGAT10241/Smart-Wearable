@@ -1,48 +1,51 @@
 # Community 35
 
-> 18 nodes
+> 14 nodes
 
 ## Key Concepts
 
-- **mobile/src/lib/apiClient.js** (20 connections) — `mobile/src/lib/apiClient.js`
-- **mobileHistoryData.test.js** (11 connections) — `frontend/test/mobileHistoryData.test.js`
-- **useHistoryData.js** (9 connections) — `mobile/src/hooks/useHistoryData.js`
-- **ApiError** (4 connections) — `mobile/src/utils/errors.js`
-- **environmentApi** (4 connections) — `mobile/src/lib/apiClient.js`
-- **vitalsApi** (4 connections) — `mobile/src/lib/apiClient.js`
-- **request()** (3 connections) — `mobile/src/lib/apiClient.js`
-- **mobile/src/config/env.js** (3 connections) — `mobile/src/config/env.js`
-- **WS_URL** (3 connections) — `mobile/src/config/env.js`
-- **deferred()** (2 connections) — `frontend/test/mobileHistoryData.test.js`
-- **request()** (2 connections) — `frontend/test/mobileHistoryData.test.js`
-- **API_URL** (2 connections) — `mobile/src/config/env.js`
-- **devicesApi** (2 connections) — `mobile/src/lib/apiClient.js`
-- **locationApi** (2 connections) — `mobile/src/lib/apiClient.js`
-- **mobile/src/utils/errors.js** (2 connections) — `mobile/src/utils/errors.js`
-- **succeed()** (1 connections) — `frontend/test/mobileHistoryData.test.js`
-- **.constructor()** (1 connections) — `mobile/src/utils/errors.js`
-- **device** (1 connections) — `frontend/test/mobileHistoryData.test.js`
+- **User.js** (14 connections) — `backend/models/User.js`
+- **webSocketTicketService.js** (13 connections) — `backend/services/webSocketTicketService.js`
+- **WebSocketTicket.js** (7 connections) — `backend/models/WebSocketTicket.js`
+- **webSocketTicketService.test.js** (5 connections) — `backend/tests/webSocketTicketService.test.js`
+- **createTicket()** (1 connections) — `backend/services/webSocketTicketService.js`
+- **mongoose** (1 connections) — `mongoose`
+- **bcrypt** (1 connections) — `backend/models/User.js`
+- **mongoose** (1 connections) — `backend/models/User.js`
+- **userSchema** (1 connections) — `backend/models/User.js`
+- **crypto** (1 connections) — `backend/models/WebSocketTicket.js`
+- **mongoose** (1 connections) — `backend/models/WebSocketTicket.js`
+- **webSocketTicketSchema** (1 connections) — `backend/models/WebSocketTicket.js`
+- **crypto** (1 connections) — `backend/services/webSocketTicketService.js`
+- **mongoose** (1 connections) — `backend/tests/webSocketTicketService.test.js`
 
 ## Relationships
 
-- [Community 21](Community_21.md) (8 shared connections)
-- [Community 57](Community_57.md) (8 shared connections)
-- [Community 69](Community_69.md) (4 shared connections)
-- [Community 3](Community_3.md) (1 shared connections)
-- [Community 0](Community_0.md) (1 shared connections)
+- [Community 10](Community_10.md) (3 shared connections)
+- [Community 7](Community_7.md) (2 shared connections)
+- [Community 64](Community_64.md) (2 shared connections)
+- [Community 59](Community_59.md) (2 shared connections)
+- [Community 24](Community_24.md) (1 shared connections)
+- [Community 71](Community_71.md) (1 shared connections)
+- [Community 106](Community_106.md) (1 shared connections)
+- [Community 11](Community_11.md) (1 shared connections)
+- [Community 46](Community_46.md) (1 shared connections)
+- [Community 58](Community_58.md) (1 shared connections)
+- [Community 54](Community_54.md) (1 shared connections)
+- [Community 15](Community_15.md) (1 shared connections)
 
 ## Source Files
 
-- `frontend/test/mobileHistoryData.test.js`
-- `mobile/src/config/env.js`
-- `mobile/src/hooks/useHistoryData.js`
-- `mobile/src/lib/apiClient.js`
-- `mobile/src/utils/errors.js`
+- `backend/models/User.js`
+- `backend/models/WebSocketTicket.js`
+- `backend/services/webSocketTicketService.js`
+- `backend/tests/webSocketTicketService.test.js`
+- `mongoose`
 
 ## Audit Trail
 
-- EXTRACTED: 49 (100%)
-- INFERRED: 0 (0%)
+- EXTRACTED: 32 (94%)
+- INFERRED: 2 (6%)
 - AMBIGUOUS: 0 (0%)
 
 ---

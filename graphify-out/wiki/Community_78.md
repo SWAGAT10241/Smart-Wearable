@@ -1,41 +1,36 @@
 # Community 78
 
-> 14 nodes
+> 12 nodes
 
 ## Key Concepts
 
-- **frontend/src/hooks/useDashboardData.js** (18 connections) — `frontend/src/hooks/useDashboardData.js`
-- **useDashboardData()** (10 connections) — `frontend/src/hooks/useDashboardData.js`
-- **useLiveData()** (7 connections) — `frontend/src/context/LiveDataContext.jsx`
-- **formatUpdatedText()** (6 connections) — `frontend/src/utils/formatters.js`
-- **frontend/src/utils/formatters.js** (6 connections) — `frontend/src/utils/formatters.js`
-- **useUpdatedTime.js** (5 connections) — `frontend/src/hooks/useUpdatedTime.js`
-- **useUpdatedTime()** (4 connections) — `frontend/src/hooks/useUpdatedTime.js`
-- **getReadingTimestamp()** (4 connections) — `frontend/src/utils/formatters.js`
-- **metrics.js** (4 connections) — `frontend/src/utils/metrics.js`
-- **formatDuration()** (3 connections) — `frontend/src/utils/formatters.js`
-- **calculateCalories()** (3 connections) — `frontend/src/utils/metrics.js`
-- **calculateNumericStats()** (3 connections) — `frontend/src/utils/metrics.js`
-- **distanceBetweenPoints()** (3 connections) — `frontend/src/utils/metrics.js`
-- **formatReadingValue()** (1 connections) — `frontend/src/utils/formatters.js`
+- **LoginScreen.js** (14 connections) — `mobile/src/screens/LoginScreen.js`
+- **RegisterScreen.js** (14 connections) — `mobile/src/screens/RegisterScreen.js`
+- **RegisterScreen()** (9 connections) — `mobile/src/screens/RegisterScreen.js`
+- **LoginScreen()** (8 connections) — `mobile/src/screens/LoginScreen.js`
+- **ShieldIcon()** (7 connections) — `mobile/src/components/Icons.js`
+- **EyeIcon()** (5 connections) — `mobile/src/components/Icons.js`
+- **EyeOffIcon()** (5 connections) — `mobile/src/components/Icons.js`
+- **handleLogin()** (1 connections) — `mobile/src/screens/LoginScreen.js`
+- **submit()** (1 connections) — `mobile/src/screens/RegisterScreen.js`
+- **update()** (1 connections) — `mobile/src/screens/RegisterScreen.js`
+- **styles** (1 connections) — `mobile/src/screens/LoginScreen.js`
+- **styles** (1 connections) — `mobile/src/screens/RegisterScreen.js`
 
 ## Relationships
 
-- [Community 45](Community_45.md) (6 shared connections)
-- [Community 18](Community_18.md) (3 shared connections)
-- [Community 8](Community_8.md) (3 shared connections)
-- [Community 13](Community_13.md) (2 shared connections)
-- [Community 0](Community_0.md) (2 shared connections)
+- [Community 9](Community_9.md) (10 shared connections)
+- [Community 16](Community_16.md) (8 shared connections)
+- [Community 116](Community_116.md) (5 shared connections)
+- [Community 69](Community_69.md) (2 shared connections)
 - [Community 57](Community_57.md) (2 shared connections)
-- [Community 19](Community_19.md) (1 shared connections)
+- [Community 21](Community_21.md) (2 shared connections)
 
 ## Source Files
 
-- `frontend/src/context/LiveDataContext.jsx`
-- `frontend/src/hooks/useDashboardData.js`
-- `frontend/src/hooks/useUpdatedTime.js`
-- `frontend/src/utils/formatters.js`
-- `frontend/src/utils/metrics.js`
+- `mobile/src/components/Icons.js`
+- `mobile/src/screens/LoginScreen.js`
+- `mobile/src/screens/RegisterScreen.js`
 
 ## Audit Trail
 

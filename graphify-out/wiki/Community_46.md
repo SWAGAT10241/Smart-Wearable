@@ -1,41 +1,42 @@
 # Community 46
 
-> 14 nodes
+> 12 nodes
 
 ## Key Concepts
 
 - **authController.js** (10 connections) — `backend/controllers/authController.js`
-- **authService.js** (10 connections) — `backend/services/authService.js`
-- **loginUser()** (3 connections) — `backend/services/authService.js`
-- **registerUser()** (3 connections) — `backend/services/authService.js`
-- **signToken()** (3 connections) — `backend/services/authService.js`
-- **completeUserProfile()** (2 connections) — `backend/services/authService.js`
-- **getUserProfile()** (2 connections) — `backend/services/authService.js`
+- **authRoutes.js** (10 connections) — `backend/routes/authRoutes.js`
+- **authLimiter** (3 connections) — `backend/middleware/rateLimiter.js`
 - **handleGoogleCallback()** (1 connections) — `backend/controllers/authController.js`
 - **completeProfile** (1 connections) — `backend/controllers/authController.js`
 - **generateWsTicket** (1 connections) — `backend/controllers/authController.js`
 - **getMe** (1 connections) — `backend/controllers/authController.js`
 - **login** (1 connections) — `backend/controllers/authController.js`
 - **register** (1 connections) — `backend/controllers/authController.js`
-- **jwt** (1 connections) — `backend/services/authService.js`
+- **express** (1 connections) — `backend/routes/authRoutes.js`
+- **passport** (1 connections) — `backend/routes/authRoutes.js`
+- **router** (1 connections) — `backend/routes/authRoutes.js`
 
 ## Relationships
 
-- [Community 11](Community_11.md) (5 shared connections)
-- [Community 47](Community_47.md) (2 shared connections)
+- [Community 24](Community_24.md) (3 shared connections)
+- [Community 37](Community_37.md) (2 shared connections)
+- [Community 106](Community_106.md) (1 shared connections)
 - [Community 40](Community_40.md) (1 shared connections)
-- [Community 24](Community_24.md) (1 shared connections)
-- [Community 70](Community_70.md) (1 shared connections)
+- [Community 35](Community_35.md) (1 shared connections)
+- [Community 39](Community_39.md) (1 shared connections)
+- [Community 7](Community_7.md) (1 shared connections)
 
 ## Source Files
 
 - `backend/controllers/authController.js`
-- `backend/services/authService.js`
+- `backend/middleware/rateLimiter.js`
+- `backend/routes/authRoutes.js`
 
 ## Audit Trail
 
-- EXTRACTED: 19 (76%)
-- INFERRED: 6 (24%)
+- EXTRACTED: 20 (95%)
+- INFERRED: 1 (5%)
 - AMBIGUOUS: 0 (0%)
 
 ---

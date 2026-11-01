@@ -1,24 +1,27 @@
 # Community 130
 
-> 3 nodes
+> 4 nodes
 
 ## Key Concepts
 
-- **hasText()** (2 connections) — `mobile/src/lib/profileCompletion.js`
-- **isProfileComplete()** (2 connections) — `mobile/src/lib/profileCompletion.js`
-- **mobile/src/lib/profileCompletion.js** (2 connections) — `mobile/src/lib/profileCompletion.js`
+- **vitalsController.js** (6 connections) — `backend/controllers/vitalsController.js`
+- **getHistory** (1 connections) — `backend/controllers/vitalsController.js`
+- **getLatest** (1 connections) — `backend/controllers/vitalsController.js`
+- **getStats** (1 connections) — `backend/controllers/vitalsController.js`
 
 ## Relationships
 
-- No strong cross-community connections detected
+- [Community 11](Community_11.md) (1 shared connections)
+- [Community 40](Community_40.md) (1 shared connections)
+- [Community 24](Community_24.md) (1 shared connections)
 
 ## Source Files
 
-- `mobile/src/lib/profileCompletion.js`
+- `backend/controllers/vitalsController.js`
 
 ## Audit Trail
 
-- EXTRACTED: 3 (100%)
+- EXTRACTED: 6 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

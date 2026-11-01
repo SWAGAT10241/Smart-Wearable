@@ -2,7 +2,7 @@
 
 > God node · 19 connections · `frontend/src/context/AuthContext.jsx`
 
-**Community:** [Community 19](Community_19.md)
+**Community:** [Community 13](Community_13.md)
 
 ## Connections by Relation
 

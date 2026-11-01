@@ -30,12 +30,12 @@
 
 ## Relationships
 
-- [Community 42](Community_42.md) (5 shared connections)
+- [Community 59](Community_59.md) (5 shared connections)
 - [Community 64](Community_64.md) (5 shared connections)
 - [Community 11](Community_11.md) (3 shared connections)
-- [Community 47](Community_47.md) (3 shared connections)
-- [Community 59](Community_59.md) (2 shared connections)
+- [Community 35](Community_35.md) (3 shared connections)
 - [Community 7](Community_7.md) (2 shared connections)
+- [Community 42](Community_42.md) (2 shared connections)
 - [Community 54](Community_54.md) (1 shared connections)
 - [Community 70](Community_70.md) (1 shared connections)
 - [Community 39](Community_39.md) (1 shared connections)

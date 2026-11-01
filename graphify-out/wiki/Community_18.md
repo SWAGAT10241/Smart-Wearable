@@ -7,16 +7,13 @@
 - **Dashboard.jsx** (27 connections) — `frontend/src/pages/Dashboard.jsx`
 - **Dashboard()** (17 connections) — `frontend/src/pages/Dashboard.jsx`
 - **icons.jsx** (11 connections) — `frontend/src/components/icons.jsx`
-- **react-icons** (10 connections) — `frontend/package.json`
-- **ProfileMenu.jsx** (7 connections) — `frontend/src/components/app/ProfileMenu.jsx`
+- **LiveMap.jsx** (7 connections) — `frontend/src/components/LiveMap.jsx`
 - **ActivitySummary.jsx** (6 connections) — `frontend/src/components/ActivitySummary.jsx`
-- **DashboardHeader.jsx** (6 connections) — `frontend/src/components/dashboard/DashboardHeader.jsx`
-- **DashboardHeader()** (5 connections) — `frontend/src/components/dashboard/DashboardHeader.jsx`
+- **LiveMap()** (5 connections) — `frontend/src/components/LiveMap.jsx`
 - **ActivitySummary()** (4 connections) — `frontend/src/components/ActivitySummary.jsx`
-- **ProfileMenu()** (4 connections) — `frontend/src/components/app/ProfileMenu.jsx`
-- **NotificationBell.jsx** (4 connections) — `frontend/src/components/app/NotificationBell.jsx`
+- **LiveLocationCard()** (4 connections) — `frontend/src/components/dashboard/LiveLocationCard.jsx`
+- **LiveLocationCard.jsx** (4 connections) — `frontend/src/components/dashboard/LiveLocationCard.jsx`
 - **SummaryItem()** (3 connections) — `frontend/src/components/ActivitySummary.jsx`
-- **NotificationBell()** (3 connections) — `frontend/src/components/app/NotificationBell.jsx`
 - **RecentEventsCard()** (3 connections) — `frontend/src/components/dashboard/RecentEventsCard.jsx`
 - **DropletIcon()** (3 connections) — `frontend/src/components/icons.jsx`
 - **HeartIcon()** (3 connections) — `frontend/src/components/icons.jsx`
@@ -24,38 +21,38 @@
 - **PressureIcon()** (3 connections) — `frontend/src/components/icons.jsx`
 - **ThermometerIcon()** (3 connections) — `frontend/src/components/icons.jsx`
 - **MiniGraph()** (2 connections) — `frontend/src/components/ActivitySummary.jsx`
+- **createMarkerElement()** (2 connections) — `frontend/src/components/LiveMap.jsx`
+- **useDarkMode()** (2 connections) — `frontend/src/components/LiveMap.jsx`
 - **RecentEventsCard.jsx** (2 connections) — `frontend/src/components/dashboard/RecentEventsCard.jsx`
 - **GPSIcon()** (1 connections) — `frontend/src/components/icons.jsx`
 - **LocationPulseIcon()** (1 connections) — `frontend/src/components/icons.jsx`
 - **WatchIcon()** (1 connections) — `frontend/src/components/icons.jsx`
 - **ACTIVITY_STYLES** (1 connections) — `frontend/src/components/ActivitySummary.jsx`
+- **MAP_STYLES** (1 connections) — `frontend/src/components/LiveMap.jsx`
 
 ## Relationships
 
-- [Community 19](Community_19.md) (8 shared connections)
-- [Community 34](Community_34.md) (7 shared connections)
-- [Community 8](Community_8.md) (3 shared connections)
-- [Community 93](Community_93.md) (3 shared connections)
-- [Community 78](Community_78.md) (3 shared connections)
-- [Community 57](Community_57.md) (3 shared connections)
-- [Community 3](Community_3.md) (3 shared connections)
-- [Community 13](Community_13.md) (3 shared connections)
-- [Community 45](Community_45.md) (2 shared connections)
+- [Community 34](Community_34.md) (6 shared connections)
+- [Community 8](Community_8.md) (6 shared connections)
+- [Community 149](Community_149.md) (5 shared connections)
+- [Community 19](Community_19.md) (3 shared connections)
+- [Community 13](Community_13.md) (2 shared connections)
+- [Community 3](Community_3.md) (2 shared connections)
+- [Community 9](Community_9.md) (2 shared connections)
+- [Community 45](Community_45.md) (1 shared connections)
 
 ## Source Files
 
-- `frontend/package.json`
 - `frontend/src/components/ActivitySummary.jsx`
-- `frontend/src/components/app/NotificationBell.jsx`
-- `frontend/src/components/app/ProfileMenu.jsx`
-- `frontend/src/components/dashboard/DashboardHeader.jsx`
+- `frontend/src/components/LiveMap.jsx`
+- `frontend/src/components/dashboard/LiveLocationCard.jsx`
 - `frontend/src/components/dashboard/RecentEventsCard.jsx`
 - `frontend/src/components/icons.jsx`
 - `frontend/src/pages/Dashboard.jsx`
 
 ## Audit Trail
 
-- EXTRACTED: 84 (100%)
+- EXTRACTED: 73 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

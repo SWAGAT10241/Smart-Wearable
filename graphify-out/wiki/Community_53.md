@@ -1,16 +1,19 @@
 # Community 53
 
-> 14 nodes
+> 17 nodes
 
 ## Key Concepts
 
-- **dependency-review.yml** (4 connections) — `.github/workflows/dependency-review.yml`
+- **dependency-review.yml** (5 connections) — `.github/workflows/dependency-review.yml`
 - **dependency-review** (4 connections) — `.github/workflows/dependency-review.yml`
+- **concurrency** (3 connections) — `.github/workflows/dependency-review.yml`
 - **steps** (3 connections) — `.github/workflows/dependency-review.yml`
 - **jobs** (2 connections) — `.github/workflows/dependency-review.yml`
 - **on** (2 connections) — `.github/workflows/dependency-review.yml`
 - **pull_request** (2 connections) — `.github/workflows/dependency-review.yml`
 - **permissions** (2 connections) — `.github/workflows/dependency-review.yml`
+- **cancel-in-progress** (1 connections) — `.github/workflows/dependency-review.yml`
+- **group** (1 connections) — `.github/workflows/dependency-review.yml`
 - **name** (1 connections) — `.github/workflows/dependency-review.yml`
 - **runs-on** (1 connections) — `.github/workflows/dependency-review.yml`
 - **name** (1 connections) — `.github/workflows/dependency-review.yml`
@@ -29,7 +32,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 13 (100%)
+- EXTRACTED: 16 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

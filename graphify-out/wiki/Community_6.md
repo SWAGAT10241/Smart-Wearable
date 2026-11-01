@@ -1,10 +1,11 @@
 # Community 6
 
-> 39 nodes
+> 42 nodes
 
 ## Key Concepts
 
 - **with** (8 connections) — `.github/workflows/ci.yml`
+- **ci.yml** (5 connections) — `.github/workflows/ci.yml`
 - **steps** (5 connections) — `.github/workflows/ci.yml`
 - **steps** (5 connections) — `.github/workflows/ci.yml`
 - **steps** (5 connections) — `.github/workflows/ci.yml`
@@ -13,12 +14,12 @@
 - **frontend** (5 connections) — `.github/workflows/ci.yml`
 - **mobile** (5 connections) — `.github/workflows/ci.yml`
 - **steps** (5 connections) — `.github/workflows/ci.yml`
-- **ci.yml** (4 connections) — `.github/workflows/ci.yml`
 - **run** (4 connections) — `.github/workflows/ci.yml`
 - **hardware** (4 connections) — `.github/workflows/ci.yml`
 - **name** (4 connections) — `.github/workflows/ci.yml`
 - **run** (4 connections) — `.github/workflows/ci.yml`
 - **uses** (4 connections) — `.github/workflows/ci.yml`
+- **concurrency** (3 connections) — `.github/workflows/ci.yml`
 - **on** (3 connections) — `.github/workflows/ci.yml`
 - **defaults** (2 connections) — `.github/workflows/ci.yml`
 - **defaults** (2 connections) — `.github/workflows/ci.yml`
@@ -28,8 +29,7 @@
 - **permissions** (2 connections) — `.github/workflows/ci.yml`
 - **name** (1 connections) — `.github/workflows/ci.yml`
 - **runs-on** (1 connections) — `.github/workflows/ci.yml`
-- **name** (1 connections) — `.github/workflows/ci.yml`
-- *... and 14 more nodes in this community*
+- *... and 17 more nodes in this community*
 
 ## Relationships
 
@@ -41,7 +41,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 52 (100%)
+- EXTRACTED: 55 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

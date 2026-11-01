@@ -17,21 +17,22 @@
 - **ModalButtons()** (2 connections) — `frontend/src/components/Sidebar.jsx`
 - **ModalHeader()** (2 connections) — `frontend/src/components/Sidebar.jsx`
 - **LoadingSpinner.jsx** (2 connections) — `frontend/src/components/common/LoadingSpinner.jsx`
+- **HISTORY_RANGES** (2 connections) — `frontend/src/hooks/useTelemetryHistory.js`
 - **devicesApi** (2 connections) — `frontend/src/lib/apiClient.js`
-- **frontend_src_assets_images_login_background** (2 connections)
 - **NAV_ITEMS** (1 connections) — `frontend/src/components/Sidebar.jsx`
 - **DeviceContext** (1 connections) — `frontend/src/context/DeviceContext.jsx`
 - **IMPORTANT:** (1 connections) — `frontend/src/context/DeviceContext.jsx`
 
 ## Relationships
 
-- [Community 18](Community_18.md) (7 shared connections)
-- [Community 13](Community_13.md) (7 shared connections)
+- [Community 18](Community_18.md) (6 shared connections)
+- [Community 13](Community_13.md) (6 shared connections)
 - [Community 19](Community_19.md) (6 shared connections)
 - [Community 45](Community_45.md) (5 shared connections)
 - [Community 0](Community_0.md) (3 shared connections)
 - [Community 8](Community_8.md) (3 shared connections)
-- [Community 57](Community_57.md) (2 shared connections)
+- [Community 9](Community_9.md) (2 shared connections)
+- [Community 149](Community_149.md) (2 shared connections)
 
 ## Source Files
 

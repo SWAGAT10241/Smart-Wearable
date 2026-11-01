@@ -29,7 +29,7 @@
 - [Community 39](Community_39.md) (2 shared connections)
 - [Community 10](Community_10.md) (1 shared connections)
 - [Community 48](Community_48.md) (1 shared connections)
-- [Community 42](Community_42.md) (1 shared connections)
+- [Community 59](Community_59.md) (1 shared connections)
 
 ## Source Files
 

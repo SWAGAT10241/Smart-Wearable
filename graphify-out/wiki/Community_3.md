@@ -1,6 +1,6 @@
 # Community 3
 
-> 46 nodes
+> 47 nodes
 
 ## Key Concepts
 
@@ -29,17 +29,17 @@
 - **react-router-dom@^7.18.4** (2 connections) — `frontend/package.json`
 - **typewriter-effect@^2.22.0** (2 connections) — `frontend/package.json`
 - **@zxing/browser@^0.1.5** (2 connections) — `frontend/package.json`
-- *... and 21 more nodes in this community*
+- *... and 22 more nodes in this community*
 
 ## Relationships
 
 - [Community 0](Community_0.md) (4 shared connections)
-- [Community 18](Community_18.md) (3 shared connections)
+- [Community 149](Community_149.md) (3 shared connections)
 - [Community 19](Community_19.md) (3 shared connections)
-- [Community 13](Community_13.md) (2 shared connections)
+- [Community 18](Community_18.md) (2 shared connections)
 - [Community 8](Community_8.md) (1 shared connections)
-- [Community 93](Community_93.md) (1 shared connections)
-- [Community 35](Community_35.md) (1 shared connections)
+- [Community 13](Community_13.md) (1 shared connections)
+- [Community 21](Community_21.md) (1 shared connections)
 
 ## Source Files
 
@@ -49,7 +49,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 76 (100%)
+- EXTRACTED: 77 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

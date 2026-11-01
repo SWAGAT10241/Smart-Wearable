@@ -1,6 +1,6 @@
 # Community 7
 
-> 34 nodes
+> 36 nodes
 
 ## Key Concepts
 
@@ -8,6 +8,7 @@
 - **dependencies** (17 connections) — `backend/package.json`
 - **passport** (5 connections) — `backend/package.json`
 - **passport.js** (4 connections) — `backend/config/passport.js`
+- **qrcode** (4 connections) — `backend/package.json`
 - **bcrypt** (3 connections) — `backend/package.json`
 - **connect-mongo** (3 connections) — `backend/package.json`
 - **cors** (3 connections) — `backend/package.json`
@@ -27,23 +28,23 @@
 - **mongoose@^9.11.4** (2 connections) — `backend/package.json`
 - **passport@^0.7.0** (2 connections) — `backend/package.json`
 - **passport-google-oauth20@^2.0.0** (2 connections) — `backend/package.json`
-- **ws@^8.22.0** (2 connections) — `backend/package.json`
-- **engines** (2 connections) — `backend/package.json`
-- *... and 9 more nodes in this community*
+- **qrcode@^1.5.4** (2 connections) — `backend/package.json`
+- *... and 11 more nodes in this community*
 
 ## Relationships
 
 - [Community 39](Community_39.md) (5 shared connections)
-- [Community 24](Community_24.md) (3 shared connections)
 - [Community 48](Community_48.md) (3 shared connections)
-- [Community 47](Community_47.md) (2 shared connections)
+- [Community 35](Community_35.md) (2 shared connections)
+- [Community 24](Community_24.md) (2 shared connections)
 - [Community 70](Community_70.md) (2 shared connections)
 - [Community 10](Community_10.md) (2 shared connections)
-- [Community 145](Community_145.md) (2 shared connections)
 - [Community 64](Community_64.md) (2 shared connections)
 - [Community 89](Community_89.md) (1 shared connections)
 - [Community 37](Community_37.md) (1 shared connections)
-- [Community 54](Community_54.md) (1 shared connections)
+- [Community 46](Community_46.md) (1 shared connections)
+- [Community 43](Community_43.md) (1 shared connections)
+- [Community 41](Community_41.md) (1 shared connections)
 
 ## Source Files
 
@@ -52,7 +53,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 69 (100%)
+- EXTRACTED: 72 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

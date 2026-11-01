@@ -1,16 +1,17 @@
 # Community 12
 
-> 30 nodes
+> 33 nodes
 
 ## Key Concepts
 
+- **security.yml** (5 connections) — `.github/workflows/security.yml`
 - **steps** (5 connections) — `.github/workflows/security.yml`
 - **steps** (5 connections) — `.github/workflows/security.yml`
 - **backend-audit** (5 connections) — `.github/workflows/security.yml`
 - **frontend-audit** (5 connections) — `.github/workflows/security.yml`
 - **with** (5 connections) — `.github/workflows/security.yml`
-- **security.yml** (4 connections) — `.github/workflows/security.yml`
 - **on** (4 connections) — `.github/workflows/security.yml`
+- **concurrency** (3 connections) — `.github/workflows/security.yml`
 - **run** (3 connections) — `.github/workflows/security.yml`
 - **jobs** (3 connections) — `.github/workflows/security.yml`
 - **defaults** (2 connections) — `.github/workflows/security.yml`
@@ -23,13 +24,12 @@
 - **uses** (2 connections) — `.github/workflows/security.yml`
 - **name** (1 connections) — `.github/workflows/security.yml`
 - **runs-on** (1 connections) — `.github/workflows/security.yml`
+- **cancel-in-progress** (1 connections) — `.github/workflows/security.yml`
+- **group** (1 connections) — `.github/workflows/security.yml`
 - **name** (1 connections) — `.github/workflows/security.yml`
 - **runs-on** (1 connections) — `.github/workflows/security.yml`
 - **name** (1 connections) — `.github/workflows/security.yml`
-- **workflow_dispatch** (1 connections) — `.github/workflows/security.yml`
-- **contents** (1 connections) — `.github/workflows/security.yml`
-- **branches** (1 connections) — `.github/workflows/security.yml`
-- *... and 5 more nodes in this community*
+- *... and 8 more nodes in this community*
 
 ## Relationships
 
@@ -41,7 +41,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 34 (100%)
+- EXTRACTED: 37 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

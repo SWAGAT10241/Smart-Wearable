@@ -2,7 +2,7 @@ name: Sync Graphify Wiki to GitHub Wiki
 
 on:
   push:
-    branches: [main]
+    branches: [main, SWAAS]
     paths:
       - 'graphify-out/**'
       - '.github/workflows/wiki-sync.yml'
@@ -25,7 +25,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
-          ref: main
           fetch-depth: 1
           persist-credentials: false
 
@@ -89,6 +88,9 @@ jobs:
                   if (Array.isArray(oldFiles)) {
                     for (const oldFile of oldFiles) {
                       if (typeof oldFile === "string" && path.basename(oldFile) === oldFile && oldFile.endsWith(".md")) {
+                        if (/^(Home|_Sidebar|_Footer|\d{2}---.*)\.md$/i.test(oldFile)) {
+                          continue;
+                        }
                         if (!newFiles.includes(oldFile)) {
                           const targetPath = path.resolve(".wiki", oldFile);
                           if (targetPath.startsWith(wikiDir + path.sep) && fs.existsSync(targetPath)) {
@@ -108,20 +110,26 @@ jobs:
             fs.writeFileSync(manifestPath, JSON.stringify(currentExportFiles, null, 2), "utf-8");
           '
 
-          echo "Copying wiki pages into .wiki directory..."
-          cp -r graphify-out/wiki/* .wiki/
+          echo "Copying graphify community articles into .wiki directory (preserving curated chapters)..."
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+            const sourceDir = "graphify-out/wiki";
+            const targetDir = ".wiki";
+            const files = fs.readdirSync(sourceDir);
 
-          # GitHub Wiki uses Home.md as the homepage
-          if [ -f "graphify-out/wiki/index.md" ]; then
-            cp "graphify-out/wiki/index.md" ".wiki/Home.md"
-          fi
-
-          # Generate GitHub Wiki Sidebar (_Sidebar.md) using printf to prevent YAML heredoc indentation issues
-          printf '# SWAAS Architecture\n- [Home](Home)\n- [Architecture Index](index)\n\n### Key Communities\n' > .wiki/_Sidebar.md
-
-          if [ -f ".wiki/index.md" ]; then
-            grep -E '^\- \[Community ' .wiki/index.md | head -n 30 | sed -E 's/\(([^)]+)\.md\)/(\1)/' >> .wiki/_Sidebar.md || true
-          fi
+            for (const file of files) {
+              // Never overwrite Home.md, _Sidebar.md, _Footer.md, or the curated 01--- through 20--- chapters
+              if (/^(Home|_Sidebar|_Footer|\d{2}---.*)\.md$/i.test(file)) {
+                continue;
+              }
+              const srcPath = path.join(sourceDir, file);
+              // Map index.md to Knowledge-Graph-Index.md to keep Home.md safe
+              const destFile = file === "index.md" ? "Knowledge-Graph-Index.md" : file;
+              const destPath = path.join(targetDir, destFile);
+              fs.copyFileSync(srcPath, destPath);
+            }
+          '
 
           # Convert all relative markdown links (.md) to extensionless wiki links across all pages, handling arbitrary nested parentheses
           node -e '

@@ -1,6 +1,6 @@
 # react-native
 
-> God node · 19 connections · `mobile/package.json`
+> God node · 21 connections · `mobile/package.json`
 
 **Community:** [Community 9](Community_9.md)
 
@@ -13,23 +13,25 @@
 - mobile/package.json `EXTRACTED`
 
 ### imports_from
+- Icons.js `EXTRACTED`
 - DashboardScreen.js `EXTRACTED`
 - HistoryScreen.js `EXTRACTED`
-- theme.js `EXTRACTED`
 - SettingsScreen.js `EXTRACTED`
-- AlertsScreen.js `EXTRACTED`
+- theme.js `EXTRACTED`
 - LiveMapScreen.js `EXTRACTED`
 - AppHeader.js `EXTRACTED`
+- AlertsScreen.js `EXTRACTED`
 - LoginScreen.js `EXTRACTED`
 - RegisterScreen.js `EXTRACTED`
-- SectionCard.js `EXTRACTED`
+- ActivityCard.js `EXTRACTED`
+- FallAlertModal.js `EXTRACTED`
 - AlertCard.js `EXTRACTED`
 - BottomTabBar.js `EXTRACTED`
-- ActivityCard.js `EXTRACTED`
 - DeviceCard.js `EXTRACTED`
-- FallAlertModal.js `EXTRACTED`
-- StatCard.js `EXTRACTED`
+- TabIcon.js `EXTRACTED`
 - CompleteProfileScreen.js `EXTRACTED`
+- SectionCard.js `EXTRACTED`
+- StatCard.js `EXTRACTED`
 
 ---
 

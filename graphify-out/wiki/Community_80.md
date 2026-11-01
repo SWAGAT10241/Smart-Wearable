@@ -4,9 +4,9 @@
 
 ## Key Concepts
 
-- **check-syntax.js** (9 connections) — `mobile/scripts/check-syntax.js`
-- **ref_fs** (4 connections)
+- **check-syntax.js** (10 connections) — `mobile/scripts/check-syntax.js`
 - **checkDir()** (3 connections) — `mobile/scripts/check-syntax.js`
+- **checkSymbols** (1 connections) — `mobile/scripts/check-syntax.js`
 - **{ execSync }** (1 connections) — `mobile/scripts/check-syntax.js`
 - **fs** (1 connections) — `mobile/scripts/check-syntax.js`
 - **path** (1 connections) — `mobile/scripts/check-syntax.js`
@@ -16,8 +16,7 @@
 
 ## Relationships
 
-- [Community 41](Community_41.md) (3 shared connections)
-- [Community 43](Community_43.md) (1 shared connections)
+- [Community 41](Community_41.md) (2 shared connections)
 
 ## Source Files
 
@@ -25,7 +24,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 13 (100%)
+- EXTRACTED: 11 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

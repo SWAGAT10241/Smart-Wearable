@@ -1,10 +1,9 @@
 # Community 42
 
-> 18 nodes
+> 17 nodes
 
 ## Key Concepts
 
-- **ref_crypto** (17 connections)
 - **deviceAuthMiddleware.js** (10 connections) — `backend/middleware/deviceAuthMiddleware.js`
 - **Device.js** (10 connections) — `backend/models/Device.js`
 - **deviceAuth.test.js** (7 connections) — `backend/tests/deviceAuth.test.js`
@@ -25,18 +24,14 @@
 
 ## Relationships
 
-- [Community 10](Community_10.md) (5 shared connections)
 - [Community 59](Community_59.md) (3 shared connections)
-- [Community 11](Community_11.md) (3 shared connections)
-- [Community 43](Community_43.md) (2 shared connections)
-- [Community 47](Community_47.md) (2 shared connections)
-- [Community 41](Community_41.md) (2 shared connections)
+- [Community 10](Community_10.md) (2 shared connections)
+- [Community 11](Community_11.md) (2 shared connections)
 - [Community 44](Community_44.md) (1 shared connections)
 - [Community 37](Community_37.md) (1 shared connections)
+- [Community 43](Community_43.md) (1 shared connections)
 - [Community 64](Community_64.md) (1 shared connections)
 - [Community 23](Community_23.md) (1 shared connections)
-- [Community 38](Community_38.md) (1 shared connections)
-- [Community 31](Community_31.md) (1 shared connections)
 
 ## Source Files
 
@@ -48,8 +43,8 @@
 
 ## Audit Trail
 
-- EXTRACTED: 45 (96%)
-- INFERRED: 2 (4%)
+- EXTRACTED: 30 (94%)
+- INFERRED: 2 (6%)
 - AMBIGUOUS: 0 (0%)
 
 ---

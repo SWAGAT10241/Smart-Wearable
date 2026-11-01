@@ -23,10 +23,10 @@
 - [Community 39](Community_39.md) (2 shared connections)
 - [Community 7](Community_7.md) (2 shared connections)
 - [Community 37](Community_37.md) (1 shared connections)
-- [Community 47](Community_47.md) (1 shared connections)
+- [Community 35](Community_35.md) (1 shared connections)
 - [Community 10](Community_10.md) (1 shared connections)
 - [Community 24](Community_24.md) (1 shared connections)
-- [Community 46](Community_46.md) (1 shared connections)
+- [Community 106](Community_106.md) (1 shared connections)
 - [Community 48](Community_48.md) (1 shared connections)
 - [Community 15](Community_15.md) (1 shared connections)
 

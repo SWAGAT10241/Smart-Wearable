@@ -1,12 +1,13 @@
 # Community 120
 
-> 3 nodes
+> 4 nodes
 
 ## Key Concepts
 
-- **locationController.js** (5 connections) — `backend/controllers/locationController.js`
-- **getHistory** (1 connections) — `backend/controllers/locationController.js`
-- **getLatest** (1 connections) — `backend/controllers/locationController.js`
+- **environmentController.js** (6 connections) — `backend/controllers/environmentController.js`
+- **getHistory** (1 connections) — `backend/controllers/environmentController.js`
+- **getLatest** (1 connections) — `backend/controllers/environmentController.js`
+- **getStats** (1 connections) — `backend/controllers/environmentController.js`
 
 ## Relationships
 
@@ -16,11 +17,11 @@
 
 ## Source Files
 
-- `backend/controllers/locationController.js`
+- `backend/controllers/environmentController.js`
 
 ## Audit Trail
 
-- EXTRACTED: 5 (100%)
+- EXTRACTED: 6 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 
