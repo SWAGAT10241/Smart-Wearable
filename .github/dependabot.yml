@@ -1,37 +1,46 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
-
 version: 2
 
 updates:
-  # Backend dependencies
+  # Backend: Group all npm updates into 1 monthly PR
   - package-ecosystem: "npm"
     directory: "/backend"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    groups:
+      backend-dependencies:
+        patterns: ["*"]
 
-  # Frontend dependencies
+  # Frontend: Group all npm updates into 1 monthly PR
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    groups:
+      frontend-dependencies:
+        patterns: ["*"]
 
-  # Mobile App dependencies
+  # Mobile: Group all updates into 1 monthly PR
   - package-ecosystem: "npm"
     directory: "/mobile"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
+    open-pull-requests-limit: 1
+    groups:
+      mobile-dependencies:
+        patterns: ["*"]
 
-  # Hardware/Python dependencies
+  # Hardware Python: 1 monthly check
   - package-ecosystem: "pip"
     directory: "/hardware"
     schedule:
-      interval: "weekly"
-      
-  # GitHub Actions dependencies
+      interval: "monthly"
+    open-pull-requests-limit: 1
+
+  # GitHub Actions: 1 monthly check
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
+    open-pull-requests-limit: 1
