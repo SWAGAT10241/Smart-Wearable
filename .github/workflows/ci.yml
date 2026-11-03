@@ -32,7 +32,7 @@ jobs:
           node-version: 22
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@f520eceda224fe1a4aed5a2a27a194379a409996 # v6
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
         with:
           version: 11.20.0
           run_install: false
@@ -64,7 +64,7 @@ jobs:
           node-version: 22
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@f520eceda224fe1a4aed5a2a27a194379a409996 # v6
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
         with:
           version: 11.20.0
           run_install: false
@@ -79,7 +79,7 @@ jobs:
         run: pnpm run build
 
   hardware:
-    name: Hardware Python Syntax Check
+    name: Hardware Checks
     runs-on: ubuntu-latest
 
     steps:
@@ -93,6 +93,17 @@ jobs:
 
       - name: Check Python syntax
         run: python -m compileall -q hardware
+
+      - name: Install ESP-IDF
+        uses: espressif/install-esp-idf-action@8fc05d1470d5591417e7a3707a1f2bec178db4ae # v1
+        with:
+          version: v5.3.2
+
+      - name: Build ESP32-S3 firmware
+        working-directory: hardware/firmware
+        run: |
+          idf.py set-target esp32s3
+          idf.py build
 
   mobile:
     name: Mobile App Check
@@ -112,7 +123,7 @@ jobs:
           node-version: 22
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@f520eceda224fe1a4aed5a2a27a194379a409996 # v6
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
         with:
           version: 12.4.2
           run_install: false
@@ -128,4 +139,3 @@ jobs:
 
       - name: Validate bundle export
         run: npx expo export -p android --no-bytecode
-

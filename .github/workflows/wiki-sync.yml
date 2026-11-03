@@ -14,12 +14,14 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   sync-wiki:
     name: Sync Knowledge Graph to GitHub Wiki
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -41,8 +43,7 @@ jobs:
       - name: Export Knowledge Graph to Wiki
         run: |
           echo "Refreshing graphify wiki export from latest graph..."
-          pip install --upgrade pip
-          pip install graphifyy
+          python -m pip install --disable-pip-version-check "graphifyy==0.9.97"
           python -m graphify export wiki
 
           if [ ! -d "graphify-out/wiki" ]; then
@@ -58,7 +59,7 @@ jobs:
           echo "Checking GitHub Wiki availability for ${{ github.repository }}..."
 
           # Attempt to clone the wiki repository
-          CLONE_OUTPUT=$(git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.wiki.git" .wiki 2>&1 || true)
+          CLONE_OUTPUT=$(git -c "http.extraheader=AUTHORIZATION: bearer ${GITHUB_TOKEN}" clone "https://github.com/${{ github.repository }}.wiki.git" .wiki 2>&1 || true)
           if [ ! -d ".wiki" ]; then
             if echo "$CLONE_OUTPUT" | grep -qiE "repository not found|could not read from remote|not found"; then
               echo "::warning title=Wiki Not Initialized::The GitHub Wiki repository (${{ github.repository }}.wiki) does not exist or has not been initialized. Please visit https://github.com/${{ github.repository }}/wiki and click 'Create the first page' to initialize it."
@@ -186,6 +187,6 @@ jobs:
             echo "GitHub Wiki is already up to date with the latest knowledge graph."
           else
             git commit -m "docs(wiki): auto-sync knowledge graph from commit ${SOURCE_SHA}"
-            git push origin HEAD
+            git -c "http.extraheader=AUTHORIZATION: bearer ${GITHUB_TOKEN}" push origin HEAD
             echo "GitHub Wiki published successfully!"
           fi
