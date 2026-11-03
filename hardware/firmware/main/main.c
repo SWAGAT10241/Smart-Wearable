@@ -210,6 +210,7 @@ static esp_err_t load_or_create_identity(void)
 {
     nvs_handle_t handle;
     esp_err_t error = nvs_open(NVS_NAMESPACE, NVS_READWRITE, &handle);
+    esp_err_t ret = ESP_OK;
     if (error != ESP_OK) {
         return error;
     }
@@ -285,7 +286,7 @@ static esp_err_t load_or_create_identity(void)
 fail:
     nvs_close(handle);
     sodium_memzero(secret_key, sizeof(secret_key));
-    return error;
+    return ret;
 }
 
 static esp_err_t build_device_info(void)
@@ -1060,8 +1061,8 @@ void app_main(void)
     ble_hs_cfg.sm_bonding = 1;
     ble_hs_cfg.sm_mitm = 0;
     ble_hs_cfg.sm_io_cap = BLE_SM_IO_CAP_NO_IO;
-    ESP_ERROR_CHECK(ble_svc_gap_init());
-    ESP_ERROR_CHECK(ble_svc_gatt_init());
+    ble_svc_gap_init();
+    ble_svc_gatt_init();
     ESP_ERROR_CHECK(ble_gatts_count_cfg(services));
     ESP_ERROR_CHECK(ble_gatts_add_svcs(services));
 
