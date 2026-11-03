@@ -11,11 +11,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import AppHeader from "../components/AppHeader";
 import StatCard from "../components/StatCard";
-import DeviceCard from "../components/DeviceCard";
 import SectionCard from "../components/SectionCard";
 import AlertCard from "../components/AlertCard";
 
-import { useDevices } from "../context/DeviceContext";
 import { useLiveData } from "../context/LiveDataContext";
 import { useAuth } from "../context/AuthContext";
 import { useAppTheme } from "../theme/theme";
@@ -23,7 +21,6 @@ import { useAppTheme } from "../theme/theme";
 export default function DashboardScreen() {
   const theme = useAppTheme();
   const { user } = useAuth();
-  const { selectedDevice } = useDevices();
   const { vitals, environment, location, falls, connected, loading, refresh } = useLiveData();
   const heartRate = vitals?.heartRate ?? vitals?.hr ?? vitals?.heart_rate;
   const spo2 = vitals?.spo2 ?? vitals?.oxygenSaturation ?? vitals?.oxygen;
@@ -34,8 +31,8 @@ export default function DashboardScreen() {
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
       <AppHeader
-        title="TrailGuard"
-        subtitle={`Hello, ${user?.username || "Explorer"}`}
+        title={`Welcome back, ${user?.username || "Explorer"}!`}
+        subtitle="Your safety overview is up to date"
       />
 
       <ScrollView
@@ -44,39 +41,22 @@ export default function DashboardScreen() {
           <RefreshControl refreshing={loading} onRefresh={refresh} />
         }
       >
-        <View
-          style={[
-            styles.connection,
-            {
-              backgroundColor: connected ? theme.primaryLight : theme.card,
-              borderColor: theme.border,
-            },
-          ]}
-        >
-          <View
-            style={[
-              styles.connectionDot,
-              {
-                backgroundColor: connected ? theme.success : theme.warning,
-              },
-            ]}
-          />
-
-          <Text
-            style={{
-              color: theme.text,
-              fontWeight: "700",
-            }}
-          >
-            {connected ? "Live connection active" : "Using latest server data"}
+        <View style={[styles.connection, { backgroundColor: connected ? theme.primaryLight : theme.card, borderColor: theme.border }]}>
+          <View style={[styles.connectionDot, { backgroundColor: connected ? theme.success : theme.warning }]} />
+          <View style={styles.connectionCopy}>
+            <Text style={[styles.connectionTitle, { color: theme.text }]}>
+              {connected ? "Live safety monitoring" : "Latest safety snapshot"}
+            </Text>
+            <Text style={[styles.connectionSub, { color: theme.secondaryText }]}>
+              {connected ? "Your wearable is connected" : "Reconnect your wearable for live updates"}
+            </Text>
+          </View>
+          <Text style={[styles.connectionStatus, { color: connected ? theme.primary : theme.warning }]}>
+            {connected ? "LIVE" : "PAUSED"}
           </Text>
         </View>
 
-        <DeviceCard device={selectedDevice} />
-
-        <Text style={[styles.heading, { color: theme.text }]}>
-          Health & Environment
-        </Text>
+        <Text style={[styles.sectionKicker, { color: theme.secondaryText }]}>LIVE VITALS</Text>
 
         <View style={styles.grid}>
           <StatCard
@@ -107,16 +87,20 @@ export default function DashboardScreen() {
           />
 
           <StatCard title="Humidity" value={humidity} unit="%" icon="💧" />
-          <StatCard title="Pressure" value={pressure} unit="hPa" icon="⛰️" />
-
-          <StatCard
-            title="GPS"
-            value={location?.latitude ? "Active" : "Offline"}
-            icon="📍"
-          />
+          <StatCard title="Pressure" value={pressure} unit="hPa" icon="◌" />
         </View>
 
-        <SectionCard title="Current Location">
+        <SectionCard
+          title="Live location"
+          right={<Text style={[styles.updated, { color: theme.primary }]}>{location?.latitude ? "● Updated now" : "Waiting"}</Text>}
+        >
+          <View style={[styles.mapPlaceholder, { backgroundColor: theme.primaryLight }]}>
+            <Text style={styles.mapIcon}>⌖</Text>
+            <Text style={[styles.mapTitle, { color: theme.text }]}>
+              {location?.latitude ? "Wearable location active" : "Searching for GPS signal"}
+            </Text>
+            <Text style={[styles.mapSub, { color: theme.secondaryText }]}>TrailGuard location is shared only during an active safety session.</Text>
+          </View>
           <Text style={[styles.coordinate, { color: theme.text }]}>
             {location?.latitude
               ? `${Number(location.latitude).toFixed(5)}, ${Number(
@@ -149,17 +133,17 @@ const styles = StyleSheet.create({
 
   container: {
     padding: 16,
-    paddingBottom: 30,
+    paddingBottom: 34,
   },
 
   connection: {
     borderWidth: 1,
     borderRadius: 14,
-    padding: 12,
+    padding: 14,
     flexDirection: "row",
     alignItems: "center",
-    gap: 9,
-    marginBottom: 14,
+    gap: 10,
+    marginBottom: 20,
   },
 
   connectionDot: {
@@ -168,11 +152,19 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
 
-  heading: {
-    fontSize: 19,
+  connectionCopy: { flex: 1 },
+
+  connectionTitle: { fontSize: 14, fontWeight: "800" },
+
+  connectionSub: { marginTop: 2, fontSize: 11 },
+
+  connectionStatus: { fontSize: 10, fontWeight: "900", letterSpacing: 0.8 },
+
+  sectionKicker: {
+    fontSize: 10,
     fontWeight: "900",
-    marginTop: 5,
-    marginBottom: 12,
+    letterSpacing: 1.2,
+    marginBottom: 10,
   },
 
   grid: {
@@ -182,7 +174,8 @@ const styles = StyleSheet.create({
   },
 
   coordinate: {
-    fontSize: 17,
+    marginTop: 14,
+    fontSize: 15,
     fontWeight: "800",
   },
 
@@ -191,4 +184,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
   },
+
+  updated: { fontSize: 10, fontWeight: "800" },
+
+  mapPlaceholder: {
+    minHeight: 122,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 16,
+  },
+
+  mapIcon: { fontSize: 30, color: "#0E9C8C", marginBottom: 5 },
+  mapTitle: { fontSize: 14, fontWeight: "800" },
+  mapSub: { textAlign: "center", fontSize: 11, lineHeight: 16, marginTop: 4 },
 });

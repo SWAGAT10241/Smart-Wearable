@@ -4,7 +4,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useAppTheme } from "../theme/theme";
 
 export default function AppHeader({
-  title = "TrailGuard",
+  title = "Welcome back",
   subtitle,
   onNotification,
 }) {
@@ -20,7 +20,8 @@ export default function AppHeader({
         },
       ]}
     >
-      <View>
+      <View style={styles.copy}>
+        <Text style={[styles.eyebrow, { color: theme.primary }]}>TRAILGUARD</Text>
         <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
 
         {subtitle && (
@@ -34,7 +35,7 @@ export default function AppHeader({
         onPress={onNotification}
         style={[styles.notification, { backgroundColor: theme.background }]}
       >
-        <Text style={styles.icon}>🔔</Text>
+        <Text style={[styles.icon, { color: theme.text }]}>♧</Text>
       </TouchableOpacity>
     </View>
   );
@@ -42,9 +43,9 @@ export default function AppHeader({
 
 const styles = StyleSheet.create({
   container: {
-    minHeight: 72,
+    minHeight: 86,
     paddingHorizontal: 20,
-    paddingTop: 12,
+    paddingTop: 10,
     paddingBottom: 12,
     flexDirection: "row",
     alignItems: "center",
@@ -53,7 +54,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 24,
+    fontSize: 23,
     fontWeight: "800",
   },
 
@@ -62,15 +63,24 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 
+  copy: { flex: 1 },
+
+  eyebrow: {
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 1.1,
+    marginBottom: 3,
+  },
+
   notification: {
     width: 44,
     height: 44,
-    borderRadius: 14,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
   },
 
   icon: {
-    fontSize: 20,
+    fontSize: 23,
   },
 });

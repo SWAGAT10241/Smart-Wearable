@@ -31,7 +31,11 @@ export default function StatCard({ title, value, unit, icon, status }) {
           <Text style={styles.icon}>{icon}</Text>
         </View>
 
-        <View style={[styles.dot, { backgroundColor: statusColor }]} />
+        <View style={[styles.status, { backgroundColor: `${statusColor}20` }]}>
+          <Text style={[styles.statusText, { color: statusColor }]}>
+            {status === "danger" ? "Check" : "Normal"}
+          </Text>
+        </View>
       </View>
 
       <Text style={[styles.title, { color: theme.secondaryText }]}>
@@ -57,16 +61,17 @@ const styles = StyleSheet.create({
   card: {
     width: "48%",
     borderWidth: 1,
-    borderRadius: 18,
-    padding: 15,
+    borderRadius: 20,
+    padding: 14,
     marginBottom: 12,
+    minHeight: 158,
   },
 
   top: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 14,
+    marginBottom: 12,
   },
 
   iconBox: {
@@ -81,14 +86,21 @@ const styles = StyleSheet.create({
     fontSize: 19,
   },
 
-  dot: {
-    width: 9,
-    height: 9,
-    borderRadius: 5,
+  status: {
+    borderRadius: 10,
+    paddingHorizontal: 7,
+    paddingVertical: 4,
+  },
+
+  statusText: {
+    fontSize: 9,
+    fontWeight: "800",
   },
 
   title: {
-    fontSize: 12,
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 0.45,
     marginBottom: 5,
   },
 
@@ -98,7 +110,7 @@ const styles = StyleSheet.create({
   },
 
   value: {
-    fontSize: 25,
+    fontSize: 28,
     fontWeight: "800",
   },
 
