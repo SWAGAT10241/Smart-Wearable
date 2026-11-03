@@ -57,9 +57,11 @@ jobs:
         run: |
           SOURCE_SHA=$(git rev-parse HEAD)
           echo "Checking GitHub Wiki availability for ${{ github.repository }}..."
+          AUTH_TOKEN=$(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 | tr -d '\n')
+          GIT_AUTH_HEADER="Authorization: Basic ${AUTH_TOKEN}"
 
           # Attempt to clone the wiki repository
-          CLONE_OUTPUT=$(git -c "http.extraheader=AUTHORIZATION: bearer ${GITHUB_TOKEN}" clone "https://github.com/${{ github.repository }}.wiki.git" .wiki 2>&1 || true)
+          CLONE_OUTPUT=$(git -c "http.extraheader=${GIT_AUTH_HEADER}" clone "https://github.com/${{ github.repository }}.wiki.git" .wiki 2>&1 || true)
           if [ ! -d ".wiki" ]; then
             if echo "$CLONE_OUTPUT" | grep -qiE "repository not found|could not read from remote|not found"; then
               echo "::warning title=Wiki Not Initialized::The GitHub Wiki repository (${{ github.repository }}.wiki) does not exist or has not been initialized. Please visit https://github.com/${{ github.repository }}/wiki and click 'Create the first page' to initialize it."
@@ -187,6 +189,6 @@ jobs:
             echo "GitHub Wiki is already up to date with the latest knowledge graph."
           else
             git commit -m "docs(wiki): auto-sync knowledge graph from commit ${SOURCE_SHA}"
-            git -c "http.extraheader=AUTHORIZATION: bearer ${GITHUB_TOKEN}" push origin HEAD
+            git -c "http.extraheader=${GIT_AUTH_HEADER}" push origin HEAD
             echo "GitHub Wiki published successfully!"
           fi
