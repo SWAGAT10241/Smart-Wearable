@@ -2,6 +2,11 @@ FROM node:22-alpine AS build
 WORKDIR /app
 RUN npm install -g pnpm@11.20.0
 
+ARG VITE_API_URL=/api
+ARG VITE_WS_URL
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_WS_URL=$VITE_WS_URL
+
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 

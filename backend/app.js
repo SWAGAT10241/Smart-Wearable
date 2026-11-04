@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const passport = require("passport");
 const helmet = require("helmet");
+const mongoose = require("mongoose");
 
 const config = require("./config/env");
 require("./config/passport");
@@ -71,10 +72,24 @@ app.use(passport.initialize());
 app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/register", authLimiter);
 
-// Health check endpoint
+// Backwards-compatible status endpoint.
 app.get("/", (req, res) => {
   res.status(200).json({
     status: "TrailGuard backend running",
+  });
+});
+
+// Process liveness for container orchestration. This must remain dependency-free.
+app.get("/livez", (req, res) => {
+  res.status(200).json({ status: "live" });
+});
+
+// Readiness gates traffic on the only mandatory runtime dependency: MongoDB.
+app.get("/readyz", (req, res) => {
+  const ready = mongoose.connection.readyState === 1;
+  res.status(ready ? 200 : 503).json({
+    status: ready ? "ready" : "not_ready",
+    dependencies: { mongodb: ready ? "ready" : "unavailable" },
   });
 });
 

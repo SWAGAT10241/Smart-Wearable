@@ -261,6 +261,25 @@ describe("TrailGuard Backend API", () => {
     });
   });
 
+  describe("deployment probes", () => {
+    test("returns a dependency-free liveness result", async () => {
+      const response = await request(app).get("/livez");
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toEqual({ status: "live" });
+    });
+
+    test("reports not ready until MongoDB is connected", async () => {
+      const response = await request(app).get("/readyz");
+
+      expect(response.statusCode).toBe(503);
+      expect(response.body).toEqual({
+        status: "not_ready",
+        dependencies: { mongodb: "unavailable" },
+      });
+    });
+  });
+
   // ─────────────────────────────────────────────
   // Device registration
   // ─────────────────────────────────────────────
