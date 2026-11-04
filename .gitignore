@@ -34,3 +34,7 @@ graphify-out/.*
 # Local previews
 mobile_ui_preview.html
 *.local.html
+
+# Local SQLite databases
+*.db
+*.sqlite

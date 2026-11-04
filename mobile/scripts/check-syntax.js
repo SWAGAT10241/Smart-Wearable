@@ -11,6 +11,10 @@ const checkSymbols = [
   { symbol: "ActivityIndicator", usage: /<ActivityIndicator\b/ },
   { symbol: "Modal", usage: /<Modal\b/ },
   { symbol: "RefreshControl", usage: /<RefreshControl\b/ },
+  { symbol: "TouchableOpacity", usage: /<TouchableOpacity\b/ },
+  { symbol: "Pressable", usage: /<Pressable\b/ },
+  { symbol: "TextInput", usage: /<TextInput\b/ },
+  { symbol: "Switch", usage: /<Switch\b/ },
 ];
 
 function checkDir(dir) {
