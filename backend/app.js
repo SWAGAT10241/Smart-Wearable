@@ -39,7 +39,7 @@ app.use(
         return callback(null, true);
       }
 
-      return callback(new Error("CORS origin not allowed"));
+      return callback(null, false);
     },
     credentials: true,
     methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],

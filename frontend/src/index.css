@@ -1,57 +1,255 @@
 @import "tailwindcss";
 
+/* =========================================================================
+   LAYER 1: PRIMITIVES (Core Colors)
+   Raw, context-agnostic color palettes. Formatted as [palette]-[step].
+   00 = near white, 500 = base hue, 1000 = near black.
+   ========================================================================= */
 :root {
-  --color-main: #102a43;
-  --color-secondary: #1e4d6b;
-  --color-accent: #2dd4bf;
-  --color-accent-dark: #0e9c8c;
+  /* Grayscale (Neutrals / Field Matte) */
+  --color-grayscale-1000: #000000;
+  --color-grayscale-950: #07090e;
+  --color-grayscale-900: #0d1117;
+  --color-grayscale-870: #121820;
+  --color-grayscale-850: #161b22;
+  --color-grayscale-800: #21262d;
+  --color-grayscale-750: #30363d;
+  --color-grayscale-700: #3e4651;
+  --color-grayscale-600: #484f58;
+  --color-grayscale-500: #6e7681;
+  --color-grayscale-400: #8b949e;
+  --color-grayscale-300: #b1bac4;
+  --color-grayscale-200: #c9d1d9;
+  --color-grayscale-150: #d0d7de;
+  --color-grayscale-100: #e6edf3;
+  --color-grayscale-50: #f0f6fc;
+  --color-grayscale-00: #ffffff;
 
-  --color-bg: #f4f9fa;
-  --color-bg-alt: #e7f0f2;
-  --color-surface: #fff;
-  --color-surface-alt: #f8fafc;
+  /* Primary (SWAAS Emerald Brand Hue) */
+  --color-primary-00: #f0fdf4;
+  --color-primary-100: #dcfce7;
+  --color-primary-200: #bbf7d0;
+  --color-primary-300: #86efac;
+  --color-primary-400: #4ade80;
+  --color-primary-500: #10b981;
+  --color-primary-600: #059669;
+  --color-primary-700: #047857;
+  --color-primary-800: #065f46;
+  --color-primary-900: #064e3b;
+  --color-primary-1000: #022c22;
 
-  --color-text: #172033;
-  --color-text-secondary: #5c7086;
-  --color-text-muted: #8fa0b0;
-  --color-border: #d9e4e8;
-  --color-white: #fff;
+  /* Secondary (Sky Blue / Altimetry Hue) */
+  --color-secondary-00: #f0f9ff;
+  --color-secondary-100: #e0f2fe;
+  --color-secondary-200: #bae6fd;
+  --color-secondary-300: #7dd3fc;
+  --color-secondary-400: #38bdf8;
+  --color-secondary-500: #0ea5e9;
+  --color-secondary-600: #0284c7;
+  --color-secondary-700: #0369a1;
+  --color-secondary-800: #075985;
+  --color-secondary-900: #0c4a6e;
+  --color-secondary-1000: #082f49;
 
-  --color-alert: #d64545;
-  --color-success: #059669;
-  --color-warning: #d97706;
+  /* Red (Emergency SOS / Destructive Hue) */
+  --color-red-00: #fef2f2;
+  --color-red-100: #fee2e2;
+  --color-red-200: #fecaca;
+  --color-red-300: #fca5a5;
+  --color-red-400: #f87171;
+  --color-red-500: #e5484d;
+  --color-red-600: #dc2626;
+  --color-red-700: #b91c1c;
+  --color-red-800: #991b1b;
+  --color-red-900: #7f1d1d;
+  --color-red-1000: #450a0a;
 
-  --shadow-card: 0 8px 24px rgba(16, 42, 67, 0.08);
-  --shadow-card-lg: 0 12px 30px rgba(16, 42, 67, 0.1);
-  --shadow-sidebar: 6px 0 24px rgba(16, 42, 67, 0.15);
+  /* Yellow (Warning / Advisory Hue) */
+  --color-yellow-00: #fffbeb;
+  --color-yellow-100: #fef3c7;
+  --color-yellow-200: #fde68a;
+  --color-yellow-300: #fcd34d;
+  --color-yellow-400: #fbbf24;
+  --color-yellow-500: #f59e0b;
+  --color-yellow-600: #d97706;
+  --color-yellow-700: #b45309;
+  --color-yellow-800: #92400e;
+  --color-yellow-900: #78350f;
+  --color-yellow-1000: #451a03;
+}
+
+/* =========================================================================
+   LAYER 2: SEMANTICS (Color System - Light Mode Aliases)
+   Purpose & intent-driven aliases pointing exclusively to primitives.
+   ========================================================================= */
+:root {
+  /* Surfaces */
+  --surface-canvas: var(--color-grayscale-50);
+  --surface-card: var(--color-grayscale-00);
+  --surface-elevated: var(--color-grayscale-100);
+  --surface-hover: var(--color-grayscale-150);
+  --surface-accent: var(--color-primary-100);
+  --surface-error: var(--color-red-100);
+  --surface-warning: var(--color-yellow-100);
+
+  /* Borders */
+  --border-default: var(--color-grayscale-200);
+  --border-strong: var(--color-grayscale-300);
+  --border-focus: var(--color-secondary-400);
+  --border-error: var(--color-red-400);
+  --border-success: var(--color-primary-400);
+
+  /* Text */
+  --text-primary: var(--color-grayscale-900);
+  --text-secondary: var(--color-grayscale-600);
+  --text-muted: var(--color-grayscale-400);
+  --text-on-action: var(--color-grayscale-00);
+  --text-error: var(--color-red-700);
+  --text-success: var(--color-primary-700);
+
+  /* Actions (Buttons & Controls) */
+  --action-primary: var(--color-primary-500);
+  --action-primary-hover: var(--color-primary-600);
+  --action-primary-pressed: var(--color-primary-700);
+  --action-secondary: var(--color-grayscale-200);
+  --action-secondary-hover: var(--color-grayscale-300);
+  --action-destructive: var(--color-red-500);
+  --action-destructive-hover: var(--color-red-600);
+  --action-destructive-pressed: var(--color-red-700);
+  --action-disabled: var(--color-grayscale-200);
+
+  /* Status */
+  --status-optimal: var(--color-primary-500);
+  --status-sos: var(--color-red-500);
+  --status-warning: var(--color-yellow-500);
+  --status-info: var(--color-secondary-400);
+
+  /* Backward Compatibility Aliases */
+  --color-main: var(--text-primary);
+  --color-secondary: var(--text-secondary);
+  --color-accent: var(--action-primary);
+  --color-accent-dark: var(--action-primary-hover);
+
+  --color-bg: var(--surface-canvas);
+  --color-bg-alt: var(--surface-elevated);
+  --color-surface: var(--surface-card);
+  --color-surface-alt: var(--surface-elevated);
+  --color-surface-hover: var(--surface-hover);
+
+  --color-text: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border-default);
+  --color-white: var(--color-grayscale-00);
+
+  --color-alert: var(--action-destructive);
+  --color-success: var(--status-optimal);
+  --color-warning: var(--status-warning);
+
+  --shadow-card: 0 4px 16px rgba(15, 23, 42, 0.05);
+  --shadow-card-lg: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-sidebar: 2px 0 12px rgba(15, 23, 42, 0.06);
 
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+/* =========================================================================
+   LAYER 2: SEMANTICS (Color System - Dark Mode Aliases)
+   Strict Solid Matte: Zero Glowing LED Blurs, Razor-Sharp Hairlines.
+   ========================================================================= */
 html.dark {
-  --color-main: #e2e8f0;
-  --color-secondary: #94a3b8;
-  --color-accent: #2dd4bf;
-  --color-accent-dark: #5eead4;
+  /* Surfaces */
+  --surface-canvas: var(--color-grayscale-900);      /* #0D1117 Solid Canvas */
+  --surface-card: var(--color-grayscale-850);        /* #161B22 Solid Card */
+  --surface-elevated: var(--color-grayscale-800);    /* #21262D Solid Elevated */
+  --surface-hover: var(--color-grayscale-750);       /* #30363D Hover Tile */
+  --surface-accent: rgba(16, 185, 129, 0.12);
+  --surface-error: rgba(229, 72, 77, 0.15);
+  --surface-warning: rgba(245, 158, 11, 0.15);
 
-  --color-bg: #0b1220;
-  --color-bg-alt: #111827;
-  --color-surface: #172033;
-  --color-surface-alt: #1e293b;
+  /* Borders */
+  --border-default: var(--color-grayscale-750);      /* #30363D 1px Hairline */
+  --border-strong: var(--color-grayscale-600);       /* #484F58 */
+  --border-focus: var(--color-secondary-400);        /* #38BDF8 Focus Ring */
+  --border-error: var(--color-red-400);
+  --border-success: var(--color-primary-400);
 
-  --color-text: #f8fafc;
-  --color-text-secondary: #cbd5e1;
-  --color-text-muted: #94a3b8;
-  --color-border: #334155;
-  --color-white: #fff;
+  /* Text */
+  --text-primary: var(--color-grayscale-50);         /* #F0F6FC High Contrast */
+  --text-secondary: var(--color-grayscale-200);      /* #C9D1D9 */
+  --text-muted: var(--color-grayscale-400);          /* #8B949E Field Metadata */
+  --text-on-action: var(--color-grayscale-1000);
+  --text-error: var(--color-red-400);
+  --text-success: var(--color-primary-400);
 
-  --color-alert: #f87171;
-  --color-success: #34d399;
-  --color-warning: #fbbf24;
+  /* Actions */
+  --action-primary: var(--color-primary-500);        /* #10B981 Emerald */
+  --action-primary-hover: var(--color-primary-600);
+  --action-primary-pressed: var(--color-primary-700);
+  --action-secondary: var(--color-grayscale-800);    /* #21262D Subtle Action */
+  --action-secondary-hover: var(--color-grayscale-750);
+  --action-destructive: var(--color-red-500);        /* #E5484D SOS Red */
+  --action-destructive-hover: var(--color-red-600);
+  --action-destructive-pressed: var(--color-red-700);
+  --action-disabled: var(--color-grayscale-800);
 
-  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.25);
-  --shadow-card-lg: 0 12px 30px rgba(0, 0, 0, 0.3);
-  --shadow-sidebar: 6px 0 24px rgba(0, 0, 0, 0.35);
+  /* Status */
+  --status-optimal: var(--color-primary-500);
+  --status-sos: var(--color-red-500);
+  --status-warning: var(--color-yellow-500);
+  --status-info: var(--color-secondary-400);
+
+  /* Backward Compatibility Aliases */
+  --color-main: var(--text-primary);
+  --color-secondary: var(--text-secondary);
+  --color-accent: var(--action-primary);
+  --color-accent-dark: var(--action-primary-hover);
+
+  --color-bg: var(--surface-canvas);
+  --color-bg-alt: var(--surface-card);
+  --color-surface: var(--surface-card);
+  --color-surface-alt: var(--surface-elevated);
+  --color-surface-hover: var(--surface-hover);
+
+  --color-text: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border-default);
+  --color-white: var(--color-grayscale-00);
+
+  --color-alert: var(--action-destructive);
+  --color-success: var(--status-optimal);
+  --color-warning: var(--status-warning);
+
+  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-card-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-sidebar: 2px 0 12px rgba(0, 0, 0, 0.45);
+}
+
+/* =========================================================================
+   TAILWIND V4 THEME MAPPINGS
+   Exposes semantic tokens directly as Tailwind classes:
+   bg-surface-canvas, bg-surface-card, text-text-primary, border-border-default, etc.
+   ========================================================================= */
+@theme {
+  --color-surface-canvas: var(--surface-canvas);
+  --color-surface-card: var(--surface-card);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-hover: var(--surface-hover);
+  --color-border-default: var(--border-default);
+  --color-border-strong: var(--border-strong);
+  --color-border-focus: var(--border-focus);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-action-primary: var(--action-primary);
+  --color-action-primary-hover: var(--action-primary-hover);
+  --color-action-destructive: var(--action-destructive);
+  --color-action-destructive-hover: var(--action-destructive-hover);
+  --color-status-optimal: var(--status-optimal);
+  --color-status-sos: var(--status-sos);
+  --color-status-warning: var(--status-warning);
+  --color-status-info: var(--status-info);
 }
 
 @layer base {
@@ -149,7 +347,7 @@ html.dark {
 
   .tg-formcard__link {
     @apply font-semibold transition-colors hover:text-teal-600;
-    color: #0369a1;
+    color: var(--color-accent);
   }
 
   .tg-formcard__section-label {
@@ -203,9 +401,9 @@ html.dark {
     width: 14px;
     height: 14px;
     transform: translate(-50%, -50%);
-    border: 3px solid #fff;
+    border: 3px solid var(--color-white);
     border-radius: 999px;
-    background: #1976d2;
+    background: var(--color-accent);
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
   }
 
@@ -338,7 +536,7 @@ html.dark {
   }
 
   html.dark .bg-slate-100 {
-    background-color: #263449 !important;
+    background-color: var(--color-slate-800) !important;
   }
 
   html.dark .text-slate-900 {
@@ -346,11 +544,11 @@ html.dark {
   }
 
   html.dark .text-slate-800 {
-    color: #e2e8f0 !important;
+    color: var(--color-slate-200) !important;
   }
 
   html.dark .text-slate-700 {
-    color: #cbd5e1 !important;
+    color: var(--color-slate-300) !important;
   }
 
   html.dark .text-slate-600 {
@@ -362,7 +560,7 @@ html.dark {
   }
 
   html.dark .text-slate-400 {
-    color: #94a3b8 !important;
+    color: var(--color-slate-400) !important;
   }
 
   html.dark .border-slate-200 {
@@ -370,11 +568,11 @@ html.dark {
   }
 
   html.dark .border-slate-300 {
-    border-color: #475569 !important;
+    border-color: var(--color-slate-600) !important;
   }
 
   html.dark .hover\:border-slate-300:hover {
-    border-color: #64748b !important;
+    border-color: var(--color-slate-500) !important;
   }
 
   html.dark .bg-teal-50 {
@@ -386,11 +584,11 @@ html.dark {
   }
 
   html.dark .text-teal-700 {
-    color: #5eead4 !important;
+    color: var(--color-teal-300) !important;
   }
 
   html.dark .text-sky-700 {
-    color: #38bdf8 !important;
+    color: var(--color-teal-400) !important;
   }
 
   html.dark .bg-red-50 {
@@ -407,7 +605,7 @@ html.dark {
 
   html.dark .text-red-600,
   html.dark .text-red-700 {
-    color: #fca5a5 !important;
+    color: var(--color-red-300) !important;
   }
 
   html.dark .bg-emerald-50 {
@@ -419,7 +617,7 @@ html.dark {
   }
 
   html.dark .text-emerald-700 {
-    color: #6ee7b7 !important;
+    color: var(--color-emerald-300) !important;
   }
 
   html.dark .shadow-\[var\(--shadow-card\)\] {

@@ -5,41 +5,36 @@ import MiniStats from "./common/MiniStats";
 import { LineTrace, BarTrace, GaugeBar, TemperatureGauge } from "./charts";
 
 /* =======================================================
- * Sensor Visual Styles
+ * Sensor Visual Styles (Bound to Semantic Design Tokens)
  * ======================================================= */
 const STATUS_COLORS = {
-  live: "#2DD4BF",
-  normal: "#34D399",
-  mild: "#FBBF24",
-  warning: "#FBBF24",
-  alert: "#F87171",
+  live: "var(--status-optimal)",
+  normal: "var(--status-optimal)",
+  mild: "var(--status-warning)",
+  warning: "var(--status-warning)",
+  alert: "var(--status-sos)",
 };
 
 const STYLES = {
   heart: {
-    bg: "linear-gradient(145deg,rgba(255,59,92,.22),rgba(255,59,92,.06))",
-    color: "#FF4D6D",
-    glow: "rgba(255,59,92,.28)",
+    bg: "var(--surface-error)",
+    color: "var(--action-destructive)",
   },
   oxygen: {
-    bg: "linear-gradient(145deg,rgba(25,118,210,.24),rgba(25,118,210,.06))",
-    color: "#2196F3",
-    glow: "rgba(33,150,243,.30)",
+    bg: "var(--surface-accent)",
+    color: "var(--status-optimal)",
   },
   temperature: {
-    bg: "linear-gradient(145deg,rgba(242,169,59,.24),rgba(242,169,59,.06))",
-    color: "#FFB84D",
-    glow: "rgba(242,169,59,.28)",
+    bg: "var(--surface-warning)",
+    color: "var(--status-warning)",
   },
   humidity: {
-    bg: "linear-gradient(145deg,rgba(24,191,193,.24),rgba(24,191,193,.06))",
-    color: "#22D3D5",
-    glow: "rgba(24,191,193,.28)",
+    bg: "rgba(56, 189, 248, 0.12)",
+    color: "var(--status-info)",
   },
   pressure: {
-    bg: "linear-gradient(145deg,rgba(139,92,246,.24),rgba(139,92,246,.06))",
-    color: "#A78BFA",
-    glow: "rgba(139,92,246,.30)",
+    bg: "rgba(56, 189, 248, 0.12)",
+    color: "var(--status-info)",
   },
 };
 
@@ -54,7 +49,7 @@ export default function StatCard({
   value,
   unit,
   status,
-  statusColor = "#2BAE8A",
+  statusColor = "var(--status-optimal)",
   variant = "plain",
   gaugePct = 0,
   miniStats = [],
@@ -69,24 +64,24 @@ export default function StatCard({
   const chartVariant = ["ppg", "line", "bars", "pressure"].includes(variant);
 
   return (
-    <article className="flex min-w-0 flex-col rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]">
+    <article className="flex min-w-0 flex-col rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-card)]">
       {/* Icon */}
       <div
-        className="mb-5 flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px]"
+        className="mb-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px]"
         style={{ background: style.bg }}
       >
         {icon}
       </div>
 
       {/* Title + Status */}
-      <div className="mb-3 flex min-h-[22px] items-center justify-between gap-2">
-        <span className="min-w-0 truncate text-[12px] font-medium tracking-[0.04em] text-[var(--color-text-secondary)]">
+      <div className="mb-2 flex min-h-[22px] items-center justify-between gap-2">
+        <span className="min-w-0 truncate text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
           {label}
         </span>
 
         {status && (
           <span
-            className="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold"
+            className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider"
             style={{
               background: `${resolvedStatusColor}20`,
               color: resolvedStatusColor,
@@ -98,20 +93,20 @@ export default function StatCard({
       </div>
 
       {/* Current Value */}
-      <div className="mb-5 flex min-h-[42px] items-baseline gap-1.5">
-        <span className="text-[32px] font-bold leading-none tracking-[-0.035em] tabular-nums text-[var(--color-text)]">
+      <div className="mb-3 flex min-h-[38px] items-baseline gap-1.5">
+        <span className="text-[28px] font-bold leading-none tracking-[-0.03em] tabular-nums text-[var(--color-text)]">
           {value}
         </span>
 
         {unit && (
-          <span className="text-[13px] font-medium text-[var(--color-text-secondary)]">
+          <span className="text-sm font-semibold text-[var(--color-text-secondary)]">
             {unit}
           </span>
         )}
       </div>
 
       {/* Sensor Visual */}
-      <div className={chartVariant ? "mb-2 h-[86px]" : "mb-2 h-[72px]"}>
+      <div className={chartVariant ? "mb-2 h-[76px]" : "mb-2 h-[64px]"}>
         {variant === "ppg" && (
           <LineTrace
             color={style.color}
@@ -144,18 +139,18 @@ export default function StatCard({
           />
         )}
 
-        {variant === "plain" && <div className="h-[72px]" />}
+        {variant === "plain" && <div className="h-[64px]" />}
       </div>
 
       {/* Normal Range Indicator */}
       {normalRange && (
-        <div className="mb-5 flex items-center gap-2">
+        <div className="mb-3 flex items-center gap-1.5">
           <span
             className="h-2 w-2 shrink-0 rounded-full"
-            style={{ background: "#20B486" }}
+            style={{ background: "var(--status-optimal)" }}
           />
 
-          <span className="text-[10px] font-medium text-[var(--color-text-secondary)]">
+          <span className="truncate text-xs font-medium text-[var(--color-text-secondary)]">
             {normalRange}
           </span>
         </div>
@@ -168,8 +163,8 @@ export default function StatCard({
 
       {/* Relative Updated Timestamp */}
       {updatedText && (
-        <div className="mt-4 flex items-center gap-1.5 border-t border-[var(--color-border)] pt-3 text-[10px] font-medium text-[var(--color-text-muted)]">
-          <Clock3 size={15} strokeWidth={1.7} />
+        <div className="mt-3 flex items-center gap-1.5 border-t border-[var(--color-border)] pt-2.5 text-xs font-medium text-[var(--color-text-secondary)]">
+          <Clock3 size={14} strokeWidth={1.8} />
           <span>Last seen {updatedText}</span>
         </div>
       )}

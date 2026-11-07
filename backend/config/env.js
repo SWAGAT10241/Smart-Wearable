@@ -22,11 +22,23 @@ if (isProduction) {
   }
 }
 
+// Default local development origins
+const defaultDevOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+];
+
 // Parse client URLs
-const allowedOrigins = (process.env.CLIENT_URLS || process.env.CLIENT_URL || "")
+const configuredOrigins = (process.env.CLIENT_URLS || process.env.CLIENT_URL || "")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
+
+const allowedOrigins = isProduction
+  ? configuredOrigins
+  : Array.from(new Set([...configuredOrigins, ...defaultDevOrigins]));
 
 if (isProduction && allowedOrigins.length === 0) {
   throw new Error("CLIENT_URLS must be configured in production");

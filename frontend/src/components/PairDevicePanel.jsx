@@ -390,7 +390,7 @@ export default function PairDevicePanel({
           type="button"
           onClick={connectAndPair}
           disabled={busy || !qrData || Boolean(bluetoothError)}
-          className="rounded-xl bg-[#2DD4BF] px-4 py-2 text-xs font-semibold text-[#06202D] disabled:opacity-50"
+          className="rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] px-4 py-2 text-xs font-semibold text-[var(--text-on-action)] transition disabled:opacity-50"
         >
           {busy ? "Pairing…" : "Connect and pair"}
         </button>

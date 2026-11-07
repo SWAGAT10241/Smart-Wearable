@@ -11,6 +11,7 @@ vi.mock("../src/context/DeviceContext", () => ({
 vi.mock("../src/lib/apiClient", () => ({
   emergencyApi: { getWsTicket: vi.fn() },
   devicePairingApi: {},
+  getToken: vi.fn(() => "test-jwt-token"),
 }));
 
 beforeEach(() => {

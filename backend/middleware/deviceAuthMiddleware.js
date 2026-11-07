@@ -4,7 +4,7 @@ const Device = require("../models/Device");
 const DeviceAuthNonce = require("../models/DeviceAuthNonce");
 
 const DEVICE_ID_PATTERN =
-  /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/;
+  /^(TRAILGUARD-DEMO-[0-9]{3}|[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12})$/;
 
 const NONCE_PATTERN = /^[A-Za-z0-9_-]{43}$/;
 const SIGNATURE_PATTERN = /^[A-Za-z0-9_-]{86}$/;

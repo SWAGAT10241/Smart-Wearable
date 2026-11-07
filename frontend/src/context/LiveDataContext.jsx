@@ -14,7 +14,7 @@ import {
   DEVICE_STATUS_CHARACTERISTIC_UUID,
   DEVICE_PAIRING_SERVICE_UUID,
 } from "../lib/devicePairing";
-import { devicePairingApi, emergencyApi } from "../lib/apiClient";
+import { devicePairingApi, emergencyApi, getToken } from "../lib/apiClient";
 import {
   serializeAuthorizationReceipt,
   parseAuthorizationChallenge,
@@ -223,7 +223,7 @@ export function LiveDataProvider({ children }) {
         }
       });
     },
-    [selectedDeviceId],
+    [],
   );
 
   /*
@@ -234,6 +234,11 @@ export function LiveDataProvider({ children }) {
 
   const connect = useCallback(async () => {
     if (stoppedRef.current) {
+      return;
+    }
+    // Only attempt ticket acquisition when authenticated
+    if (!getToken()) {
+      setConnected(false);
       return;
     }
     if (
@@ -288,7 +293,7 @@ export function LiveDataProvider({ children }) {
         wsRef.current = null;
       }
       setConnected(false);
-      if (stoppedRef.current) {
+      if (stoppedRef.current || !getToken()) {
         return;
       }
       if (reconnectTimerRef.current) {

@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 
-import { devicesApi } from "../lib/apiClient";
+import { devicesApi, getToken } from "../lib/apiClient";
 
 const DeviceContext = createContext(null);
 const STORAGE_KEY = "trailguard_selected_device";
@@ -29,6 +29,13 @@ export function DeviceProvider({ children }) {
    */
 
   const loadDevices = useCallback(async () => {
+    if (!getToken()) {
+      setDevices([]);
+      setSelectedDeviceIdState(null);
+      setLoading(false);
+      return [];
+    }
+
     setLoading(true);
     setError(null);
 

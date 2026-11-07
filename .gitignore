@@ -38,3 +38,12 @@ mobile_ui_preview.html
 # Local SQLite databases
 *.db
 *.sqlite
+slate_theme_demo.html
+demo.html
+
+# Local private keys and credentials
+*.pem
+*.key
+backend/device-authority-private.pem
+backend/device-authority-public.txt
+backend/sim-private-key.pem

@@ -21,11 +21,11 @@ export default function TemperatureGauge({ temperature }) {
       />
 
       <span
-        className="absolute top-[26px] h-[19px] w-[19px] rounded-full bg-[var(--color-surface)] transition-all duration-700"
+        className="absolute top-[26px] h-[19px] w-[19px] rounded-full bg-[var(--surface-card)] transition-all duration-700"
         style={{
           left: `calc(${pct}% - 9.5px)`,
-          border: "2px solid #F2A93B",
-          boxShadow: "0 2px 8px rgba(242,169,59,0.35)",
+          border: "2px solid var(--status-warning)",
+          boxShadow: "0 2px 6px rgba(245,158,11,0.25)",
         }}
       />
     </div>

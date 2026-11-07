@@ -50,13 +50,13 @@ export default function Dashboard() {
   const stats = useMemo(
     () => [
       {
-        icon: <HeartIcon color="#FF6B85" />,
+        icon: <HeartIcon color="var(--action-destructive)" />,
         iconType: "heart",
         label: "HEART RATE",
         value: hr?.heartRate ?? "--",
         unit: "bpm",
         status: hr?.heartRate != null ? "Live" : undefined,
-        statusColor: "#0E9C8C",
+        statusColor: "var(--status-optimal)",
         variant: "ppg",
         signal: vitalsHistory
           .map((item) => item.heartRate)
@@ -91,7 +91,7 @@ export default function Dashboard() {
         value: hr?.spo2 ?? "--",
         unit: "% SpO₂",
         status: hr?.spo2 != null ? "Normal" : undefined,
-        statusColor: "#2BAE8A",
+        statusColor: "var(--status-optimal)",
         variant: "gauge",
         gaugePct: hr?.spo2 ?? 0,
         normalRange: "Normal Range: 95% - 100%",
@@ -112,7 +112,7 @@ export default function Dashboard() {
         value: env?.temperature != null ? Number(env.temperature).toFixed(1) : "--",
         unit: "°C",
         status: env?.temperature != null ? "Mild" : undefined,
-        statusColor: "#FBBF24",
+        statusColor: "var(--status-warning)",
         variant: "tempGauge",
         gaugePct:
           env?.temperature != null
@@ -155,7 +155,7 @@ export default function Dashboard() {
         value: env?.humidity != null ? Number(env.humidity).toFixed(1) : "--",
         unit: "%",
         status: env?.humidity != null ? "Normal" : undefined,
-        statusColor: "#2BAE8A",
+        statusColor: "var(--status-optimal)",
         variant: "bars",
         signal: environmentHistory
           .map((item) => item.humidity)
@@ -186,7 +186,7 @@ export default function Dashboard() {
         value: env?.pressure != null ? Number(env.pressure).toFixed(1) : "--",
         unit: "hPa",
         status: env?.pressure != null ? "Normal" : undefined,
-        statusColor: "#8B5CF6",
+        statusColor: "var(--status-info)",
         variant: "pressure",
         signal: environmentHistory
           .map((item) => item.pressure)
