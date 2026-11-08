@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
-import { ShieldCheck, Lock, Radio, CheckCircle2 } from "lucide-react";
+import { IoShieldCheckmarkOutline } from "react-icons/io5";
 import AuthLayout from "../components/auth/AuthLayout";
 import AuthCard from "../components/auth/AuthCard";
 import Field from "../components/auth/Field";
@@ -60,7 +60,7 @@ export default function Login() {
               </p>
             </div>
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-teal-500/30 bg-teal-500/10 text-teal-400">
-              <ShieldCheck className="h-5 w-5" />
+              <IoShieldCheckmarkOutline className="h-5 w-5" />
             </div>
           </div>
 

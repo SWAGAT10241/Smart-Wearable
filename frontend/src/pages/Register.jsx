@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { UserCheck, ShieldAlert, Radio } from "lucide-react";
+import { FaUserCheck } from "react-icons/fa6";
+import { IoShieldOutline, IoRadioOutline } from "react-icons/io5";
 import AuthLayout from "../components/auth/AuthLayout";
 import AuthCard from "../components/auth/AuthCard";
 import Field from "../components/auth/Field";
@@ -92,7 +93,7 @@ export default function Register() {
           {/* LEVEL 1: YOUR ACCOUNT */}
           <div className="tg-formcard__section-label">
             <span className="flex items-center gap-1.5">
-              <UserCheck className="h-3.5 w-3.5 text-teal-400" />
+              <FaUserCheck className="h-3.5 w-3.5 text-teal-400" />
               LEVEL 1: ACCOUNT & CREDENTIALS
             </span>
           </div>
@@ -131,7 +132,7 @@ export default function Register() {
           {/* LEVEL 2: SAFETY INFO */}
           <div className="tg-formcard__section-label">
             <span className="flex items-center gap-1.5">
-              <ShieldAlert className="h-3.5 w-3.5 text-teal-400" />
+              <IoShieldOutline className="h-3.5 w-3.5 text-teal-400" />
               LEVEL 2: EMERGENCY & VITALS BASELINE
             </span>
           </div>
@@ -190,7 +191,7 @@ export default function Register() {
 
           {/* LEVEL 3 NOTICE */}
           <div className="flex items-center gap-2 rounded-xl border border-teal-500/20 bg-teal-500/10 px-3.5 py-2.5 text-xs text-teal-300">
-            <Radio className="h-4 w-4 shrink-0 text-teal-400 animate-pulse" />
+            <IoRadioOutline className="h-4 w-4 shrink-0 text-teal-400 animate-pulse" />
             <span>
               <strong>Level 3 (Hardware Pairing):</strong> Your Ed25519 cryptographic key will be registered upon account completion.
             </span>

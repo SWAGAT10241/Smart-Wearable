@@ -1,10 +1,10 @@
-import { Activity, History, Settings } from "lucide-react";
+import { IoPulseOutline, IoTimeOutline, IoSettingsOutline } from "react-icons/io5";
 import { NavLink } from "react-router-dom";
 
 const items = [
-  { to: "/dashboard", label: "Dashboard", Icon: Activity },
-  { to: "/history", label: "History", Icon: History },
-  { to: "/settings", label: "Settings", Icon: Settings },
+  { to: "/dashboard", label: "Dashboard", Icon: IoPulseOutline },
+  { to: "/history", label: "History", Icon: IoTimeOutline },
+  { to: "/settings", label: "Settings", Icon: IoSettingsOutline },
 ];
 
 export default function MobileNav() {
@@ -25,7 +25,7 @@ export default function MobileNav() {
             }`
           }
         >
-          <Icon aria-hidden="true" size={20} strokeWidth={2.25} />
+          <Icon aria-hidden="true" size={20} />
           <span>{label}</span>
         </NavLink>
       ))}
