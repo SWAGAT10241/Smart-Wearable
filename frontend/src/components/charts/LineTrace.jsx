@@ -41,14 +41,24 @@ export default function LineTrace({
     : [];
 
   const visibleValues = values.slice(-30);
+  const isBaseline = visibleValues.length < 2;
+  const singleVal = visibleValues.length === 1 ? visibleValues[0] : null;
 
-  if (visibleValues.length < 2) {
-    return (
-      <div className="flex h-[86px] items-center justify-center text-[10px] font-medium text-[var(--color-text-muted)]">
-        {emptyText}
-      </div>
-    );
-  }
+  const baselineData = {
+    heart: singleVal != null
+      ? [singleVal - 2, singleVal, singleVal + 4, singleVal - 1, singleVal + 3, singleVal, singleVal - 2, singleVal]
+      : [68, 70, 72, 71, 75, 74, 70, 72, 71, 73],
+    pressure: singleVal != null
+      ? [singleVal - 0.2, singleVal, singleVal + 0.3, singleVal - 0.1, singleVal + 0.2, singleVal]
+      : [1012.8, 1013.1, 1013.4, 1013.0, 1013.3, 1013.1],
+    generic: singleVal != null
+      ? [singleVal, singleVal + 1, singleVal - 1, singleVal + 2, singleVal]
+      : [50, 52, 51, 54, 53, 50],
+  };
+
+  const chartValues = isBaseline
+    ? (baselineData[sensorType] || baselineData.generic)
+    : visibleValues;
 
   const settings = {
     heart: { minimumRange: 20, rounding: 0 },
@@ -58,8 +68,8 @@ export default function LineTrace({
 
   const config = settings[sensorType] || settings.generic;
 
-  const dataMin = Math.min(...visibleValues);
-  const dataMax = Math.max(...visibleValues);
+  const dataMin = Math.min(...chartValues);
+  const dataMax = Math.max(...chartValues);
   const dataRange = dataMax - dataMin;
   const effectiveRange = Math.max(dataRange, config.minimumRange);
   const padding = effectiveRange * 0.15;
@@ -96,22 +106,22 @@ export default function LineTrace({
     formatLabel(chartMin),
   ];
 
-  const points = visibleValues
+  const points = chartValues
     .map((val, index) => {
-      const x = 4 + (index / (visibleValues.length - 1)) * (width - 8);
+      const x = 4 + (index / (chartValues.length - 1)) * (width - 8);
       const safeValue = Math.min(Math.max(val, chartMin), chartMax);
       const y = 6 + ((chartMax - safeValue) / range) * (height - 12);
       return `${x},${y}`;
     })
     .join(" ");
 
-  const lastValue = visibleValues[visibleValues.length - 1];
+  const lastValue = chartValues[chartValues.length - 1];
   const lastX = width - 4;
   const safeLastValue = Math.min(Math.max(lastValue, chartMin), chartMax);
   const lastY = 6 + ((chartMax - safeLastValue) / range) * (height - 12);
 
   return (
-    <div className="grid h-[86px] grid-cols-[34px_minmax(0,1fr)] gap-2">
+    <div className="relative grid h-[86px] grid-cols-[34px_minmax(0,1fr)] gap-2">
       <div className="flex h-full flex-col justify-between py-[1px]">
         {labels.map((label, index) => (
           <span
@@ -149,13 +159,27 @@ export default function LineTrace({
             points={points}
             fill="none"
             stroke={color}
-            strokeWidth="2"
+            strokeWidth={isBaseline ? "1.8" : "2"}
+            strokeDasharray={isBaseline ? "4 3" : undefined}
+            opacity={isBaseline ? 0.6 : 1}
             strokeLinecap="round"
             strokeLinejoin="round"
           />
 
-          <circle cx={lastX} cy={lastY} r="2.5" fill={color} />
+          <circle
+            cx={lastX}
+            cy={lastY}
+            r="2.5"
+            fill={color}
+            opacity={isBaseline ? 0.7 : 1}
+          />
         </svg>
+
+        {isBaseline && (
+          <span className="absolute right-1.5 top-1 rounded bg-[var(--color-surface)]/80 px-1 py-0.5 text-[8px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] backdrop-blur-sm">
+            Standby
+          </span>
+        )}
       </div>
     </div>
   );

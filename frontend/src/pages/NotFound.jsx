@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Compass, Navigation, ArrowLeft, Home, Search, Radio, CornerDownLeft } from "lucide-react";
+import {
+  IoCompassOutline,
+  IoNavigateOutline,
+  IoArrowBackOutline,
+  IoHomeOutline,
+  IoSearchOutline,
+  IoRadioOutline,
+  IoReturnDownBackOutline,
+} from "react-icons/io5";
 import { useAuth } from "../context/AuthContext";
 import loginBackground from "../assets/images/login-background.png";
 
@@ -83,12 +91,12 @@ export default function NotFound() {
 
           {/* Center Glow Icon */}
           <div className="relative z-10 flex h-14 w-14 items-center justify-center rounded-2xl border border-teal-400/40 bg-gradient-to-br from-teal-500/20 to-teal-900/40 text-[#2DD4BF] shadow-[0_0_20px_rgba(45,212,191,0.35)]">
-            <Compass className="h-8 w-8 animate-[spin_10s_linear_infinite]" />
+            <IoCompassOutline className="h-8 w-8 animate-[spin_10s_linear_infinite]" />
           </div>
 
           {/* Status Badge */}
           <span className="absolute -bottom-2 z-20 flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/20 px-2 py-0.5 font-mono text-[10px] font-bold text-amber-300 backdrop-blur-md">
-            <Radio className="h-2.5 w-2.5 animate-pulse text-amber-400" />
+            <IoRadioOutline className="h-2.5 w-2.5 animate-pulse text-amber-400" />
             NO FIX
           </span>
         </div>
@@ -120,7 +128,7 @@ export default function NotFound() {
           className="mb-6 flex w-full flex-col gap-2 rounded-2xl border border-white/10 bg-white/5 p-3.5 backdrop-blur-md sm:flex-row sm:items-center"
         >
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <IoSearchOutline className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={searchTarget}
@@ -134,7 +142,7 @@ export default function NotFound() {
             className="flex items-center justify-center gap-1.5 rounded-xl border border-teal-500/30 bg-[#0E9C8C] px-4 py-2 text-xs font-semibold text-white shadow-md transition hover:bg-[#0c8577] active:scale-95"
           >
             <span>Re-Route</span>
-            <CornerDownLeft className="h-3 w-3" />
+            <IoReturnDownBackOutline className="h-3 w-3" />
           </button>
         </form>
 
@@ -173,7 +181,7 @@ export default function NotFound() {
             to={user ? "/dashboard" : "/login"}
             className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0E9C8C] to-[#2DD4BF] px-5 py-2.5 text-xs font-bold text-[#061B2D] shadow-lg shadow-teal-500/20 transition hover:opacity-95 active:scale-95"
           >
-            <Home className="h-4 w-4" />
+            <IoHomeOutline className="h-4 w-4" />
             <span>Return to Base Camp</span>
           </Link>
 
@@ -182,14 +190,14 @@ export default function NotFound() {
             onClick={() => navigate(-1)}
             className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-xs font-semibold text-slate-200 transition hover:bg-white/10 hover:text-white active:scale-95"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <IoArrowBackOutline className="h-4 w-4" />
             <span>Go Back</span>
           </button>
         </div>
 
         {/* Brand Watermark */}
         <div className="mt-8 flex items-center gap-2 text-[10px] text-slate-400">
-          <Navigation className="h-3 w-3 text-teal-400" />
+          <IoNavigateOutline className="h-3 w-3 text-teal-400" />
           <span>TrailGuard · Smart Wearable Assistance & Alert System</span>
         </div>
       </div>

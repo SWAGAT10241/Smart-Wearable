@@ -2,27 +2,27 @@ import { useState } from "react";
 import AppLayout from "../components/app/AppLayout";
 import { useDevices } from "../context/DeviceContext";
 import {
-  ShieldCheck,
-  Cpu,
-  Smartphone,
-  Radio,
-  Activity,
-  Compass,
-  Thermometer,
-  Lock,
-  Layers,
-  Zap,
-  CheckCircle2,
-  Heart,
-  MapPin,
-  LifeBuoy,
-} from "lucide-react";
+  IoShieldCheckmarkOutline,
+  IoHardwareChipOutline,
+  IoPhonePortraitOutline,
+  IoRadioOutline,
+  IoPulseOutline,
+  IoCompassOutline,
+  IoThermometerOutline,
+  IoLockClosedOutline,
+  IoLayersOutline,
+  IoFlashOutline,
+  IoCheckmarkCircleOutline,
+  IoHeartOutline,
+  IoLocationOutline,
+  IoHelpBuoyOutline,
+} from "react-icons/io5";
 
 const SECTIONS = [
-  { id: "overview", label: "Mission & Purpose", icon: ShieldCheck },
-  { id: "how-it-works", label: "How It Works", icon: Layers },
-  { id: "hardware", label: "Wearable Hardware", icon: Cpu },
-  { id: "privacy", label: "Privacy & Protection", icon: Lock },
+  { id: "overview", label: "Mission & Purpose", icon: IoShieldCheckmarkOutline },
+  { id: "how-it-works", label: "How It Works", icon: IoLayersOutline },
+  { id: "hardware", label: "Wearable Hardware", icon: IoHardwareChipOutline },
+  { id: "privacy", label: "Privacy & Protection", icon: IoLockClosedOutline },
 ];
 
 import { maskDeviceId } from "../utils/masking";
@@ -43,14 +43,14 @@ export default function About() {
           <div className="relative z-10 flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-400/30 bg-teal-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-teal-400">
-                <ShieldCheck className="h-3.5 w-3.5" />
+                <IoShieldCheckmarkOutline className="h-3.5 w-3.5" />
                 SWAAS / TrailGuard Ecosystem
               </span>
               <span className="rounded-full border border-[var(--border-default)] bg-[var(--surface-elevated)] px-3 py-1 font-mono text-xs font-medium text-[var(--text-secondary)]">
                 Smart Wearable Safety
               </span>
               <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
-                <CheckCircle2 className="h-3.5 w-3.5" /> Off-Grid Ready
+                <IoCheckmarkCircleOutline className="h-3.5 w-3.5" /> Off-Grid Ready
               </span>
             </div>
 
@@ -104,25 +104,25 @@ export default function About() {
 function OverviewTab() {
   const pillars = [
     {
-      icon: Radio,
+      icon: IoRadioOutline,
       title: "Zero-Cellular Autonomy",
       description:
         "Standard smartwatches stop working when cell signal drops. TrailGuard features an integrated long-range radio (LoRa) capable of beaconing distress signals directly to basecamps and rangers up to 15 kilometers away.",
     },
     {
-      icon: Activity,
+      icon: IoPulseOutline,
       title: "Autonomous Fall Detection",
       description:
         "High-rate motion tracking analyzes sudden impact g-forces, body orientation, and post-fall stillness to distinguish real emergencies from dropped backpacks, minimizing false alarms.",
     },
     {
-      icon: Heart,
+      icon: IoHeartOutline,
       title: "Continuous Vitals Monitoring",
       description:
         "Tracks your heart rate and blood oxygen levels (SpO₂) in real time. If fatigue, hypoxia, or abnormal vitals are detected at altitude, the system issues early advisory alerts.",
     },
     {
-      icon: LifeBuoy,
+      icon: IoHelpBuoyOutline,
       title: "One-Touch Emergency SOS",
       description:
         "A dedicated physical SOS button triggers an immediate emergency packet broadcasting your exact satellite coordinates, elevation, and latest vital signs to emergency contacts.",
@@ -204,25 +204,25 @@ function HowItWorksTab() {
       step: "01",
       title: "On-Wrist Sensing",
       desc: "The ESP32-S3 wearable continuously samples pulse, blood oxygen, altitude, motion, and barometric pressure directly on your wrist.",
-      icon: Cpu,
+      icon: IoHardwareChipOutline,
     },
     {
       step: "02",
       title: "Local Edge Processing",
       desc: "Data is analyzed directly on the companion device. If you're safe, telemetry stays strictly stored in your private local archive.",
-      icon: Smartphone,
+      icon: IoPhonePortraitOutline,
     },
     {
       step: "03",
       title: "Distress Detection",
       desc: "If a severe fall occurs or the SOS trigger is pushed, the device alerts you with a 30-second haptic countdown before calling for rescue.",
-      icon: Zap,
+      icon: IoFlashOutline,
     },
     {
       step: "04",
       title: "Rescue Coordination",
       desc: "Emergency responders receive your exact GPS coordinates, altitude profile, and recent vitals to dispatch immediate search and medical aid.",
-      icon: MapPin,
+      icon: IoLocationOutline,
     },
   ];
 
@@ -265,31 +265,31 @@ function HardwareTab({ selectedDevice }) {
       name: "Pulse Oximeter",
       model: "MAX30100",
       role: "Measures blood pulse rate and oxygen saturation (SpO₂) via infrared photoplethysmography.",
-      icon: Heart,
+      icon: IoHeartOutline,
     },
     {
       name: "6-Axis Motion IMU",
       model: "MPU-6050",
       role: "Tracks tri-axial acceleration and gyroscopic rotation to identify abrupt falls, impacts, and body tilt.",
-      icon: Zap,
+      icon: IoFlashOutline,
     },
     {
       name: "Satellite GPS Receiver",
       model: "NEO-6M",
       role: "Acquires high-precision geodetic latitude, longitude, and elevation from global satellite constellations.",
-      icon: Compass,
+      icon: IoCompassOutline,
     },
     {
       name: "Barometric Weather Sensor",
       model: "BME280",
       role: "Monitors ambient temperature, relative humidity, and barometric air pressure for sudden mountain weather shifts.",
-      icon: Thermometer,
+      icon: IoThermometerOutline,
     },
     {
       name: "Long-Range Radio Module",
       model: "LoRa SX1278",
       role: "Provides emergency transmission over long distances through dense forest and mountain valleys without cell signal.",
-      icon: Radio,
+      icon: IoRadioOutline,
     },
   ];
 
@@ -377,7 +377,7 @@ function PrivacyTab() {
             className="flex flex-col gap-2 rounded-[20px] border border-[var(--border-default)] bg-[var(--surface-card)] p-5 shadow-sm"
           >
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-[#2DD4BF]" />
+              <IoCheckmarkCircleOutline className="h-4 w-4 text-[#2DD4BF]" />
               <h3 className="text-base font-semibold text-[var(--text-primary)]">
                 {title}
               </h3>

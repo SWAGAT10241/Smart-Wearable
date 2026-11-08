@@ -28,17 +28,17 @@ export default function BarTrace({
     : [];
 
   const visibleValues = values.slice(-20);
+  const isBaseline = visibleValues.length < 2;
+  const singleVal = visibleValues.length === 1 ? visibleValues[0] : null;
 
-  if (visibleValues.length < 2) {
-    return (
-      <div className="flex h-[86px] items-center justify-center text-[10px] font-medium text-[var(--color-text-muted)]">
-        {emptyText}
-      </div>
-    );
-  }
+  const baselineBars = singleVal != null
+    ? [singleVal - 3, singleVal - 1, singleVal + 2, singleVal - 2, singleVal + 3, singleVal, singleVal + 1, singleVal - 1, singleVal + 2, singleVal]
+    : [42, 45, 48, 52, 50, 47, 49, 53, 51, 48, 46, 50, 52, 49];
+
+  const chartValues = isBaseline ? baselineBars : visibleValues;
 
   return (
-    <div className="grid h-[86px] grid-cols-[34px_minmax(0,1fr)] gap-2">
+    <div className="relative grid h-[86px] grid-cols-[34px_minmax(0,1fr)] gap-2">
       <div className="flex h-full flex-col justify-between py-[1px]">
         {["100", "50", "0"].map((value) => (
           <span
@@ -57,8 +57,16 @@ export default function BarTrace({
           <div className="border-t border-dashed border-[var(--color-border)]" />
         </div>
 
+        {isBaseline && (
+          <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+            <span className="rounded bg-[var(--color-surface)]/80 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] backdrop-blur-sm border border-[var(--color-border)]">
+              Standby
+            </span>
+          </div>
+        )}
+
         <div className="relative flex h-full items-end gap-[7px] px-1">
-          {visibleValues.map((value, index) => {
+          {chartValues.map((value, index) => {
             const safeValue = Math.min(Math.max(value, 0), 100);
 
             return (
@@ -68,8 +76,13 @@ export default function BarTrace({
                 style={{
                   height: `${Math.max(3, safeValue)}%`,
                   background: color,
-                  opacity:
-                    index % 3 === 0 ? 0.42 : index % 3 === 1 ? 0.62 : 0.82,
+                  opacity: isBaseline
+                    ? 0.35
+                    : index % 3 === 0
+                      ? 0.42
+                      : index % 3 === 1
+                        ? 0.62
+                        : 0.82,
                 }}
               />
             );
