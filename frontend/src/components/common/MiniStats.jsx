@@ -18,11 +18,11 @@ export default function MiniStats({ items = [] }) {
             index > 0 ? "border-l border-[var(--color-border)] pl-2" : "pr-2"
           } ${index === 2 ? "pl-2 pr-0" : ""}`}
         >
-          <div className="truncate text-xs font-bold leading-none tabular-nums text-[var(--color-text)] sm:text-sm">
+          <div className="truncate text-xs font-bold leading-none tabular-nums text-[var(--color-text)] sm:text-[13px]">
             {value}
           </div>
 
-          <div className="mt-1 truncate text-[9px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+          <div className="mt-1 truncate text-[10px] font-medium uppercase tracking-wider text-[var(--color-text-secondary)]">
             {label}
           </div>
         </div>
