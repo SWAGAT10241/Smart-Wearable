@@ -1,56 +1,30 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FiLink, FiX } from "react-icons/fi";
-import { HiOutlineSquares2X2 } from "react-icons/hi2";
+import { HiOutlineSquares2X2, HiOutlineInformationCircle } from "react-icons/hi2";
 import { MdHistory } from "react-icons/md";
 import { FiSettings } from "react-icons/fi";
 
 import { useDevices } from "../context/DeviceContext";
 import loginBackground from "../assets/images/login-background.png";
+import { maskDeviceId } from "../utils/masking";
 
 const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", icon: HiOutlineSquares2X2 },
   { to: "/history", label: "History", icon: MdHistory },
   { to: "/settings", label: "Settings", icon: FiSettings },
+  { to: "/about", label: "About", icon: HiOutlineInformationCircle },
 ];
 
 export default function Sidebar() {
-  const { selectedDevice, registerDevice, removeDevice } = useDevices();
+  const { selectedDevice, removeDevice } = useDevices();
+  const navigate = useNavigate();
 
-  const [showPairModal, setShowPairModal] = useState(false);
   const [showUnpairModal, setShowUnpairModal] = useState(false);
-  const [deviceId, setDeviceId] = useState("");
-  const [pairing, setPairing] = useState(false);
   const [unpairing, setUnpairing] = useState(false);
-  const [pairError, setPairError] = useState("");
 
   const deviceName =
     selectedDevice?.deviceName || selectedDevice?.name || "TrailGuard Wearable";
-
-  const handlePair = async (event) => {
-    event?.preventDefault();
-
-    const id = deviceId.trim().toUpperCase();
-
-    if (!id) {
-      setPairError("Enter your TrailGuard device ID.");
-      return;
-    }
-
-    setPairError("");
-    setPairing(true);
-
-    try {
-      await registerDevice(id, "TrailGuard Wearable");
-      setDeviceId("");
-      setShowPairModal(false);
-    } catch (error) {
-      console.error("Failed to pair device:", error);
-      setPairError(error?.message || "Failed to pair device.");
-    } finally {
-      setPairing(false);
-    }
-  };
 
   const handleUnpair = async () => {
     if (!selectedDevice?.deviceId) return;
@@ -68,42 +42,43 @@ export default function Sidebar() {
   };
 
   const openPairModal = () => {
-    setPairError("");
-    setDeviceId("");
-    setShowPairModal(true);
+    navigate("/settings");
   };
 
   return (
     <>
       {/* SIDEBAR */}
-      <aside className="relative hidden min-h-screen w-[250px] shrink-0 overflow-hidden bg-[#061B2D] lg:flex lg:flex-col">
+      <aside className="relative hidden min-h-screen w-[250px] shrink-0 overflow-hidden border-r border-[#102F4A]/80 bg-[#061B2D] lg:flex lg:flex-col">
+        {/* ATMOSPHERIC BACKGROUND WITH MOUNTAIN SILHOUETTE */}
         <div className="absolute inset-0 bg-[#061B2D]" />
 
         <div
-          className="absolute inset-x-0 bottom-0 h-[52%] bg-cover bg-bottom"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-[52%] bg-cover bg-bottom opacity-85"
           style={{ backgroundImage: `url(${loginBackground})` }}
         />
 
         <div
-          className="absolute inset-x-0 bottom-0 h-[65%]"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-[65%]"
           style={{
             background:
-              "linear-gradient(to bottom,#061B2D 0%,rgba(6,27,45,.97) 20%,rgba(6,27,45,.88) 45%,rgba(6,27,45,.62) 72%,rgba(6,27,45,.78) 100%)",
+              "linear-gradient(to bottom, #061B2D 0%, rgba(6,27,45,.97) 20%, rgba(6,27,45,.88) 45%, rgba(6,27,45,.62) 72%, rgba(6,27,45,.78) 100%)",
           }}
         />
 
-        <div className="absolute inset-0 bg-[#031827]/10" />
+        <div className="pointer-events-none absolute inset-0 bg-[#031827]/10" />
 
         <div className="relative z-10 flex min-h-screen flex-col px-4 py-5">
-          {/* LOGO */}
+          {/* LOGO & BRAND IDENTITY */}
           <div className="mb-8 flex items-center gap-2.5 px-1">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-400/15">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-400/15 shadow-sm">
               🛡
             </span>
 
-            <span className="text-xl font-semibold text-white">
-              Trail<span className="text-[#2DD4BF]">Guard</span>
-            </span>
+            <div className="flex flex-col">
+              <span className="text-xl font-bold tracking-tight text-white">
+                Trail<span className="text-[#2DD4BF]">Guard</span>
+              </span>
+            </div>
           </div>
 
           {/* NAVIGATION */}
@@ -115,7 +90,7 @@ export default function Sidebar() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition ${
                     isActive
-                      ? "bg-[#0E9C8C]/30 text-[#42E3D0]"
+                      ? "border border-teal-500/30 bg-[#0E9C8C]/25 font-semibold text-[#42E3D0] shadow-sm"
                       : "text-slate-300 hover:bg-white/10 hover:text-white"
                   }`
                 }
@@ -126,12 +101,12 @@ export default function Sidebar() {
             ))}
           </nav>
 
-          {/* BOTTOM */}
-          <div className="mt-5 space-y-3">
+          {/* DEVICE & SAFETY CARDS */}
+          <div className="mt-6 space-y-3">
             {/* SAFETY */}
-            <div className="rounded-2xl border border-white/10 bg-[#102F4A]/65 p-4 shadow-lg backdrop-blur-sm">
+            <div className="rounded-2xl border border-white/10 bg-[#102F4A]/70 p-4 shadow-lg backdrop-blur-sm">
               <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-400/15">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-teal-300/20 bg-teal-400/15 text-teal-300">
                   🛡
                 </div>
 
@@ -140,7 +115,7 @@ export default function Sidebar() {
                     Stay safe. Explore more.
                   </div>
 
-                  <p className="mt-1 text-[10px] leading-4 text-slate-400">
+                  <p className="mt-1 text-[10px] leading-4 text-slate-300">
                     TrailGuard is watching
                     <br />
                     over you.
@@ -150,7 +125,7 @@ export default function Sidebar() {
             </div>
 
             {/* DEVICE */}
-            <div className="rounded-2xl border border-white/10 bg-[#102F4A]/65 p-4 shadow-lg backdrop-blur-sm">
+            <div className="rounded-2xl border border-white/10 bg-[#102F4A]/70 p-4 shadow-lg backdrop-blur-sm">
               {selectedDevice ? (
                 <>
                   <div className="flex items-start gap-3">
@@ -165,8 +140,8 @@ export default function Sidebar() {
                         {deviceName}
                       </p>
 
-                      <p className="mt-0.5 truncate font-mono text-[9px] text-slate-500">
-                        {selectedDevice.deviceId}
+                      <p className="mt-0.5 truncate font-mono text-[10px] text-slate-400">
+                        {maskDeviceId(selectedDevice.deviceId)}
                       </p>
                     </div>
 
@@ -193,9 +168,7 @@ export default function Sidebar() {
                       </div>
 
                       <p className="mt-1 text-[10px] leading-4 text-slate-400">
-                        Pair your TrailGuard wearable
-                        <br />
-                        to start monitoring.
+                        Pair using the QR and Bluetooth flow in Settings.
                       </p>
                     </div>
 
@@ -218,51 +191,8 @@ export default function Sidebar() {
       </aside>
 
       {/* MODAL BACKDROP */}
-      {(showPairModal || showUnpairModal) && (
+      {showUnpairModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-[2px]">
-          {/* PAIR MODAL */}
-          {showPairModal && (
-            <div className="w-full max-w-[400px] rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-2xl">
-              <ModalHeader
-                title="Pair TrailGuard Device"
-                text="Enter the device ID printed on your TrailGuard wearable."
-                onClose={() => setShowPairModal(false)}
-              />
-
-              <form onSubmit={handlePair} className="mt-5 space-y-4">
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-[var(--color-text-secondary)]">
-                    Device ID
-                  </label>
-
-                  <input
-                    type="text"
-                    value={deviceId}
-                    onChange={(e) => setDeviceId(e.target.value)}
-                    placeholder="Enter your device ID"
-                    autoFocus
-                    disabled={pairing}
-                    className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-3 py-3 font-mono text-sm uppercase text-[var(--color-text)] outline-none placeholder:text-[var(--color-text-muted)] focus:border-teal-400"
-                  />
-                </div>
-
-                {pairError && (
-                  <div className="rounded-xl border border-red-400/20 bg-red-400/10 px-3 py-2.5 text-xs text-red-400">
-                    {pairError}
-                  </div>
-                )}
-
-                <ModalButtons
-                  onCancel={() => setShowPairModal(false)}
-                  onConfirm={handlePair}
-                  cancelText="Cancel"
-                  confirmText={pairing ? "Pairing…" : "Pair Device"}
-                  disabled={pairing || !deviceId.trim()}
-                />
-              </form>
-            </div>
-          )}
-
           {/* UNPAIR MODAL */}
           {showUnpairModal && selectedDevice && (
             <div className="w-full max-w-[440px] rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-2xl">

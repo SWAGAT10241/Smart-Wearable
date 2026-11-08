@@ -1,13 +1,15 @@
-export function InfoRow({ label, value, hint, className = "" }) {
+export default function InfoRow({ label, value, badge }) {
   return (
-    <div className={`flex items-center justify-between py-2 border-b border-slate-800/60 last:border-0 ${className}`}>
-      <span className="text-sm text-slate-400">{label}</span>
-      <div className="text-right">
-        <span className="text-sm font-medium text-white">{value}</span>
-        {hint && <span className="block text-xs text-slate-500">{hint}</span>}
-      </div>
+    <div className="flex items-center justify-between gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-3 py-3 text-sm">
+      <span className="font-medium text-[var(--color-text-secondary)]">{label}</span>
+      <span className="flex items-center gap-2 text-right text-[var(--color-text)]">
+        {value}
+        {badge && (
+          <span className="rounded-full border border-teal-400/20 bg-teal-400/10 px-2 py-0.5 text-[10px] font-bold uppercase text-teal-400">
+            {badge}
+          </span>
+        )}
+      </span>
     </div>
   );
 }
-
-export default InfoRow;

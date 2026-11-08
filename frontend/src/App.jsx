@@ -16,6 +16,8 @@ import CompleteProfile from "./pages/CompleteProfile";
 import Dashboard from "./pages/Dashboard";
 import History from "./pages/History";
 import Settings from "./pages/Settings";
+import About from "./pages/About";
+import NotFound from "./pages/NotFound";
 
 export default function App() {
   return (
@@ -27,7 +29,6 @@ export default function App() {
               <BrowserRouter>
                 <FallAlertModal />
 
-
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
@@ -38,6 +39,7 @@ export default function App() {
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/history" element={<History />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/about" element={<About />} />
                 </Route>
 
                 <Route
@@ -46,7 +48,7 @@ export default function App() {
                 />
                 <Route
                   path="*"
-                  element={<Navigate to="/dashboard" replace />}
+                  element={<NotFound />}
                 />
               </Routes>
             </BrowserRouter>
@@ -55,5 +57,5 @@ export default function App() {
       </AuthProvider>
     </ThemeProvider>
   </ErrorBoundary>
-);
+  );
 }

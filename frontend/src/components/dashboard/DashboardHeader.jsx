@@ -1,46 +1,25 @@
-import { Activity, Radio, RefreshCw } from "lucide-react";
+import NotificationBell from "../app/NotificationBell";
+import ProfileMenu from "../app/ProfileMenu";
 
-export function DashboardHeader({
-  device,
-  isLive,
-  onRefresh,
-  loading,
-}) {
+export default function DashboardHeader({ user, selectedDevice, notifications = [] }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-slate-800">
-      <div>
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold tracking-tight text-white">
-            {device?.deviceName || "TrailGuard Wearable"}
-          </h1>
-          <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
-              isLive
-                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                : "bg-slate-800 text-slate-400 border-slate-700"
-            }`}
-          >
-            <Radio className={`w-3 h-3 ${isLive ? "animate-pulse" : ""}`} />
-            {isLive ? "LIVE" : "OFFLINE"}
-          </span>
-        </div>
-        <p className="text-sm text-slate-400 mt-1">
-          {device ? `Device ID: ${device.deviceId}` : "Select a device to view real-time metrics"}
+    <header className="flex shrink-0 items-center justify-between gap-4 px-1">
+      <div className="min-w-0">
+        <h1 className="truncate text-[26px] font-bold tracking-[-0.03em] text-[var(--color-text)]">
+          Welcome back, {user?.username || "User"}! 👋
+        </h1>
+
+        <p className="mt-0.5 text-[14px] text-[var(--color-text-secondary)]">
+          {selectedDevice
+            ? `${selectedDevice.deviceName || selectedDevice.name || "TrailGuard Wearable"} · Your trail overview for today.`
+            : "No device selected."}
         </p>
       </div>
 
-      <div className="flex items-center gap-3">
-        <button
-          onClick={onRefresh}
-          disabled={loading}
-          className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-sm font-medium text-slate-300 hover:text-white transition-colors"
-        >
-          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-emerald-400" : ""}`} />
-          Refresh
-        </button>
+      <div className="flex shrink-0 items-center gap-4">
+        <NotificationBell notifications={notifications} />
+        <ProfileMenu />
       </div>
-    </div>
+    </header>
   );
 }
-
-export default DashboardHeader;

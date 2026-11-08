@@ -1,81 +1,9 @@
 /**
- * Data presentation and display formatters.
+ * Formatting utilities for timestamps, durations, and sensor readings.
  */
 
 /**
- * Format timestamp into localized relative time or short string.
- *
- * @param {string|Date|number} timestamp
- * @returns {string}
- */
-export function formatTimeAgo(timestamp) {
-  if (!timestamp) return "Never";
-  const date = new Date(timestamp);
-  if (Number.isNaN(date.getTime())) return "Invalid date";
-
-  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-
-  if (seconds < 5) return "Just now";
-  if (seconds < 60) return `${seconds}s ago`;
-
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
-
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}
-
-/**
- * Format full date and time.
- *
- * @param {string|Date|number} timestamp
- * @returns {string}
- */
-export function formatDateTime(timestamp) {
-  if (!timestamp) return "—";
-  const date = new Date(timestamp);
-  if (Number.isNaN(date.getTime())) return "—";
-
-  return date.toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-}
-
-/**
- * Format coordinates to 4 decimal places.
- *
- * @param {number} [lat]
- * @param {number} [lng]
- * @returns {string}
- */
-export function formatCoordinates(lat, lng) {
-  if (lat == null || lng == null) return "No GPS fix";
-  return `${Number(lat).toFixed(4)}°, ${Number(lng).toFixed(4)}°`;
-}
-
-/**
- * Format numeric value with safe fallback.
- *
- * @param {number|null|undefined} val
- * @param {string} [unit=""]
- * @param {number} [precision=0]
- * @returns {string}
- */
-export function formatValue(val, unit = "", precision = 0) {
-  if (val == null || Number.isNaN(Number(val))) return "—";
-  const formatted = precision > 0 ? Number(val).toFixed(precision) : Math.round(Number(val));
-  return unit ? `${formatted} ${unit}` : `${formatted}`;
-}
-
-/**
- * Convert milliseconds to HH:MM:SS.
+ * Format milliseconds into HH:MM:SS string.
  *
  * @param {number} milliseconds
  * @returns {string|null}
@@ -96,10 +24,10 @@ export function formatDuration(milliseconds) {
 }
 
 /**
- * Extract safely parsed Date from a reading object.
+ * Extract or normalize Date object from reading payload.
  *
- * @param {object|string|number} reading
- * @param {*} [fallback]
+ * @param {object} reading
+ * @param {Date|string} [fallback]
  * @returns {Date|null}
  */
 export function getReadingTimestamp(reading, fallback) {
@@ -117,9 +45,9 @@ export function getReadingTimestamp(reading, fallback) {
 }
 
 /**
- * Format timestamp into human-readable relative update text.
+ * Format timestamp into relative "Just now" or "X min ago" string.
  *
- * @param {Date|object|string|number} timestamp
+ * @param {Date|string|object} timestamp
  * @returns {string}
  */
 export function formatUpdatedText(timestamp) {
@@ -141,3 +69,18 @@ export function formatUpdatedText(timestamp) {
   return `${hours} hours ago`;
 }
 
+/**
+ * Format numeric values with fallback and precision.
+ *
+ * @param {number|null|undefined} value
+ * @param {number} [decimals=1]
+ * @param {string} [fallback="--"]
+ * @returns {string}
+ */
+export function formatReadingValue(value, decimals = 1, fallback = "--") {
+  if (value == null || !Number.isFinite(Number(value))) {
+    return fallback;
+  }
+  const num = Number(value);
+  return Number.isInteger(num) ? String(num) : num.toFixed(decimals);
+}
