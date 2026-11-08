@@ -24,16 +24,47 @@ import {
 } from "react-icons/io5";
 
 /* =========================================================================
-   1. DYNAMIC VIBRANT BACKGROUND: AURORA MESH & TACTICAL WAVE MATRIX
-   (Apple / Render / GitHub Universe style)
+   1. DYNAMIC VIBRANT 3D BACKGROUND: AURORA MESH & 3D TERRAIN MATRIX
+   (Apple / Render / GitHub Universe style with 3D Spatial Depth Layers)
    ========================================================================= */
 function VibrantDynamicBackground() {
+  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.3 });
+
+  useEffect(() => {
+    let rafId;
+    const onMove = (e) => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const w = window.innerWidth || 1920;
+        const h = window.innerHeight || 1080;
+        setMousePos({
+          x: Math.min(Math.max(e.clientX / w, 0), 1),
+          y: Math.min(Math.max(e.clientY / h, 0), 1),
+        });
+      });
+    };
+
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, []);
+
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
       {/* Dynamic Ambient Fluid Light Mesh */}
       <div className="absolute -top-[20%] -left-[10%] h-[700px] w-[700px] rounded-full bg-gradient-to-br from-cyan-500/25 via-blue-600/20 to-transparent blur-[120px] animate-ambient-1" />
       <div className="absolute top-[25%] -right-[15%] h-[750px] w-[750px] rounded-full bg-gradient-to-bl from-emerald-500/20 via-teal-600/15 to-transparent blur-[130px] animate-ambient-2" />
       <div className="absolute -bottom-[20%] left-[20%] h-[800px] w-[800px] rounded-full bg-gradient-to-tr from-indigo-600/20 via-purple-600/15 to-transparent blur-[140px] animate-ambient-3" />
+
+      {/* Interactive Cursor Spotlight Aura with Depth Lighting */}
+      <div
+        className="absolute inset-0 transition-opacity duration-300"
+        style={{
+          background: `radial-gradient(850px circle at ${mousePos.x * 100}% ${mousePos.y * 100}%, rgba(6, 182, 212, 0.16), rgba(99, 102, 241, 0.08), transparent 70%)`,
+        }}
+      />
 
       {/* Precision Technical Coordinate Grid */}
       <div
@@ -46,6 +77,30 @@ function VibrantDynamicBackground() {
           backgroundSize: "60px 60px",
         }}
       />
+
+      {/* 3D Perspective Ground Terrain Floor (Apple / Spatial Cyberpunk Depth) */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-[650px] overflow-hidden"
+        style={{
+          perspective: "700px",
+          perspectiveOrigin: `${50 + (mousePos.x - 0.5) * 15}% 35%`,
+        }}
+      >
+        <div
+          className="absolute inset-x-[-30%] top-10 h-[950px] animate-3d-grid-floor"
+          style={{
+            transform: `rotateX(74deg) translateY(${(mousePos.y - 0.5) * 25}px) rotateZ(${(mousePos.x - 0.5) * 6}deg)`,
+            transformOrigin: "50% 0%",
+            backgroundImage: `
+              linear-gradient(to right, rgba(6, 182, 212, 0.25) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(6, 182, 212, 0.25) 1px, transparent 1px)
+            `,
+            backgroundSize: "60px 60px",
+            maskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 85%)",
+            WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 85%)",
+          }}
+        />
+      </div>
 
       {/* Animated Telemetry Scanning Beam */}
       <div className="absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-40 shadow-[0_0_15px_#38BDF8] animate-grid-scan" />
@@ -83,6 +138,28 @@ function VibrantDynamicBackground() {
             </linearGradient>
           </defs>
         </svg>
+      </div>
+
+      {/* Floating 3D Telemetry Spatial Nodes (Depth Layer 1 & 2 Parallax) */}
+      <div
+        className="absolute top-[18%] left-[8%] hidden lg:flex items-center gap-2 rounded-full border border-cyan-500/30 bg-[#0F172A]/70 px-3 py-1 font-mono text-[10px] text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.2)] backdrop-blur-md transition-transform duration-300 ease-out animate-particle-pulse"
+        style={{
+          transform: `translate(${(mousePos.x - 0.5) * -35}px, ${(mousePos.y - 0.5) * -35}px)`,
+        }}
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+        <span>BEACON: MT. BLANC // 4,809M</span>
+      </div>
+
+      <div
+        className="absolute top-[45%] right-[6%] hidden lg:flex items-center gap-2 rounded-full border border-emerald-500/30 bg-[#0F172A]/70 px-3 py-1 font-mono text-[10px] text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)] backdrop-blur-md transition-transform duration-300 ease-out animate-particle-pulse"
+        style={{
+          transform: `translate(${(mousePos.x - 0.5) * 45}px, ${(mousePos.y - 0.5) * 45}px)`,
+          animationDelay: "1.5s",
+        }}
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+        <span>LORA MESH // NODE 04 ACTIVE</span>
       </div>
     </div>
   );

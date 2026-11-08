@@ -456,6 +456,24 @@ html.dark {
     animation: gridScanLine 8s ease-in-out infinite;
   }
 
+  @keyframes gridFloorDrift {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 60px; }
+  }
+
+  .animate-3d-grid-floor {
+    animation: gridFloorDrift 3.5s linear infinite;
+  }
+
+  @keyframes pulseParticle {
+    0%, 100% { transform: scale(1); opacity: 0.35; }
+    50% { transform: scale(1.5); opacity: 0.85; }
+  }
+
+  .animate-particle-pulse {
+    animation: pulseParticle 4s ease-in-out infinite;
+  }
+
   .animate-radar-sweep {
     animation: radarSweep 4s linear infinite;
   }
