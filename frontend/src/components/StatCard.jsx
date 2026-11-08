@@ -39,8 +39,9 @@ const STYLES = {
 };
 
 /**
- * Reusable Telemetry StatCard component.
- * Displays real-time metric value, trend visual, status pill, normal range, and mini statistics.
+ * Minimalist high-density tactical StatCard.
+ * Optimized for both light and dark modes with high data density,
+ * tactile hairline borders, corner coordinates/ticks, and monospace readouts.
  */
 export default function StatCard({
   icon,
@@ -64,42 +65,42 @@ export default function StatCard({
   const chartVariant = ["ppg", "line", "bars", "pressure"].includes(variant);
 
   return (
-    <article className="group relative flex min-w-0 flex-col overflow-hidden rounded-[28px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)] ring-1 ring-white/[0.06] transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-border-hover,rgba(255,255,255,0.24))] hover:shadow-2xl">
-      {/* Top subtle highlight rim */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-
-      {/* Top neon indicator line */}
+    <article className="group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-xs transition-all duration-200 hover:border-[var(--color-accent)]/50 hover:shadow-md">
+      {/* Tactical Top Accent Indicator */}
       <div
-        className="pointer-events-none absolute top-0 left-6 right-6 h-[2px] rounded-full transition-all duration-500 group-hover:left-3 group-hover:right-3 opacity-60 group-hover:opacity-100"
-        style={{ background: `linear-gradient(90deg, transparent, ${style.color}, transparent)` }}
+        className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-70 transition-opacity duration-300 group-hover:opacity-100"
+        style={{ background: `linear-gradient(90deg, ${style.color}, transparent 60%)` }}
       />
 
-      {/* Subtle ambient aura glow matching metric identity */}
-      <div
-        className="pointer-events-none absolute -right-6 -top-6 h-32 w-32 rounded-full opacity-10 blur-2xl transition-opacity duration-500 group-hover:opacity-40"
-        style={{ background: style.color }}
-      />
+      {/* Subtle Tactical Corner Crosshairs */}
+      <span className="pointer-events-none absolute top-1.5 right-2 font-mono text-[8px] text-[var(--color-text-muted)] select-none opacity-30">
+        +
+      </span>
+      <span className="pointer-events-none absolute bottom-1.5 left-2 font-mono text-[8px] text-[var(--color-text-muted)] select-none opacity-30">
+        +
+      </span>
 
-      {/* Icon */}
-      <div
-        className="mb-3 flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-white/10 shadow-xs transition-transform duration-300 group-hover:scale-105"
-        style={{ background: style.bg }}
-      >
-        {icon}
-      </div>
+      {/* Header Deck: Icon + Label + Tactical Status */}
+      <div className="mb-2.5 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <div
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-black/5 dark:border-white/10 text-xs shadow-2xs"
+            style={{ background: style.bg }}
+          >
+            {icon}
+          </div>
 
-      {/* Title + Status */}
-      <div className="mb-2 flex min-h-[22px] items-center justify-between gap-2">
-        <span className="min-w-0 truncate text-[11px] font-extrabold uppercase tracking-wider text-[var(--color-text-secondary)] font-mono">
-          {label}
-        </span>
+          <span className="truncate font-mono text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
+            {label}
+          </span>
+        </div>
 
         {status && (
           <span
-            className="flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border shadow-xs"
+            className="flex shrink-0 items-center gap-1.5 rounded-md px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider border"
             style={{
-              background: `${resolvedStatusColor}18`,
-              borderColor: `${resolvedStatusColor}40`,
+              background: `${resolvedStatusColor}14`,
+              borderColor: `${resolvedStatusColor}35`,
               color: resolvedStatusColor,
             }}
           >
@@ -112,27 +113,31 @@ export default function StatCard({
         )}
       </div>
 
-      {/* Current Value */}
-      <div className="mb-3 flex min-h-[38px] items-baseline gap-1.5">
-        <span className="text-[32px] font-black leading-none tracking-[-0.03em] tabular-nums text-[var(--color-text)]">
+      {/* Primary Metric Readout */}
+      <div className="mb-2.5 flex items-baseline gap-1.5 font-mono">
+        <span className="text-[26px] font-black leading-none tracking-tight tabular-nums text-[var(--color-text)]">
           {value}
         </span>
 
         {unit && (
-          <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
+          <span className="text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-secondary)]">
             {unit}
           </span>
         )}
       </div>
 
-      {/* Sensor Visual Viewport */}
-      <div className={`mb-2.5 rounded-[18px] border border-white/[0.04] bg-black/[0.03] dark:bg-black/25 px-2 py-1.5 shadow-inner ${chartVariant ? "h-[94px]" : "h-[80px]"}`}>
+      {/* High-density Sensor Viewport Screen */}
+      <div
+        className={`mb-2.5 overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)]/60 px-2 py-1.5 shadow-2xs ${
+          chartVariant ? "h-[84px]" : "h-[74px]"
+        }`}
+      >
         {variant === "ppg" && (
           <LineTrace
             color={style.color}
             samples={signal}
             sensorType="heart"
-            emptyText="Waiting for pulse data..."
+            emptyText="Waiting for pulse..."
           />
         )}
 
@@ -144,7 +149,7 @@ export default function StatCard({
           <BarTrace
             color={style.color}
             samples={signal}
-            emptyText="Waiting for humidity data..."
+            emptyText="Waiting for humidity..."
           />
         )}
 
@@ -155,37 +160,36 @@ export default function StatCard({
             color={style.color}
             samples={signal}
             sensorType="pressure"
-            emptyText="Waiting for pressure data..."
+            emptyText="Waiting for pressure..."
           />
         )}
 
-        {variant === "plain" && <div className="h-[64px]" />}
+        {variant === "plain" && <div className="h-[60px]" />}
       </div>
 
-      {/* Normal Range Indicator */}
+      {/* Normal Range Reference */}
       {normalRange && (
-        <div className="mb-3 flex items-center gap-1.5">
+        <div className="mb-2 flex items-center gap-1.5 font-mono text-[10px]">
           <span
-            className="h-2 w-2 shrink-0 rounded-full"
+            className="h-1.5 w-1.5 shrink-0 rounded-full"
             style={{ background: "var(--status-optimal)" }}
           />
-
-          <span className="truncate text-xs font-medium text-[var(--color-text-secondary)]">
+          <span className="truncate font-medium text-[var(--color-text-secondary)]">
             {normalRange}
           </span>
         </div>
       )}
 
-      {/* Min / Avg / Peak Summary */}
+      {/* Statistical Summary (Min / Avg / Peak) */}
       <div className="mt-auto">
         <MiniStats items={miniStats} />
       </div>
 
-      {/* Relative Updated Timestamp */}
+      {/* Tactical Timestamp Footer */}
       {updatedText && (
-        <div className="mt-3 flex items-center gap-1.5 border-t border-[var(--color-border)] pt-2.5 text-xs font-medium text-[var(--color-text-secondary)]">
-          <IoTimeOutline size={14} />
-          <span>Last seen {updatedText}</span>
+        <div className="mt-2.5 flex items-center gap-1.5 border-t border-[var(--color-border)] pt-2 font-mono text-[10px] text-[var(--color-text-muted)]">
+          <IoTimeOutline size={12} className="shrink-0" />
+          <span className="truncate">SYNCED: {updatedText}</span>
         </div>
       )}
     </article>

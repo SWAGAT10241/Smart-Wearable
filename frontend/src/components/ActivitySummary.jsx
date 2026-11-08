@@ -1,22 +1,23 @@
+import React from "react";
 import { GiRunningShoe } from "react-icons/gi";
 import { LuAlarmClock } from "react-icons/lu";
 import { FaMountainSun } from "react-icons/fa6";
 import { ImFire } from "react-icons/im";
 
 /* =======================================================
- * Mini Graph
+ * Mini Tactical Sparkline Graph
  * ======================================================= */
 
-function MiniGraph({ points = [], color }) {
+function MiniGraph({ points = [], color = "#16B890" }) {
   if (!Array.isArray(points) || points.length < 2) {
-    return <div className="mt-2 h-7 w-full" />;
+    return <div className="mt-1.5 h-6 w-full opacity-0" />;
   }
 
   const min = Math.min(...points);
   const max = Math.max(...points);
   const range = max - min || 1;
-  const width = 150;
-  const height = 32;
+  const width = 140;
+  const height = 26;
   const padding = 2;
 
   const path = points
@@ -25,22 +26,32 @@ function MiniGraph({ points = [], color }) {
       const y =
         height - padding - ((value - min) / range) * (height - padding * 2);
 
-      return `${index ? "L" : "M"} ${x} ${y}`;
+      return `${index ? "L" : "M"} ${x.toFixed(1)} ${y.toFixed(1)}`;
     })
     .join(" ");
+
+  const area = `${path} L ${width - padding} ${height} L ${padding} ${height} Z`;
+  const gradId = `spark-grad-${color.replace(/[^a-zA-Z0-9]/g, "")}`;
 
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
-      className="mt-2 h-7 w-full"
+      className="mt-1.5 h-6 w-full"
       preserveAspectRatio="none"
       aria-hidden="true"
     >
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.25" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#${gradId})`} />
       <path
         d={path}
         fill="none"
         stroke={color}
-        strokeWidth="2"
+        strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -54,7 +65,7 @@ function MiniGraph({ points = [], color }) {
 
 const ACTIVITY_STYLES = {
   distance: {
-    color: "var(--action-primary)",
+    color: "var(--status-optimal)",
   },
   duration: {
     color: "var(--status-info)",
@@ -78,45 +89,41 @@ function SummaryItem({
   sub,
   icon,
   color,
-  glow,
   graphPoints,
 }) {
   return (
-    <div className="flex min-w-0 items-center gap-4 px-5 py-5 transition-colors hover:bg-teal-400/[0.03]">
-      {/* Icon */}
-
+    <div className="flex min-w-0 items-center gap-3.5 px-4 py-3.5 transition-colors hover:bg-[var(--color-surface-alt)]/40 font-mono">
+      {/* Tactical Icon */}
       <div
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-lg shadow-2xs"
         style={{
-          background: `linear-gradient(145deg,${color}30,${color}08)`,
-          borderColor: `${color}55`,
-          boxShadow: `0 0 18px ${glow},inset 0 0 12px ${glow}`,
+          background: `${color}14`,
+          borderColor: `${color}35`,
           color,
         }}
       >
-        <span className="text-[22px]">{icon}</span>
+        <span>{icon}</span>
       </div>
 
       {/* Content */}
-
       <div className="min-w-0 flex-1">
-        <div className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
           {label}
         </div>
 
-        <div className="mt-1 flex items-baseline gap-1">
-          <span className="truncate text-xl font-bold leading-none tracking-[-0.025em] tabular-nums text-[var(--color-text)] sm:text-2xl">
+        <div className="mt-0.5 flex items-baseline gap-1">
+          <span className="truncate text-xl font-black leading-none tracking-tight tabular-nums text-[var(--color-text)]">
             {value ?? "--"}
           </span>
 
           {unit && value != null && (
-            <span className="text-sm font-semibold text-[var(--color-text-secondary)]">
+            <span className="text-[10px] font-bold uppercase text-[var(--color-text-secondary)]">
               {unit}
             </span>
           )}
         </div>
 
-        <div className="mt-1 text-xs font-medium text-[var(--color-text-muted)]">
+        <div className="mt-0.5 text-[10px] text-[var(--color-text-muted)] truncate">
           {sub}
         </div>
 
@@ -163,7 +170,7 @@ export default function ActivitySummary({
     },
     {
       key: "elevation",
-      label: "ELEVATION GAIN",
+      label: "ELEVATION",
       value:
         elevationGain != null
           ? Math.round(elevationGain).toLocaleString()
@@ -187,39 +194,42 @@ export default function ActivitySummary({
   ];
 
   return (
-    <section className="overflow-hidden rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]">
-      {/* Header */}
+    <section className="relative overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xs">
+      {/* Tactical Top Accent Indicator */}
+      <div
+        className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-70"
+        style={{
+          background: "linear-gradient(90deg, var(--status-optimal), var(--status-info) 50%, transparent 80%)",
+        }}
+      />
 
-      <div className="border-b border-[var(--color-border)] px-5 py-4">
+      {/* Subtle Corner Crosshairs */}
+      <span className="pointer-events-none absolute top-1.5 right-2 font-mono text-[8px] text-[var(--color-text-muted)] select-none opacity-30">
+        +
+      </span>
+      <span className="pointer-events-none absolute bottom-1.5 left-2 font-mono text-[8px] text-[var(--color-text-muted)] select-none opacity-30">
+        +
+      </span>
+
+      {/* Header Deck */}
+      <div className="border-b border-[var(--color-border)] px-4 py-3">
         <div className="flex items-center justify-between gap-4">
-          <div>
-            <h2 className="text-[17px] font-semibold text-[var(--color-text)]">
-              Activity Summary
-            </h2>
-
-            <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">
-              Today's trail activity
-            </p>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--color-text)]">
+              TRAIL SESSION ACTIVITY
+            </span>
           </div>
 
-          <span className="rounded-full border border-teal-400/20 bg-teal-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-teal-400">
-            TODAY
+          <span className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-[var(--status-optimal)]">
+            LIVE WINDOW
           </span>
         </div>
       </div>
 
-      {/* Four activity metrics only */}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
-        {items.map(({ key, ...itemProps }, index) => (
-          <div
-            key={key}
-            className={`relative ${
-              index > 0
-                ? "after:absolute after:left-0 after:top-6 after:h-[calc(100%-3rem)] after:w-px after:bg-[var(--color-border)]"
-                : ""
-            }`}
-          >
+      {/* Four high-density activity metrics */}
+      <div className="grid grid-cols-1 divide-y divide-[var(--color-border)] sm:grid-cols-2 sm:divide-y-0 sm:divide-x md:grid-cols-2 xl:grid-cols-4 xl:divide-y-0 xl:divide-x">
+        {items.map(({ key, ...itemProps }) => (
+          <div key={key} className="min-w-0">
             <SummaryItem {...itemProps} />
           </div>
         ))}

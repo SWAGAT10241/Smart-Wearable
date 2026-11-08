@@ -1,51 +1,74 @@
+import React from "react";
+
+/**
+ * Minimalist high-density tactical RecentEventsCard.
+ * High information density audit of fall events with severity indicators and timestamps.
+ */
 export default function RecentEventsCard({ recentFalls = [] }) {
   return (
-    <section className="relative flex h-full min-h-[440px] flex-col overflow-hidden rounded-[28px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)] ring-1 ring-white/[0.04]">
-      {/* Top subtle highlight rim */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+    <section className="group relative flex h-full min-h-[410px] flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-xs">
+      {/* Tactical Top Accent Indicator */}
+      <div
+        className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-70"
+        style={{
+          background: recentFalls.length > 0
+            ? "linear-gradient(90deg, var(--status-sos), transparent 60%)"
+            : "linear-gradient(90deg, var(--status-optimal), transparent 60%)",
+        }}
+      />
 
-      <div className="mb-3.5 flex shrink-0 items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-amber-500/10 text-amber-400">
-            <span className="text-sm">⚡</span>
+      {/* Subtle Tactical Corner Crosshairs */}
+      <span className="pointer-events-none absolute top-1.5 right-2 font-mono text-[8px] text-[var(--color-text-muted)] select-none opacity-30">
+        +
+      </span>
+      <span className="pointer-events-none absolute bottom-1.5 left-2 font-mono text-[8px] text-[var(--color-text-muted)] select-none opacity-30">
+        +
+      </span>
+
+      {/* Header Deck */}
+      <div className="mb-2.5 flex shrink-0 items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-black/5 dark:border-white/10 bg-[var(--surface-warning)] text-xs text-[var(--status-warning)]">
+            <span>⚡</span>
           </div>
-          <h2 className="text-[17px] font-bold tracking-tight text-[var(--color-text)]">
-            Recent Events
+          <h2 className="font-mono text-[12px] font-bold uppercase tracking-wider text-[var(--color-text)]">
+            INCIDENT LOG
           </h2>
         </div>
 
-        <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-3 py-1 font-mono text-[11px] font-semibold text-[var(--color-text-secondary)] shadow-xs">
-          {recentFalls.length} today
+        <span className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-2 py-0.5 font-mono text-[10px] font-bold text-[var(--color-text-secondary)]">
+          {recentFalls.length} DETECTED
         </span>
       </div>
 
+      {/* High-density Events List */}
       <div className="min-h-0 flex-1 overflow-y-auto pr-1">
         {recentFalls.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center gap-3 rounded-[20px] border border-emerald-500/20 bg-emerald-500/10 p-6 text-center">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-400 text-xl font-bold shadow-xs">
+          <div className="flex h-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface-alt)]/40 p-4 text-center font-mono">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--surface-accent)] text-[var(--status-optimal)] text-base font-bold">
               ✓
             </div>
 
             <div>
-              <div className="text-sm font-bold text-[var(--color-text)]">
-                No fall events detected
+              <div className="text-xs font-bold text-[var(--color-text)]">
+                NO CRITICAL INCIDENTS
               </div>
 
-              <div className="mt-1 text-xs font-medium text-emerald-400">
-                Safe operational telemetry status
+              <div className="mt-0.5 text-[10px] text-[var(--status-optimal)]">
+                ALL SYSTEMS OPERATING NOMINALLY
               </div>
             </div>
           </div>
         ) : (
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {recentFalls.map((fall) => (
               <div
                 key={fall._id}
-                className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3.5 transition-all hover:border-[var(--color-accent)]/40 hover:shadow-xs"
+                className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-2.5 transition-all hover:border-[var(--color-accent)]/50"
               >
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start justify-between gap-2 font-mono">
                   <div className="min-w-0">
-                    <div className="text-xs font-bold text-[var(--color-text)]">
+                    <div className="text-[11px] font-bold text-[var(--color-text)]">
                       {new Date(fall.timestamp).toLocaleString(undefined, {
                         month: "short",
                         day: "numeric",
@@ -54,19 +77,19 @@ export default function RecentEventsCard({ recentFalls = [] }) {
                       })}
                     </div>
 
-                    <div className="mt-0.5 text-xs font-medium capitalize text-[var(--color-text-secondary)]">
-                      {fall.severity} fall
+                    <div className="mt-0.5 text-[10px] uppercase text-[var(--color-text-secondary)]">
+                      {fall.severity} FALL EVENT
                     </div>
                   </div>
 
                   <span
-                    className={`shrink-0 rounded-lg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                    className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider border ${
                       fall.severity === "severe"
-                        ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                        : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                        ? "bg-red-500/15 text-red-500 border-red-500/30"
+                        : "bg-amber-500/15 text-amber-500 border-amber-500/30"
                     }`}
                   >
-                    {fall.status?.replace(/_/g, " ") || "DETECTED"}
+                    {fall.status?.replace(/_/g, " ") || "LOGGED"}
                   </span>
                 </div>
               </div>
