@@ -358,6 +358,66 @@ html.dark {
     -webkit-corner-smoothing: 60%;
   }
 
+  /* =========================================================================
+     Cinematic Landing Page Motion & Interactive Animations
+     ========================================================================= */
+  @keyframes radarSweep {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @keyframes pulseRipple {
+    0% { transform: scale(0.6); opacity: 0.9; }
+    50% { transform: scale(1.6); opacity: 0.4; }
+    100% { transform: scale(2.6); opacity: 0; }
+  }
+
+  @keyframes floatBob {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes floatBobAlt {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(1.5deg); }
+  }
+
+  @keyframes pulseAura {
+    0%, 100% { opacity: 0.35; transform: scale(1); }
+    50% { opacity: 0.75; transform: scale(1.08); }
+  }
+
+  @keyframes shimmerFlow {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  @keyframes ecgPulse {
+    0% { stroke-dashoffset: 1000; }
+    100% { stroke-dashoffset: 0; }
+  }
+
+  .animate-radar-sweep {
+    animation: radarSweep 4s linear infinite;
+  }
+
+  .animate-float-slow {
+    animation: floatBob 6s ease-in-out infinite;
+  }
+
+  .animate-float-delayed {
+    animation: floatBobAlt 7s ease-in-out 1.5s infinite;
+  }
+
+  .animate-pulse-aura {
+    animation: pulseAura 4s ease-in-out infinite;
+  }
+
+  .animate-shimmer-btn {
+    background-size: 200% auto;
+    animation: shimmerFlow 3.5s linear infinite;
+  }
+
   .tg-card-header {
     @apply mb-3 flex items-center justify-between gap-3;
   }

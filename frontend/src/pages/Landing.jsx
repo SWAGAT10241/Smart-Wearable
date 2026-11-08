@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import {
@@ -17,12 +17,195 @@ import {
   IoThermometerOutline,
   IoLockClosedOutline,
   IoSpeedometerOutline,
+  IoSparklesOutline,
 } from "react-icons/io5";
 
+/* =========================================================================
+   Animated Real-Time ECG Pulse Canvas
+   ========================================================================= */
+function AnimatedPulseTrace({ color = "#2DD4BF" }) {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let animationFrameId;
+    let offset = 0;
+
+    const render = () => {
+      const width = canvas.width;
+      const height = canvas.height;
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw faint baseline grid
+      ctx.strokeStyle = "rgba(45, 212, 191, 0.08)";
+      ctx.lineWidth = 1;
+      for (let x = 0; x < width; x += 20) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+
+      // Draw heartbeat waveform
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+
+      const midY = height / 2;
+      const period = 120; // Distance between heartbeats
+
+      for (let x = 0; x < width; x++) {
+        const cyclePos = (x + offset) % period;
+        let y = midY;
+
+        // P wave
+        if (cyclePos > 20 && cyclePos <= 30) {
+          y -= Math.sin(((cyclePos - 20) / 10) * Math.PI) * 4;
+        }
+        // Q dip
+        else if (cyclePos > 34 && cyclePos <= 38) {
+          y += 5;
+        }
+        // R high spike
+        else if (cyclePos > 38 && cyclePos <= 45) {
+          y -= 26;
+        }
+        // S dip
+        else if (cyclePos > 45 && cyclePos <= 50) {
+          y += 9;
+        }
+        // T wave
+        else if (cyclePos > 60 && cyclePos <= 80) {
+          y -= Math.sin(((cyclePos - 60) / 20) * Math.PI) * 7;
+        }
+
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      offset = (offset + 1.8) % period;
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [color]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      width={320}
+      height={70}
+      className="h-[70px] w-full"
+    />
+  );
+}
+
+/* =========================================================================
+   Interactive 3D Tilt Card (Simulates MPU6050 Gyroscope with Cursor Movement)
+   ========================================================================= */
+function TiltWearableCard({ children, onTiltChange }) {
+  const cardRef = useRef(null);
+  const [style, setStyle] = useState({ transform: "perspective(1000px) rotateX(0deg) rotateY(0deg)" });
+
+  const handleMouseMove = (e) => {
+    const card = cardRef.current;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const rotateX = ((y - centerY) / centerY) * -10;
+    const rotateY = ((x - centerX) / centerX) * 10;
+
+    setStyle({
+      transform: `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.01, 1.01, 1.01)`,
+      transition: "transform 0.1s ease-out",
+    });
+
+    if (onTiltChange) {
+      onTiltChange({
+        pitch: rotateX.toFixed(1),
+        roll: rotateY.toFixed(1),
+        gForce: (1.0 + Math.abs(rotateX + rotateY) * 0.03).toFixed(2),
+      });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setStyle({
+      transform: "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)",
+      transition: "transform 0.5s ease-out",
+    });
+    if (onTiltChange) {
+      onTiltChange({ pitch: "0.0", roll: "0.0", gForce: "1.00" });
+    }
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={style}
+      className="will-change-transform"
+    >
+      {children}
+    </div>
+  );
+}
+
+/* =========================================================================
+   Main Commercial Landing Page
+   ========================================================================= */
 export default function Landing() {
   const { darkMode, toggleTheme } = useTheme();
   const [activeFaq, setActiveFaq] = useState(null);
   const [simState, setSimState] = useState("normal"); // normal | impact | sos
+  const [simCountdown, setSimCountdown] = useState(30);
+
+  // Dynamic Cursor Tracking for Ambient Spotlight
+  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
+  const [interactiveGForce, setInteractiveGForce] = useState({ pitch: "2.4", roll: "-1.8", gForce: "1.02" });
+
+  useEffect(() => {
+    const handleGlobalMouseMove = (e) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener("mousemove", handleGlobalMouseMove);
+    return () => window.removeEventListener("mousemove", handleGlobalMouseMove);
+  }, []);
+
+  // Simulator Countdown Timer
+  useEffect(() => {
+    let timer;
+    if (simState === "impact") {
+      setSimCountdown(30);
+      timer = setInterval(() => {
+        setSimCountdown((prev) => {
+          if (prev <= 1) {
+            setSimState("sos");
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [simState]);
 
   const faqs = [
     {
@@ -52,14 +235,22 @@ export default function Landing() {
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] transition-colors duration-200">
+    <div className="relative min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] transition-colors duration-200 overflow-x-hidden">
+      {/* Dynamic Cursor Spotlight Aura */}
+      <div
+        className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
+        style={{
+          background: `radial-gradient(700px circle at ${mousePos.x}px ${mousePos.y}px, rgba(45, 212, 191, 0.08), transparent 75%)`,
+        }}
+      />
+
       {/* =====================================================================
           1. STICKY GLASS NAVBAR
           ===================================================================== */}
       <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-surface)]/85 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <Link to="/" className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-[12px] border border-teal-300/30 bg-teal-400/15 text-lg shadow-sm tg-squircle-sm">
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <span className="flex h-9 w-9 items-center justify-center rounded-[12px] border border-teal-300/30 bg-teal-400/15 text-lg shadow-sm transition-transform duration-300 group-hover:scale-105 tg-squircle-sm">
               🛡
             </span>
             <div className="flex flex-col">
@@ -80,7 +271,7 @@ export default function Landing() {
               Hardware
             </a>
             <a href="#simulator" className="transition hover:text-[var(--color-text)]">
-              Live Simulator
+              Interactive Simulator
             </a>
             <a href="#privacy" className="transition hover:text-[var(--color-text)]">
               Privacy Pledge
@@ -109,7 +300,7 @@ export default function Landing() {
 
             <Link
               to="/dashboard"
-              className="flex items-center gap-1.5 rounded-[12px] bg-[var(--action-primary)] px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-[var(--action-primary-hover)]"
+              className="relative flex items-center gap-1.5 overflow-hidden rounded-[12px] bg-[var(--action-primary)] px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-[var(--action-primary-hover)] active:scale-[0.98]"
             >
               <span>Launch App</span>
               <IoArrowForwardOutline className="h-3.5 w-3.5" />
@@ -119,17 +310,22 @@ export default function Landing() {
       </header>
 
       {/* =====================================================================
-          2. HERO SECTION
+          2. HERO SECTION WITH CINEMATIC LIGHTING
           ===================================================================== */}
-      <section className="relative overflow-hidden px-4 pt-12 pb-20 sm:px-6 sm:pt-16 sm:pb-28 lg:px-8">
-        {/* Ambient atmospheric gradients */}
-        <div className="pointer-events-none absolute -top-40 left-1/2 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-teal-500/10 blur-[120px] dark:bg-teal-500/15" />
+      <section className="relative px-4 pt-12 pb-20 sm:px-6 sm:pt-16 sm:pb-28 lg:px-8">
+        {/* Floating Background Ambient Auras */}
+        <div className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[850px] -translate-x-1/2 rounded-full bg-teal-500/15 blur-[130px] animate-pulse-aura" />
+        <div className="pointer-events-none absolute top-40 right-10 h-72 w-72 rounded-full bg-emerald-500/10 blur-[90px] animate-float-slow" />
+        <div className="pointer-events-none absolute top-60 left-10 h-72 w-72 rounded-full bg-cyan-500/10 blur-[90px] animate-float-delayed" />
 
         <div className="mx-auto max-w-5xl text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/30 bg-teal-500/10 px-3.5 py-1 text-xs font-semibold text-teal-600 dark:text-teal-400">
-            <span className="h-2 w-2 rounded-full bg-teal-400 animate-pulse" />
-            <span>Off-Grid LoRa & Satellite Telemetry · PWA Ready</span>
+          {/* Animated Announcement Pill */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/30 bg-teal-500/10 px-4 py-1.5 text-xs font-semibold text-teal-600 dark:text-teal-400 shadow-xs">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-teal-400" />
+            </span>
+            <span>Off-Grid LoRa Mesh · Satellite Telemetry · PWA Ready</span>
           </div>
 
           <h1 className="mt-6 text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
@@ -138,8 +334,8 @@ export default function Landing() {
           </h1>
 
           <p className="mx-auto mt-5 max-w-3xl text-sm leading-relaxed text-[var(--color-text-secondary)] sm:text-base lg:text-lg">
-            TrailGuard (SWAAS) is an autonomous wearable safety platform engineered for lone hikers,
-            geologists, and mountain rescue teams. Combining continuous on-wrist biometrics, autonomous fall impact
+            TrailGuard (SWAAS) is an autonomous wearable safety ecosystem engineered for lone hikers,
+            geologists, and alpine rescue squads. Combining continuous on-wrist biometrics, autonomous fall impact
             recognition, and 15 km off-grid radio links with strict local-first privacy.
           </p>
 
@@ -154,27 +350,28 @@ export default function Landing() {
 
             <a
               href="#simulator"
-              className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-3.5 text-sm font-semibold text-[var(--color-text)] shadow-xs transition hover:bg-[var(--color-surface-alt)]"
+              className="flex items-center gap-2 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-3.5 text-sm font-semibold text-[var(--color-text)] shadow-xs transition hover:bg-[var(--color-surface-alt)] active:scale-[0.99]"
             >
-              Interactive Hardware Demo
+              <IoSparklesOutline className="text-teal-400" />
+              <span>Interactive Hardware Demo</span>
             </a>
           </div>
 
-          {/* Trust Metric Deck */}
+          {/* Trust Metric Deck with Subtle Hover Lifts */}
           <div className="mt-12 grid grid-cols-2 gap-4 border-t border-[var(--color-border)] pt-8 sm:grid-cols-4">
-            <div>
+            <div className="transition-transform duration-200 hover:-translate-y-1">
               <div className="font-mono text-2xl font-extrabold text-[var(--color-text)] sm:text-3xl">15 km</div>
               <div className="mt-0.5 text-xs text-[var(--color-text-muted)]">Off-Grid LoRa Range</div>
             </div>
-            <div>
+            <div className="transition-transform duration-200 hover:-translate-y-1">
               <div className="font-mono text-2xl font-extrabold text-[#2DD4BF] sm:text-3xl">&lt;0.5s</div>
               <div className="mt-0.5 text-xs text-[var(--color-text-muted)]">Impact Fall Trigger</div>
             </div>
-            <div>
+            <div className="transition-transform duration-200 hover:-translate-y-1">
               <div className="font-mono text-2xl font-extrabold text-emerald-500 sm:text-3xl">48 hrs</div>
               <div className="mt-0.5 text-xs text-[var(--color-text-muted)]">Expedition Battery</div>
             </div>
-            <div>
+            <div className="transition-transform duration-200 hover:-translate-y-1">
               <div className="font-mono text-2xl font-extrabold text-[var(--color-text)] sm:text-3xl">100%</div>
               <div className="mt-0.5 text-xs text-[var(--color-text-muted)]">Local-First Privacy</div>
             </div>
@@ -182,112 +379,144 @@ export default function Landing() {
         </div>
 
         {/* ===================================================================
-            HERO VISUAL: TACTICAL WEARABLE RADAR & TELEMETRY PREVIEW
+            HERO VISUAL: 3D TILT WEARABLE RADAR & LIVE ECG PULSE
             =================================================================== */}
         <div className="mx-auto mt-14 max-w-5xl">
-          <div className="tg-card p-6 shadow-2xl sm:p-8">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-border)] pb-4">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="font-mono text-xs font-bold uppercase tracking-wider text-[var(--color-text)]">
-                  Wearable Node: ESP32-S3 (SX1278 Mesh)
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-xs font-mono text-[var(--color-text-muted)]">
-                <span>Satellite Fix: 8 Constellations</span>
-                <span>·</span>
-                <span className="text-emerald-500 font-semibold">Signal -84 dBm</span>
-              </div>
-            </div>
+          <TiltWearableCard onTiltChange={setInteractiveGForce}>
+            <div className="tg-card p-6 shadow-2xl sm:p-8 backdrop-blur-md relative border-teal-500/20">
+              {/* Animated Top Laser Stroke */}
+              <div
+                className="pointer-events-none absolute top-0 left-0 right-0 h-[2px]"
+                style={{
+                  background: "linear-gradient(90deg, transparent, #2DD4BF 50%, transparent)",
+                }}
+              />
 
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-              {/* Telemetry Column 1 */}
-              <div className="space-y-3">
-                <div className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 tg-card-inner">
-                  <div className="flex items-center justify-between">
-                    <span className="tg-metric-label">Heart Rate (MAX30100)</span>
-                    <IoPulseOutline className="text-red-500" />
-                  </div>
-                  <div className="mt-2 flex items-baseline gap-1.5">
-                    <span className="text-3xl font-extrabold tabular-nums font-mono">74</span>
-                    <span className="text-xs text-[var(--color-text-muted)]">BPM</span>
-                  </div>
-                  <div className="mt-2 h-1.5 w-full rounded-full bg-[var(--color-border)] overflow-hidden">
-                    <div className="h-full w-[65%] rounded-full bg-red-500" />
-                  </div>
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-border)] pb-4">
+                <div className="flex items-center gap-2.5">
+                  <span className="flex h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="font-mono text-xs font-bold uppercase tracking-wider text-[var(--color-text)]">
+                    Wearable Node: ESP32-S3 (SX1278 Mesh)
+                  </span>
                 </div>
-
-                <div className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 tg-card-inner">
-                  <div className="flex items-center justify-between">
-                    <span className="tg-metric-label">Blood Oxygen (SpO₂)</span>
-                    <IoShieldCheckmarkOutline className="text-teal-400" />
-                  </div>
-                  <div className="mt-2 flex items-baseline gap-1.5">
-                    <span className="text-3xl font-extrabold tabular-nums font-mono">98%</span>
-                    <span className="text-xs text-emerald-500 font-semibold">Optimal</span>
-                  </div>
-                  <div className="mt-2 h-1.5 w-full rounded-full bg-[var(--color-border)] overflow-hidden">
-                    <div className="h-full w-[98%] rounded-full bg-teal-400" />
-                  </div>
+                <div className="flex items-center gap-2 text-xs font-mono text-[var(--color-text-muted)]">
+                  <span>Satellite Fix: 8 Constellations</span>
+                  <span>·</span>
+                  <span className="text-emerald-500 font-semibold">Signal -84 dBm</span>
                 </div>
               </div>
 
-              {/* Center Radar / Beacon Graphic */}
-              <div className="flex flex-col items-center justify-center rounded-[16px] border border-[var(--color-border)] bg-slate-950 p-6 text-white tg-card-inner">
-                <div className="relative flex h-36 w-36 items-center justify-center">
-                  <div className="absolute inset-0 rounded-full border border-teal-500/20 animate-ping" />
-                  <div className="absolute inset-4 rounded-full border border-teal-500/30" />
-                  <div className="absolute inset-8 rounded-full border border-dashed border-teal-500/40 animate-spin" style={{ animationDuration: "20s" }} />
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-500/20 text-teal-300 font-bold text-xl shadow-[0_0_20px_rgba(45,212,191,0.5)]">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                {/* Telemetry Column 1: Live Pulse & Oximetry */}
+                <div className="space-y-3">
+                  <div className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 tg-card-inner">
+                    <div className="flex items-center justify-between">
+                      <span className="tg-metric-label">Live Heart Rate (MAX30100)</span>
+                      <IoPulseOutline className="text-red-500 animate-pulse" />
+                    </div>
+                    <div className="mt-1 flex items-baseline gap-1.5">
+                      <span className="text-3xl font-extrabold tabular-nums font-mono text-red-500">74</span>
+                      <span className="text-xs text-[var(--color-text-muted)]">BPM</span>
+                    </div>
+
+                    {/* Animated Continuous ECG Pulse Trace */}
+                    <div className="mt-2 overflow-hidden rounded-[10px] bg-slate-950/40 p-1 border border-black/5 dark:border-white/5">
+                      <AnimatedPulseTrace color="#EF4444" />
+                    </div>
+                  </div>
+
+                  <div className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 tg-card-inner">
+                    <div className="flex items-center justify-between">
+                      <span className="tg-metric-label">Blood Oxygen (SpO₂)</span>
+                      <IoShieldCheckmarkOutline className="text-teal-400" />
+                    </div>
+                    <div className="mt-1 flex items-baseline gap-1.5">
+                      <span className="text-3xl font-extrabold tabular-nums font-mono text-teal-400">98%</span>
+                      <span className="text-xs text-emerald-500 font-semibold">Optimal</span>
+                    </div>
+                    <div className="mt-2 h-2 w-full rounded-full bg-[var(--color-border)] overflow-hidden">
+                      <div className="h-full w-[98%] rounded-full bg-teal-400 transition-all duration-500" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Center Column: Animated Tactical Radar & Beacon */}
+                <div className="flex flex-col items-center justify-center rounded-[16px] border border-[var(--color-border)] bg-slate-950 p-6 text-white tg-card-inner relative overflow-hidden">
+                  {/* Rotating Radar Scan Arm */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
+                    <div className="h-44 w-44 rounded-full border border-teal-500/20" />
+                    <div className="absolute h-32 w-32 rounded-full border border-teal-500/30" />
+                    <div className="absolute h-20 w-20 rounded-full border border-teal-500/40" />
+                    <div
+                      className="absolute inset-0 animate-radar-sweep"
+                      style={{
+                        background: "conic-gradient(from 0deg, transparent 70%, rgba(45, 212, 191, 0.4) 100%)",
+                        borderRadius: "50%",
+                        maskImage: "radial-gradient(circle, black 65%, transparent 70%)",
+                      }}
+                    />
+                  </div>
+
+                  <div className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full bg-teal-500/25 text-teal-300 font-bold text-2xl shadow-[0_0_24px_rgba(45,212,191,0.6)]">
                     📍
                   </div>
-                </div>
-                <div className="mt-3 text-center">
-                  <div className="font-mono text-xs font-bold text-teal-400">20.2961° N, 85.8245° E</div>
-                  <div className="text-[11px] text-slate-400">Elevation: 412m ASL · Active Waypoint</div>
-                </div>
-              </div>
 
-              {/* Telemetry Column 2 */}
-              <div className="space-y-3">
-                <div className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 tg-card-inner">
-                  <div className="flex items-center justify-between">
-                    <span className="tg-metric-label">Motion IMU (MPU6050)</span>
-                    <IoSpeedometerOutline className="text-amber-500" />
-                  </div>
-                  <div className="mt-2 flex items-baseline gap-1.5">
-                    <span className="text-3xl font-extrabold tabular-nums font-mono">1.02g</span>
-                    <span className="text-xs text-emerald-500 font-semibold">Stable Gait</span>
-                  </div>
-                  <div className="mt-2 text-[11px] text-[var(--color-text-muted)] font-mono">
-                    Tilt: 3.2° · Gyro: 0.1 rad/s
+                  <div className="mt-4 text-center relative z-10">
+                    <div className="font-mono text-sm font-bold text-teal-400">20.2961° N, 85.8245° E</div>
+                    <div className="text-[11px] text-slate-400 mt-0.5">Elevation: 412m ASL · Active Waypoint</div>
+                    <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-teal-500/40 bg-teal-500/10 px-2.5 py-0.5 text-[10px] font-mono text-teal-300">
+                      <span className="h-1.5 w-1.5 rounded-full bg-teal-400 animate-ping" />
+                      LoRa SX1278 Chirping
+                    </div>
                   </div>
                 </div>
 
-                <div className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 tg-card-inner">
-                  <div className="flex items-center justify-between">
-                    <span className="tg-metric-label">Atmosphere (BME280)</span>
-                    <IoThermometerOutline className="text-sky-400" />
+                {/* Telemetry Column 2: Interactive 3D Cursor Gyroscope & Weather */}
+                <div className="space-y-3">
+                  <div className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 tg-card-inner">
+                    <div className="flex items-center justify-between">
+                      <span className="tg-metric-label">Motion IMU (MPU-6050)</span>
+                      <IoSpeedometerOutline className="text-amber-500" />
+                    </div>
+                    <div className="mt-1 flex items-baseline gap-1.5">
+                      <span className="text-3xl font-extrabold tabular-nums font-mono text-amber-500">
+                        {interactiveGForce.gForce}g
+                      </span>
+                      <span className="text-xs text-emerald-500 font-semibold">Interactive</span>
+                    </div>
+                    <div className="mt-2 space-y-1 font-mono text-[11px] text-[var(--color-text-muted)]">
+                      <div>Pitch: {interactiveGForce.pitch}° · Roll: {interactiveGForce.roll}°</div>
+                      <div className="text-[10px] text-teal-500 font-sans italic">
+                        Tip: Hover cursor across card to simulate wrist tilt!
+                      </div>
+                    </div>
                   </div>
-                  <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-2xl font-extrabold font-mono">22.4°C</span>
-                    <span className="text-xs text-[var(--color-text-muted)]">·</span>
-                    <span className="text-2xl font-extrabold font-mono">1013 hPa</span>
-                  </div>
-                  <div className="mt-2 text-[11px] text-[var(--color-text-muted)] font-mono">
-                    Humidity: 54% · Fair Weather
+
+                  <div className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 tg-card-inner">
+                    <div className="flex items-center justify-between">
+                      <span className="tg-metric-label">Atmosphere (BME280)</span>
+                      <IoThermometerOutline className="text-sky-400" />
+                    </div>
+                    <div className="mt-1 flex items-baseline gap-2">
+                      <span className="text-2xl font-extrabold font-mono text-sky-400">22.4°C</span>
+                      <span className="text-xs text-[var(--color-text-muted)]">·</span>
+                      <span className="text-2xl font-extrabold font-mono text-sky-400">1013 hPa</span>
+                    </div>
+                    <div className="mt-2 text-[11px] text-[var(--color-text-muted)] font-mono">
+                      Humidity: 54% · Stable Alpine Conditions
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </TiltWearableCard>
         </div>
       </section>
 
       {/* =====================================================================
           3. PROBLEM VS. SOLUTION
           ===================================================================== */}
-      <section className="border-t border-[var(--color-border)] bg-[var(--color-surface)] py-16 sm:py-24">
+      <section id="features" className="border-t border-[var(--color-border)] bg-[var(--color-surface)] py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-xs font-bold uppercase tracking-widest text-[#2DD4BF]">
@@ -303,7 +532,7 @@ export default function Landing() {
           </div>
 
           <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="tg-card p-6 border-red-500/20 bg-red-500/5">
+            <div className="tg-card p-6 border-red-500/20 bg-red-500/5 hover:border-red-500/40 transition-all duration-300">
               <div className="flex items-center gap-2 text-red-500 font-bold text-sm">
                 <IoAlertCircleOutline className="h-5 w-5" />
                 <span>Standard Fitness Watch Failure Mode</span>
@@ -324,7 +553,7 @@ export default function Landing() {
               </ul>
             </div>
 
-            <div className="tg-card p-6 border-emerald-500/30 bg-emerald-500/5">
+            <div className="tg-card p-6 border-emerald-500/30 bg-emerald-500/5 hover:border-emerald-500/50 transition-all duration-300">
               <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
                 <IoCheckmarkCircleOutline className="h-5 w-5" />
                 <span>The TrailGuard Autonomous Standard</span>
@@ -366,7 +595,7 @@ export default function Landing() {
           </div>
 
           <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="tg-card p-6">
+            <div className="tg-card p-6 group hover:-translate-y-1 hover:border-red-500/40 transition-all duration-300">
               <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-red-500/10 text-red-500 tg-squircle-sm">
                 <IoPulseOutline className="h-5 w-5" />
               </div>
@@ -377,7 +606,7 @@ export default function Landing() {
               <div className="mt-4 font-mono text-[11px] text-[var(--color-text-muted)]">I2C Bus · 100 Hz Sampling</div>
             </div>
 
-            <div className="tg-card p-6">
+            <div className="tg-card p-6 group hover:-translate-y-1 hover:border-amber-500/40 transition-all duration-300">
               <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-amber-500/10 text-amber-500 tg-squircle-sm">
                 <IoFlashOutline className="h-5 w-5" />
               </div>
@@ -388,7 +617,7 @@ export default function Landing() {
               <div className="mt-4 font-mono text-[11px] text-[var(--color-text-muted)]">±16g Range · Wake-on-Interrupt</div>
             </div>
 
-            <div className="tg-card p-6">
+            <div className="tg-card p-6 group hover:-translate-y-1 hover:border-teal-500/40 transition-all duration-300">
               <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-teal-500/10 text-teal-400 tg-squircle-sm">
                 <IoRadioOutline className="h-5 w-5" />
               </div>
@@ -399,7 +628,7 @@ export default function Landing() {
               <div className="mt-4 font-mono text-[11px] text-[var(--color-text-muted)]">433 MHz ISM · +20 dBm PA</div>
             </div>
 
-            <div className="tg-card p-6">
+            <div className="tg-card p-6 group hover:-translate-y-1 hover:border-emerald-500/40 transition-all duration-300">
               <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-emerald-500/10 text-emerald-500 tg-squircle-sm">
                 <IoCompassOutline className="h-5 w-5" />
               </div>
@@ -410,7 +639,7 @@ export default function Landing() {
               <div className="mt-4 font-mono text-[11px] text-[var(--color-text-muted)]">50-Channel Engine · ±2.5m Accuracy</div>
             </div>
 
-            <div className="tg-card p-6">
+            <div className="tg-card p-6 group hover:-translate-y-1 hover:border-sky-500/40 transition-all duration-300">
               <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-sky-500/10 text-sky-400 tg-squircle-sm">
                 <IoThermometerOutline className="h-5 w-5" />
               </div>
@@ -421,7 +650,7 @@ export default function Landing() {
               <div className="mt-4 font-mono text-[11px] text-[var(--color-text-muted)]">300–1100 hPa · 0.18 Pa Resolution</div>
             </div>
 
-            <div className="tg-card p-6">
+            <div className="tg-card p-6 group hover:-translate-y-1 hover:border-purple-500/40 transition-all duration-300">
               <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-purple-500/10 text-purple-400 tg-squircle-sm">
                 <IoHardwareChipOutline className="h-5 w-5" />
               </div>
@@ -448,7 +677,7 @@ export default function Landing() {
               Interactive Emergency Trigger Simulator
             </h3>
             <p className="mx-auto mt-3 max-w-2xl text-xs text-[var(--color-text-secondary)] sm:text-sm">
-              See how the hardware reacts during an emergency incident without needing a physical ESP32 attached.
+              Experience the 3-stage emergency flow with live countdown timers and simulated LoRa packets.
             </p>
           </div>
 
@@ -514,8 +743,17 @@ export default function Landing() {
                   <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
                     Wearable initiated a 30-second haptic wrist buzz. User can tap wrist to cancel if unhurt.
                   </p>
-                  <div className="mt-4 inline-block rounded-full border border-amber-500/40 bg-amber-500/10 px-4 py-1 font-mono text-xs font-bold text-amber-500">
-                    Haptic Countdown: 00:24 remaining before LoRa transmission
+                  <div className="mt-4 inline-block rounded-full border border-amber-500/40 bg-amber-500/10 px-4 py-1.5 font-mono text-xs font-bold text-amber-500">
+                    Haptic Countdown: 00:{simCountdown < 10 ? `0${simCountdown}` : simCountdown} remaining before LoRa transmission
+                  </div>
+                  <div className="mt-3">
+                    <button
+                      type="button"
+                      onClick={() => setSimState("normal")}
+                      className="rounded-[10px] bg-amber-500/20 px-3 py-1 text-xs font-bold text-amber-500 hover:bg-amber-500/30"
+                    >
+                      Tap to Cancel Alert (I am OK)
+                    </button>
                   </div>
                 </div>
               )}
@@ -529,11 +767,20 @@ export default function Landing() {
                   <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
                     LoRa SX1278 transceiver is transmitting emergency coordinates to nearby rangers and Search & Rescue nodes.
                   </p>
-                  <div className="mt-4 rounded-[12px] border border-red-500/30 bg-red-500/10 p-3 font-mono text-xs text-red-400 text-left">
+                  <div className="mt-4 rounded-[12px] border border-red-500/30 bg-red-500/10 p-3 font-mono text-xs text-red-400 text-left space-y-1">
                     <div>PACKET_ID: 0xTG-EMERG-8921</div>
                     <div>COORDINATES: 20.29614 N, 85.82452 E (Elev: 412m)</div>
                     <div>VITALS: HR 148 bpm, SpO2 91% (Hypoxic Stress)</div>
                     <div>SIGNATURE: Ed25519 Validated Hardware Key</div>
+                  </div>
+                  <div className="mt-3">
+                    <button
+                      type="button"
+                      onClick={() => setSimState("normal")}
+                      className="rounded-[10px] bg-red-500/20 px-3 py-1 text-xs font-bold text-red-400 hover:bg-red-500/30"
+                    >
+                      Reset Simulator
+                    </button>
                   </div>
                 </div>
               )}
@@ -560,7 +807,7 @@ export default function Landing() {
           </div>
 
           <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
-            <div className="tg-card p-6">
+            <div className="tg-card p-6 hover:-translate-y-1 transition-all duration-300">
               <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-teal-500/10 text-teal-400 tg-squircle-sm">
                 <IoLockClosedOutline className="h-5 w-5" />
               </div>
@@ -570,7 +817,7 @@ export default function Landing() {
               </p>
             </div>
 
-            <div className="tg-card p-6">
+            <div className="tg-card p-6 hover:-translate-y-1 transition-all duration-300">
               <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-emerald-500/10 text-emerald-500 tg-squircle-sm">
                 <IoShieldCheckmarkOutline className="h-5 w-5" />
               </div>
@@ -580,7 +827,7 @@ export default function Landing() {
               </p>
             </div>
 
-            <div className="tg-card p-6">
+            <div className="tg-card p-6 hover:-translate-y-1 transition-all duration-300">
               <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-sky-500/10 text-sky-400 tg-squircle-sm">
                 <IoHardwareChipOutline className="h-5 w-5" />
               </div>
@@ -654,7 +901,7 @@ export default function Landing() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
               to="/dashboard"
-              className="flex items-center gap-2 rounded-[14px] bg-[var(--action-primary)] px-6 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[var(--action-primary-hover)]"
+              className="flex items-center gap-2 rounded-[14px] bg-[var(--action-primary)] px-6 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[var(--action-primary-hover)] active:scale-[0.98]"
             >
               <span>Launch Live Dashboard</span>
               <IoArrowForwardOutline className="h-4 w-4" />
@@ -662,7 +909,7 @@ export default function Landing() {
 
             <Link
               to="/register"
-              className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-3.5 text-sm font-semibold text-[var(--color-text)] shadow-xs transition hover:bg-[var(--color-surface-alt)]"
+              className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-3.5 text-sm font-semibold text-[var(--color-text)] shadow-xs transition hover:bg-[var(--color-surface-alt)] active:scale-[0.98]"
             >
               Create Free Account
             </Link>
