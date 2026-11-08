@@ -397,81 +397,89 @@ html.dark {
     100% { stroke-dashoffset: 0; }
   }
 
-  /* Apple / Render Dynamic Ambient Gradient & Wave Animations */
+  /* Apple / Render Dynamic Ambient Gradient & Wave Animations (GPU Accelerated) */
   @keyframes ambientDrift1 {
-    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.45; }
-    33% { transform: translate(60px, -40px) scale(1.15); opacity: 0.65; }
-    66% { transform: translate(-40px, 50px) scale(0.95); opacity: 0.4; }
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.45; }
+    33% { transform: translate3d(50px, -30px, 0) scale(1.1); opacity: 0.65; }
+    66% { transform: translate3d(-30px, 40px, 0) scale(0.95); opacity: 0.4; }
   }
 
   @keyframes ambientDrift2 {
-    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
-    33% { transform: translate(-50px, 60px) scale(1.2); opacity: 0.6; }
-    66% { transform: translate(50px, -30px) scale(0.9); opacity: 0.35; }
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.4; }
+    33% { transform: translate3d(-40px, 50px, 0) scale(1.15); opacity: 0.6; }
+    66% { transform: translate3d(40px, -25px, 0) scale(0.9); opacity: 0.35; }
   }
 
   @keyframes ambientDrift3 {
-    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
-    50% { transform: translate(40px, 30px) scale(1.12); opacity: 0.55; }
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.3; }
+    50% { transform: translate3d(30px, 20px, 0) scale(1.08); opacity: 0.55; }
   }
 
   @keyframes waveFlowSlow {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
   }
 
   @keyframes waveFlowFast {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
   }
 
   @keyframes gridScanLine {
-    0% { transform: translateY(-100%); opacity: 0; }
+    0% { transform: translate3d(0, -100%, 0); opacity: 0; }
     15% { opacity: 1; }
     85% { opacity: 1; }
-    100% { transform: translateY(1000%); opacity: 0; }
+    100% { transform: translate3d(0, 1000%, 0); opacity: 0; }
   }
 
   .animate-ambient-1 {
     animation: ambientDrift1 18s ease-in-out infinite;
+    will-change: transform, opacity;
   }
 
   .animate-ambient-2 {
     animation: ambientDrift2 24s ease-in-out infinite;
+    will-change: transform, opacity;
   }
 
   .animate-ambient-3 {
     animation: ambientDrift3 20s ease-in-out infinite;
+    will-change: transform, opacity;
   }
 
   .animate-wave-slow {
     animation: waveFlowSlow 28s linear infinite;
+    will-change: transform;
   }
 
   .animate-wave-fast {
     animation: waveFlowFast 16s linear infinite;
+    will-change: transform;
   }
 
   .animate-grid-scan {
     animation: gridScanLine 8s ease-in-out infinite;
+    will-change: transform, opacity;
   }
 
   @keyframes gridFloorDrift {
-    0% { background-position: 0 0; }
-    100% { background-position: 0 60px; }
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(0, 60px, 0); }
   }
 
   .animate-3d-grid-floor {
-    animation: gridFloorDrift 3.5s linear infinite;
+    animation: gridFloorDrift 2.5s linear infinite;
+    will-change: transform;
   }
 
   @keyframes pulseParticle {
     0%, 100% { transform: scale(1); opacity: 0.35; }
-    50% { transform: scale(1.5); opacity: 0.85; }
+    50% { transform: scale(1.4); opacity: 0.85; }
   }
 
   .animate-particle-pulse {
     animation: pulseParticle 4s ease-in-out infinite;
+    will-change: transform, opacity;
   }
 
   .animate-radar-sweep {

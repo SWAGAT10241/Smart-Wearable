@@ -23,22 +23,31 @@ import {
 } from "react-icons/io5";
 
 /* =========================================================================
-   1. DYNAMIC VIBRANT 3D BACKGROUND: DUAL THEME (LIGHT & DARK ADAPTIVE)
+   1. DYNAMIC VIBRANT 3D BACKGROUND: DUAL THEME (GPU ACCELERATED & ZERO-LAG)
    ========================================================================= */
 function VibrantDynamicBackground({ isDark = true }) {
-  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.3 });
+  const containerRef = useRef(null);
 
   useEffect(() => {
     let rafId;
     const onMove = (e) => {
       if (rafId) cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => {
+        if (!containerRef.current) return;
         const w = window.innerWidth || 1920;
         const h = window.innerHeight || 1080;
-        setMousePos({
-          x: Math.min(Math.max(e.clientX / w, 0), 1),
-          y: Math.min(Math.max(e.clientY / h, 0), 1),
-        });
+        const x = Math.min(Math.max(e.clientX / w, 0), 1);
+        const y = Math.min(Math.max(e.clientY / h, 0), 1);
+
+        const el = containerRef.current;
+        el.style.setProperty("--mx", `${(x * 100).toFixed(1)}%`);
+        el.style.setProperty("--my", `${(y * 100).toFixed(1)}%`);
+        el.style.setProperty("--tilt-y", `${((y - 0.5) * 25).toFixed(1)}px`);
+        el.style.setProperty("--tilt-z", `${((x - 0.5) * 6).toFixed(1)}deg`);
+        el.style.setProperty("--px1", `${((x - 0.5) * -35).toFixed(1)}px`);
+        el.style.setProperty("--py1", `${((y - 0.5) * -35).toFixed(1)}px`);
+        el.style.setProperty("--px2", `${((x - 0.5) * 45).toFixed(1)}px`);
+        el.style.setProperty("--py2", `${((y - 0.5) * 45).toFixed(1)}px`);
       });
     };
 
@@ -50,37 +59,53 @@ function VibrantDynamicBackground({ isDark = true }) {
   }, []);
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden transition-colors duration-500">
-      {/* Dynamic Ambient Fluid Light Mesh (Adaptive) */}
+    <div
+      ref={containerRef}
+      className="pointer-events-none fixed inset-0 z-0 overflow-hidden transition-colors duration-500"
+      style={{
+        "--mx": "50%",
+        "--my": "30%",
+        "--tilt-y": "0px",
+        "--tilt-z": "0deg",
+        "--px1": "0px",
+        "--py1": "0px",
+        "--px2": "0px",
+        "--py2": "0px",
+      }}
+    >
+      {/* Dynamic Ambient Fluid Light Mesh (Native Radial Gradients for Zero GPU Overhead) */}
       <div
-        className={`absolute -top-[20%] -left-[10%] h-[700px] w-[700px] rounded-full blur-[120px] animate-ambient-1 transition-all duration-700 ${
-          isDark
-            ? "bg-gradient-to-br from-cyan-500/25 via-blue-600/20 to-transparent"
-            : "bg-gradient-to-br from-cyan-300/40 via-sky-200/30 to-transparent"
-        }`}
-      />
-      <div
-        className={`absolute top-[25%] -right-[15%] h-[750px] w-[750px] rounded-full blur-[130px] animate-ambient-2 transition-all duration-700 ${
-          isDark
-            ? "bg-gradient-to-bl from-emerald-500/20 via-teal-600/15 to-transparent"
-            : "bg-gradient-to-bl from-emerald-300/35 via-teal-200/25 to-transparent"
-        }`}
-      />
-      <div
-        className={`absolute -bottom-[20%] left-[20%] h-[800px] w-[800px] rounded-full blur-[140px] animate-ambient-3 transition-all duration-700 ${
-          isDark
-            ? "bg-gradient-to-tr from-indigo-600/20 via-purple-600/15 to-transparent"
-            : "bg-gradient-to-tr from-indigo-300/30 via-blue-200/20 to-transparent"
-        }`}
-      />
-
-      {/* Interactive Cursor Spotlight Aura with Depth Lighting */}
-      <div
-        className="absolute inset-0 transition-opacity duration-300"
+        className="absolute -top-[15%] -left-[10%] h-[700px] w-[700px] rounded-full animate-ambient-1"
         style={{
           background: isDark
-            ? `radial-gradient(850px circle at ${mousePos.x * 100}% ${mousePos.y * 100}%, rgba(6, 182, 212, 0.16), rgba(99, 102, 241, 0.08), transparent 70%)`
-            : `radial-gradient(850px circle at ${mousePos.x * 100}% ${mousePos.y * 100}%, rgba(2, 132, 199, 0.14), rgba(16, 185, 129, 0.08), transparent 70%)`,
+            ? "radial-gradient(circle, rgba(6, 182, 212, 0.22) 0%, transparent 65%)"
+            : "radial-gradient(circle, rgba(14, 165, 233, 0.28) 0%, transparent 65%)",
+        }}
+      />
+      <div
+        className="absolute top-[25%] -right-[15%] h-[750px] w-[750px] rounded-full animate-ambient-2"
+        style={{
+          background: isDark
+            ? "radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, transparent 65%)"
+            : "radial-gradient(circle, rgba(16, 185, 129, 0.22) 0%, transparent 65%)",
+        }}
+      />
+      <div
+        className="absolute -bottom-[20%] left-[20%] h-[800px] w-[800px] rounded-full animate-ambient-3"
+        style={{
+          background: isDark
+            ? "radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, transparent 65%)"
+            : "radial-gradient(circle, rgba(99, 102, 241, 0.20) 0%, transparent 65%)",
+        }}
+      />
+
+      {/* Interactive Cursor Spotlight Aura (CSS Variable Hardware Compositing) */}
+      <div
+        className="absolute inset-0 will-change-[background]"
+        style={{
+          background: isDark
+            ? `radial-gradient(850px circle at var(--mx) var(--my), rgba(6, 182, 212, 0.15), rgba(99, 102, 241, 0.06), transparent 70%)`
+            : `radial-gradient(850px circle at var(--mx) var(--my), rgba(2, 132, 199, 0.12), rgba(16, 185, 129, 0.06), transparent 70%)`,
         }}
       />
 
@@ -103,13 +128,13 @@ function VibrantDynamicBackground({ isDark = true }) {
         className="absolute inset-x-0 bottom-0 h-[650px] overflow-hidden"
         style={{
           perspective: "700px",
-          perspectiveOrigin: `${50 + (mousePos.x - 0.5) * 15}% 35%`,
+          perspectiveOrigin: "50% 35%",
         }}
       >
         <div
-          className="absolute inset-x-[-30%] top-10 h-[950px] animate-3d-grid-floor transition-all duration-500"
+          className="absolute inset-x-[-30%] top-10 h-[950px] animate-3d-grid-floor transition-all duration-300"
           style={{
-            transform: `rotateX(74deg) translateY(${(mousePos.y - 0.5) * 25}px) rotateZ(${(mousePos.x - 0.5) * 6}deg)`,
+            transform: `rotateX(74deg) translateY(var(--tilt-y)) rotateZ(var(--tilt-z))`,
             transformOrigin: "50% 0%",
             backgroundImage: isDark
               ? `linear-gradient(to right, rgba(6, 182, 212, 0.25) 1px, transparent 1px),
@@ -167,15 +192,15 @@ function VibrantDynamicBackground({ isDark = true }) {
         </svg>
       </div>
 
-      {/* Floating 3D Telemetry Spatial Nodes (Depth Layer 1 & 2 Parallax) */}
+      {/* Floating 3D Telemetry Spatial Nodes (Depth Layer 1 & 2 Parallax via CSS Variables) */}
       <div
-        className={`absolute top-[18%] left-[8%] hidden lg:flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-[10px] shadow-sm backdrop-blur-md transition-all duration-300 ease-out animate-particle-pulse ${
+        className={`absolute top-[18%] left-[8%] hidden lg:flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-[10px] shadow-sm backdrop-blur-md transition-transform duration-200 ease-out animate-particle-pulse ${
           isDark
             ? "border-cyan-500/30 bg-[#0F172A]/80 text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.2)]"
             : "border-cyan-200 bg-white/90 text-cyan-800 shadow-md"
         }`}
         style={{
-          transform: `translate(${(mousePos.x - 0.5) * -35}px, ${(mousePos.y - 0.5) * -35}px)`,
+          transform: "translate3d(var(--px1), var(--py1), 0)",
         }}
       >
         <span className="h-1.5 w-1.5 rounded-full bg-cyan-500" />
@@ -183,13 +208,13 @@ function VibrantDynamicBackground({ isDark = true }) {
       </div>
 
       <div
-        className={`absolute top-[45%] right-[6%] hidden lg:flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-[10px] shadow-sm backdrop-blur-md transition-all duration-300 ease-out animate-particle-pulse ${
+        className={`absolute top-[45%] right-[6%] hidden lg:flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-[10px] shadow-sm backdrop-blur-md transition-transform duration-200 ease-out animate-particle-pulse ${
           isDark
             ? "border-emerald-500/30 bg-[#0F172A]/80 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)]"
             : "border-emerald-200 bg-white/90 text-emerald-800 shadow-md"
         }`}
         style={{
-          transform: `translate(${(mousePos.x - 0.5) * 45}px, ${(mousePos.y - 0.5) * 45}px)`,
+          transform: "translate3d(var(--px2), var(--py2), 0)",
           animationDelay: "1.5s",
         }}
       >
@@ -201,41 +226,53 @@ function VibrantDynamicBackground({ isDark = true }) {
 }
 
 /* =========================================================================
-   2. SPATIAL 3D HARDWARE SHOWCASE CARD (THEME ADAPTIVE)
+   2. SPATIAL 3D HARDWARE SHOWCASE CARD (THEME ADAPTIVE & ZERO-LAG)
    ========================================================================= */
 function SpatialHardwareViewer({ isDark = true }) {
-  const [rotation, setRotation] = useState({ x: 8, y: -12 });
-  const [isHovered, setIsHovered] = useState(false);
   const [activeAngle, setActiveAngle] = useState("hero");
   const cardRef = useRef(null);
+  const cardInnerRef = useRef(null);
+  const rafRef = useRef(null);
+
+  const angleTransforms = {
+    hero: "rotateX(8deg) rotateY(-12deg) translateZ(10px)",
+    top: "rotateX(28deg) rotateY(0deg) translateZ(10px)",
+    side: "rotateX(0deg) rotateY(-45deg) translateZ(10px)",
+    sensors: "rotateX(-15deg) rotateY(35deg) translateZ(10px)",
+  };
 
   const handleMouseMove = (e) => {
-    if (!cardRef.current) return;
+    if (!cardRef.current || !cardInnerRef.current) return;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
     const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+    rafRef.current = requestAnimationFrame(() => {
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
 
-    const rotateY = ((x - centerX) / centerX) * 16;
-    const rotateX = -((y - centerY) / centerY) * 16;
-    setRotation({ x: rotateX, y: rotateY });
+      const rotateY = ((x - centerX) / centerX) * 16;
+      const rotateX = -((y - centerY) / centerY) * 16;
+      if (cardInnerRef.current) {
+        cardInnerRef.current.style.transform = `rotateX(${rotateX.toFixed(1)}deg) rotateY(${rotateY.toFixed(1)}deg) translateZ(30px)`;
+      }
+    });
   };
 
   const handleMouseLeave = () => {
-    setIsHovered(false);
-    if (activeAngle === "hero") setRotation({ x: 8, y: -12 });
-    if (activeAngle === "top") setRotation({ x: 28, y: 0 });
-    if (activeAngle === "side") setRotation({ x: 0, y: -45 });
-    if (activeAngle === "sensors") setRotation({ x: -15, y: 35 });
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (cardInnerRef.current) {
+      cardInnerRef.current.style.transform = angleTransforms[activeAngle] || angleTransforms.hero;
+    }
   };
 
   const setViewPreset = (angle) => {
     setActiveAngle(angle);
-    if (angle === "hero") setRotation({ x: 8, y: -12 });
-    if (angle === "top") setRotation({ x: 28, y: 0 });
-    if (angle === "side") setRotation({ x: 0, y: -45 });
-    if (angle === "sensors") setRotation({ x: -15, y: 35 });
+    if (cardInnerRef.current) {
+      cardInnerRef.current.style.transform = angleTransforms[angle] || angleTransforms.hero;
+    }
   };
 
   return (
@@ -270,7 +307,6 @@ function SpatialHardwareViewer({ isDark = true }) {
       <div
         ref={cardRef}
         onMouseMove={handleMouseMove}
-        onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={handleMouseLeave}
         className={`relative cursor-grab active:cursor-grabbing rounded-[24px] border p-8 backdrop-blur-xl transition-all duration-300 ease-out ${
           isDark
@@ -281,11 +317,12 @@ function SpatialHardwareViewer({ isDark = true }) {
       >
         <div className={`absolute inset-0 rounded-[24px] pointer-events-none border ${isDark ? "border-white/10" : "border-slate-900/5"}`} />
 
-        {/* 3D Tilting Wearable Model Card */}
+        {/* 3D Tilting Wearable Model Card (Zero-lag Ref Transform) */}
         <div
-          className="relative mx-auto flex flex-col items-center justify-center transition-transform duration-200 ease-out"
+          ref={cardInnerRef}
+          className="relative mx-auto flex flex-col items-center justify-center transition-transform duration-200 ease-out will-change-transform"
           style={{
-            transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) translateZ(${isHovered ? "30px" : "10px"})`,
+            transform: angleTransforms[activeAngle],
             transformStyle: "preserve-3d",
           }}
         >
