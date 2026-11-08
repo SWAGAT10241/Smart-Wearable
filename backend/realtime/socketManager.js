@@ -1,4 +1,5 @@
 const { WebSocketServer } = require("ws");
+const webSocketTicketService = require("../services/webSocketTicketService");
 
 const clients = new Set();
 
@@ -9,9 +10,41 @@ const clients = new Set();
  * @returns {WebSocketServer}
  */
 function initWebSocket(server) {
-  const wss = new WebSocketServer({ server, path: "/live" });
+  const wss = new WebSocketServer({
+    server,
+    path: "/live",
+    handleProtocols: (protocols) => {
+      if (protocols.has("trailguard")) {
+        return "trailguard";
+      }
+      return false;
+    },
+  });
 
-  wss.on("connection", (ws) => {
+  wss.on("connection", async (ws, request) => {
+    // Validate ticket subprotocol if offered
+    const offeredProtocols = (request.headers["sec-websocket-protocol"] || "")
+      .split(",")
+      .map((p) => p.trim());
+    const ticketProtocol = offeredProtocols.find((p) => p.startsWith("ticket."));
+
+    if (ticketProtocol) {
+      const ticketString = ticketProtocol.slice(7);
+      try {
+        const auth = await webSocketTicketService.consumeTicket(ticketString);
+        if (!auth) {
+          ws.close(4001, "Invalid or expired ticket");
+          return;
+        }
+        ws.userId = auth.userId;
+        ws.role = auth.role;
+      } catch (err) {
+        console.error("Error validating WebSocket ticket:", err.message);
+        ws.close(4001, "Authentication error");
+        return;
+      }
+    }
+
     clients.add(ws);
 
     ws.on("close", () => {
