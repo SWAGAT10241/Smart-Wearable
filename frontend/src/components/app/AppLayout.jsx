@@ -1,4 +1,5 @@
 import Sidebar from "../Sidebar";
+import OfflineBanner from "../common/OfflineBanner";
 
 export default function AppLayout({ children }) {
   return (
@@ -6,6 +7,7 @@ export default function AppLayout({ children }) {
       <Sidebar />
 
       <main className="flex min-w-0 flex-1 flex-col gap-4 p-3.5 sm:p-5 lg:p-6">
+        <OfflineBanner />
         {children}
       </main>
     </div>
