@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { describe, it, expect } from "vitest";
 import Landing from "../src/pages/Landing";
@@ -20,5 +20,31 @@ describe("Landing Page", () => {
       screen.getByText(/Off-Grid Telemetry and Fall Rescue for Wilderness Operations/i)
     ).toBeInTheDocument();
     expect(screen.getByText(/ACCESS WEB DASHBOARD/i)).toBeInTheDocument();
+  });
+
+  it("toggles between dark and light modes cleanly", () => {
+    render(
+      <ThemeProvider>
+        <BrowserRouter>
+          <Landing />
+        </BrowserRouter>
+      </ThemeProvider>
+    );
+
+    const toggleButton = screen.getByRole("button", { name: /Toggle Theme/i });
+    expect(toggleButton).toBeInTheDocument();
+
+    // Initial state is dark mode, so button offers LIGHT MODE
+    expect(screen.getByText(/LIGHT MODE/i)).toBeInTheDocument();
+
+    // Click to switch to light mode
+    fireEvent.click(toggleButton);
+
+    // Now button offers DARK MODE
+    expect(screen.getByText(/DARK MODE/i)).toBeInTheDocument();
+
+    // Click back to dark mode
+    fireEvent.click(toggleButton);
+    expect(screen.getByText(/LIGHT MODE/i)).toBeInTheDocument();
   });
 });

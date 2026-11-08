@@ -392,8 +392,7 @@ function SpatialHardwareViewer({ isDark = true }) {
    3. MAIN LANDING COMPONENT (DYNAMIC LIGHT & DARK ADAPTIVE)
    ========================================================================= */
 export default function Landing() {
-  const { themeMode, toggleTheme } = useTheme();
-  const isDark = themeMode === "dark";
+  const { theme, toggleTheme, isDark } = useTheme();
 
   const [simMode, setSimMode] = useState("normal"); // 'normal' | 'impact' | 'sos'
   const [simTimer, setSimTimer] = useState(30);
@@ -497,18 +496,24 @@ export default function Landing() {
           <div className="flex items-center gap-3">
             <button
               onClick={toggleTheme}
-              className={`flex h-9 w-9 items-center justify-center rounded-[8px] border transition ${
+              className={`flex items-center gap-1.5 rounded-[8px] border px-3 py-1.5 font-mono text-xs font-bold transition shadow-xs ${
                 isDark
-                  ? "border-[#1E293B] bg-[#111827] text-slate-300 hover:bg-[#1E293B] hover:text-white"
-                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900 shadow-xs"
+                  ? "border-[#1E293B] bg-[#111827] text-amber-400 hover:bg-[#1E293B] hover:text-white"
+                  : "border-slate-300 bg-white text-slate-800 hover:bg-slate-100 hover:text-slate-900 shadow-sm"
               }`}
               aria-label="Toggle Theme"
               type="button"
             >
               {isDark ? (
-                <IoSunnyOutline className="h-4 w-4 text-amber-400" />
+                <>
+                  <IoSunnyOutline className="h-4 w-4 text-amber-400" />
+                  <span className="hidden sm:inline">LIGHT MODE</span>
+                </>
               ) : (
-                <IoMoonOutline className="h-4 w-4 text-slate-700" />
+                <>
+                  <IoMoonOutline className="h-4 w-4 text-slate-700" />
+                  <span className="hidden sm:inline">DARK MODE</span>
+                </>
               )}
             </button>
 
