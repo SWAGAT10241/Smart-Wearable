@@ -24,6 +24,32 @@ const MAP_STYLES = {
   },
 };
 
+const styleCache = new Map();
+
+/**
+ * Fetches and sanitizes OpenFreeMap styles, removing highway shield layers
+ * that cause benign filter evaluation warnings in MapLibre worker.
+ */
+async function getSanitizedStyle(styleKey) {
+  const meta = MAP_STYLES[styleKey] || MAP_STYLES.bright;
+  if (styleCache.has(styleKey)) return styleCache.get(styleKey);
+
+  try {
+    const res = await fetch(meta.url);
+    if (!res.ok) throw new Error("Failed to load map style");
+    const json = await res.json();
+    if (Array.isArray(json.layers)) {
+      json.layers = json.layers.filter(
+        (l) => !l.id || (!l.id.includes("highway-shield") && !l.id.includes("road_shield")),
+      );
+    }
+    styleCache.set(styleKey, json);
+    return json;
+  } catch {
+    return meta.url;
+  }
+}
+
 function useDarkMode() {
   const [isDark, setIsDark] = useState(() =>
     document.documentElement.classList.contains("dark"),
@@ -122,104 +148,116 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
       return;
     }
 
-    const defaultCenter = position || [85.8245, 20.2961];
+    let isCancelled = false;
 
-    const map = new maplibregl.Map({
-      container: mapContainer.current,
-      style: MAP_STYLES[selectedStyle].url,
-      center: defaultCenter,
-      zoom: position ? 14 : 11,
-      attributionControl: false,
-    });
+    const setupMap = async () => {
+      const sanitizedStyle = await getSanitizedStyle(selectedStyle);
+      if (isCancelled || !mapContainer.current || mapRef.current) return;
 
-    mapRef.current = map;
+      const defaultCenter = position || [85.8245, 20.2961];
 
-    map.addControl(
-      new maplibregl.NavigationControl({
-        showCompass: true,
-        showZoom: true,
-        visualizePitch: true,
-      }),
-      "top-right",
-    );
+      const map = new maplibregl.Map({
+        container: mapContainer.current,
+        style: sanitizedStyle,
+        center: defaultCenter,
+        zoom: position ? 14 : 11,
+        attributionControl: false,
+      });
 
-    map.addControl(
-      new maplibregl.AttributionControl({
-        compact: true,
-      }),
-      "bottom-right",
-    );
+      mapRef.current = map;
 
-    map.on("load", () => {
-      /*
-       * Trail source.
-       */
-      map.addSource("trail", {
-        type: "geojson",
-        data: {
-          type: "Feature",
-          geometry: {
-            type: "LineString",
-            coordinates: trailPositions,
+      map.addControl(
+        new maplibregl.NavigationControl({
+          showCompass: true,
+          showZoom: true,
+          visualizePitch: true,
+        }),
+        "top-right",
+      );
+
+      map.addControl(
+        new maplibregl.AttributionControl({
+          compact: true,
+        }),
+        "bottom-right",
+      );
+
+      map.on("load", () => {
+        if (isCancelled) return;
+
+        /*
+         * Trail source.
+         */
+        map.addSource("trail", {
+          type: "geojson",
+          data: {
+            type: "Feature",
+            geometry: {
+              type: "LineString",
+              coordinates: trailPositions,
+            },
           },
-        },
-      });
-
-      map.addLayer({
-        id: "trail-line",
-        type: "line",
-        source: "trail",
-        layout: {
-          "line-cap": "round",
-          "line-join": "round",
-        },
-        paint: {
-          "line-color": "#16B890",
-          "line-width": 5,
-          "line-opacity": 0.95,
-          "line-dasharray": [2, 1.5],
-        },
-      });
-
-      trailSourceReady.current = true;
-
-      /*
-       * Current location marker.
-       */
-      if (position) {
-        const marker = new maplibregl.Marker({
-          element: createMarkerElement(),
-          anchor: "center",
-        })
-          .setLngLat(position)
-          .addTo(map);
-
-        markerRef.current = marker;
-      }
-
-      /*
-       * Fit initial trail.
-       */
-      if (trailPositions.length > 1) {
-        const bounds = new maplibregl.LngLatBounds();
-
-        trailPositions.forEach((point) => {
-          bounds.extend(point);
         });
 
-        map.fitBounds(bounds, {
-          padding: 50,
-          maxZoom: 15,
-          duration: 0,
+        map.addLayer({
+          id: "trail-line",
+          type: "line",
+          source: "trail",
+          layout: {
+            "line-cap": "round",
+            "line-join": "round",
+          },
+          paint: {
+            "line-color": "#16B890",
+            "line-width": 5,
+            "line-opacity": 0.95,
+            "line-dasharray": [2, 1.5],
+          },
         });
-      }
-    });
+
+        trailSourceReady.current = true;
+
+        /*
+         * Current location marker.
+         */
+        if (position) {
+          const marker = new maplibregl.Marker({
+            element: createMarkerElement(),
+            anchor: "center",
+          })
+            .setLngLat(position)
+            .addTo(map);
+
+          markerRef.current = marker;
+        }
+
+        /*
+         * Fit initial trail.
+         */
+        if (trailPositions.length > 1) {
+          const bounds = new maplibregl.LngLatBounds();
+
+          trailPositions.forEach((point) => {
+            bounds.extend(point);
+          });
+
+          map.fitBounds(bounds, {
+            padding: 50,
+            maxZoom: 15,
+            duration: 0,
+          });
+        }
+      });
+    };
+
+    setupMap();
 
     return () => {
+      isCancelled = true;
       markerRef.current?.remove();
       markerRef.current = null;
 
-      map.remove();
+      mapRef.current?.remove();
       mapRef.current = null;
       trailSourceReady.current = false;
     };
@@ -276,7 +314,7 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
   /*
    * Change map style.
    */
-  const changeMapStyle = (styleName) => {
+  const changeMapStyle = async (styleName) => {
     const map = mapRef.current;
 
     if (!map) return;
@@ -288,7 +326,8 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
     setSelectedStyle(styleName);
     setStyleMenuOpen(false);
 
-    map.setStyle(style.url);
+    const sanitizedStyle = await getSanitizedStyle(styleName);
+    map.setStyle(sanitizedStyle);
 
     map.once("style.load", () => {
       trailSourceReady.current = false;
