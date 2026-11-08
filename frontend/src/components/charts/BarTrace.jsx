@@ -57,14 +57,6 @@ export default function BarTrace({
           <div className="border-t border-dashed border-[var(--color-border)]" />
         </div>
 
-        {isBaseline && (
-          <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-            <span className="rounded bg-[var(--color-surface)]/80 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] backdrop-blur-sm border border-[var(--color-border)]">
-              Standby
-            </span>
-          </div>
-        )}
-
         <div className="relative flex h-full items-end gap-[7px] px-1">
           {chartValues.map((value, index) => {
             const safeValue = Math.min(Math.max(value, 0), 100);

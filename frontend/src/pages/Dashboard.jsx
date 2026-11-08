@@ -157,25 +157,40 @@ export default function Dashboard() {
         status: env?.humidity != null ? "Normal" : undefined,
         statusColor: "var(--status-optimal)",
         variant: "bars",
-        signal: environmentHistory
-          .map((item) => item.humidity)
-          .filter((value) => value != null),
+        signal:
+          environmentHistory.length > 0
+            ? environmentHistory
+                .map((item) => item.humidity)
+                .filter((value) => value != null)
+            : env?.humidity != null
+              ? [Number(env.humidity)]
+              : [],
         normalRange: "Comfort Range: 30% - 60%",
         updatedAt: environmentTimestamp,
         miniStats: [
           [
             "Low",
-            humidityStats.min != null ? `${humidityStats.min.toFixed(1)}%` : "--",
+            humidityStats.min != null
+              ? `${humidityStats.min.toFixed(1)}%`
+              : env?.humidity != null
+                ? `${Number(env.humidity).toFixed(1)}%`
+                : "--",
           ],
           [
             "Avg",
             humidityStats.average != null
               ? `${humidityStats.average.toFixed(1)}%`
-              : "--",
+              : env?.humidity != null
+                ? `${Number(env.humidity).toFixed(1)}%`
+                : "--",
           ],
           [
             "High",
-            humidityStats.max != null ? `${humidityStats.max.toFixed(1)}%` : "--",
+            humidityStats.max != null
+              ? `${humidityStats.max.toFixed(1)}%`
+              : env?.humidity != null
+                ? `${Number(env.humidity).toFixed(1)}%`
+                : "--",
           ],
         ],
       },

@@ -118,15 +118,17 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
    * Initialize map.
    */
   useEffect(() => {
-    if (!mapContainer.current || mapRef.current || !hasLocation) {
+    if (!mapContainer.current || mapRef.current) {
       return;
     }
+
+    const defaultCenter = position || [85.8245, 20.2961];
 
     const map = new maplibregl.Map({
       container: mapContainer.current,
       style: MAP_STYLES[selectedStyle].url,
-      center: position,
-      zoom: 14,
+      center: defaultCenter,
+      zoom: position ? 14 : 11,
       attributionControl: false,
     });
 
@@ -224,14 +226,30 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
   }, []);
 
   /*
-   * Update marker position.
+   * Update marker position and ease camera.
    */
   useEffect(() => {
-    if (!mapRef.current || !position) return;
+    const map = mapRef.current;
+    if (!map || !position) return;
 
     if (markerRef.current) {
       markerRef.current.setLngLat(position);
+    } else {
+      const marker = new maplibregl.Marker({
+        element: createMarkerElement(),
+        anchor: "center",
+      })
+        .setLngLat(position)
+        .addTo(map);
+
+      markerRef.current = marker;
     }
+
+    map.easeTo({
+      center: position,
+      zoom: Math.max(map.getZoom(), 14),
+      duration: 1000,
+    });
   }, [position]);
 
   /*
@@ -319,17 +337,22 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
     });
   };
 
-  if (!hasLocation) {
-    return (
-      <div className="flex h-full min-h-[320px] items-center justify-center bg-[var(--color-surface-alt)] text-sm text-[var(--color-text-secondary)]">
-        Live map will appear once a GPS point arrives.
-      </div>
-    );
-  }
-
   return (
     <div className="relative h-full min-h-[320px] w-full overflow-hidden rounded-[16px]">
       <div ref={mapContainer} className="h-full min-h-[320px] w-full" />
+
+      {/* Awaiting GPS indicator overlay */}
+      {!hasLocation && (
+        <div className="pointer-events-none absolute inset-0 z-[500] flex items-center justify-center bg-black/25 backdrop-blur-[1px]">
+          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-900/85 px-4 py-2 text-xs font-semibold text-slate-200 shadow-xl backdrop-blur-md">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber-500" />
+            </span>
+            Waiting for live GPS coordinates...
+          </div>
+        </div>
+      )}
 
       {/* Map style selector */}
       <div className="absolute left-3 top-3 z-[1000]">

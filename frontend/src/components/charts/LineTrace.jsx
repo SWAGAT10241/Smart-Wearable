@@ -202,9 +202,9 @@ export default function LineTrace({
           />
         </svg>
 
-        {isBaseline && (
+        {isBaseline && singleVal == null && (
           <span className="absolute right-1.5 top-1 rounded border border-[var(--color-border)] bg-[var(--color-surface)]/90 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] backdrop-blur-md">
-            Standby
+            Baseline
           </span>
         )}
       </div>
