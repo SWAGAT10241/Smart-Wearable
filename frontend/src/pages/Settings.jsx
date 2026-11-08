@@ -126,7 +126,7 @@ export default function Settings() {
   const card = "tg-card";
 
   const option = (active) =>
-    `rounded-xl border p-3.5 text-left transition ${
+    `rounded-[14px] border p-3.5 text-left transition tg-card-inner ${
       active
         ? "border-emerald-500 bg-emerald-500/10 ring-1 ring-emerald-500/30 text-[var(--color-text)]"
         : "border-[var(--color-border)] bg-[var(--color-surface-alt)] hover:border-[var(--color-border-hover,rgba(255,255,255,0.2))] text-[var(--color-text-secondary)]"
@@ -269,7 +269,7 @@ export default function Settings() {
           </p>
           {deviceStatus && (
             <div
-              className="mb-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4"
+              className="mb-4 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 tg-card-inner"
               aria-label="Device status"
             >
               <div className="mb-3 flex items-baseline justify-between gap-3">
@@ -360,11 +360,11 @@ export default function Settings() {
 
           {/* Device list */}
           {devicesLoading ? (
-            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-6 text-center text-sm text-[var(--color-text-secondary)]">
+            <div className="rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-6 text-center text-sm text-[var(--color-text-secondary)] tg-card-inner">
               Loading devices…
             </div>
           ) : devices.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface-alt)] p-6 text-center">
+            <div className="rounded-[16px] border border-dashed border-[var(--color-border)] bg-[var(--color-surface-alt)] p-6 text-center tg-card-inner">
               <div className="text-sm font-semibold text-[var(--color-text)]">
                 No devices connected
               </div>

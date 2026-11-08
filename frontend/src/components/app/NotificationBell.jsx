@@ -32,10 +32,10 @@ export default function NotificationBell({ notifications = [] }) {
         <div
           className="
             absolute right-0 top-12 z-50 w-[340px]
-            overflow-hidden rounded-2xl
+            overflow-hidden rounded-[20px]
             border border-[var(--color-border)]
             bg-[var(--color-surface)]
-            shadow-xl
+            shadow-2xl tg-squircle-lg
           "
         >
           <div className="flex items-center justify-between border-b border-[var(--color-border)] px-4 py-3">

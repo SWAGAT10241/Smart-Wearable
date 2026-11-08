@@ -94,7 +94,7 @@ function SummaryItem({
     <div className="flex min-w-0 items-center gap-3.5 px-4 py-3.5 transition-colors hover:bg-[var(--color-surface-alt)]/40">
       {/* Icon */}
       <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-lg shadow-2xs"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] border text-lg shadow-2xs tg-squircle-sm"
         style={{
           background: `${color}14`,
           borderColor: `${color}35`,

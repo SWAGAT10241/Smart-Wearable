@@ -62,10 +62,10 @@ export default function ProfileMenu() {
       {open && (
         <div className="
           absolute right-0 top-[calc(100%+10px)] z-50 w-60
-          overflow-hidden rounded-2xl
+          overflow-hidden rounded-[20px]
           border border-[var(--color-border)]
           bg-[var(--color-surface)]
-          p-2 shadow-xl
+          p-2 shadow-2xl tg-squircle-lg
         ">
           <div className="border-b border-[var(--color-border)] px-3 py-3">
             <div className="flex items-center gap-3">

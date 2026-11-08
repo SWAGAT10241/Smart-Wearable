@@ -104,9 +104,9 @@ export default function Sidebar() {
           {/* DEVICE & SAFETY CARDS */}
           <div className="mt-6 space-y-3">
             {/* SAFETY */}
-            <div className="rounded-2xl border border-white/10 bg-[#102F4A]/70 p-4 shadow-lg backdrop-blur-sm">
+            <div className="rounded-[20px] border border-white/10 bg-[#102F4A]/70 p-4 shadow-lg backdrop-blur-sm">
               <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-teal-300/20 bg-teal-400/15 text-teal-300">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] border border-teal-300/20 bg-teal-400/15 text-teal-300 tg-squircle-sm">
                   🛡
                 </div>
 
@@ -125,7 +125,7 @@ export default function Sidebar() {
             </div>
 
             {/* DEVICE */}
-            <div className="rounded-2xl border border-white/10 bg-[#102F4A]/70 p-4 shadow-lg backdrop-blur-sm">
+            <div className="rounded-[20px] border border-white/10 bg-[#102F4A]/70 p-4 shadow-lg backdrop-blur-sm">
               {selectedDevice ? (
                 <>
                   <div className="flex items-start gap-3">

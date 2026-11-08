@@ -16,7 +16,7 @@ export default function RecentEventsCard({ recentFalls = [] }) {
       {/* Header Deck */}
       <div className="tg-card-header">
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-black/5 dark:border-white/10 bg-[var(--surface-warning)] text-xs text-[var(--status-warning)]">
+          <div className="flex h-7 w-7 items-center justify-center rounded-[10px] border border-black/5 dark:border-white/10 bg-[var(--surface-warning)] text-xs text-[var(--status-warning)] tg-squircle-sm">
             <span>⚡</span>
           </div>
           <h2 className="tg-card-title">
@@ -32,8 +32,8 @@ export default function RecentEventsCard({ recentFalls = [] }) {
       {/* Events List */}
       <div className="min-h-0 flex-1 overflow-y-auto pr-1">
         {recentFalls.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface-alt)]/40 p-4 text-center">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--surface-accent)] text-[var(--status-optimal)] text-base font-bold">
+          <div className="flex h-full flex-col items-center justify-center gap-2 rounded-[16px] border border-dashed border-[var(--color-border)] bg-[var(--color-surface-alt)]/40 p-4 text-center tg-card-inner">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[var(--surface-accent)] text-[var(--status-optimal)] text-base font-bold tg-squircle-sm">
               ✓
             </div>
 
@@ -52,7 +52,7 @@ export default function RecentEventsCard({ recentFalls = [] }) {
             {recentFalls.map((fall) => (
               <div
                 key={fall._id}
-                className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-2.5 transition-all hover:border-[var(--color-accent)]/50"
+                className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-2.5 transition-all hover:border-[var(--color-accent)]/50 tg-card-inner"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -71,7 +71,7 @@ export default function RecentEventsCard({ recentFalls = [] }) {
                   </div>
 
                   <span
-                    className={`shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border ${
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border ${
                       fall.severity === "severe"
                         ? "bg-red-500/15 text-red-500 border-red-500/30"
                         : "bg-amber-500/15 text-amber-500 border-amber-500/30"

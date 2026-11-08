@@ -74,7 +74,7 @@ export default function StatCard({
       <div className="mb-2 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
           <div
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-black/5 dark:border-white/10 text-xs shadow-2xs"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[10px] border border-black/5 dark:border-white/10 text-xs shadow-2xs tg-squircle-sm"
             style={{ background: style.bg }}
           >
             {icon}
@@ -118,7 +118,7 @@ export default function StatCard({
 
       {/* Sensor Viewport Screen */}
       <div
-        className={`mb-2.5 overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)]/60 px-2 py-1.5 shadow-2xs ${
+        className={`mb-2.5 overflow-hidden rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)]/60 px-2 py-1.5 shadow-2xs tg-card-inner ${
           chartVariant ? "h-[84px]" : "h-[74px]"
         }`}
       >

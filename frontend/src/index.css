@@ -323,7 +323,39 @@ html.dark {
   }
 
   .tg-card {
-    @apply relative flex flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4.5 shadow-xs transition-all;
+    @apply relative flex flex-col overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)] p-4.5 transition-all;
+    border-radius: 24px;
+    corner-smoothing: 60%;
+    -webkit-corner-smoothing: 60%;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 4px 16px -2px rgba(0, 0, 0, 0.03);
+  }
+
+  .tg-card:hover {
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.07);
+  }
+
+  .tg-card-inner {
+    border-radius: 14px;
+    corner-smoothing: 60%;
+    -webkit-corner-smoothing: 60%;
+  }
+
+  .tg-squircle-sm {
+    border-radius: 10px;
+    corner-smoothing: 60%;
+    -webkit-corner-smoothing: 60%;
+  }
+
+  .tg-squircle-md {
+    border-radius: 14px;
+    corner-smoothing: 60%;
+    -webkit-corner-smoothing: 60%;
+  }
+
+  .tg-squircle-lg {
+    border-radius: 20px;
+    corner-smoothing: 60%;
+    -webkit-corner-smoothing: 60%;
   }
 
   .tg-card-header {

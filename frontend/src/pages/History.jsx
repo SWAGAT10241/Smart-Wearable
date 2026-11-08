@@ -312,7 +312,7 @@ export default function History() {
         </div>
 
         {/* PROMINENT GPS MOVEMENT MAP (LARGE INTERACTIVE VIEW) */}
-        <div className="relative flex flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-xs font-mono">
+        <div className="tg-card font-mono">
           {/* Tactical Top Accent Line */}
           <div
             className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-70"
@@ -323,26 +323,26 @@ export default function History() {
 
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-black/5 dark:border-white/10 bg-[var(--surface-accent)] text-xs text-[var(--status-optimal)]">
+              <div className="flex h-7 w-7 items-center justify-center rounded-[10px] border border-black/5 dark:border-white/10 bg-[var(--surface-accent)] text-xs text-[var(--status-optimal)] tg-squircle-sm">
                 <IoLocationOutline className="h-4 w-4" />
               </div>
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text)] sm:text-sm">
-                  GPS TRAIL ROUTE & TERRAIN
+                <h3 className="tg-card-title">
+                  Trail Route
                 </h3>
-                <p className="text-[10px] text-[var(--color-text-muted)]">
-                  RECORDED WAYPOINTS ({range}H WINDOW)
+                <p className="tg-card-subtitle">
+                  Recorded waypoints ({range}h window)
                 </p>
               </div>
             </div>
-            <span className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-2.5 py-1 text-xs font-bold text-[var(--color-text)]">
+            <span className="tg-badge tg-badge-neutral font-bold tabular-nums">
               {latestLocation
                 ? `${Number(latestLocation.latitude).toFixed(5)}°N, ${Number(latestLocation.longitude).toFixed(5)}°E`
-                : "NO GPS FIX"}
+                : "No GPS fix"}
             </span>
           </div>
 
-          <div className="h-[360px] overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] sm:h-[400px]">
+          <div className="h-[360px] overflow-hidden rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] sm:h-[400px] tg-card-inner">
             {latestLocation ? (
               <LiveMap
                 latitude={latestLocation.latitude}
@@ -351,14 +351,14 @@ export default function History() {
               />
             ) : (
               <div className="flex h-full items-center justify-center text-xs text-[var(--color-text-muted)]">
-                NO GPS COORDINATES RECORDED FOR THIS {range}H WINDOW.
+                No GPS coordinates recorded for this {range}h window.
               </div>
             )}
           </div>
         </div>
 
         {/* FALL INCIDENTS CATEGORIZED TIMELINE */}
-        <div className="relative flex flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-xs font-mono">
+        <div className="tg-card font-mono">
           {/* Tactical Top Accent Line */}
           <div
             className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-70"
@@ -369,15 +369,15 @@ export default function History() {
           {/* Header & Badges */}
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2.5">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400">
+              <div className="flex h-8 w-8 items-center justify-center rounded-[10px] border border-amber-500/30 bg-amber-500/10 text-amber-400 tg-squircle-sm">
                 <IoShieldOutline className="h-4 w-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-[var(--text-primary)] sm:text-base">
-                  Fall Incidents & Impact Timeline
+                <h3 className="tg-card-title">
+                  Fall Incidents
                 </h3>
-                <p className="text-[11px] text-[var(--text-muted)]">
-                  Chronological event log categorized by time window and impact severity
+                <p className="tg-card-subtitle">
+                  Event log categorized by time window and severity
                 </p>
               </div>
             </div>
@@ -400,7 +400,7 @@ export default function History() {
           </div>
 
           {/* Filter & Search Toolbar */}
-          <div className="mb-3 flex flex-col gap-2 rounded-xl border border-[var(--border-default)] bg-[var(--surface-elevated)] p-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mb-3 flex flex-col gap-2 rounded-[14px] border border-[var(--border-default)] bg-[var(--surface-elevated)] p-2 sm:flex-row sm:items-center sm:justify-between tg-card-inner">
             {/* Severity Category Chips */}
             <div className="flex flex-wrap items-center gap-1">
               <button
@@ -492,7 +492,7 @@ export default function History() {
           </div>
 
           {/* Timeline Scrollable View */}
-          <div className="max-h-[380px] overflow-y-auto rounded-xl border border-[var(--border-default)] bg-[var(--surface-elevated)] p-3.5">
+          <div className="max-h-[380px] overflow-y-auto rounded-[14px] border border-[var(--border-default)] bg-[var(--surface-elevated)] p-3.5 tg-card-inner">
             {falls.length === 0 ? (
               <div className="flex h-20 flex-col items-center justify-center gap-1 text-xs text-emerald-400">
                 <IoCheckmarkCircleOutline className="h-5 w-5 text-emerald-400" />

@@ -16,7 +16,7 @@ export default function LiveLocationCard({ loc, trail, hasLocation, locationUpda
       {/* Header Deck */}
       <div className="tg-card-header">
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-black/5 dark:border-white/10 bg-[var(--surface-accent)] text-xs text-[var(--status-optimal)]">
+          <div className="flex h-7 w-7 items-center justify-center rounded-[10px] border border-black/5 dark:border-white/10 bg-[var(--surface-accent)] text-xs text-[var(--status-optimal)] tg-squircle-sm">
             <span>📍</span>
           </div>
           <h2 className="tg-card-title">
@@ -42,7 +42,7 @@ export default function LiveLocationCard({ loc, trail, hasLocation, locationUpda
       </div>
 
       {/* Map Viewport */}
-      <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] shadow-inner">
+      <div className="min-h-0 flex-1 overflow-hidden rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] shadow-inner tg-card-inner">
         <LiveMap
           latitude={loc?.latitude}
           longitude={loc?.longitude}
@@ -51,7 +51,7 @@ export default function LiveLocationCard({ loc, trail, hasLocation, locationUpda
       </div>
 
       {/* Coordinates Footer */}
-      <div className="mt-2.5 flex shrink-0 items-center justify-between rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-alt)]/80 px-3 py-1.5 font-mono text-xs">
+      <div className="mt-2.5 flex shrink-0 items-center justify-between rounded-[12px] border border-[var(--color-border)] bg-[var(--color-surface-alt)]/80 px-3 py-1.5 font-mono text-xs tg-card-inner">
         <span className="text-[11px] text-[var(--color-text-muted)]">
           Coordinates
         </span>

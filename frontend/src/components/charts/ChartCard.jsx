@@ -61,7 +61,7 @@ export default function ChartCard({
       </div>
 
       {/* Sparkline Viewport */}
-      <div className="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)]/60 p-2 shadow-2xs">
+      <div className="overflow-hidden rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)]/60 p-2 shadow-2xs tg-card-inner">
         <Sparkline
           points={values}
           color={color}
