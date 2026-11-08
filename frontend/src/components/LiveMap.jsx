@@ -85,9 +85,10 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
   const lng = Number(longitude);
 
   const hasLocation = Number.isFinite(lat) && Number.isFinite(lng);
+  const DEFAULT_COORDS = [85.8245, 20.2961];
 
   const position = useMemo(
-    () => (hasLocation ? [lng, lat] : null),
+    () => (hasLocation ? [lng, lat] : DEFAULT_COORDS),
     [lat, lng, hasLocation],
   );
 
@@ -118,7 +119,7 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
    * Initialize map.
    */
   useEffect(() => {
-    if (!mapContainer.current || mapRef.current || !hasLocation) {
+    if (!mapContainer.current || mapRef.current) {
       return;
     }
 
@@ -126,7 +127,7 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
       container: mapContainer.current,
       style: MAP_STYLES[selectedStyle].url,
       center: position,
-      zoom: 14,
+      zoom: hasLocation ? 14 : 11,
       attributionControl: false,
     });
 
@@ -184,7 +185,7 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
       /*
        * Current location marker.
        */
-      if (position) {
+      if (hasLocation && position) {
         const marker = new maplibregl.Marker({
           element: createMarkerElement(),
           anchor: "center",
@@ -227,12 +228,24 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
    * Update marker position.
    */
   useEffect(() => {
-    if (!mapRef.current || !position) return;
+    if (!mapRef.current || !hasLocation || !position) return;
 
-    if (markerRef.current) {
+    if (!markerRef.current) {
+      markerRef.current = new maplibregl.Marker({
+        element: createMarkerElement(),
+        anchor: "center",
+      })
+        .setLngLat(position)
+        .addTo(mapRef.current);
+    } else {
       markerRef.current.setLngLat(position);
     }
-  }, [position]);
+
+    mapRef.current.easeTo({
+      center: position,
+      duration: 1000,
+    });
+  }, [position, hasLocation]);
 
   /*
    * Update trail.
@@ -319,17 +332,22 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
     });
   };
 
-  if (!hasLocation) {
-    return (
-      <div className="flex h-full min-h-[320px] items-center justify-center bg-[var(--color-surface-alt)] text-sm text-[var(--color-text-secondary)]">
-        Live map will appear once a GPS point arrives.
-      </div>
-    );
-  }
-
   return (
     <div className="relative h-full min-h-[320px] w-full overflow-hidden rounded-[16px]">
       <div ref={mapContainer} className="h-full min-h-[320px] w-full" />
+
+      {/* Standby overlay when location is acquiring */}
+      {!hasLocation && (
+        <div className="pointer-events-none absolute inset-0 z-[999] flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
+          <div className="flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]/95 px-3.5 py-2 text-xs font-semibold text-[var(--color-text)] shadow-lg backdrop-blur-md">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            </span>
+            <span>Waiting for GPS fix...</span>
+          </div>
+        </div>
+      )}
 
       {/* Map style selector */}
       <div className="absolute left-3 top-3 z-[1000]">
