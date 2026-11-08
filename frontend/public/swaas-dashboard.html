@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SWAAS — Autonomous SAR Emergency Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --bg-canvas: #0B0F19;
+      --bg-surface: #111827;
+      --bg-subtle: #1F2937;
+      --border-color: #374151;
+      --border-strong: #4B5563;
+      --text-main: #F9FAFB;
+      --text-muted: #9CA3AF;
+      --primary: #10B981;
+      --primary-subtle: rgba(16, 185, 129, 0.15);
+      --danger: #EF4444;
+      --danger-subtle: rgba(239, 68, 68, 0.2);
+      --warning: #F59E0B;
+      --radius: 8px;
+      --card-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    body.theme-alpine {
+      --bg-canvas: #F8FAFC;
+      --bg-surface: #FFFFFF;
+      --bg-subtle: #F1F5F9;
+      --border-color: #E2E8F0;
+      --border-strong: #CBD5E1;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --primary: #047857;
+      --primary-subtle: #ECFDF5;
+      --danger: #DC2626;
+      --danger-subtle: #FEF2F2;
+      --warning: #D97706;
+      --radius: 8px;
+      --card-shadow: 0 1px 3px rgba(15,23,42,0.06);
+    }
+
+    body.theme-tactical {
+      --bg-canvas: #070B14;
+      --bg-surface: #0F172A;
+      --bg-subtle: #131E35;
+      --border-color: #1E293B;
+      --border-strong: #334155;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --primary: #10B981;
+      --primary-subtle: rgba(16, 185, 129, 0.15);
+      --danger: #EF4444;
+      --danger-subtle: rgba(239, 68, 68, 0.2);
+      --warning: #F59E0B;
+      --radius: 6px;
+      --card-shadow: none;
+    }
+
+    body.theme-industrial {
+      --bg-canvas: #F4F4F5;
+      --bg-surface: #FFFFFF;
+      --bg-subtle: #E4E4E7;
+      --border-color: #18181B;
+      --border-strong: #18181B;
+      --text-main: #18181B;
+      --text-muted: #71717A;
+      --primary: #15803D;
+      --primary-subtle: #DCFCE7;
+      --danger: #DC2626;
+      --danger-subtle: #FEE2E2;
+      --warning: #B45309;
+      --radius: 2px;
+      --card-shadow: 2px 2px 0px #18181B;
+    }
+
+    body.theme-nordic {
+      --bg-canvas: #F0F4F8;
+      --bg-surface: #FFFFFF;
+      --bg-subtle: #F8FAFC;
+      --border-color: #E2E8F0;
+      --border-strong: #DBEAFE;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --primary: #2563EB;
+      --primary-subtle: #EFF6FF;
+      --danger: #E11D48;
+      --danger-subtle: #FFE4E6;
+      --warning: #D97706;
+      --radius: 12px;
+      --card-shadow: 0 4px 14px rgba(15,23,42,0.04);
+    }
+
+    .font-mono { font-family: 'DM Mono', monospace; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #030712;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* Presentation Frame Header Toolbar */
+    .frame-toolbar {
+      width: 100%;
+      height: 52px;
+      background: #0f172a;
+      border-bottom: 1px solid #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .frame-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .frame-badge {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #fff;
+      font-weight: 900;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .device-switcher {
+      display: flex;
+      background: #1e293b;
+      padding: 3px;
+      border-radius: 8px;
+      gap: 4px;
+    }
+
+    .device-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .device-btn:hover {
+      color: #f8fafc;
+    }
+
+    .device-btn.active {
+      background: #3b82f6;
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    /* Viewport Staging Area */
+    .viewport-stage {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px 16px;
+      background: #030712;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Device Enclosure Frame */
+    .device-frame {
+      background: var(--bg-canvas);
+      border-radius: 0;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      width: 100%;
+      height: 100%;
+      min-height: calc(100vh - 100px);
+    }
+
+    /* Frame Variants */
+    .device-frame.frame-desktop {
+      width: 1440px;
+      max-width: 96vw;
+      height: 960px;
+      border-radius: 12px;
+      border: 8px solid #1e293b;
+    }
+
+    .device-frame.frame-tablet {
+      width: 1024px;
+      max-width: 95vw;
+      height: 840px;
+      border-radius: 24px;
+      border: 12px solid #1e293b;
+    }
+
+    .device-frame.frame-mobile {
+      width: 400px;
+      max-width: 95vw;
+      height: 844px;
+      border-radius: 36px;
+      border: 12px solid #1e293b;
+      box-shadow: 0 0 0 2px #334155, 0 30px 60px rgba(0,0,0,0.9);
+    }
+
+    .mobile-island {
+      display: none;
+      width: 96px;
+      height: 24px;
+      background: #000;
+      border-radius: 20px;
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+    }
+    .frame-mobile .mobile-island { display: block; }
+
+    /* SWAAS Application Container */
+    .app-shell {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-canvas);
+      color: var(--text-main);
+      overflow: hidden;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: 250px;
+      height: 100%;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-shrink: 0;
+      transition: width 0.3s ease;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      color: var(--text-main);
+      text-decoration: none;
+    }
+    .nav-item.active {
+      background: var(--danger-subtle);
+      border: 1px solid var(--border-strong);
+      color: var(--danger);
+      font-weight: 700;
+    }
+    .nav-item:not(.active):hover {
+      background: var(--bg-subtle);
+    }
+
+    /* Main Workspace */
+    .workspace {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      height: 100%;
+      background: var(--bg-canvas);
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    /* Top Action Bar */
+    .top-bar {
+      min-height: 68px;
+      padding: 10px 24px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .theme-selector {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-subtle);
+      padding: 3px;
+      border-radius: 9999px;
+      border: 1px solid var(--border-color);
+    }
+    .theme-btn {
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      border-radius: 9999px;
+      cursor: pointer;
+    }
+    .theme-btn.active {
+      background: var(--bg-surface);
+      color: var(--text-main);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    /* Dashboard Layout Grid */
+    .dashboard-grid {
+      display: flex;
+      flex-grow: 1;
+      gap: 16px;
+      padding: 18px 20px;
+      box-sizing: border-box;
+      min-height: calc(100% - 68px);
+    }
+
+    .main-stage {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    /* 5-Tile Hardware Telemetry Ribbon */
+    .stats-ribbon {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .flashcard {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      box-shadow: var(--card-shadow);
+      min-width: 0;
+    }
+
+    .icon-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Topographic Map Container */
+    .map-card {
+      flex-grow: 1;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 420px;
+    }
+
+    /* Incident Timeline Audit */
+    .audit-bar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      box-shadow: var(--card-shadow);
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .audit-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    /* Right Incident Dossier */
+    .incident-panel {
+      width: 340px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      box-shadow: var(--card-shadow);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    /* =========================================================================
+       RESPONSIVE ADAPTATIONS (Desktop, Tablet, Mobile)
+       ========================================================================= */
+
+    /* Tablet (Max 1180px or frame-tablet) */
+    @media (max-width: 1180px) {
+      .sidebar { width: 72px; padding: 0 4px; }
+      .sidebar .nav-label, .sidebar .brand-text, .sidebar .profile-info, .sidebar .nav-badge-text { display: none; }
+      .sidebar .brand-icon-only { justify-content: center; }
+      .sidebar .nav-item { justify-content: center; padding: 12px 0; }
+      .stats-ribbon { grid-template-columns: repeat(3, 1fr); }
+      .dashboard-grid { flex-direction: column; }
+      .incident-panel { width: 100%; }
+      .audit-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .frame-tablet .sidebar { width: 72px; padding: 0 4px; }
+    .frame-tablet .sidebar .nav-label, 
+    .frame-tablet .sidebar .brand-text, 
+    .frame-tablet .sidebar .profile-info, 
+    .frame-tablet .sidebar .nav-badge-text { display: none; }
+    .frame-tablet .sidebar .nav-item { justify-content: center; padding: 12px 0; }
+    .frame-tablet .stats-ribbon { grid-template-columns: repeat(3, 1fr); }
+    .frame-tablet .dashboard-grid { flex-direction: column; }
+    .frame-tablet .incident-panel { width: 100%; }
+    .frame-tablet .audit-grid { grid-template-columns: repeat(2, 1fr); }
+
+    /* Mobile (Max 768px or frame-mobile) */
+    @media (max-width: 768px) {
+      .app-shell { flex-direction: column; }
+      .sidebar { display: none; }
+      .stats-ribbon { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; }
+      .stats-ribbon .flashcard { min-width: 170px; flex-shrink: 0; scroll-snap-align: start; }
+      .top-bar { padding: 12px 14px; flex-direction: column; align-items: flex-start; }
+      .dashboard-grid { padding: 12px 10px; }
+      .audit-grid { grid-template-columns: 1fr; }
+      .map-card { min-height: 320px; }
+    }
+
+    .frame-mobile .app-shell { flex-direction: column; }
+    .frame-mobile .sidebar { display: none; }
+    .frame-mobile .stats-ribbon { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; }
+    .frame-mobile .stats-ribbon .flashcard { min-width: 165px; flex-shrink: 0; scroll-snap-align: start; }
+    .frame-mobile .top-bar { padding: 16px 14px 10px; flex-direction: column; align-items: flex-start; }
+    .frame-mobile .dashboard-grid { padding: 12px 10px; }
+    .frame-mobile .audit-grid { grid-template-columns: 1fr; }
+    .frame-mobile .map-card { min-height: 300px; }
+  </style>
+</head>
+<body class="theme-alpine">
+
+  <!-- Outer Presentation Frame Controller -->
+  <header class="frame-toolbar">
+    <div class="frame-brand">
+      <span class="frame-badge">SWAAS</span>
+      <span style="font-size: 13px; font-weight: 700; color: #f8fafc; letter-spacing: -0.01em;">Autonomous SAR Dashboard Presentation Frame</span>
+      <span class="font-mono" style="font-size: 11px; color: #64748b; margin-left: 8px;">Tier-4 Web Rescue</span>
+    </div>
+
+    <!-- Responsive Device Frame Switcher -->
+    <div class="device-switcher">
+      <button class="device-btn active" onclick="setDeviceFrame('desktop')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+        Desktop (1440px)
+      </button>
+      <button class="device-btn" onclick="setDeviceFrame('tablet')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="12" x2="12.01" y1="18" y2="18"/></svg>
+        Tablet (1024px)
+      </button>
+      <button class="device-btn" onclick="setDeviceFrame('fluid')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="15 3 21 3 21 9"/><polygon points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></svg>
+        Fluid Responsive
+      </button>
+    </div>
+  </header>
+
+  <!-- Viewport Presentation Canvas -->
+  <main class="viewport-stage">
+    <div id="deviceFrame" class="device-frame frame-desktop">
+
+      <!-- SWAAS Live Application -->
+      <div class="app-shell">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+          <div>
+            <!-- SWAAS Brand Header -->
+            <div style="height: 68px; padding: 0 18px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 10px;" class="brand-icon-only">
+                <div style="width: 34px; height: 34px; border-radius: 8px; background: var(--primary-subtle); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div class="brand-text">
+                  <div style="font-size: 16px; font-weight: 900; letter-spacing: -0.02em;">SWAAS</div>
+                  <div style="font-size: 10px; font-weight: 600; color: var(--text-muted);">Smart Wearable System</div>
+                </div>
+              </div>
+              <span class="font-mono nav-badge-text" style="padding: 2px 6px; background: var(--primary-subtle); border-radius: 4px; font-size: 10px; font-weight: 700; color: var(--primary);">TIER-4</span>
+            </div>
+
+            <!-- Navigation Links -->
+            <div style="padding: 14px 10px; display: flex; flex-direction: column; gap: 4px;">
+              <div class="brand-text" style="font-size: 10px; font-weight: 700; color: var(--text-muted); padding: 4px 8px; letter-spacing: 0.08em; text-transform: uppercase;">SAR MISSION CONTROL</div>
+              
+              <div class="nav-item active">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+                  <span class="nav-label" style="font-size: 13px;">Live Incident</span>
+                </div>
+                <span class="font-mono nav-badge-text" style="padding: 2px 6px; background: var(--danger); color: #fff; border-radius: 9999px; font-size: 10px;">1 SOS</span>
+              </div>
+
+              <div class="nav-item">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+                  <span class="nav-label" style="font-size: 13px;">Live Topo Map</span>
+                </div>
+                <span class="font-mono nav-badge-text" style="padding: 2px 6px; background: var(--bg-subtle); border-radius: 4px; font-size: 10px; color: var(--text-muted);">RAINIER</span>
+              </div>
+
+              <div class="nav-item">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                  <span class="nav-label" style="font-size: 13px;">Biometrics 5S</span>
+                </div>
+                <span class="font-mono nav-badge-text" style="padding: 2px 6px; background: var(--primary-subtle); border-radius: 4px; font-size: 10px; color: var(--primary);">98% LINK</span>
+              </div>
+
+              <div class="nav-item">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  <span class="nav-label" style="font-size: 13px;">Rescue Fleet</span>
+                </div>
+                <span class="font-mono nav-badge-text" style="padding: 2px 6px; background: var(--primary-subtle); border-radius: 4px; font-size: 10px; color: var(--primary);">3 ACTIVE</span>
+              </div>
+
+              <div class="nav-item">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9"/></svg>
+                  <span class="nav-label" style="font-size: 13px;">SWAAS ESP32-S3</span>
+                </div>
+                <span class="font-mono nav-badge-text" style="padding: 2px 6px; background: var(--bg-subtle); border-radius: 4px; font-size: 10px; color: var(--text-muted);">Ed25519</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Operator Profile -->
+          <div style="padding: 14px 16px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 32px; height: 32px; border-radius: 9999px; background: var(--bg-subtle); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;">SL</div>
+              <div class="profile-info">
+                <div style="font-size: 13px; font-weight: 700;">Capt. Sarah Lin</div>
+                <div style="font-size: 11px; color: var(--text-muted);">SAR Controller</div>
+              </div>
+            </div>
+            <div style="width: 8px; height: 8px; border-radius: 9999px; background: var(--primary);"></div>
+          </div>
+        </aside>
+
+        <!-- Main Workspace Stage -->
+        <main class="workspace">
+          <!-- Top Operational Header -->
+          <header class="top-bar">
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--danger-subtle); border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent); border-radius: var(--radius);">
+                <div style="width: 8px; height: 8px; border-radius: 9999px; background: var(--danger); animation: pulse 1.5s infinite;"></div>
+                <span class="font-mono" style="font-size: 13px; font-weight: 700; color: var(--danger);">SWAAS SOS #SW-8841</span>
+              </div>
+              <span style="font-size: 13px; font-weight: 600; color: var(--text-muted);">Unresponsive Fall Detected — Mt. Rainier South Face</span>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+              <!-- Theme Selector -->
+              <div class="theme-selector">
+                <button class="theme-btn active" onclick="setTheme('alpine')">Alpine</button>
+                <button class="theme-btn" onclick="setTheme('tactical')">Tactical</button>
+                <button class="theme-btn" onclick="setTheme('industrial')">Industrial</button>
+                <button class="theme-btn" onclick="setTheme('nordic')">Nordic</button>
+              </div>
+
+              <div class="font-mono" style="padding: 6px 10px; background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 11px; font-weight: 600;">
+                LoRa 868 • Ticket: 0x8F92
+              </div>
+              
+              <button style="padding: 8px 16px; background: var(--danger); border: none; border-radius: var(--radius); color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Dispatch Sierra-2
+              </button>
+            </div>
+          </header>
+
+          <!-- Core Dashboard Body -->
+          <div class="dashboard-grid">
+            <!-- Left / Center Operational Stage -->
+            <section class="main-stage">
+              <!-- 5 True Hardware Telemetry Streams -->
+              <div class="stats-ribbon">
+                <!-- 1. Heart Rate (Heart Icon) -->
+                <div class="flashcard">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <div class="icon-badge" style="background: var(--danger-subtle);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--danger)" stroke="var(--danger)" stroke-width="1"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                      </div>
+                      <span style="font-size: 11px; font-weight: 700; text-transform: uppercase;">Heart Rate</span>
+                    </div>
+                    <span class="font-mono" style="padding: 2px 6px; background: var(--danger-subtle); color: var(--danger); font-size: 9px; font-weight: 700; border-radius: 4px;">ELEVATED</span>
+                  </div>
+                  <div style="display: flex; align-items: baseline; gap: 4px; margin: 4px 0;">
+                    <span class="font-mono" style="font-size: 22px; font-weight: 800;">138</span>
+                    <span style="font-size: 11px; color: var(--text-muted);">BPM</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--text-muted);">
+                    <span class="font-mono">MAX30100</span>
+                    <svg width="40" height="12" viewBox="0 0 40 12"><path d="M0 6 L8 6 L11 1 L15 11 L18 3 L22 8 L40 6" fill="none" stroke="var(--danger)" stroke-width="1.8"/></svg>
+                  </div>
+                </div>
+
+                <!-- 2. Blood Oxygen (Oxygen Droplet Icon) -->
+                <div class="flashcard">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <div class="icon-badge" style="background: var(--primary-subtle);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                      </div>
+                      <span style="font-size: 11px; font-weight: 700; text-transform: uppercase;">SpO2 Oxygen</span>
+                    </div>
+                    <span class="font-mono" style="padding: 2px 6px; background: var(--primary-subtle); color: var(--primary); font-size: 9px; font-weight: 700; border-radius: 4px;">NORMAL</span>
+                  </div>
+                  <div style="display: flex; align-items: baseline; gap: 4px; margin: 4px 0;">
+                    <span class="font-mono" style="font-size: 22px; font-weight: 800;">96</span>
+                    <span style="font-size: 11px; color: var(--text-muted);">%</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--text-muted);">
+                    <span>Perfusion OK</span>
+                    <div style="display: flex; gap: 2px;">
+                      <div style="width: 3px; height: 6px; background: var(--primary); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 10px; background: var(--primary); border-radius: 1px;"></div>
+                      <div style="width: 3px; height: 8px; background: var(--primary); border-radius: 1px;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. Body Temperature (Thermometer Icon) -->
+                <div class="flashcard">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <div class="icon-badge" style="background: var(--bg-subtle);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" stroke-width="2.5"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+                      </div>
+                      <span style="font-size: 11px; font-weight: 700; text-transform: uppercase;">Temperature</span>
+                    </div>
+                    <span class="font-mono" style="padding: 2px 6px; background: var(--bg-subtle); font-size: 9px; font-weight: 700; border-radius: 4px;">STABLE</span>
+                  </div>
+                  <div style="display: flex; align-items: baseline; gap: 4px; margin: 4px 0;">
+                    <span class="font-mono" style="font-size: 22px; font-weight: 800;">36.8</span>
+                    <span style="font-size: 11px; color: var(--text-muted);">°C Core</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--text-muted);">
+                    <span>Amb: -2.4°C</span>
+                    <span class="font-mono" style="color: var(--primary); font-weight: 600;">DS18B20</span>
+                  </div>
+                </div>
+
+                <!-- 4. Altitude (Mountain Peak Icon) -->
+                <div class="flashcard">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <div class="icon-badge" style="background: var(--bg-subtle);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" stroke-width="2.5"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
+                      </div>
+                      <span style="font-size: 11px; font-weight: 700; text-transform: uppercase;">Altitude</span>
+                    </div>
+                    <span class="font-mono" style="padding: 2px 6px; background: var(--bg-subtle); font-size: 9px; font-weight: 700; border-radius: 4px;">GPS FIX</span>
+                  </div>
+                  <div style="display: flex; align-items: baseline; gap: 4px; margin: 4px 0;">
+                    <span class="font-mono" style="font-size: 22px; font-weight: 800;">3,420</span>
+                    <span style="font-size: 11px; color: var(--text-muted);">m</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--text-muted);">
+                    <span>684 hPa</span>
+                    <span class="font-mono" style="color: var(--primary); font-weight: 600;">BMP280</span>
+                  </div>
+                </div>
+
+                <!-- 5. Hazardous Gas / Air Quality (Gas Cloud Icon) -->
+                <div class="flashcard">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <div class="icon-badge" style="background: var(--primary-subtle);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                      </div>
+                      <span style="font-size: 11px; font-weight: 700; text-transform: uppercase;">Gas / VOC</span>
+                    </div>
+                    <span class="font-mono" style="padding: 2px 6px; background: var(--primary-subtle); color: var(--primary); font-size: 9px; font-weight: 700; border-radius: 4px;">SAFE</span>
+                  </div>
+                  <div style="display: flex; align-items: baseline; gap: 4px; margin: 4px 0;">
+                    <span class="font-mono" style="font-size: 22px; font-weight: 800;">18</span>
+                    <span style="font-size: 11px; color: var(--text-muted);">ppm CO</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--text-muted);">
+                    <span>AQI: 42 Normal</span>
+                    <span class="font-mono" style="color: var(--primary); font-weight: 600;">BME680</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mountain Rainier Topographic Viewport -->
+              <div class="map-card">
+                <div style="height: 44px; padding: 0 16px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+                    <span style="font-size: 12px; font-weight: 700;">Mt. Rainier Sector 4 • Camp Muir Approach</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="font-mono" style="font-size: 10px; padding: 2px 6px; background: var(--bg-subtle); border-radius: 4px;">46.8523° N, 121.7603° W</span>
+                    <span style="font-size: 10px; font-weight: 600; color: var(--text-muted);">10m Contours</span>
+                  </div>
+                </div>
+
+                <div style="flex-grow: 1; background: #0B132B; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 280px;">
+                  <svg width="100%" height="100%" viewBox="0 0 740 380" preserveAspectRatio="xMidYMid slice" style="position: absolute; inset: 0;">
+                    <!-- Elevation Contours -->
+                    <path d="M-50 100 Q160 50 360 160 T790 90" fill="none" stroke="#1C2D5A" stroke-width="1.2" />
+                    <path d="M-50 150 Q180 90 380 200 T790 140" fill="none" stroke="#1C2D5A" stroke-width="1.2" />
+                    <path d="M-50 200 Q200 140 400 250 T790 190" fill="none" stroke="#2A437C" stroke-width="1.5" />
+                    <path d="M-50 250 Q220 190 420 300 T790 240" fill="none" stroke="#1C2D5A" stroke-width="1.2" />
+                    <path d="M-50 310 Q240 240 450 340 T790 290" fill="none" stroke="#1C2D5A" stroke-width="1.2" />
+                    <path d="M-50 370 Q260 290 480 390 T790 340" fill="none" stroke="#2A437C" stroke-width="1.5" />
+
+                    <text x="30" y="240" fill="#4B6A9B" font-size="10" font-family="monospace">3,000m</text>
+                    <text x="30" y="190" fill="#4B6A9B" font-size="10" font-family="monospace">3,200m</text>
+                    <text x="30" y="140" fill="#4B6A9B" font-size="10" font-family="monospace">3,400m</text>
+
+                    <!-- Trail Waypoints -->
+                    <path d="M90 360 Q190 300 280 250 T390 180 T480 120" fill="none" stroke="#34D399" stroke-width="2.5" stroke-dasharray="6 4" />
+                    <circle cx="90" cy="360" r="4" fill="#34D399" />
+                    <text x="100" y="365" fill="#94A3B8" font-size="10">Paradise (1,650m)</text>
+                    <circle cx="280" cy="250" r="4" fill="#34D399" />
+                    <text x="290" y="255" fill="#94A3B8" font-size="10">Pebble Creek (2,200m)</text>
+
+                    <!-- Inbound Rescue Helicopter Vector -->
+                    <path d="M680 80 L430 160" fill="none" stroke="#38BDF8" stroke-width="2" stroke-dasharray="4 4" />
+                    <polygon points="425,162 435,156 432,165" fill="#38BDF8" />
+                    <text x="540" y="100" fill="#38BDF8" font-size="10" font-weight="bold" font-family="monospace">Sierra-2 Vector • 185 kts</text>
+
+                    <!-- SWAAS Fall Incident Beacon -->
+                    <circle cx="390" cy="180" r="40" fill="rgba(220,38,38,0.15)" stroke="rgba(220,38,38,0.5)" stroke-width="1" />
+                    <circle cx="390" cy="180" r="22" fill="none" stroke="#DC2626" stroke-width="1.8" />
+                    <circle cx="390" cy="180" r="9" fill="#DC2626" />
+                    <circle cx="390" cy="180" r="4" fill="#FFFFFF" />
+                  </svg>
+
+                  <div style="position: absolute; top: 12px; left: 14px; padding: 6px 10px; background: rgba(11, 19, 43, 0.9); border: 1px solid #1C2D5A; border-radius: var(--radius); display: flex; flex-direction: column; gap: 2px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <div style="width: 7px; height: 7px; border-radius: 9999px; background: #DC2626;"></div>
+                      <span class="font-mono" style="font-size: 11px; font-weight: 700; color: #FFFFFF;">SWAAS BEACON #SW-8841</span>
+                    </div>
+                    <span class="font-mono" style="font-size: 10px; color: #94A3B8;">Camp Muir Shelf • Elev: 3,420m • ±2.4m</span>
+                  </div>
+
+                  <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 30px; padding: 0 14px; background: rgba(11, 19, 43, 0.95); border-top: 1px solid #1C2D5A; display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: #94A3B8;">
+                    <div>Temp: <span style="color: #F8FAFC; font-weight: 600;">-2.4°C</span> • Wind: <span style="color: #F8FAFC; font-weight: 600;">NW 28 km/h</span> • Air: <span style="color: #34D399; font-weight: 600;">18 ppm Good</span></div>
+                    <div class="font-mono" style="color: #34D399;">LoRa Gateway 868 MHz Connected</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fail-Closed Incident Timeline Audit -->
+              <div class="audit-bar">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <div style="width: 6px; height: 6px; border-radius: 9999px; background: var(--primary);"></div>
+                    <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">FAIL-CLOSED INCIDENT TIMELINE AUDIT</span>
+                  </div>
+                  <span class="font-mono" style="font-size: 10px; font-weight: 600; color: var(--primary);">4 Verified Entries</span>
+                </div>
+                <div class="audit-grid">
+                  <div style="padding: 6px 10px; background: var(--bg-subtle); border-radius: var(--radius);">
+                    <div class="font-mono" style="font-size: 9px; color: var(--danger); font-weight: 700;">14:22:04 UTC</div>
+                    <div style="font-size: 11px; font-weight: 700;">MPU6050 4.2G Shock</div>
+                    <div style="font-size: 10px; color: var(--text-muted);">Impact threshold trip</div>
+                  </div>
+                  <div style="padding: 6px 10px; background: var(--bg-subtle); border-radius: var(--radius);">
+                    <div class="font-mono" style="font-size: 9px; color: var(--danger); font-weight: 700;">14:22:05 UTC</div>
+                    <div style="font-size: 11px; font-weight: 700;">SWAAS SOS Triggered</div>
+                    <div style="font-size: 10px; color: var(--text-muted);">Countdown uncancelled</div>
+                  </div>
+                  <div style="padding: 6px 10px; background: var(--bg-subtle); border-radius: var(--radius);">
+                    <div class="font-mono" style="font-size: 9px; color: var(--primary); font-weight: 700;">14:22:18 UTC</div>
+                    <div style="font-size: 11px; font-weight: 700;">LoRa Ed25519 Verified</div>
+                    <div class="font-mono" style="font-size: 10px; color: var(--text-muted);">Sig match: 0x4A..9C</div>
+                  </div>
+                  <div style="padding: 6px 10px; background: var(--bg-subtle); border-radius: var(--radius);">
+                    <div class="font-mono" style="font-size: 9px; color: var(--primary); font-weight: 700;">14:23:01 UTC</div>
+                    <div style="font-size: 11px; font-weight: 700;">Sierra-2 Airborne</div>
+                    <div style="font-size: 10px; color: var(--text-muted);">Bell 429 outbound 185kt</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Right Incident Dossier (Unified Full Height) -->
+            <aside class="incident-panel">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">Active Dossier</span>
+                  <span class="font-mono" style="padding: 2px 6px; background: var(--primary-subtle); color: var(--primary); font-size: 9px; font-weight: 600; border-radius: 4px;">Ed25519 Verified</span>
+                </div>
+
+                <!-- Hiker Identity -->
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                  <div style="width: 42px; height: 42px; border-radius: 9999px; background: var(--bg-subtle); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800;">AM</div>
+                  <div>
+                    <div style="font-size: 15px; font-weight: 800;">Alex Mercer</div>
+                    <div style="font-size: 11px; color: var(--text-muted);">ID: #SW-USR-491 • O+ POS • Age 32</div>
+                  </div>
+                </div>
+
+                <div style="padding: 8px 10px; background: var(--bg-subtle); border-radius: var(--radius); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <div style="font-size: 10px; color: var(--text-muted);">Emergency Contact</div>
+                    <div style="font-size: 11px; font-weight: 600;">Elena Mercer (Spouse)</div>
+                  </div>
+                  <div class="font-mono" style="font-size: 11px; font-weight: 600; color: var(--primary);">+1 (555) 019-8832</div>
+                </div>
+
+                <!-- Assigned Rescue Unit -->
+                <div style="border-top: 1px solid var(--border-color); padding-top: 12px; margin-bottom: 12px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 11px; font-weight: 700; text-transform: uppercase;">Assigned Rescue Unit</span>
+                    <span class="font-mono" style="padding: 2px 6px; background: var(--primary-subtle); color: var(--primary); font-size: 9px; font-weight: 700; border-radius: 4px;">EN ROUTE</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+                    <span style="font-size: 14px; font-weight: 800;">Sierra-2 (Air Rescue)</span>
+                    <span class="font-mono" style="font-size: 15px; font-weight: 800; color: var(--primary);">ETA 14m</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted);">
+                    <span>Bell 429 • 4 Crew</span>
+                    <span class="font-mono">4.8 km Inbound</span>
+                  </div>
+                </div>
+
+                <!-- Hardware Telemetry Matrix -->
+                <div style="border-top: 1px solid var(--border-color); padding-top: 12px;">
+                  <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px;">Hardware Telemetry Summary</div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div style="padding: 8px; background: var(--bg-subtle); border-radius: var(--radius);">
+                      <div style="font-size: 10px; color: var(--text-muted);">Heart Rate</div>
+                      <div class="font-mono" style="font-size: 14px; font-weight: 700; color: var(--danger);">138 BPM</div>
+                    </div>
+                    <div style="padding: 8px; background: var(--bg-subtle); border-radius: var(--radius);">
+                      <div style="font-size: 10px; color: var(--text-muted);">Body Temp</div>
+                      <div class="font-mono" style="font-size: 14px; font-weight: 700; color: var(--primary);">36.8 °C</div>
+                    </div>
+                    <div style="padding: 8px; background: var(--bg-subtle); border-radius: var(--radius);">
+                      <div style="font-size: 10px; color: var(--text-muted);">Oxygen SpO2</div>
+                      <div class="font-mono" style="font-size: 14px; font-weight: 700; color: var(--primary);">96% OK</div>
+                    </div>
+                    <div style="padding: 8px; background: var(--bg-subtle); border-radius: var(--radius);">
+                      <div style="font-size: 10px; color: var(--text-muted);">Gas / Air</div>
+                      <div class="font-mono" style="font-size: 14px; font-weight: 700; color: var(--primary);">18 ppm</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Controls at bottom -->
+              <div style="border-top: 1px solid var(--border-color); padding-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; gap: 8px;">
+                  <button style="flex: 1; padding: 8px; background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 11px; font-weight: 600; color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+                    LoRa Voice
+                  </button>
+                  <button style="flex: 1; padding: 8px; background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 11px; font-weight: 600; color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    Audit Log
+                  </button>
+                </div>
+                <button style="width: 100%; padding: 10px; background: var(--primary); border: none; border-radius: var(--radius); color: #fff; font-size: 12px; font-weight: 700; cursor: pointer;">
+                  Resolve & Hand-off Incident
+                </button>
+              </div>
+            </aside>
+          </div>
+        </main>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function setTheme(name) {
+      document.body.className = 'theme-' + name;
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function setDeviceFrame(type) {
+      const frame = document.getElementById('deviceFrame');
+      frame.className = 'device-frame frame-' + type;
+      document.querySelectorAll('.device-btn').forEach(b => b.classList.remove('active'));
+      event.target.closest('.device-btn').classList.add('active');
+    }
+  </script>
+</body>
+</html>

@@ -54,20 +54,16 @@ function MiniGraph({ points = [], color }) {
 
 const ACTIVITY_STYLES = {
   distance: {
-    color: "#2DD4BF",
-    glow: "rgba(45,212,191,.28)",
+    color: "var(--action-primary)",
   },
   duration: {
-    color: "#3B82F6",
-    glow: "rgba(59,130,246,.28)",
+    color: "var(--status-info)",
   },
   elevation: {
-    color: "#A78BFA",
-    glow: "rgba(167,139,250,.28)",
+    color: "var(--status-info)",
   },
   calories: {
-    color: "#F59E0B",
-    glow: "rgba(245,158,11,.28)",
+    color: "var(--status-warning)",
   },
 };
 
@@ -104,23 +100,23 @@ function SummaryItem({
       {/* Content */}
 
       <div className="min-w-0 flex-1">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--color-text-muted)]">
+        <div className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
           {label}
         </div>
 
         <div className="mt-1 flex items-baseline gap-1">
-          <span className="truncate text-[22px] font-bold leading-none tracking-[-0.025em] tabular-nums text-[var(--color-text)]">
+          <span className="truncate text-xl font-bold leading-none tracking-[-0.025em] tabular-nums text-[var(--color-text)] sm:text-2xl">
             {value ?? "--"}
           </span>
 
           {unit && value != null && (
-            <span className="text-[12px] font-medium text-[var(--color-text-secondary)]">
+            <span className="text-sm font-semibold text-[var(--color-text-secondary)]">
               {unit}
             </span>
           )}
         </div>
 
-        <div className="mt-1 text-[10px] text-[var(--color-text-muted)]">
+        <div className="mt-1 text-xs font-medium text-[var(--color-text-muted)]">
           {sub}
         </div>
 
@@ -215,16 +211,16 @@ export default function ActivitySummary({
       {/* Four activity metrics only */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
-        {items.map((item, index) => (
+        {items.map(({ key, ...itemProps }, index) => (
           <div
-            key={item.key}
+            key={key}
             className={`relative ${
               index > 0
                 ? "after:absolute after:left-0 after:top-6 after:h-[calc(100%-3rem)] after:w-px after:bg-[var(--color-border)]"
                 : ""
             }`}
           >
-            <SummaryItem {...item} />
+            <SummaryItem {...itemProps} />
           </div>
         ))}
       </div>

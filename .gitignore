@@ -1,33 +1,29 @@
-# Dependencies
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Node
 node_modules/
-.pnpm-store/
+dist/
+build/
+.cache/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.mypy_cache/
+.pytest_cache/
 
 # Environment files
 .env
 .env.local
 .env.*.local
-
-# Operating System & Editors
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-
-# Python Cache
-__pycache__/
-*.py[cod]
-*$py.class
-.pytest_cache/
-
-# Build & Dist outputs
-dist/
-build/
-.expo/
-*.log
-
-# Coverage
-coverage/
-.nyc_output/
+!.env.example
 
 # Agent artifacts
 .agents/
@@ -35,3 +31,19 @@ skills-lock.json
 graphify-out/cache/
 graphify-out/.*
 
+# Local previews
+mobile_ui_preview.html
+*.local.html
+
+# Local SQLite databases
+*.db
+*.sqlite
+slate_theme_demo.html
+demo.html
+
+# Local private keys and credentials
+*.pem
+*.key
+backend/device-authority-private.pem
+backend/device-authority-public.txt
+backend/sim-private-key.pem

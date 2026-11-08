@@ -13,15 +13,15 @@ export default function Button({
       items-center justify-center
       gap-2
       rounded-[13px]
-      bg-[var(--color-accent)]
+      bg-[var(--action-primary)]
       px-5
       text-[17px]
       font-semibold
-      text-[#102A43]
-      shadow-[0_8px_18px_rgba(45,212,191,0.22)]
+      text-[var(--text-on-action)]
+      shadow-[0_8px_18px_rgba(16,185,129,0.22)]
       transition-all
-      hover:bg-[#25BFAF]
-      hover:shadow-[0_10px_24px_rgba(45,212,191,0.28)]
+      hover:bg-[var(--action-primary-hover)]
+      hover:shadow-[0_10px_24px_rgba(16,185,129,0.28)]
       active:scale-[0.99]
       disabled:cursor-not-allowed
       disabled:opacity-60
@@ -35,16 +35,16 @@ export default function Button({
     gap-3
     rounded-[13px]
     border
-    border-[#2B5F80]
-    bg-[#1E4D6B]
+    border-[var(--border-default)]
+    bg-[var(--surface-elevated)]
     px-5
     text-[17px]
     font-semibold
-    text-white
-    shadow-[0_6px_16px_rgba(16,42,67,0.18)]
+    text-[var(--text-primary)]
+    shadow-[0_4px_12px_rgba(0,0,0,0.1)]
     transition-all
-    hover:bg-[#285E80]
-    hover:border-[#2DD4BF]
+    hover:bg-[var(--surface-hover)]
+    hover:border-[var(--border-focus)]
     active:scale-[0.99]
     disabled:cursor-not-allowed
     disabled:opacity-60
@@ -120,15 +120,15 @@ export default function Button({
       items-center justify-center
       gap-2
       rounded-[13px]
-      bg-[#DC2626]
+      bg-[var(--action-destructive)]
       px-5
       text-[17px]
       font-semibold
       text-white
-      shadow-[0_6px_16px_rgba(220,38,38,0.22)]
+      shadow-[0_6px_16px_rgba(229,72,77,0.22)]
       transition-all
-      hover:bg-[#B91C1C]
-      hover:shadow-[0_8px_20px_rgba(220,38,38,0.28)]
+      hover:bg-[var(--action-destructive-hover)]
+      hover:shadow-[0_8px_20px_rgba(229,72,77,0.28)]
       active:scale-[0.99]
       disabled:cursor-not-allowed
       disabled:opacity-60
