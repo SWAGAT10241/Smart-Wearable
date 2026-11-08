@@ -17,6 +17,7 @@ import Dashboard from "./pages/Dashboard";
 import History from "./pages/History";
 import Settings from "./pages/Settings";
 import About from "./pages/About";
+import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 
 export default function App() {
@@ -44,7 +45,7 @@ export default function App() {
 
                 <Route
                   path="/"
-                  element={<Navigate to="/dashboard" replace />}
+                  element={<Landing />}
                 />
                 <Route
                   path="*"
