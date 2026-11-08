@@ -18,12 +18,120 @@ import {
   IoLockClosedOutline,
   IoSpeedometerOutline,
   IoSparklesOutline,
+  IoWifiOutline,
+  IoNavigateOutline,
+  IoRefreshOutline,
 } from "react-icons/io5";
+import { FaMountainSun } from "react-icons/fa6";
+import { RiCpuLine, RiRadarLine, RiSignalTowerLine } from "react-icons/ri";
 
 /* =========================================================================
-   Animated Real-Time ECG Pulse Canvas
+   1. Interactive Topographic Elevation Contour Canvas (AAA Game Terrain)
    ========================================================================= */
-function AnimatedPulseTrace({ color = "#2DD4BF" }) {
+function TopographicCanvas({ themeMode = "dark", accent = "#06B6D4" }) {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let animationFrameId;
+    let t = 0;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    // Simple pseudo-noise terrain field
+    const noise = (x, y, time) => {
+      return (
+        Math.sin(x * 0.003 + time * 0.3) * Math.cos(y * 0.003 + time * 0.2) +
+        Math.sin(x * 0.007 - y * 0.005 + time * 0.15) * 0.5 +
+        Math.sin((x + y) * 0.002 - time * 0.1) * 0.8
+      );
+    };
+
+    const render = () => {
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const isDark = themeMode === "dark";
+      const baseAlpha = isDark ? 0.18 : 0.14;
+      const step = 42; // Grid density
+
+      // Multi-layer contour lines
+      const levels = [-0.9, -0.6, -0.3, 0.0, 0.3, 0.6, 0.9, 1.2];
+
+      levels.forEach((lvl, lvlIdx) => {
+        const isIndexLine = lvlIdx % 3 === 0;
+        ctx.beginPath();
+        ctx.lineWidth = isIndexLine ? 1.5 : 0.75;
+
+        // Vivid multi-color accent index styling
+        if (isIndexLine) {
+          ctx.strokeStyle = lvlIdx === 0 ? "rgba(6, 182, 212, 0.35)" : lvlIdx === 3 ? "rgba(245, 158, 11, 0.35)" : "rgba(16, 185, 129, 0.35)";
+        } else {
+          ctx.strokeStyle = isDark ? `rgba(148, 163, 184, ${baseAlpha * 0.6})` : `rgba(100, 116, 139, ${baseAlpha * 0.5})`;
+        }
+
+        // Draw horizontal marching elevation ribbons
+        for (let y = 0; y < h; y += step) {
+          let lineStarted = false;
+          for (let x = 0; x < w; x += step) {
+            const val = noise(x, y, t);
+            if (Math.abs(val - lvl) < 0.22) {
+              const offsetY = (val - lvl) * 28;
+              if (!lineStarted) {
+                ctx.moveTo(x, y + offsetY);
+                lineStarted = true;
+              } else {
+                ctx.lineTo(x, y + offsetY);
+              }
+            } else {
+              lineStarted = false;
+            }
+          }
+        }
+        ctx.stroke();
+      });
+
+      // Technical micro-grid crosshairs
+      ctx.fillStyle = isDark ? "rgba(45, 212, 191, 0.25)" : "rgba(13, 148, 136, 0.3)";
+      for (let x = 120; x < w; x += 280) {
+        for (let y = 120; y < h; y += 240) {
+          ctx.fillRect(x - 3, y, 7, 1);
+          ctx.fillRect(x, y - 3, 1, 7);
+        }
+      }
+
+      t += 0.004;
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener("resize", resize);
+    };
+  }, [themeMode, accent]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="pointer-events-none fixed inset-0 z-0 opacity-80"
+    />
+  );
+}
+
+/* =========================================================================
+   2. Live 60FPS ECG Biosensor Canvas (Medical Cardiac Trace)
+   ========================================================================= */
+function LiveECGTrace({ color = "#10B981" }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -38,51 +146,41 @@ function AnimatedPulseTrace({ color = "#2DD4BF" }) {
       const height = canvas.height;
       ctx.clearRect(0, 0, width, height);
 
-      // Draw faint baseline grid
-      ctx.strokeStyle = "rgba(45, 212, 191, 0.08)";
-      ctx.lineWidth = 1;
-      for (let x = 0; x < width; x += 20) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-
-      // Draw heartbeat waveform
+      // Neon glowing trace
       ctx.strokeStyle = color;
       ctx.lineWidth = 2.5;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
       ctx.shadowColor = color;
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur = 12;
       ctx.beginPath();
 
       const midY = height / 2;
-      const period = 120; // Distance between heartbeats
+      const period = 110;
 
       for (let x = 0; x < width; x++) {
-        const cyclePos = (x + offset) % period;
+        const cycle = (x + offset) % period;
         let y = midY;
 
         // P wave
-        if (cyclePos > 20 && cyclePos <= 30) {
-          y -= Math.sin(((cyclePos - 20) / 10) * Math.PI) * 4;
+        if (cycle > 18 && cycle <= 28) {
+          y -= Math.sin(((cycle - 18) / 10) * Math.PI) * 4;
         }
         // Q dip
-        else if (cyclePos > 34 && cyclePos <= 38) {
+        else if (cycle > 32 && cycle <= 36) {
           y += 5;
         }
-        // R high spike
-        else if (cyclePos > 38 && cyclePos <= 45) {
-          y -= 26;
+        // R sharp systolic spike
+        else if (cycle > 36 && cycle <= 42) {
+          y -= 28;
         }
         // S dip
-        else if (cyclePos > 45 && cyclePos <= 50) {
-          y += 9;
+        else if (cycle > 42 && cycle <= 48) {
+          y += 10;
         }
-        // T wave
-        else if (cyclePos > 60 && cyclePos <= 80) {
-          y -= Math.sin(((cyclePos - 60) / 20) * Math.PI) * 7;
+        // T ventricular recovery wave
+        else if (cycle > 58 && cycle <= 78) {
+          y -= Math.sin(((cycle - 58) / 20) * Math.PI) * 8;
         }
 
         if (x === 0) ctx.moveTo(x, y);
@@ -97,689 +195,687 @@ function AnimatedPulseTrace({ color = "#2DD4BF" }) {
     };
 
     render();
-
     return () => cancelAnimationFrame(animationFrameId);
   }, [color]);
 
   return (
     <canvas
       ref={canvasRef}
-      width={320}
-      height={70}
-      className="h-[70px] w-full"
+      width={280}
+      height={64}
+      className="h-[64px] w-full"
     />
   );
 }
 
 /* =========================================================================
-   Interactive 3D Tilt Card (Simulates MPU6050 Gyroscope with Cursor Movement)
+   3. AAA Game HUD Wearable Flight Console (3D Gyroscope Physics)
    ========================================================================= */
-function TiltWearableCard({ children, onTiltChange }) {
-  const cardRef = useRef(null);
-  const [style, setStyle] = useState({ transform: "perspective(1000px) rotateX(0deg) rotateY(0deg)" });
+function GameTacticalConsole({ cursorVector, currentMode = "normal" }) {
+  const [pitch, setPitch] = useState(0);
+  const [roll, setRoll] = useState(0);
+  const [compassHeading, setCompassHeading] = useState(142);
 
-  const handleMouseMove = (e) => {
-    const card = cardRef.current;
-    if (!card) return;
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+  // Smooth inertial interpolation following cursor
+  useEffect(() => {
+    const targetPitch = ((cursorVector.y - window.innerHeight / 2) / (window.innerHeight / 2)) * -14;
+    const targetRoll = ((cursorVector.x - window.innerWidth / 2) / (window.innerWidth / 2)) * 14;
+    setPitch((prev) => prev + (targetPitch - prev) * 0.1);
+    setRoll((prev) => prev + (targetRoll - prev) * 0.1);
 
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
+    const angle = (Math.atan2(cursorVector.y - window.innerHeight / 2, cursorVector.x - window.innerWidth / 2) * 180) / Math.PI + 180;
+    setCompassHeading(Math.round(angle));
+  }, [cursorVector]);
 
-    const rotateX = ((y - centerY) / centerY) * -10;
-    const rotateY = ((x - centerX) / centerX) * 10;
-
-    setStyle({
-      transform: `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.01, 1.01, 1.01)`,
-      transition: "transform 0.1s ease-out",
-    });
-
-    if (onTiltChange) {
-      onTiltChange({
-        pitch: rotateX.toFixed(1),
-        roll: rotateY.toFixed(1),
-        gForce: (1.0 + Math.abs(rotateX + rotateY) * 0.03).toFixed(2),
-      });
-    }
+  const modeThemes = {
+    normal: {
+      accent: "#06B6D4",
+      accentGlow: "rgba(6, 182, 212, 0.4)",
+      statusText: "SYSTEM ARMED // MESH NOMINAL",
+      statusBadge: "bg-cyan-500/10 text-cyan-400 border-cyan-500/30",
+    },
+    impact: {
+      accent: "#F59E0B",
+      accentGlow: "rgba(245, 158, 11, 0.45)",
+      statusText: "HIGH G-FORCE IMPACT DETECTED (4.82G)",
+      statusBadge: "bg-amber-500/15 text-amber-400 border-amber-500/40 animate-pulse",
+    },
+    sos: {
+      accent: "#EF4444",
+      accentGlow: "rgba(239, 68, 68, 0.6)",
+      statusText: "CRITICAL SOS // LORA BURST BROADCASTING",
+      statusBadge: "bg-red-500/20 text-red-400 border-red-500/50 animate-bounce",
+    },
   };
 
-  const handleMouseLeave = () => {
-    setStyle({
-      transform: "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)",
-      transition: "transform 0.5s ease-out",
-    });
-    if (onTiltChange) {
-      onTiltChange({ pitch: "0.0", roll: "0.0", gForce: "1.00" });
-    }
-  };
+  const theme = modeThemes[currentMode] || modeThemes.normal;
 
   return (
     <div
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={style}
-      className="will-change-transform"
+      style={{
+        transform: `perspective(1200px) rotateX(${pitch.toFixed(2)}deg) rotateY(${roll.toFixed(2)}deg)`,
+        transition: "transform 0.08s ease-out",
+      }}
+      className="relative will-change-transform"
     >
-      {children}
+      {/* Outer Tactical Bezel Frame */}
+      <div className="relative rounded-[28px] border-2 border-slate-700/60 bg-gradient-to-b from-slate-900 via-[#07111D] to-[#04090F] p-5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] backdrop-blur-xl">
+        {/* Corner Reticles */}
+        <div className="pointer-events-none absolute left-3 top-3 h-3 w-3 border-l-2 border-t-2 border-cyan-400/80" />
+        <div className="pointer-events-none absolute right-3 top-3 h-3 w-3 border-r-2 border-t-2 border-cyan-400/80" />
+        <div className="pointer-events-none absolute bottom-3 left-3 h-3 w-3 border-b-2 border-l-2 border-cyan-400/80" />
+        <div className="pointer-events-none absolute bottom-3 right-3 h-3 w-3 border-b-2 border-r-2 border-cyan-400/80" />
+
+        {/* Top Header Deck: Mission Protocol Bar */}
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3 font-mono text-[11px]">
+          <div className="flex items-center gap-2">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34D399]" />
+            <span className="font-bold tracking-wider text-slate-200">TRAILGUARD HUD-S3</span>
+            <span className="text-slate-500">//</span>
+            <span className="text-cyan-400 font-semibold">ESP32-S3 CORE</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="rounded border border-slate-700 bg-slate-800/60 px-1.5 py-0.5 text-[10px] text-slate-300">
+              RF: 433.92 MHz
+            </span>
+            <span className="font-bold text-amber-400">CHIRP SF12</span>
+          </div>
+        </div>
+
+        {/* Central Tactical HUD Viewport */}
+        <div className="mt-4 grid grid-cols-1 gap-3.5 lg:grid-cols-12">
+          {/* Left Panel: Biosensor Core */}
+          <div className="space-y-3 lg:col-span-4">
+            {/* Cardiac Telemetry Box */}
+            <div className="rounded-[16px] border border-slate-800 bg-slate-950/70 p-3.5 shadow-inner">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                  PHOTOPLETHYSMOGRAPHY
+                </span>
+                <span className="flex items-center gap-1 font-mono text-[10px] text-red-400">
+                  <IoPulseOutline className="animate-pulse" />
+                  LIVE
+                </span>
+              </div>
+              <div className="mt-1 flex items-baseline justify-between">
+                <div>
+                  <span className="font-mono text-3xl font-extrabold text-red-500">76</span>
+                  <span className="ml-1 font-mono text-xs text-slate-400">BPM</span>
+                </div>
+                <div className="text-right font-mono text-[11px] text-slate-300">
+                  <span className="text-slate-500">SpO₂:</span> <span className="font-bold text-cyan-400">98%</span>
+                </div>
+              </div>
+              <div className="mt-2 overflow-hidden rounded-[8px] bg-black/60 border border-slate-900">
+                <LiveECGTrace color="#F43F5E" />
+              </div>
+            </div>
+
+            {/* Weather / Barometric Box */}
+            <div className="rounded-[16px] border border-slate-800 bg-slate-950/70 p-3.5 shadow-inner">
+              <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 uppercase">
+                <span>BME280 BAROMETER</span>
+                <span className="text-cyan-400">ALPINE COND</span>
+              </div>
+              <div className="mt-2 grid grid-cols-2 gap-2 font-mono">
+                <div>
+                  <div className="text-[10px] text-slate-500">PRESSURE</div>
+                  <div className="text-base font-bold text-slate-200">1014.2 hPa</div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-slate-500">TEMPERATURE</div>
+                  <div className="text-base font-bold text-amber-400">21.8°C</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Center Instrument: 3D Geodetic Radar & Vector Reticle */}
+          <div className="relative flex flex-col items-center justify-center rounded-[20px] border border-slate-800 bg-black/80 p-5 shadow-inner lg:col-span-4 overflow-hidden">
+            {/* Radar Conic Sweep Glow */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-50">
+              <div className="h-44 w-44 rounded-full border border-cyan-500/20" />
+              <div className="absolute h-32 w-32 rounded-full border border-cyan-500/30" />
+              <div className="absolute h-20 w-20 rounded-full border border-dashed border-cyan-400/40" />
+              <div
+                className="absolute inset-0 animate-radar-sweep"
+                style={{
+                  background: "conic-gradient(from 0deg, transparent 70%, rgba(6, 182, 212, 0.45) 100%)",
+                  borderRadius: "50%",
+                }}
+              />
+            </div>
+
+            {/* Central Compass Heading Reticle */}
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="relative flex h-20 w-20 items-center justify-center rounded-full border-2 border-cyan-400/60 bg-cyan-950/40 shadow-[0_0_30px_rgba(6,182,212,0.5)]">
+                <IoNavigateOutline
+                  style={{ transform: `rotate(${compassHeading}deg)` }}
+                  className="text-3xl text-cyan-300 transition-transform duration-75 drop-shadow-[0_0_8px_#22D3EE]"
+                />
+              </div>
+
+              <div className="mt-3 text-center font-mono">
+                <div className="text-xs font-bold text-cyan-300 tracking-wider">
+                  20.2961° N, 85.8245° E
+                </div>
+                <div className="text-[10px] text-slate-400">HEADING {compassHeading}° · ELEV +1,842M</div>
+              </div>
+
+              <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-[10px] font-mono text-emerald-300">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                NEO-6M SAT LOCK (12/12)
+              </div>
+            </div>
+          </div>
+
+          {/* Right Panel: MPU6050 6-Axis Dynamic Gyroscope Vector Matrix */}
+          <div className="space-y-3 lg:col-span-4">
+            <div className="rounded-[16px] border border-slate-800 bg-slate-950/70 p-3.5 shadow-inner">
+              <div className="flex items-center justify-between font-mono text-[10px] uppercase text-slate-400">
+                <span>MPU-6050 6-AXIS IMU</span>
+                <span className="text-amber-400 font-bold">INTERACTIVE</span>
+              </div>
+              <div className="mt-2 space-y-2 font-mono">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-500">PITCH (X):</span>
+                  <span className="font-bold text-cyan-400">{pitch.toFixed(1)}°</span>
+                </div>
+                <div className="h-1.5 w-full rounded-full bg-slate-900 overflow-hidden">
+                  <div
+                    className="h-full bg-cyan-400 transition-all duration-75"
+                    style={{ width: `${Math.min(100, Math.max(0, 50 + pitch * 2))}%` }}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-500">ROLL (Y):</span>
+                  <span className="font-bold text-amber-400">{roll.toFixed(1)}°</span>
+                </div>
+                <div className="h-1.5 w-full rounded-full bg-slate-900 overflow-hidden">
+                  <div
+                    className="h-full bg-amber-400 transition-all duration-75"
+                    style={{ width: `${Math.min(100, Math.max(0, 50 + roll * 2))}%` }}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-900">
+                  <span className="text-slate-500">G-FORCE VECTOR:</span>
+                  <span className="font-bold text-emerald-400">
+                    {(1.0 + Math.abs(pitch + roll) * 0.02).toFixed(2)}g
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Cryptographic Ed25519 Seal */}
+            <div className="rounded-[16px] border border-slate-800 bg-slate-950/70 p-3.5 shadow-inner font-mono text-[10px]">
+              <div className="flex items-center justify-between text-slate-400">
+                <span className="flex items-center gap-1.5 text-purple-400">
+                  <IoLockClosedOutline />
+                  ED25519 ASYMMETRIC KEY
+                </span>
+                <span className="text-emerald-400 font-bold">VALIDATED</span>
+              </div>
+              <div className="mt-2 truncate text-slate-500 text-[9px]">
+                PUB: 0x9f1a8c42...78d2b63e
+              </div>
+              <div className="text-slate-500 text-[9px]">
+                NONCE: #08942 // REPLAY PROTECTED
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Status Banner */}
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-800/80 pt-3 font-mono text-xs">
+          <div className="flex items-center gap-2">
+            <span className={`rounded px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${theme.statusBadge}`}>
+              {theme.statusText}
+            </span>
+          </div>
+          <div className="text-[11px] text-slate-400">
+            BASECAMP TELEMETRY UPTIME: <span className="text-slate-200 font-bold">99.98%</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 /* =========================================================================
-   Main Commercial Landing Page
+   4. Main Senior-Grade Landing Page
    ========================================================================= */
 export default function Landing() {
   const { darkMode, toggleTheme } = useTheme();
   const [activeFaq, setActiveFaq] = useState(null);
-  const [simState, setSimState] = useState("normal"); // normal | impact | sos
-  const [simCountdown, setSimCountdown] = useState(30);
-
-  // Dynamic Cursor Tracking for Ambient Spotlight
-  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
-  const [interactiveGForce, setInteractiveGForce] = useState({ pitch: "2.4", roll: "-1.8", gForce: "1.02" });
+  const [simMode, setSimMode] = useState("normal"); // normal | impact | sos
+  const [simTimer, setSimTimer] = useState(30);
+  const [cursorPos, setCursorPos] = useState({ x: 400, y: 300 });
 
   useEffect(() => {
-    const handleGlobalMouseMove = (e) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener("mousemove", handleGlobalMouseMove);
-    return () => window.removeEventListener("mousemove", handleGlobalMouseMove);
+    const handleMove = (e) => setCursorPos({ x: e.clientX, y: e.clientY });
+    window.addEventListener("mousemove", handleMove);
+    return () => window.removeEventListener("mousemove", handleMove);
   }, []);
 
-  // Simulator Countdown Timer
+  // Simulator Countdown
   useEffect(() => {
-    let timer;
-    if (simState === "impact") {
-      setSimCountdown(30);
-      timer = setInterval(() => {
-        setSimCountdown((prev) => {
+    let interval;
+    if (simMode === "impact") {
+      setSimTimer(30);
+      interval = setInterval(() => {
+        setSimTimer((prev) => {
           if (prev <= 1) {
-            setSimState("sos");
+            setSimMode("sos");
             return 0;
           }
           return prev - 1;
         });
       }, 1000);
     }
-    return () => clearInterval(timer);
-  }, [simState]);
+    return () => clearInterval(interval);
+  }, [simMode]);
 
   const faqs = [
     {
-      q: "Does TrailGuard require a monthly cellular subscription?",
-      a: "No. TrailGuard operates over open-standard long-range LoRa radio (433/868/915 MHz ISM bands) and offline satellite GPS. It transmits directly to local basecamps and peer relays without recurring cellular carrier fees.",
+      q: "Does TrailGuard require recurring cellular subscription fees?",
+      a: "No. TrailGuard operates over open-standard long-range LoRa radio (433/868/915 MHz ISM spectrum) and offline multi-constellation satellite GPS. It transmits directly to basecamp monitoring hubs and peer wearables with zero monthly cell fees.",
     },
     {
-      q: "How does the autonomous fall detection prevent false alarms?",
-      a: "The on-device Edge Risk Engine continuously evaluates a 3-stage heuristic: free-fall acceleration (<0.5g), sudden impact spike (>3.0g), and subsequent stillness with post-impact tilt. If triggered, a 30-second haptic countdown allows the user to cancel before any SOS packet broadcasts.",
+      q: "How does the on-device Edge Risk Engine eliminate false fall alarms?",
+      a: "The ESP32-S3 firmware evaluates a 3-stage kinematic vector heuristic: micro-freefall (<0.5g), instantaneous impact shock (>3.0g), and post-impact repose with biomechanical orientation change. A 30-second haptic cancel timer ensures false trips from dropped packs are dismissed before radio broadcast.",
     },
     {
-      q: "What happens if my smartphone battery dies while hiking?",
-      a: "The ESP32-S3 wearable is a standalone safety node. Even if your paired phone is dead or lost, the wrist device continues monitoring vitals and automatically broadcasts emergency packets over LoRa radio when impact or SOS occurs.",
+      q: "What happens if a hiker's companion phone battery dies?",
+      a: "The wrist wearable operates completely autonomously. Even if the paired phone is depleted or damaged, the hardware node continues acquiring satellite coordinates, monitoring pulse oximetry, and broadcasting emergency packets over LoRa.",
     },
     {
-      q: "How is my personal medical data protected?",
-      a: "TrailGuard follows a strict local-first privacy invariant. Normal everyday telemetry remains exclusively on your personal device in an encrypted 7-day rolling buffer. Only during an active, verified emergency is an encrypted 6-hour snapshot shared with authenticated rescue coordinators.",
+      q: "What is TrailGuard's strict privacy invariant?",
+      a: "Unlike commercial fitness bands that monetize your heartbeat in cloud data lakes, everyday vitals remain strictly on-device in an encrypted 7-day rolling buffer. Only during an active, authenticated emergency is an encrypted 6-hour dossier relayed to Search and Rescue coordinators.",
     },
     {
-      q: "Can I install TrailGuard as a standalone desktop or mobile app?",
-      a: "Yes. TrailGuard is built as a Progressive Web App (PWA) with full offline caching. Simply tap 'Install App' in your browser address bar to install it directly onto your macOS, Windows, iOS, or Android home screen.",
-    },
-    {
-      q: "What is the typical battery endurance in the backcountry?",
-      a: "The wearable hardware delivers up to 48 hours of continuous operation on a single charge with smart FreeRTOS sensor throttling and low-power deep sleep during rest periods.",
+      q: "Can the basecamp dashboard function during internet blackouts?",
+      a: "Yes. TrailGuard is built as an offline-first Progressive Web App (PWA). It caches map tiles, controls, and telemetry protocols locally so coordinators can operate in basecamp without internet connectivity.",
     },
   ];
 
   return (
-    <div className="relative min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] transition-colors duration-200 overflow-x-hidden">
-      {/* Dynamic Cursor Spotlight Aura */}
+    <div className="relative min-h-screen bg-[#04080F] text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-200">
+      {/* Topographic Terrain Canvas (Living High-End Background) */}
+      <TopographicCanvas themeMode="dark" accent="#06B6D4" />
+
+      {/* Dynamic Cursor Spotlight Beam */}
       <div
-        className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
+        className="pointer-events-none fixed inset-0 z-10 transition-opacity duration-300"
         style={{
-          background: `radial-gradient(700px circle at ${mousePos.x}px ${mousePos.y}px, rgba(45, 212, 191, 0.08), transparent 75%)`,
+          background: `radial-gradient(650px circle at ${cursorPos.x}px ${cursorPos.y}px, rgba(6, 182, 212, 0.08), transparent 75%)`,
         }}
       />
 
       {/* =====================================================================
-          1. STICKY GLASS NAVBAR
+          1. STICKY TACTICAL GLASS NAVBAR
           ===================================================================== */}
-      <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-surface)]/85 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-slate-800/80 bg-[#04080F]/85 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <span className="flex h-9 w-9 items-center justify-center rounded-[12px] border border-teal-300/30 bg-teal-400/15 text-lg shadow-sm transition-transform duration-300 group-hover:scale-105 tg-squircle-sm">
+            <span className="flex h-9 w-9 items-center justify-center rounded-[12px] border border-cyan-400/30 bg-cyan-500/15 text-lg shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-transform duration-300 group-hover:scale-105">
               🛡
             </span>
             <div className="flex flex-col">
-              <span className="text-xl font-bold tracking-tight text-[var(--color-text)]">
-                Trail<span className="text-[#2DD4BF]">Guard</span>
+              <span className="text-xl font-bold tracking-tight text-white font-sans">
+                TRAIL<span className="text-cyan-400 font-extrabold">GUARD</span>
               </span>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-text-muted)]">
-                SWAAS Safety Ecosystem
+              <span className="text-[9px] font-mono uppercase tracking-widest text-slate-400">
+                SWAAS // AUTONOMOUS SAFETY
               </span>
             </div>
           </Link>
 
-          <nav className="hidden items-center gap-6 text-xs font-semibold text-[var(--color-text-secondary)] md:flex">
-            <a href="#features" className="transition hover:text-[var(--color-text)]">
-              Features
+          <nav className="hidden items-center gap-7 text-xs font-mono uppercase tracking-wider text-slate-400 md:flex">
+            <a href="#mission" className="transition hover:text-cyan-300">
+              01. MISSION
             </a>
-            <a href="#hardware" className="transition hover:text-[var(--color-text)]">
-              Hardware
+            <a href="#hardware" className="transition hover:text-cyan-300">
+              02. SENSOR ARRAY
             </a>
-            <a href="#simulator" className="transition hover:text-[var(--color-text)]">
-              Interactive Simulator
+            <a href="#simulator" className="transition hover:text-cyan-300">
+              03. FLIGHT SIMULATOR
             </a>
-            <a href="#privacy" className="transition hover:text-[var(--color-text)]">
-              Privacy Pledge
+            <a href="#privacy" className="transition hover:text-cyan-300">
+              04. PRIVACY ARCHITECTURE
             </a>
-            <a href="#faq" className="transition hover:text-[var(--color-text)]">
-              FAQ
+            <a href="#faq" className="transition hover:text-cyan-300">
+              05. FAQ
             </a>
           </nav>
 
-          <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={toggleTheme}
-              aria-label="Toggle Theme"
-              className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] text-[var(--color-text)] transition hover:bg-[var(--color-surface-hover)] tg-squircle-sm"
-            >
-              {darkMode ? <IoSunnyOutline className="h-4 w-4" /> : <IoMoonOutline className="h-4 w-4" />}
-            </button>
-
+          <div className="flex items-center gap-3">
             <Link
               to="/login"
-              className="hidden rounded-[12px] border border-[var(--color-border)] px-3.5 py-2 text-xs font-semibold text-[var(--color-text)] transition hover:bg-[var(--color-surface-alt)] sm:inline-block"
+              className="hidden rounded-[12px] border border-slate-700/80 bg-slate-900/60 px-4 py-2 font-mono text-xs font-semibold text-slate-300 transition hover:border-slate-500 hover:text-white sm:inline-block"
             >
-              Sign In
+              OPERATOR LOGIN
             </Link>
 
             <Link
               to="/dashboard"
-              className="relative flex items-center gap-1.5 overflow-hidden rounded-[12px] bg-[var(--action-primary)] px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-[var(--action-primary-hover)] active:scale-[0.98]"
+              className="flex items-center gap-2 rounded-[12px] bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 px-4 py-2 font-mono text-xs font-bold text-slate-950 shadow-[0_0_20px_rgba(6,182,212,0.4)] transition hover:shadow-[0_0_28px_rgba(6,182,212,0.6)] active:scale-[0.98]"
             >
-              <span>Launch App</span>
-              <IoArrowForwardOutline className="h-3.5 w-3.5" />
+              <span>LAUNCH MISSION</span>
+              <IoArrowForwardOutline className="h-4 w-4" />
             </Link>
           </div>
         </div>
       </header>
 
       {/* =====================================================================
-          2. HERO SECTION WITH CINEMATIC LIGHTING
+          2. HERO: CINEMATIC AAA GAME COMMAND CENTER
           ===================================================================== */}
-      <section className="relative px-4 pt-12 pb-20 sm:px-6 sm:pt-16 sm:pb-28 lg:px-8">
-        {/* Floating Background Ambient Auras */}
-        <div className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[850px] -translate-x-1/2 rounded-full bg-teal-500/15 blur-[130px] animate-pulse-aura" />
-        <div className="pointer-events-none absolute top-40 right-10 h-72 w-72 rounded-full bg-emerald-500/10 blur-[90px] animate-float-slow" />
-        <div className="pointer-events-none absolute top-60 left-10 h-72 w-72 rounded-full bg-cyan-500/10 blur-[90px] animate-float-delayed" />
-
+      <section className="relative z-20 px-4 pt-12 pb-20 sm:px-6 sm:pt-20 sm:pb-28 lg:px-8">
         <div className="mx-auto max-w-5xl text-center">
-          {/* Animated Announcement Pill */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/30 bg-teal-500/10 px-4 py-1.5 text-xs font-semibold text-teal-600 dark:text-teal-400 shadow-xs">
+          {/* Tactical Status Pill */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-950/40 px-4 py-1.5 font-mono text-xs font-semibold text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.15)]">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-teal-400" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-400" />
             </span>
-            <span>Off-Grid LoRa Mesh · Satellite Telemetry · PWA Ready</span>
+            <span>OFF-GRID SATELLITE & LORA // ZERO CELLULAR DEPENDENCY</span>
           </div>
 
-          <h1 className="mt-6 text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-            Wilderness Safety That Works Where{" "}
-            <span className="text-[#2DD4BF] bg-clip-text">Cell Towers Can't</span>
+          <h1 className="mt-6 text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl font-sans uppercase">
+            15 Kilometers From Cell Service.{" "}
+            <span className="bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent">
+              One Autonomous Lifeline.
+            </span>
           </h1>
 
-          <p className="mx-auto mt-5 max-w-3xl text-sm leading-relaxed text-[var(--color-text-secondary)] sm:text-base lg:text-lg">
-            TrailGuard (SWAAS) is an autonomous wearable safety ecosystem engineered for lone hikers,
-            geologists, and alpine rescue squads. Combining continuous on-wrist biometrics, autonomous fall impact
-            recognition, and 15 km off-grid radio links with strict local-first privacy.
+          <p className="mx-auto mt-6 max-w-3xl text-sm leading-relaxed text-slate-300 sm:text-base lg:text-lg">
+            TrailGuard is an off-grid smart wearable safety system engineered for extreme wilderness.
+            Featuring continuous optical photoplethysmography, 6-axis impact vector recognition,
+            and 15 km LoRa mesh beaconing with fail-closed cryptographic telemetry.
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-4 font-mono text-xs">
             <Link
               to="/dashboard"
-              className="flex items-center gap-2 rounded-[14px] bg-[var(--action-primary)] px-6 py-3.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-[var(--action-primary-hover)] hover:shadow-teal-500/25 active:scale-[0.99]"
+              className="flex items-center gap-2.5 rounded-[14px] bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 px-7 py-4 text-sm font-bold text-slate-950 shadow-[0_0_25px_rgba(6,182,212,0.45)] transition hover:shadow-[0_0_35px_rgba(6,182,212,0.7)] active:scale-[0.99]"
             >
-              <span>Explore Live Dashboard</span>
+              <span>ACCESS WEB DASHBOARD</span>
               <IoArrowForwardOutline className="h-4 w-4" />
             </Link>
 
             <a
               href="#simulator"
-              className="flex items-center gap-2 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-3.5 text-sm font-semibold text-[var(--color-text)] shadow-xs transition hover:bg-[var(--color-surface-alt)] active:scale-[0.99]"
+              className="flex items-center gap-2 rounded-[14px] border border-slate-700 bg-slate-900/80 px-6 py-4 text-sm font-semibold text-slate-200 shadow-sm transition hover:border-cyan-400 hover:text-cyan-300 active:scale-[0.99]"
             >
-              <IoSparklesOutline className="text-teal-400" />
-              <span>Interactive Hardware Demo</span>
+              <IoFlashOutline className="text-amber-400" />
+              <span>TEST-DRIVE SIMULATOR</span>
             </a>
           </div>
 
-          {/* Trust Metric Deck with Subtle Hover Lifts */}
-          <div className="mt-12 grid grid-cols-2 gap-4 border-t border-[var(--color-border)] pt-8 sm:grid-cols-4">
-            <div className="transition-transform duration-200 hover:-translate-y-1">
-              <div className="font-mono text-2xl font-extrabold text-[var(--color-text)] sm:text-3xl">15 km</div>
-              <div className="mt-0.5 text-xs text-[var(--color-text-muted)]">Off-Grid LoRa Range</div>
+          {/* Senior Telemetry Metrics Ribbon */}
+          <div className="mt-14 grid grid-cols-2 gap-4 border-t border-slate-800/80 pt-8 sm:grid-cols-4 font-mono">
+            <div className="rounded-[16px] border border-slate-800/60 bg-slate-950/40 p-4">
+              <div className="text-3xl font-extrabold text-cyan-400">15.0 KM</div>
+              <div className="mt-1 text-[11px] text-slate-400">LORA SX1278 RADIUS</div>
             </div>
-            <div className="transition-transform duration-200 hover:-translate-y-1">
-              <div className="font-mono text-2xl font-extrabold text-[#2DD4BF] sm:text-3xl">&lt;0.5s</div>
-              <div className="mt-0.5 text-xs text-[var(--color-text-muted)]">Impact Fall Trigger</div>
+            <div className="rounded-[16px] border border-slate-800/60 bg-slate-950/40 p-4">
+              <div className="text-3xl font-extrabold text-amber-400">&lt;500 MS</div>
+              <div className="mt-1 text-[11px] text-slate-400">IMPACT KINEMATICS</div>
             </div>
-            <div className="transition-transform duration-200 hover:-translate-y-1">
-              <div className="font-mono text-2xl font-extrabold text-emerald-500 sm:text-3xl">48 hrs</div>
-              <div className="mt-0.5 text-xs text-[var(--color-text-muted)]">Expedition Battery</div>
+            <div className="rounded-[16px] border border-slate-800/60 bg-slate-950/40 p-4">
+              <div className="text-3xl font-extrabold text-emerald-400">48.0 HR</div>
+              <div className="mt-1 text-[11px] text-slate-400">EXPEDITION BATTERY</div>
             </div>
-            <div className="transition-transform duration-200 hover:-translate-y-1">
-              <div className="font-mono text-2xl font-extrabold text-[var(--color-text)] sm:text-3xl">100%</div>
-              <div className="mt-0.5 text-xs text-[var(--color-text-muted)]">Local-First Privacy</div>
+            <div className="rounded-[16px] border border-slate-800/60 bg-slate-950/40 p-4">
+              <div className="text-3xl font-extrabold text-purple-400">0.00 BYTES</div>
+              <div className="mt-1 text-[11px] text-slate-400">PASSIVE CLOUD LEAK</div>
             </div>
           </div>
         </div>
 
         {/* ===================================================================
-            HERO VISUAL: 3D TILT WEARABLE RADAR & LIVE ECG PULSE
+            HERO INSTRUMENT: 3D INTERACTIVE TACTICAL CONSOLE
             =================================================================== */}
-        <div className="mx-auto mt-14 max-w-5xl">
-          <TiltWearableCard onTiltChange={setInteractiveGForce}>
-            <div className="tg-card p-6 shadow-2xl sm:p-8 backdrop-blur-md relative border-teal-500/20">
-              {/* Animated Top Laser Stroke */}
-              <div
-                className="pointer-events-none absolute top-0 left-0 right-0 h-[2px]"
-                style={{
-                  background: "linear-gradient(90deg, transparent, #2DD4BF 50%, transparent)",
-                }}
-              />
-
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-border)] pb-4">
-                <div className="flex items-center gap-2.5">
-                  <span className="flex h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="font-mono text-xs font-bold uppercase tracking-wider text-[var(--color-text)]">
-                    Wearable Node: ESP32-S3 (SX1278 Mesh)
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-xs font-mono text-[var(--color-text-muted)]">
-                  <span>Satellite Fix: 8 Constellations</span>
-                  <span>·</span>
-                  <span className="text-emerald-500 font-semibold">Signal -84 dBm</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                {/* Telemetry Column 1: Live Pulse & Oximetry */}
-                <div className="space-y-3">
-                  <div className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 tg-card-inner">
-                    <div className="flex items-center justify-between">
-                      <span className="tg-metric-label">Live Heart Rate (MAX30100)</span>
-                      <IoPulseOutline className="text-red-500 animate-pulse" />
-                    </div>
-                    <div className="mt-1 flex items-baseline gap-1.5">
-                      <span className="text-3xl font-extrabold tabular-nums font-mono text-red-500">74</span>
-                      <span className="text-xs text-[var(--color-text-muted)]">BPM</span>
-                    </div>
-
-                    {/* Animated Continuous ECG Pulse Trace */}
-                    <div className="mt-2 overflow-hidden rounded-[10px] bg-slate-950/40 p-1 border border-black/5 dark:border-white/5">
-                      <AnimatedPulseTrace color="#EF4444" />
-                    </div>
-                  </div>
-
-                  <div className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 tg-card-inner">
-                    <div className="flex items-center justify-between">
-                      <span className="tg-metric-label">Blood Oxygen (SpO₂)</span>
-                      <IoShieldCheckmarkOutline className="text-teal-400" />
-                    </div>
-                    <div className="mt-1 flex items-baseline gap-1.5">
-                      <span className="text-3xl font-extrabold tabular-nums font-mono text-teal-400">98%</span>
-                      <span className="text-xs text-emerald-500 font-semibold">Optimal</span>
-                    </div>
-                    <div className="mt-2 h-2 w-full rounded-full bg-[var(--color-border)] overflow-hidden">
-                      <div className="h-full w-[98%] rounded-full bg-teal-400 transition-all duration-500" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Center Column: Animated Tactical Radar & Beacon */}
-                <div className="flex flex-col items-center justify-center rounded-[16px] border border-[var(--color-border)] bg-slate-950 p-6 text-white tg-card-inner relative overflow-hidden">
-                  {/* Rotating Radar Scan Arm */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
-                    <div className="h-44 w-44 rounded-full border border-teal-500/20" />
-                    <div className="absolute h-32 w-32 rounded-full border border-teal-500/30" />
-                    <div className="absolute h-20 w-20 rounded-full border border-teal-500/40" />
-                    <div
-                      className="absolute inset-0 animate-radar-sweep"
-                      style={{
-                        background: "conic-gradient(from 0deg, transparent 70%, rgba(45, 212, 191, 0.4) 100%)",
-                        borderRadius: "50%",
-                        maskImage: "radial-gradient(circle, black 65%, transparent 70%)",
-                      }}
-                    />
-                  </div>
-
-                  <div className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full bg-teal-500/25 text-teal-300 font-bold text-2xl shadow-[0_0_24px_rgba(45,212,191,0.6)]">
-                    📍
-                  </div>
-
-                  <div className="mt-4 text-center relative z-10">
-                    <div className="font-mono text-sm font-bold text-teal-400">20.2961° N, 85.8245° E</div>
-                    <div className="text-[11px] text-slate-400 mt-0.5">Elevation: 412m ASL · Active Waypoint</div>
-                    <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-teal-500/40 bg-teal-500/10 px-2.5 py-0.5 text-[10px] font-mono text-teal-300">
-                      <span className="h-1.5 w-1.5 rounded-full bg-teal-400 animate-ping" />
-                      LoRa SX1278 Chirping
-                    </div>
-                  </div>
-                </div>
-
-                {/* Telemetry Column 2: Interactive 3D Cursor Gyroscope & Weather */}
-                <div className="space-y-3">
-                  <div className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 tg-card-inner">
-                    <div className="flex items-center justify-between">
-                      <span className="tg-metric-label">Motion IMU (MPU-6050)</span>
-                      <IoSpeedometerOutline className="text-amber-500" />
-                    </div>
-                    <div className="mt-1 flex items-baseline gap-1.5">
-                      <span className="text-3xl font-extrabold tabular-nums font-mono text-amber-500">
-                        {interactiveGForce.gForce}g
-                      </span>
-                      <span className="text-xs text-emerald-500 font-semibold">Interactive</span>
-                    </div>
-                    <div className="mt-2 space-y-1 font-mono text-[11px] text-[var(--color-text-muted)]">
-                      <div>Pitch: {interactiveGForce.pitch}° · Roll: {interactiveGForce.roll}°</div>
-                      <div className="text-[10px] text-teal-500 font-sans italic">
-                        Tip: Hover cursor across card to simulate wrist tilt!
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 tg-card-inner">
-                    <div className="flex items-center justify-between">
-                      <span className="tg-metric-label">Atmosphere (BME280)</span>
-                      <IoThermometerOutline className="text-sky-400" />
-                    </div>
-                    <div className="mt-1 flex items-baseline gap-2">
-                      <span className="text-2xl font-extrabold font-mono text-sky-400">22.4°C</span>
-                      <span className="text-xs text-[var(--color-text-muted)]">·</span>
-                      <span className="text-2xl font-extrabold font-mono text-sky-400">1013 hPa</span>
-                    </div>
-                    <div className="mt-2 text-[11px] text-[var(--color-text-muted)] font-mono">
-                      Humidity: 54% · Stable Alpine Conditions
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </TiltWearableCard>
+        <div className="mx-auto mt-16 max-w-5xl">
+          <GameTacticalConsole cursorVector={cursorPos} currentMode={simMode} />
         </div>
       </section>
 
       {/* =====================================================================
-          3. PROBLEM VS. SOLUTION
+          3. HARDWARE SPECIFICATIONS: BENTO TACTICAL MATRIX
           ===================================================================== */}
-      <section id="features" className="border-t border-[var(--color-border)] bg-[var(--color-surface)] py-16 sm:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-[#2DD4BF]">
-              The Backcountry Paradox
-            </h2>
-            <h3 className="mt-3 text-2xl font-bold tracking-tight sm:text-4xl">
-              Why Standard Smartwatches Fail Outside Cellular Cities
-            </h3>
-            <p className="mt-4 text-sm leading-relaxed text-[var(--color-text-secondary)] sm:text-base">
-              Consumer smartwatches are tethered to 4G/5G towers. When a hiker takes a severe tumble in a mountain ravine,
-              traditional smart devices disconnect. TrailGuard was engineered specifically for the zero-bar wilderness.
-            </p>
-          </div>
-
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="tg-card p-6 border-red-500/20 bg-red-500/5 hover:border-red-500/40 transition-all duration-300">
-              <div className="flex items-center gap-2 text-red-500 font-bold text-sm">
-                <IoAlertCircleOutline className="h-5 w-5" />
-                <span>Standard Fitness Watch Failure Mode</span>
-              </div>
-              <ul className="mt-4 space-y-3 text-xs leading-relaxed text-[var(--color-text-secondary)] sm:text-sm">
-                <li className="flex items-start gap-2">
-                  <span className="text-red-500 font-bold">✕</span>
-                  <span><strong>Zero Connectivity:</strong> Shuts down emergency calling the second cell towers fade.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-red-500 font-bold">✕</span>
-                  <span><strong>False Alarm Dispatches:</strong> Dropping a backpack triggers panicked calls without haptic review.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-red-500 font-bold">✕</span>
-                  <span><strong>Cloud Profiling:</strong> Uploads private biometric heart data continuously to corporate ad platforms.</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="tg-card p-6 border-emerald-500/30 bg-emerald-500/5 hover:border-emerald-500/50 transition-all duration-300">
-              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
-                <IoCheckmarkCircleOutline className="h-5 w-5" />
-                <span>The TrailGuard Autonomous Standard</span>
-              </div>
-              <ul className="mt-4 space-y-3 text-xs leading-relaxed text-[var(--color-text-secondary)] sm:text-sm">
-                <li className="flex items-start gap-2">
-                  <span className="text-emerald-500 font-bold">✓</span>
-                  <span><strong>15 km LoRa Links:</strong> Emergency packets broadcast across mountain peaks to basecamps.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-emerald-500 font-bold">✓</span>
-                  <span><strong>3-Stage Edge Verification:</strong> Combines free-fall, G-force impact, and body angle to eliminate false trips.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-emerald-500 font-bold">✓</span>
-                  <span><strong>Fail-Closed Privacy:</strong> Health data stays strictly local; cloud sync is emergency-bounded.</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* =====================================================================
-          4. HARDWARE SENSOR BENTO GRID
-          ===================================================================== */}
-      <section id="hardware" className="py-16 sm:py-24">
+      <section id="hardware" className="relative z-20 border-t border-slate-800/80 bg-[#060D17]/80 py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-[#2DD4BF]">
-              Wearable Sensor Array
+            <div className="font-mono text-xs font-bold uppercase tracking-widest text-cyan-400">
+              // SECTION 02: INTEGRATED HARDWARE
+            </div>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-5xl font-sans uppercase">
+              Mission-Critical Sensor Array
             </h2>
-            <h3 className="mt-3 text-2xl font-bold tracking-tight sm:text-4xl">
-              Precision Sensors Integrated on Wrist
-            </h3>
-            <p className="mx-auto mt-3 max-w-2xl text-xs text-[var(--color-text-secondary)] sm:text-sm">
-              Custom FreeRTOS firmware running on the dual-core ESP32-S3 microcontroller.
+            <p className="mx-auto mt-3 max-w-2xl text-xs text-slate-400 sm:text-sm">
+              Manufactured with aviation-grade components running deterministic FreeRTOS real-time execution.
             </p>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="tg-card p-6 group hover:-translate-y-1 hover:border-red-500/40 transition-all duration-300">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-red-500/10 text-red-500 tg-squircle-sm">
-                <IoPulseOutline className="h-5 w-5" />
+          <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Card 1: MAX30100 */}
+            <div className="rounded-[22px] border border-slate-800 bg-slate-950/80 p-6 shadow-xl hover:border-red-500/40 transition-all duration-300">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-red-500/10 text-red-500 text-xl border border-red-500/20">
+                <IoPulseOutline />
               </div>
-              <h4 className="mt-4 text-base font-bold text-[var(--color-text)]">MAX30100 Pulse Oximeter</h4>
-              <p className="mt-2 text-xs leading-relaxed text-[var(--color-text-secondary)]">
-                Dual-wavelength infrared and red photoplethysmography to detect acute hypoxia, altitude sickness, and erratic heart rates during steep ascents.
+              <h3 className="mt-5 text-lg font-bold font-sans uppercase text-slate-100">
+                MAX30100 Pulse Oximeter
+              </h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-400">
+                Integrated dual-wavelength pulse rate and oxygen saturation sensor. Monitors acute hypoxia, respiratory fatigue, and cardiac distress at altitude.
               </p>
-              <div className="mt-4 font-mono text-[11px] text-[var(--color-text-muted)]">I2C Bus · 100 Hz Sampling</div>
+              <div className="mt-5 pt-3 border-t border-slate-900 font-mono text-[10px] text-cyan-400">
+                BUS: I2C // SAMPLING: 100HZ // 16-BIT ADC
+              </div>
             </div>
 
-            <div className="tg-card p-6 group hover:-translate-y-1 hover:border-amber-500/40 transition-all duration-300">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-amber-500/10 text-amber-500 tg-squircle-sm">
-                <IoFlashOutline className="h-5 w-5" />
+            {/* Card 2: MPU-6050 */}
+            <div className="rounded-[22px] border border-slate-800 bg-slate-950/80 p-6 shadow-xl hover:border-amber-500/40 transition-all duration-300">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-amber-500/10 text-amber-500 text-xl border border-amber-500/20">
+                <IoSpeedometerOutline />
               </div>
-              <h4 className="mt-4 text-base font-bold text-[var(--color-text)]">MPU-6050 6-Axis Motion IMU</h4>
-              <p className="mt-2 text-xs leading-relaxed text-[var(--color-text-secondary)]">
-                3-axis gyroscope and 3-axis accelerometer running high-rate edge vector math to classify abrupt slips, falls, and unconscious postures.
+              <h3 className="mt-5 text-lg font-bold font-sans uppercase text-slate-100">
+                MPU-6050 6-Axis Motion IMU
+              </h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-400">
+                Tri-axial accelerometer and gyroscope calculating real-time orientation quaternions. Detects violent slips, cliff tumbles, and post-fall stillness.
               </p>
-              <div className="mt-4 font-mono text-[11px] text-[var(--color-text-muted)]">±16g Range · Wake-on-Interrupt</div>
+              <div className="mt-5 pt-3 border-t border-slate-900 font-mono text-[10px] text-amber-400">
+                RANGE: ±16G // GYRO: ±2000°/S // WAKE-ON-MOTION
+              </div>
             </div>
 
-            <div className="tg-card p-6 group hover:-translate-y-1 hover:border-teal-500/40 transition-all duration-300">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-teal-500/10 text-teal-400 tg-squircle-sm">
-                <IoRadioOutline className="h-5 w-5" />
+            {/* Card 3: SX1278 LoRa */}
+            <div className="rounded-[22px] border border-slate-800 bg-slate-950/80 p-6 shadow-xl hover:border-cyan-500/40 transition-all duration-300">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-cyan-500/10 text-cyan-400 text-xl border border-cyan-500/20">
+                <RiSignalTowerLine />
               </div>
-              <h4 className="mt-4 text-base font-bold text-[var(--color-text)]">LoRa SX1278 Transceiver</h4>
-              <p className="mt-2 text-xs leading-relaxed text-[var(--color-text-secondary)]">
-                Long-range chirp spread spectrum radio broadcasting encrypted SOS beacons over 15 kilometers without cellular or Wi-Fi towers.
+              <h3 className="mt-5 text-lg font-bold font-sans uppercase text-slate-100">
+                SX1278 LoRa Transceiver
+              </h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-400">
+                Ultra-long-range spread spectrum RF transceiver delivering telemetry over 15 kilometers through heavy alpine forest and deep canyon topography.
               </p>
-              <div className="mt-4 font-mono text-[11px] text-[var(--color-text-muted)]">433 MHz ISM · +20 dBm PA</div>
+              <div className="mt-5 pt-3 border-t border-slate-900 font-mono text-[10px] text-cyan-400">
+                FREQ: 433 MHZ ISM // POWER: +20 DBM // RANGE: 15 KM
+              </div>
             </div>
 
-            <div className="tg-card p-6 group hover:-translate-y-1 hover:border-emerald-500/40 transition-all duration-300">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-emerald-500/10 text-emerald-500 tg-squircle-sm">
-                <IoCompassOutline className="h-5 w-5" />
+            {/* Card 4: NEO-6M GPS */}
+            <div className="rounded-[22px] border border-slate-800 bg-slate-950/80 p-6 shadow-xl hover:border-emerald-500/40 transition-all duration-300">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-emerald-500/10 text-emerald-400 text-xl border border-emerald-500/20">
+                <IoCompassOutline />
               </div>
-              <h4 className="mt-4 text-base font-bold text-[var(--color-text)]">NEO-6M Satellite GPS</h4>
-              <p className="mt-2 text-xs leading-relaxed text-[var(--color-text-secondary)]">
-                Acquires high-precision geodetic latitude, longitude, and elevation waypoints for accurate search-and-rescue team coordinates.
+              <h3 className="mt-5 text-lg font-bold font-sans uppercase text-slate-100">
+                NEO-6M Satellite Receiver
+              </h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-400">
+                50-channel GPS engine with precision geodetic fix. Broadcasts latitude, longitude, and barometric elevation directly in the emergency rescue packet.
               </p>
-              <div className="mt-4 font-mono text-[11px] text-[var(--color-text-muted)]">50-Channel Engine · ±2.5m Accuracy</div>
+              <div className="mt-5 pt-3 border-t border-slate-900 font-mono text-[10px] text-emerald-400">
+                CHANNELS: 50 // SENSITIVITY: -161 DBM // ACC: ±2.5M
+              </div>
             </div>
 
-            <div className="tg-card p-6 group hover:-translate-y-1 hover:border-sky-500/40 transition-all duration-300">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-sky-500/10 text-sky-400 tg-squircle-sm">
-                <IoThermometerOutline className="h-5 w-5" />
+            {/* Card 5: BME280 */}
+            <div className="rounded-[22px] border border-slate-800 bg-slate-950/80 p-6 shadow-xl hover:border-sky-500/40 transition-all duration-300">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-sky-500/10 text-sky-400 text-xl border border-sky-500/20">
+                <IoThermometerOutline />
               </div>
-              <h4 className="mt-4 text-base font-bold text-[var(--color-text)]">BME280 Atmospheric Sensor</h4>
-              <p className="mt-2 text-xs leading-relaxed text-[var(--color-text-secondary)]">
-                Barometric pressure and ambient temperature monitoring for rapid mountain weather shift alerts and altitude compensation.
+              <h3 className="mt-5 text-lg font-bold font-sans uppercase text-slate-100">
+                BME280 Atmospheric Sensor
+              </h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-400">
+                Precision barometric air pressure, temperature, and relative humidity monitoring for rapid storm detection and barometric altitude compensation.
               </p>
-              <div className="mt-4 font-mono text-[11px] text-[var(--color-text-muted)]">300–1100 hPa · 0.18 Pa Resolution</div>
+              <div className="mt-5 pt-3 border-t border-slate-900 font-mono text-[10px] text-sky-400">
+                PRESSURE: 300–1100 HPA // RES: 0.18 PA // TEMP: ±0.5°C
+              </div>
             </div>
 
-            <div className="tg-card p-6 group hover:-translate-y-1 hover:border-purple-500/40 transition-all duration-300">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-purple-500/10 text-purple-400 tg-squircle-sm">
-                <IoHardwareChipOutline className="h-5 w-5" />
+            {/* Card 6: ESP32-S3 */}
+            <div className="rounded-[22px] border border-slate-800 bg-slate-950/80 p-6 shadow-xl hover:border-purple-500/40 transition-all duration-300">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-purple-500/10 text-purple-400 text-xl border border-purple-500/20">
+                <RiCpuLine />
               </div>
-              <h4 className="mt-4 text-base font-bold text-[var(--color-text)]">ESP32-S3 Core Processor</h4>
-              <p className="mt-2 text-xs leading-relaxed text-[var(--color-text-secondary)]">
-                Dual-core Xtensa LX7 running at 240 MHz with hardware cryptographic acceleration for Ed25519 digital signatures and BLE 5 Mesh.
+              <h3 className="mt-5 text-lg font-bold font-sans uppercase text-slate-100">
+                ESP32-S3 Dual-Core SOC
+              </h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-400">
+                240 MHz dual-core Xtensa processor with vector instructions for local machine learning risk models and hardware-accelerated Ed25519 cryptography.
               </p>
-              <div className="mt-4 font-mono text-[11px] text-[var(--color-text-muted)]">512KB SRAM · Secure Boot & AES</div>
+              <div className="mt-5 pt-3 border-t border-slate-900 font-mono text-[10px] text-purple-400">
+                CORE: 240 MHZ // CRYPTO: ED25519/AES // FREERTOS
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* =====================================================================
-          5. INTERACTIVE LIVE SIMULATOR
+          4. INTERACTIVE FLIGHT SIMULATOR (TEST-DRIVE WORKFLOW)
           ===================================================================== */}
-      <section id="simulator" className="border-t border-[var(--color-border)] bg-[var(--color-surface)] py-16 sm:py-24">
+      <section id="simulator" className="relative z-20 border-t border-slate-800/80 bg-[#04080F] py-20 sm:py-28">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-[#2DD4BF]">
-              Test-Drive Incident Workflow
+            <div className="font-mono text-xs font-bold uppercase tracking-widest text-amber-400">
+              // SECTION 03: LIVE TEST SUITE
+            </div>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-5xl font-sans uppercase">
+              Emergency Workflow Simulator
             </h2>
-            <h3 className="mt-3 text-2xl font-bold tracking-tight sm:text-4xl">
-              Interactive Emergency Trigger Simulator
-            </h3>
-            <p className="mx-auto mt-3 max-w-2xl text-xs text-[var(--color-text-secondary)] sm:text-sm">
-              Experience the 3-stage emergency flow with live countdown timers and simulated LoRa packets.
+            <p className="mx-auto mt-3 max-w-2xl text-xs text-slate-400 sm:text-sm">
+              Trigger real-time incident states to test haptic cancel countdowns and encrypted LoRa emergency broadcasts.
             </p>
           </div>
 
-          <div className="mt-10 tg-card p-6 shadow-xl sm:p-8">
-            <div className="flex flex-wrap items-center justify-center gap-2 border-b border-[var(--color-border)] pb-6">
+          <div className="mt-12 rounded-[24px] border-2 border-slate-800 bg-slate-950/90 p-6 shadow-2xl sm:p-8">
+            <div className="flex flex-wrap items-center justify-center gap-2 border-b border-slate-800 pb-6 font-mono text-xs">
               <button
                 type="button"
-                onClick={() => setSimState("normal")}
-                className={`rounded-[12px] px-4 py-2 text-xs font-bold transition ${
-                  simState === "normal"
-                    ? "bg-emerald-500 text-white shadow-sm"
-                    : "border border-[var(--color-border)] bg-[var(--color-surface-alt)] text-[var(--color-text-secondary)]"
+                onClick={() => setSimMode("normal")}
+                className={`rounded-[12px] px-4 py-2.5 font-bold transition ${
+                  simMode === "normal"
+                    ? "bg-cyan-500 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.4)]"
+                    : "border border-slate-800 bg-slate-900 text-slate-400 hover:text-white"
                 }`}
               >
-                1. Normal Trail Hiking
+                MODE 01: NORMAL EXPEDITION
               </button>
               <button
                 type="button"
-                onClick={() => setSimState("impact")}
-                className={`rounded-[12px] px-4 py-2 text-xs font-bold transition ${
-                  simState === "impact"
-                    ? "bg-amber-500 text-white shadow-sm animate-pulse"
-                    : "border border-[var(--color-border)] bg-[var(--color-surface-alt)] text-[var(--color-text-secondary)]"
+                onClick={() => setSimMode("impact")}
+                className={`rounded-[12px] px-4 py-2.5 font-bold transition ${
+                  simMode === "impact"
+                    ? "bg-amber-500 text-slate-950 shadow-[0_0_15px_rgba(245,158,11,0.5)] animate-pulse"
+                    : "border border-slate-800 bg-slate-900 text-slate-400 hover:text-white"
                 }`}
               >
-                2. Fall Impact (4.8g Spike)
+                MODE 02: HIGH G-FORCE FALL (4.82G)
               </button>
               <button
                 type="button"
-                onClick={() => setSimState("sos")}
-                className={`rounded-[12px] px-4 py-2 text-xs font-bold transition ${
-                  simState === "sos"
-                    ? "bg-red-600 text-white shadow-sm animate-bounce"
-                    : "border border-[var(--color-border)] bg-[var(--color-surface-alt)] text-[var(--color-text-secondary)]"
+                onClick={() => setSimMode("sos")}
+                className={`rounded-[12px] px-4 py-2.5 font-bold transition ${
+                  simMode === "sos"
+                    ? "bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.7)] animate-bounce"
+                    : "border border-slate-800 bg-slate-900 text-slate-400 hover:text-white"
                 }`}
               >
-                3. LoRa SOS Emergency Packet
+                MODE 03: LORA SOS BROADCAST
               </button>
             </div>
 
-            <div className="mt-6 rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-6 tg-card-inner">
-              {simState === "normal" && (
+            <div className="mt-6 rounded-[16px] border border-slate-800 bg-black/60 p-6 font-mono">
+              {simMode === "normal" && (
                 <div className="text-center">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-500 text-2xl font-bold">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-cyan-500/20 text-cyan-400 text-2xl font-bold border border-cyan-500/30">
                     ✓
                   </div>
-                  <h4 className="mt-3 text-base font-bold text-[var(--color-text)]">Status: Operating Normally</h4>
-                  <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
+                  <h4 className="mt-4 text-base font-bold text-slate-100">SYSTEM STATE: NOMINAL</h4>
+                  <p className="mt-1 text-xs text-slate-400">
                     Local SQLite buffer logging continuous 1-second cadence. Zero packets leaving the device.
                   </p>
-                  <div className="mt-4 font-mono text-xs text-emerald-500">
-                    Heart Rate: 72 bpm · IMU: 1.01g · LoRa: Standby · Satellite Fix: Optimal
+                  <div className="mt-4 inline-block rounded-full border border-cyan-500/30 bg-cyan-500/10 px-4 py-1 text-xs text-cyan-300">
+                    HEART RATE: 74 BPM // G-FORCE: 1.01G // LORA: STANDBY // CLOUD: DISCONNECTED
                   </div>
                 </div>
               )}
 
-              {simState === "impact" && (
+              {simMode === "impact" && (
                 <div className="text-center">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/20 text-amber-500 text-2xl font-bold animate-pulse">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 text-2xl font-bold border border-amber-500/40 animate-pulse">
                     ⚠️
                   </div>
-                  <h4 className="mt-3 text-base font-bold text-amber-500">Impact Detected: 4.8g G-Force</h4>
-                  <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-                    Wearable initiated a 30-second haptic wrist buzz. User can tap wrist to cancel if unhurt.
+                  <h4 className="mt-4 text-base font-bold text-amber-400">CRITICAL FALL DETECTED (4.82G SPIKE)</h4>
+                  <p className="mt-1 text-xs text-slate-400">
+                    Wearable initiated a 30-second haptic wrist alarm. Hiker can tap wrist to dismiss if safe.
                   </p>
-                  <div className="mt-4 inline-block rounded-full border border-amber-500/40 bg-amber-500/10 px-4 py-1.5 font-mono text-xs font-bold text-amber-500">
-                    Haptic Countdown: 00:{simCountdown < 10 ? `0${simCountdown}` : simCountdown} remaining before LoRa transmission
+                  <div className="mt-4 inline-block rounded-full border border-amber-500/50 bg-amber-500/15 px-5 py-1.5 text-xs font-bold text-amber-300">
+                    HAPTIC COUNTDOWN: 00:{simTimer < 10 ? `0${simTimer}` : simTimer} REMAINING
                   </div>
-                  <div className="mt-3">
+                  <div className="mt-4">
                     <button
                       type="button"
-                      onClick={() => setSimState("normal")}
-                      className="rounded-[10px] bg-amber-500/20 px-3 py-1 text-xs font-bold text-amber-500 hover:bg-amber-500/30"
+                      onClick={() => setSimMode("normal")}
+                      className="rounded-[10px] bg-amber-500/20 px-4 py-1.5 text-xs font-bold text-amber-400 hover:bg-amber-500/30 border border-amber-500/40"
                     >
-                      Tap to Cancel Alert (I am OK)
+                      I AM UNHURT (DISMISS ALARM)
                     </button>
                   </div>
                 </div>
               )}
 
-              {simState === "sos" && (
+              {simMode === "sos" && (
                 <div className="text-center">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-500/20 text-red-500 text-2xl font-bold">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-500/20 text-red-500 text-2xl font-bold border border-red-500/50">
                     🚨
                   </div>
-                  <h4 className="mt-3 text-base font-bold text-red-500">CRITICAL SOS BROADCAST ACTIVE</h4>
-                  <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-                    LoRa SX1278 transceiver is transmitting emergency coordinates to nearby rangers and Search & Rescue nodes.
+                  <h4 className="mt-4 text-base font-bold text-red-500">LORA EMERGENCY BURST BROADCASTING</h4>
+                  <p className="mt-1 text-xs text-slate-400">
+                    Long-range RF beacon dispatched to Search and Rescue basecamps with validated cryptographic signature.
                   </p>
-                  <div className="mt-4 rounded-[12px] border border-red-500/30 bg-red-500/10 p-3 font-mono text-xs text-red-400 text-left space-y-1">
-                    <div>PACKET_ID: 0xTG-EMERG-8921</div>
-                    <div>COORDINATES: 20.29614 N, 85.82452 E (Elev: 412m)</div>
-                    <div>VITALS: HR 148 bpm, SpO2 91% (Hypoxic Stress)</div>
-                    <div>SIGNATURE: Ed25519 Validated Hardware Key</div>
+                  <div className="mt-4 rounded-[12px] border border-red-500/40 bg-red-950/20 p-4 text-left text-xs text-red-400 space-y-1">
+                    <div>PACKET_ID: 0xTG-EMERG-8921 // CHECKSUM: 0xE42A</div>
+                    <div>COORDINATES: 20.29614° N, 85.82452° E (ELEV: +1,842M)</div>
+                    <div>VITALS: HR 148 BPM // SPO2 91% // HYPOXIC SHOCK</div>
+                    <div>SIGNATURE: ED25519 HARDWARE CHIP VALIDATED</div>
                   </div>
-                  <div className="mt-3">
+                  <div className="mt-4">
                     <button
                       type="button"
-                      onClick={() => setSimState("normal")}
-                      className="rounded-[10px] bg-red-500/20 px-3 py-1 text-xs font-bold text-red-400 hover:bg-red-500/30"
+                      onClick={() => setSimMode("normal")}
+                      className="rounded-[10px] bg-red-500/20 px-4 py-1.5 text-xs font-bold text-red-400 hover:bg-red-500/30 border border-red-500/40"
                     >
-                      Reset Simulator
+                      RESET SIMULATOR TO STANDBY
                     </button>
                   </div>
                 </div>
@@ -790,50 +886,56 @@ export default function Landing() {
       </section>
 
       {/* =====================================================================
-          6. PRIVACY & INVARIANTS
+          5. ZERO-TOLERANCE PRIVACY INVARIANTS
           ===================================================================== */}
-      <section id="privacy" className="py-16 sm:py-24">
+      <section id="privacy" className="relative z-20 border-t border-slate-800/80 bg-[#060D17]/80 py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-[#2DD4BF]">
+            <div className="font-mono text-xs font-bold uppercase tracking-widest text-cyan-400">
+              // SECTION 04: SECURITY INVARIANTS
+            </div>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-5xl font-sans uppercase">
               Privacy By Architecture
             </h2>
-            <h3 className="mt-3 text-2xl font-bold tracking-tight sm:text-4xl">
-              Zero Continuous Cloud Health Lakes
-            </h3>
-            <p className="mt-4 text-sm leading-relaxed text-[var(--color-text-secondary)]">
-              Unlike commercial fitness tech that monetizes your heartbeat and location trails, TrailGuard treats privacy as a safety-critical engineering invariant.
+            <p className="mt-4 text-sm leading-relaxed text-slate-300">
+              Commercial fitness trackers monetize your heartbeats. TrailGuard is engineered as a safety instrument with zero continuous cloud lakes.
             </p>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
-            <div className="tg-card p-6 hover:-translate-y-1 transition-all duration-300">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-teal-500/10 text-teal-400 tg-squircle-sm">
-                <IoLockClosedOutline className="h-5 w-5" />
+          <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="rounded-[22px] border border-slate-800 bg-slate-950/80 p-6 shadow-xl hover:border-cyan-500/40 transition-all duration-300">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-cyan-500/10 text-cyan-400 text-xl border border-cyan-500/20">
+                <IoLockClosedOutline />
               </div>
-              <h4 className="mt-4 text-base font-bold">Local-First Storage</h4>
-              <p className="mt-2 text-xs leading-relaxed text-[var(--color-text-secondary)]">
-                Your everyday heart rates, routes, and cadence stay encrypted on your companion phone in an on-device 7-day rolling buffer.
+              <h3 className="mt-5 text-base font-bold font-sans uppercase text-slate-100">
+                Invariant 1: Local-First Storage
+              </h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-400">
+                Continuous vitals and location samples remain exclusively on your companion device in an encrypted 7-day rolling SQLite buffer. Never automatically uploaded to any cloud server.
               </p>
             </div>
 
-            <div className="tg-card p-6 hover:-translate-y-1 transition-all duration-300">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-emerald-500/10 text-emerald-500 tg-squircle-sm">
-                <IoShieldCheckmarkOutline className="h-5 w-5" />
+            <div className="rounded-[22px] border border-slate-800 bg-slate-950/80 p-6 shadow-xl hover:border-emerald-500/40 transition-all duration-300">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-emerald-500/10 text-emerald-400 text-xl border border-emerald-500/20">
+                <IoShieldCheckmarkOutline />
               </div>
-              <h4 className="mt-4 text-base font-bold">Emergency-Bounded Sync</h4>
-              <p className="mt-2 text-xs leading-relaxed text-[var(--color-text-secondary)]">
-                Telemetry leaves your personal device and enters the cloud only during an authorized emergency session, bounded to at most the preceding 6 hours.
+              <h3 className="mt-5 text-base font-bold font-sans uppercase text-slate-100">
+                Invariant 2: Emergency-Bounded Sharing
+              </h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-400">
+                Telemetry leaves your personal device and enters the cloud backend only during an active authorized emergency session, bounded to at most the preceding 6 hours.
               </p>
             </div>
 
-            <div className="tg-card p-6 hover:-translate-y-1 transition-all duration-300">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-sky-500/10 text-sky-400 tg-squircle-sm">
-                <IoHardwareChipOutline className="h-5 w-5" />
+            <div className="rounded-[22px] border border-slate-800 bg-slate-950/80 p-6 shadow-xl hover:border-purple-500/40 transition-all duration-300">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-purple-500/10 text-purple-400 text-xl border border-purple-500/20">
+                <IoHardwareChipOutline />
               </div>
-              <h4 className="mt-4 text-base font-bold">Ed25519 Cryptographic Keys</h4>
-              <p className="mt-2 text-xs leading-relaxed text-[var(--color-text-secondary)]">
-                Every hardware node possesses pre-provisioned asymmetric keypairs. Rogue nodes or spoofed coordinates are rejected fail-closed.
+              <h3 className="mt-5 text-base font-bold font-sans uppercase text-slate-100">
+                Invariant 4: Ed25519 Signatures
+              </h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-400">
+                Hardware nodes authenticate every packet using asymmetric Ed25519 digital signatures. Nonce replay tracking and fail-closed audit logs prevent counterfeit sensor feeds.
               </p>
             </div>
           </div>
@@ -841,41 +943,41 @@ export default function Landing() {
       </section>
 
       {/* =====================================================================
-          7. FAQ ACCORDION
+          6. FAQ ACCORDION
           ===================================================================== */}
-      <section id="faq" className="border-t border-[var(--color-border)] bg-[var(--color-surface)] py-16 sm:py-24">
+      <section id="faq" className="relative z-20 border-t border-slate-800/80 bg-[#04080F] py-20 sm:py-28">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-[#2DD4BF]">
-              Questions & Answers
-            </h2>
-            <h3 className="mt-3 text-2xl font-bold tracking-tight sm:text-4xl">
+            <div className="font-mono text-xs font-bold uppercase tracking-widest text-cyan-400">
+              // SECTION 05: DOCUMENTATION & FAQS
+            </div>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-5xl font-sans uppercase">
               Frequently Asked Questions
-            </h3>
+            </h2>
           </div>
 
-          <div className="mt-10 space-y-3">
+          <div className="mt-12 space-y-3 font-sans">
             {faqs.map((faq, index) => {
               const isOpen = activeFaq === index;
               return (
                 <div
                   key={faq.q}
-                  className="overflow-hidden rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] transition tg-card-inner"
+                  className="overflow-hidden rounded-[16px] border border-slate-800 bg-slate-950/70 transition"
                 >
                   <button
                     type="button"
                     onClick={() => setActiveFaq(isOpen ? null : index)}
-                    className="flex w-full items-center justify-between gap-4 p-4 text-left text-sm font-bold text-[var(--color-text)] transition hover:text-[#2DD4BF]"
+                    className="flex w-full items-center justify-between gap-4 p-5 text-left text-sm font-bold text-slate-200 transition hover:text-cyan-400"
                   >
                     <span>{faq.q}</span>
                     <IoChevronDownOutline
-                      className={`h-4 w-4 shrink-0 transition-transform duration-200 ${
-                        isOpen ? "rotate-180 text-[#2DD4BF]" : ""
+                      className={`h-4 w-4 shrink-0 transition-transform duration-200 text-cyan-400 ${
+                        isOpen ? "rotate-180" : ""
                       }`}
                     />
                   </button>
                   {isOpen && (
-                    <div className="border-t border-[var(--color-border)] p-4 text-xs leading-relaxed text-[var(--color-text-secondary)] sm:text-sm">
+                    <div className="border-t border-slate-900 p-5 text-xs leading-relaxed text-slate-400 sm:text-sm">
                       {faq.a}
                     </div>
                   )}
@@ -887,45 +989,45 @@ export default function Landing() {
       </section>
 
       {/* =====================================================================
-          8. CONVERSION FOOTER CTA
+          7. FINAL TACTICAL FOOTER CTA
           ===================================================================== */}
-      <footer className="border-t border-[var(--color-border)] bg-[var(--color-bg)] py-14">
+      <footer className="relative z-20 border-t border-slate-800/80 bg-[#020509] py-16">
         <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
-          <h3 className="text-2xl font-extrabold tracking-tight sm:text-4xl">
-            Explore the Backcountry with Absolute Confidence
+          <h3 className="text-3xl font-extrabold tracking-tight sm:text-5xl font-sans uppercase">
+            Ready to Navigate the Alpine Wilderness?
           </h3>
-          <p className="mx-auto mt-3 max-w-2xl text-xs text-[var(--color-text-secondary)] sm:text-sm">
-            Launch the live rescue web dashboard, connect your wearable node, and stay protected off-grid.
+          <p className="mx-auto mt-4 max-w-2xl text-xs text-slate-400 sm:text-sm font-sans">
+            Connect your ESP32-S3 wearable node, initialize local-first telemetry, and step beyond cellular range with complete confidence.
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4 font-mono text-xs">
             <Link
               to="/dashboard"
-              className="flex items-center gap-2 rounded-[14px] bg-[var(--action-primary)] px-6 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[var(--action-primary-hover)] active:scale-[0.98]"
+              className="flex items-center gap-2 rounded-[14px] bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 px-7 py-4 text-sm font-bold text-slate-950 shadow-[0_0_25px_rgba(6,182,212,0.4)] transition hover:shadow-[0_0_35px_rgba(6,182,212,0.65)]"
             >
-              <span>Launch Live Dashboard</span>
+              <span>ENTER MISSION DASHBOARD</span>
               <IoArrowForwardOutline className="h-4 w-4" />
             </Link>
 
             <Link
               to="/register"
-              className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-3.5 text-sm font-semibold text-[var(--color-text)] shadow-xs transition hover:bg-[var(--color-surface-alt)] active:scale-[0.98]"
+              className="rounded-[14px] border border-slate-700 bg-slate-900 px-7 py-4 text-sm font-semibold text-slate-200 transition hover:border-slate-500 hover:text-white"
             >
-              Create Free Account
+              CREATE OPERATOR ACCOUNT
             </Link>
           </div>
 
-          <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-[var(--color-border)] pt-8 text-xs text-[var(--color-text-muted)] sm:flex-row">
-            <div>© {new Date().getFullYear()} TrailGuard (SWAAS). Autonomous Smart Wearable Ecosystem.</div>
-            <div className="flex items-center gap-4">
-              <Link to="/about" className="hover:text-[var(--color-text)]">
-                About Architecture
+          <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-slate-900 pt-8 font-mono text-xs text-slate-500 sm:flex-row">
+            <div>© {new Date().getFullYear()} TRAILGUARD (SWAAS). ALL RIGHTS RESERVED.</div>
+            <div className="flex items-center gap-5">
+              <Link to="/about" className="hover:text-slate-300">
+                SYSTEM ARCHITECTURE
               </Link>
-              <Link to="/login" className="hover:text-[var(--color-text)]">
-                Operator Login
+              <Link to="/login" className="hover:text-slate-300">
+                OPERATOR LOGIN
               </Link>
-              <a href="#privacy" className="hover:text-[var(--color-text)]">
-                Privacy Policy
+              <a href="#privacy" className="hover:text-slate-300">
+                PRIVACY INVARIANTS
               </a>
             </div>
           </div>
