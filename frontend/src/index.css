@@ -397,6 +397,65 @@ html.dark {
     100% { stroke-dashoffset: 0; }
   }
 
+  /* Apple / Render Dynamic Ambient Gradient & Wave Animations */
+  @keyframes ambientDrift1 {
+    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.45; }
+    33% { transform: translate(60px, -40px) scale(1.15); opacity: 0.65; }
+    66% { transform: translate(-40px, 50px) scale(0.95); opacity: 0.4; }
+  }
+
+  @keyframes ambientDrift2 {
+    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+    33% { transform: translate(-50px, 60px) scale(1.2); opacity: 0.6; }
+    66% { transform: translate(50px, -30px) scale(0.9); opacity: 0.35; }
+  }
+
+  @keyframes ambientDrift3 {
+    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+    50% { transform: translate(40px, 30px) scale(1.12); opacity: 0.55; }
+  }
+
+  @keyframes waveFlowSlow {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  @keyframes waveFlowFast {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  @keyframes gridScanLine {
+    0% { transform: translateY(-100%); opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { transform: translateY(1000%); opacity: 0; }
+  }
+
+  .animate-ambient-1 {
+    animation: ambientDrift1 18s ease-in-out infinite;
+  }
+
+  .animate-ambient-2 {
+    animation: ambientDrift2 24s ease-in-out infinite;
+  }
+
+  .animate-ambient-3 {
+    animation: ambientDrift3 20s ease-in-out infinite;
+  }
+
+  .animate-wave-slow {
+    animation: waveFlowSlow 28s linear infinite;
+  }
+
+  .animate-wave-fast {
+    animation: waveFlowFast 16s linear infinite;
+  }
+
+  .animate-grid-scan {
+    animation: gridScanLine 8s ease-in-out infinite;
+  }
+
   .animate-radar-sweep {
     animation: radarSweep 4s linear infinite;
   }
