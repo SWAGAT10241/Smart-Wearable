@@ -72,17 +72,20 @@ export default function BarTrace({
             return (
               <span
                 key={`${value}-${index}`}
-                className="w-[3px] shrink-0 rounded-full transition-all duration-500"
+                className="w-[3.5px] shrink-0 rounded-t-full transition-all duration-500"
                 style={{
-                  height: `${Math.max(3, safeValue)}%`,
-                  background: color,
+                  height: `${Math.max(4, safeValue)}%`,
+                  background: isBaseline
+                    ? color
+                    : `linear-gradient(180deg, ${color} 0%, ${color}55 100%)`,
                   opacity: isBaseline
                     ? 0.35
                     : index % 3 === 0
-                      ? 0.42
+                      ? 0.55
                       : index % 3 === 1
-                        ? 0.62
-                        : 0.82,
+                        ? 0.75
+                        : 0.95,
+                  boxShadow: !isBaseline && safeValue > 50 ? `0 0 6px ${color}40` : "none",
                 }}
               />
             );

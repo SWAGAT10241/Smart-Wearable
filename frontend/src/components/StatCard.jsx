@@ -64,10 +64,16 @@ export default function StatCard({
   const chartVariant = ["ppg", "line", "bars", "pressure"].includes(variant);
 
   return (
-    <article className="flex min-w-0 flex-col rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-card)]">
+    <article className="group relative flex min-w-0 flex-col overflow-hidden rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-border-hover,rgba(255,255,255,0.18))] hover:shadow-xl">
+      {/* Subtle ambient aura glow matching metric identity */}
+      <div
+        className="pointer-events-none absolute -right-6 -top-6 h-28 w-28 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-35"
+        style={{ background: style.color }}
+      />
+
       {/* Icon */}
       <div
-        className="mb-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px]"
+        className="mb-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] border border-white/10 shadow-xs transition-transform duration-300 group-hover:scale-105"
         style={{ background: style.bg }}
       >
         {icon}
@@ -81,12 +87,17 @@ export default function StatCard({
 
         {status && (
           <span
-            className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider"
+            className="flex shrink-0 items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border shadow-xs"
             style={{
-              background: `${resolvedStatusColor}20`,
+              background: `${resolvedStatusColor}18`,
+              borderColor: `${resolvedStatusColor}40`,
               color: resolvedStatusColor,
             }}
           >
+            <span
+              className="h-1.5 w-1.5 rounded-full animate-pulse"
+              style={{ background: resolvedStatusColor }}
+            />
             {status}
           </span>
         )}
@@ -94,7 +105,7 @@ export default function StatCard({
 
       {/* Current Value */}
       <div className="mb-3 flex min-h-[38px] items-baseline gap-1.5">
-        <span className="text-[28px] font-bold leading-none tracking-[-0.03em] tabular-nums text-[var(--color-text)]">
+        <span className="text-[30px] font-extrabold leading-none tracking-[-0.03em] tabular-nums text-[var(--color-text)]">
           {value}
         </span>
 
