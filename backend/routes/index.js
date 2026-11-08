@@ -7,6 +7,7 @@ const vitalsRoutes = require("./vitalsRoutes");
 const fallRoutes = require("./fallRoutes");
 const environmentRoutes = require("./environmentRoutes");
 const locationRoutes = require("./locationRoutes");
+const emergencyRoutes = require("./emergencyRoutes");
 
 /**
  * Configure and return the unified API routes.
@@ -34,6 +35,9 @@ function createApiRouter(broadcast) {
   router.use("/falls", fallRoutes(broadcast));
   router.use("/environment", environmentRoutes());
   router.use("/location", locationRoutes());
+
+  // Emergency & WebSocket tickets (/api/emergency/*)
+  router.use("/emergency", emergencyRoutes());
 
   return router;
 }
