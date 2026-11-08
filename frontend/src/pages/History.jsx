@@ -164,35 +164,43 @@ export default function History() {
     <AppLayout>
       <div className="flex flex-col gap-3.5">
         {/* HEADER & CONTROLS */}
-        <div className="flex flex-col gap-2.5 rounded-[18px] border border-[var(--border-default)] bg-[var(--surface-card)] p-3.5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative flex flex-col gap-2.5 overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-xs font-mono sm:flex-row sm:items-center sm:justify-between">
+          {/* Tactical Top Accent Line */}
+          <div
+            className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-70"
+            style={{
+              background: "linear-gradient(90deg, var(--status-optimal), var(--status-info) 50%, transparent 80%)",
+            }}
+          />
+
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-lg font-bold tracking-tight text-[var(--text-primary)] sm:text-xl">
-                Telemetry History
+              <h1 className="text-base font-black uppercase tracking-tight text-[var(--color-text)] sm:text-lg">
+                TELEMETRY ARCHIVE
               </h1>
-              <span className="rounded-md border border-[var(--border-default)] bg-[var(--surface-elevated)] px-2 py-0.5 font-mono text-[10px] text-[var(--text-secondary)]">
-                Interactive Route
+              <span className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[var(--status-optimal)]">
+                ROUTE LOGS
               </span>
             </div>
-            <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
+            <p className="mt-0.5 text-xs text-[var(--color-text-secondary)]">
               {selectedDevice
-                ? `${selectedDevice.deviceName || selectedDevice.name || "TrailGuard Wearable"} · ${maskDeviceId(selectedDevice.deviceId)}`
-                : "No device selected"}
+                ? `DEVICE: ${selectedDevice.deviceName || selectedDevice.name || "ESP32-S3"} · ID: ${maskDeviceId(selectedDevice.deviceId)}`
+                : "NO ACTIVE DEVICE SELECTED"}
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             {/* Range Selector */}
-            <div className="flex rounded-lg border border-[var(--border-default)] bg-[var(--surface-elevated)] p-0.5">
+            <div className="flex rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-0.5">
               {HISTORY_RANGES.map((item) => (
                 <button
                   key={item.label}
                   type="button"
                   onClick={() => setRange(item.hours)}
-                  className={`rounded-md px-2.5 py-1 text-xs font-semibold transition ${
+                  className={`rounded-md px-2.5 py-1 text-xs font-bold transition ${
                     range === item.hours
-                      ? "border border-teal-500/30 bg-[#0E9C8C]/25 text-[#42E3D0] shadow-sm"
-                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                      ? "border border-[var(--status-optimal)]/30 bg-[var(--status-optimal)]/20 text-[var(--status-optimal)] shadow-2xs"
+                      : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
                   }`}
                 >
                   {item.label}
@@ -204,49 +212,49 @@ export default function History() {
 
         {/* LOADING INDICATOR */}
         {loading && (
-          <div className="rounded-xl border border-[var(--border-default)] bg-[var(--surface-card)] p-2 text-xs text-[var(--text-secondary)]">
-            <LoadingSpinner size="sm" label="Aggregating history window..." />
+          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-2 text-xs font-mono text-[var(--color-text-secondary)]">
+            <LoadingSpinner size="sm" label="AGGREGATING TIME WINDOW..." />
           </div>
         )}
 
         {/* METRIC CATEGORY TABS */}
-        <div className="flex flex-wrap items-center gap-2 border-b border-[var(--border-default)] pb-2 text-sm">
-          <span className="flex items-center gap-1.5 font-bold text-[var(--text-secondary)]">
-            <IoFilterOutline className="h-4 w-4 text-teal-400" />
-            Filter:
+        <div className="flex flex-wrap items-center gap-2 border-b border-[var(--color-border)] pb-2 font-mono text-xs">
+          <span className="flex items-center gap-1.5 font-bold uppercase text-[var(--color-text-secondary)]">
+            <IoFilterOutline className="h-3.5 w-3.5 text-[var(--status-optimal)]" />
+            FILTER:
           </span>
           <button
             type="button"
             onClick={() => setMetricFilter("all")}
-            className={`rounded-lg px-3 py-1 text-xs sm:text-sm font-semibold transition ${
+            className={`rounded-lg px-2.5 py-1 font-bold uppercase tracking-wider transition ${
               metricFilter === "all"
-                ? "bg-[var(--surface-elevated)] text-[var(--action-primary)] font-bold border border-teal-500/30"
-                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                ? "bg-[var(--color-surface-alt)] text-[var(--status-optimal)] border border-[var(--status-optimal)]/30"
+                : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
             }`}
           >
-            All Charts (5)
+            ALL [5]
           </button>
           <button
             type="button"
             onClick={() => setMetricFilter("vitals")}
-            className={`rounded-lg px-3 py-1 text-xs sm:text-sm font-semibold transition ${
+            className={`rounded-lg px-2.5 py-1 font-bold uppercase tracking-wider transition ${
               metricFilter === "vitals"
-                ? "bg-[var(--surface-elevated)] text-[var(--action-primary)] font-bold border border-teal-500/30"
-                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                ? "bg-[var(--color-surface-alt)] text-[var(--status-optimal)] border border-[var(--status-optimal)]/30"
+                : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
             }`}
           >
-            Biometrics (2)
+            BIOMETRICS [2]
           </button>
           <button
             type="button"
             onClick={() => setMetricFilter("env")}
-            className={`rounded-lg px-3 py-1 text-xs sm:text-sm font-semibold transition ${
+            className={`rounded-lg px-2.5 py-1 font-bold uppercase tracking-wider transition ${
               metricFilter === "env"
-                ? "bg-[var(--surface-elevated)] text-[var(--action-primary)] font-bold border border-teal-500/30"
-                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                ? "bg-[var(--color-surface-alt)] text-[var(--status-optimal)] border border-[var(--status-optimal)]/30"
+                : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
             }`}
           >
-            Environment (3)
+            ENVIRONMENT [3]
           </button>
         </div>
 
@@ -304,29 +312,37 @@ export default function History() {
         </div>
 
         {/* PROMINENT GPS MOVEMENT MAP (LARGE INTERACTIVE VIEW) */}
-        <div className="flex flex-col rounded-[22px] border border-[var(--border-default)] bg-[var(--surface-card)] p-4 shadow-sm">
+        <div className="relative flex flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-xs font-mono">
+          {/* Tactical Top Accent Line */}
+          <div
+            className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-70"
+            style={{
+              background: "linear-gradient(90deg, var(--status-optimal), transparent 60%)",
+            }}
+          />
+
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-teal-500/30 bg-teal-500/10 text-[#2DD4BF]">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-black/5 dark:border-white/10 bg-[var(--surface-accent)] text-xs text-[var(--status-optimal)]">
                 <IoLocationOutline className="h-4 w-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-[var(--text-primary)] sm:text-base">
-                  GPS Movement Route & Terrain
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text)] sm:text-sm">
+                  GPS TRAIL ROUTE & TERRAIN
                 </h3>
-                <p className="text-[11px] text-[var(--text-muted)]">
-                  Interactive satellite topography and recorded GPS waypoints ({range}h window)
+                <p className="text-[10px] text-[var(--color-text-muted)]">
+                  RECORDED WAYPOINTS ({range}H WINDOW)
                 </p>
               </div>
             </div>
-            <span className="rounded-full border border-[var(--border-default)] bg-[var(--surface-elevated)] px-3 py-1 font-mono text-xs text-[var(--text-secondary)]">
+            <span className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-2.5 py-1 text-xs font-bold text-[var(--color-text)]">
               {latestLocation
-                ? `${Number(latestLocation.latitude).toFixed(5)}, ${Number(latestLocation.longitude).toFixed(5)}`
-                : "No Coordinates"}
+                ? `${Number(latestLocation.latitude).toFixed(5)}°N, ${Number(latestLocation.longitude).toFixed(5)}°E`
+                : "NO GPS FIX"}
             </span>
           </div>
 
-          <div className="h-[360px] overflow-hidden rounded-xl border border-[var(--border-default)] bg-[var(--surface-elevated)] sm:h-[400px]">
+          <div className="h-[360px] overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] sm:h-[400px]">
             {latestLocation ? (
               <LiveMap
                 latitude={latestLocation.latitude}
@@ -334,15 +350,22 @@ export default function History() {
                 trail={trail}
               />
             ) : (
-              <div className="flex h-full items-center justify-center text-xs text-[var(--text-muted)]">
-                No GPS coordinates recorded for this {range}h window.
+              <div className="flex h-full items-center justify-center text-xs text-[var(--color-text-muted)]">
+                NO GPS COORDINATES RECORDED FOR THIS {range}H WINDOW.
               </div>
             )}
           </div>
         </div>
 
         {/* FALL INCIDENTS CATEGORIZED TIMELINE */}
-        <div className="flex flex-col rounded-[22px] border border-[var(--border-default)] bg-[var(--surface-card)] p-4 shadow-sm">
+        <div className="relative flex flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-xs font-mono">
+          {/* Tactical Top Accent Line */}
+          <div
+            className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-70"
+            style={{
+              background: "linear-gradient(90deg, var(--status-warning), transparent 60%)",
+            }}
+          />
           {/* Header & Badges */}
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2.5">
             <div className="flex items-center gap-2">
