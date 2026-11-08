@@ -123,13 +123,12 @@ export default function Settings() {
   const height = user?.height != null ? `${user.height} cm` : "Not provided";
   const weight = user?.weight != null ? `${user.weight} kg` : "Not provided";
 
-  const card =
-    "relative overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-xs font-mono";
+  const card = "tg-card";
 
   const option = (active) =>
-    `rounded-xl border p-3.5 text-left transition font-mono ${
+    `rounded-xl border p-3.5 text-left transition ${
       active
-        ? "border-[var(--status-optimal)] bg-[var(--status-optimal)]/10 ring-1 ring-[var(--status-optimal)]/30 text-[var(--color-text)]"
+        ? "border-emerald-500 bg-emerald-500/10 ring-1 ring-emerald-500/30 text-[var(--color-text)]"
         : "border-[var(--color-border)] bg-[var(--color-surface-alt)] hover:border-[var(--color-border-hover,rgba(255,255,255,0.2))] text-[var(--color-text-secondary)]"
     }`;
 
@@ -137,26 +136,21 @@ export default function Settings() {
     <AppLayout>
       <div className="space-y-4">
         {/* Header */}
-        <header className="px-0.5 py-1">
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-black uppercase tracking-tight text-[var(--color-text)] sm:text-2xl font-mono">
-              SYSTEM CONFIGURATION
-            </h1>
-            <span className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-[var(--status-optimal)]">
-              ACTIVE
-            </span>
-          </div>
-          <p className="mt-0.5 font-mono text-xs text-[var(--color-text-secondary)]">
-            ACCOUNT PROFILE · SAFETY CONTACTS · WEARABLE HARDWARE
+        <header className="px-1 py-1">
+          <h1 className="tg-page-title">
+            Settings
+          </h1>
+          <p className="tg-page-subtitle">
+            Manage your account preferences, safety information, and paired devices.
           </p>
         </header>
 
         {/* Appearance */}
         <section className={card}>
-          <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-70" style={{ background: "linear-gradient(90deg, var(--status-info), transparent 60%)" }} />
-          <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--color-text)]">APPEARANCE</h3>
-          <p className="mt-0.5 text-xs text-[var(--color-text-secondary)]">
-            SELECT TACTICAL VISUAL PALETTE (LIGHT OR DARK HUD).
+          <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-80" style={{ background: "linear-gradient(90deg, var(--status-info), transparent 60%)" }} />
+          <h3 className="tg-card-title">Appearance</h3>
+          <p className="tg-card-subtitle">
+            Choose your preferred theme across all screens.
           </p>
 
           <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
@@ -164,9 +158,9 @@ export default function Settings() {
               <div className="flex items-center gap-3">
                 <span className="text-xl">☀️</span>
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-[var(--color-text)]">DAYLIGHT HUD (LIGHT)</p>
-                  <p className="text-[10px] text-[var(--color-text-muted)]">
-                    HIGH-CONTRAST AMBIENT FIELD VIEW
+                  <p className="text-sm font-semibold text-[var(--color-text)]">Light</p>
+                  <p className="text-xs text-[var(--color-text-muted)]">
+                    Default bright theme
                   </p>
                 </div>
               </div>
@@ -176,9 +170,9 @@ export default function Settings() {
               <div className="flex items-center gap-3">
                 <span className="text-xl">🌙</span>
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-[var(--color-text)]">NIGHTFALL HUD (DARK)</p>
-                  <p className="text-[10px] text-[var(--color-text-muted)]">
-                    LOW-ILLUMINATION SOLID MATTE VIEW
+                  <p className="text-sm font-semibold text-[var(--color-text)]">Dark</p>
+                  <p className="text-xs text-[var(--color-text-muted)]">
+                    High contrast dark theme
                   </p>
                 </div>
               </div>

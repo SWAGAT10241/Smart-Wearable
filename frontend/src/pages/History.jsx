@@ -164,10 +164,10 @@ export default function History() {
     <AppLayout>
       <div className="flex flex-col gap-3.5">
         {/* HEADER & CONTROLS */}
-        <div className="relative flex flex-col gap-2.5 overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-xs font-mono sm:flex-row sm:items-center sm:justify-between">
-          {/* Tactical Top Accent Line */}
+        <div className="tg-card sm:flex-row sm:items-center sm:justify-between">
+          {/* Top Accent Stroke */}
           <div
-            className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-70"
+            className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-80"
             style={{
               background: "linear-gradient(90deg, var(--status-optimal), var(--status-info) 50%, transparent 80%)",
             }}
@@ -175,31 +175,31 @@ export default function History() {
 
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-base font-black uppercase tracking-tight text-[var(--color-text)] sm:text-lg">
-                TELEMETRY ARCHIVE
+              <h1 className="tg-page-title">
+                Telemetry History
               </h1>
-              <span className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[var(--status-optimal)]">
-                ROUTE LOGS
+              <span className="tg-badge tg-badge-neutral text-[10px]">
+                {range}h Window
               </span>
             </div>
-            <p className="mt-0.5 text-xs text-[var(--color-text-secondary)]">
+            <p className="tg-page-subtitle">
               {selectedDevice
-                ? `DEVICE: ${selectedDevice.deviceName || selectedDevice.name || "ESP32-S3"} · ID: ${maskDeviceId(selectedDevice.deviceId)}`
-                : "NO ACTIVE DEVICE SELECTED"}
+                ? `${selectedDevice.deviceName || selectedDevice.name || "Wearable"} · ${maskDeviceId(selectedDevice.deviceId)}`
+                : "No device selected"}
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="mt-3 sm:mt-0 flex items-center gap-2">
             {/* Range Selector */}
-            <div className="flex rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-0.5">
+            <div className="flex rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-0.5 font-mono">
               {HISTORY_RANGES.map((item) => (
                 <button
                   key={item.label}
                   type="button"
                   onClick={() => setRange(item.hours)}
-                  className={`rounded-md px-2.5 py-1 text-xs font-bold transition ${
+                  className={`rounded-md px-2.5 py-1 text-xs font-semibold transition ${
                     range === item.hours
-                      ? "border border-[var(--status-optimal)]/30 bg-[var(--status-optimal)]/20 text-[var(--status-optimal)] shadow-2xs"
+                      ? "border border-emerald-500/30 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold"
                       : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
                   }`}
                 >
@@ -212,49 +212,49 @@ export default function History() {
 
         {/* LOADING INDICATOR */}
         {loading && (
-          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-2 text-xs font-mono text-[var(--color-text-secondary)]">
-            <LoadingSpinner size="sm" label="AGGREGATING TIME WINDOW..." />
+          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-2 text-xs text-[var(--color-text-secondary)]">
+            <LoadingSpinner size="sm" label="Loading telemetry..." />
           </div>
         )}
 
         {/* METRIC CATEGORY TABS */}
-        <div className="flex flex-wrap items-center gap-2 border-b border-[var(--color-border)] pb-2 font-mono text-xs">
-          <span className="flex items-center gap-1.5 font-bold uppercase text-[var(--color-text-secondary)]">
+        <div className="flex flex-wrap items-center gap-2 border-b border-[var(--color-border)] pb-2 text-xs">
+          <span className="flex items-center gap-1.5 font-semibold text-[var(--color-text-secondary)]">
             <IoFilterOutline className="h-3.5 w-3.5 text-[var(--status-optimal)]" />
-            FILTER:
+            Filter:
           </span>
           <button
             type="button"
             onClick={() => setMetricFilter("all")}
-            className={`rounded-lg px-2.5 py-1 font-bold uppercase tracking-wider transition ${
+            className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
               metricFilter === "all"
-                ? "bg-[var(--color-surface-alt)] text-[var(--status-optimal)] border border-[var(--status-optimal)]/30"
+                ? "bg-[var(--color-surface-alt)] text-[var(--color-text)] border border-[var(--color-border)] font-bold"
                 : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
             }`}
           >
-            ALL [5]
+            All (5)
           </button>
           <button
             type="button"
             onClick={() => setMetricFilter("vitals")}
-            className={`rounded-lg px-2.5 py-1 font-bold uppercase tracking-wider transition ${
+            className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
               metricFilter === "vitals"
-                ? "bg-[var(--color-surface-alt)] text-[var(--status-optimal)] border border-[var(--status-optimal)]/30"
+                ? "bg-[var(--color-surface-alt)] text-[var(--color-text)] border border-[var(--color-border)] font-bold"
                 : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
             }`}
           >
-            BIOMETRICS [2]
+            Biometrics (2)
           </button>
           <button
             type="button"
             onClick={() => setMetricFilter("env")}
-            className={`rounded-lg px-2.5 py-1 font-bold uppercase tracking-wider transition ${
+            className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
               metricFilter === "env"
-                ? "bg-[var(--color-surface-alt)] text-[var(--status-optimal)] border border-[var(--status-optimal)]/30"
+                ? "bg-[var(--color-surface-alt)] text-[var(--color-text)] border border-[var(--color-border)] font-bold"
                 : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
             }`}
           >
-            ENVIRONMENT [3]
+            Environment (3)
           </button>
         </div>
 

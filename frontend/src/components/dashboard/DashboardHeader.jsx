@@ -1,29 +1,25 @@
 import NotificationBell from "../app/NotificationBell";
 import ProfileMenu from "../app/ProfileMenu";
 
-/**
- * Minimalist high-density tactical DashboardHeader.
- * Displays user identity, connected hardware device link status, and tactical system pill.
- */
 export default function DashboardHeader({ user, selectedDevice, notifications = [] }) {
   return (
-    <header className="flex shrink-0 items-center justify-between gap-4 px-0.5 py-1">
+    <header className="flex shrink-0 items-center justify-between gap-4 px-1 py-1">
       <div className="min-w-0">
         <div className="flex items-center gap-2.5">
-          <h1 className="truncate text-xl font-black tracking-tight text-[var(--color-text)] sm:text-2xl font-mono">
-            COMMAND / {user?.username ? user.username.toUpperCase() : "OPERATOR"}
+          <h1 className="tg-page-title truncate">
+            Welcome back, {user?.username || "Explorer"}
           </h1>
 
-          <span className="hidden items-center gap-1.5 rounded-md border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-[var(--status-optimal)] sm:inline-flex">
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--status-optimal)] animate-pulse" />
-            TELEMETRY ONLINE
+          <span className="hidden items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 sm:inline-flex">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            Live
           </span>
         </div>
 
-        <p className="mt-0.5 font-mono text-xs text-[var(--color-text-secondary)]">
+        <p className="tg-page-subtitle truncate">
           {selectedDevice
-            ? `DEVICE: ${selectedDevice.deviceName || selectedDevice.name || "ESP32-S3"} · PROTOCOL: BLE/WS · ACTIVE MONITORING`
-            : "STANDBY · NO ACTIVE HARDWARE DEVICE LINKED"}
+            ? `${selectedDevice.deviceName || selectedDevice.name || "Wearable"} · Active tracking`
+            : "No device selected"}
         </p>
       </div>
 

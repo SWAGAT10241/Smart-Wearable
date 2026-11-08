@@ -232,6 +232,8 @@ html.dark {
    bg-surface-canvas, bg-surface-card, text-text-primary, border-border-default, etc.
    ========================================================================= */
 @theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --color-surface-canvas: var(--surface-canvas);
   --color-surface-card: var(--surface-card);
   --color-surface-elevated: var(--surface-elevated);
@@ -308,6 +310,66 @@ html.dark {
 }
 
 @layer components {
+  /* =======================================================
+   * GLOBAL UNIFIED TYPOGRAPHY & CARD SYSTEM
+   * Single Source of Truth for all pages
+   * ======================================================= */
+  .tg-page-title {
+    @apply text-xl font-bold tracking-tight text-[var(--color-text)] sm:text-2xl;
+  }
+
+  .tg-page-subtitle {
+    @apply mt-0.5 text-xs text-[var(--color-text-secondary)] sm:text-sm;
+  }
+
+  .tg-card {
+    @apply relative flex flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4.5 shadow-xs transition-all;
+  }
+
+  .tg-card-header {
+    @apply mb-3 flex items-center justify-between gap-3;
+  }
+
+  .tg-card-title {
+    @apply text-sm font-semibold tracking-tight text-[var(--color-text)];
+  }
+
+  .tg-card-subtitle {
+    @apply text-xs text-[var(--color-text-muted)];
+  }
+
+  .tg-metric-label {
+    @apply text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)];
+  }
+
+  .tg-metric-value {
+    @apply text-3xl font-extrabold tracking-tight tabular-nums text-[var(--color-text)];
+  }
+
+  .tg-metric-unit {
+    @apply text-xs font-semibold text-[var(--color-text-secondary)];
+  }
+
+  .tg-badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border;
+  }
+
+  .tg-badge-optimal {
+    @apply border-emerald-500/25 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400;
+  }
+
+  .tg-badge-warning {
+    @apply border-amber-500/25 bg-amber-500/10 text-amber-600 dark:text-amber-400;
+  }
+
+  .tg-badge-sos {
+    @apply border-red-500/25 bg-red-500/10 text-red-600 dark:text-red-400;
+  }
+
+  .tg-badge-neutral {
+    @apply border-[var(--color-border)] bg-[var(--color-surface-alt)] text-[var(--color-text-secondary)];
+  }
+
   .tg-page {
     @apply flex min-h-screen;
   }

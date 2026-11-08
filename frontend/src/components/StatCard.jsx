@@ -39,9 +39,7 @@ const STYLES = {
 };
 
 /**
- * Minimalist high-density tactical StatCard.
- * Optimized for both light and dark modes with high data density,
- * tactile hairline borders, corner coordinates/ticks, and monospace readouts.
+ * Telemetry StatCard adhering to the global design & typography system.
  */
 export default function StatCard({
   icon,
@@ -65,23 +63,15 @@ export default function StatCard({
   const chartVariant = ["ppg", "line", "bars", "pressure"].includes(variant);
 
   return (
-    <article className="group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-xs transition-all duration-200 hover:border-[var(--color-accent)]/50 hover:shadow-md">
-      {/* Tactical Top Accent Indicator */}
+    <article className="tg-card group hover:border-[var(--color-accent)]/50 hover:shadow-md">
+      {/* Top Accent Stroke */}
       <div
-        className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-70 transition-opacity duration-300 group-hover:opacity-100"
-        style={{ background: `linear-gradient(90deg, ${style.color}, transparent 60%)` }}
+        className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-80 transition-opacity duration-300 group-hover:opacity-100"
+        style={{ background: `linear-gradient(90deg, ${style.color}, transparent 65%)` }}
       />
 
-      {/* Subtle Tactical Corner Crosshairs */}
-      <span className="pointer-events-none absolute top-1.5 right-2 font-mono text-[8px] text-[var(--color-text-muted)] select-none opacity-30">
-        +
-      </span>
-      <span className="pointer-events-none absolute bottom-1.5 left-2 font-mono text-[8px] text-[var(--color-text-muted)] select-none opacity-30">
-        +
-      </span>
-
-      {/* Header Deck: Icon + Label + Tactical Status */}
-      <div className="mb-2.5 flex items-center justify-between gap-2">
+      {/* Header Deck: Icon + Label + Status */}
+      <div className="mb-2 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
           <div
             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-black/5 dark:border-white/10 text-xs shadow-2xs"
@@ -90,14 +80,14 @@ export default function StatCard({
             {icon}
           </div>
 
-          <span className="truncate font-mono text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
+          <span className="tg-metric-label truncate">
             {label}
           </span>
         </div>
 
         {status && (
           <span
-            className="flex shrink-0 items-center gap-1.5 rounded-md px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider border"
+            className="tg-badge"
             style={{
               background: `${resolvedStatusColor}14`,
               borderColor: `${resolvedStatusColor}35`,
@@ -113,20 +103,20 @@ export default function StatCard({
         )}
       </div>
 
-      {/* Primary Metric Readout */}
-      <div className="mb-2.5 flex items-baseline gap-1.5 font-mono">
-        <span className="text-[26px] font-black leading-none tracking-tight tabular-nums text-[var(--color-text)]">
+      {/* Primary Value Readout */}
+      <div className="mb-2 flex items-baseline gap-1.5">
+        <span className="tg-metric-value">
           {value}
         </span>
 
         {unit && (
-          <span className="text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-secondary)]">
+          <span className="tg-metric-unit">
             {unit}
           </span>
         )}
       </div>
 
-      {/* High-density Sensor Viewport Screen */}
+      {/* Sensor Viewport Screen */}
       <div
         className={`mb-2.5 overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)]/60 px-2 py-1.5 shadow-2xs ${
           chartVariant ? "h-[84px]" : "h-[74px]"
@@ -169,27 +159,27 @@ export default function StatCard({
 
       {/* Normal Range Reference */}
       {normalRange && (
-        <div className="mb-2 flex items-center gap-1.5 font-mono text-[10px]">
+        <div className="mb-2 flex items-center gap-1.5 text-xs">
           <span
             className="h-1.5 w-1.5 shrink-0 rounded-full"
             style={{ background: "var(--status-optimal)" }}
           />
-          <span className="truncate font-medium text-[var(--color-text-secondary)]">
-            {normalRange}
+          <span className="truncate text-xs text-[var(--color-text-secondary)]">
+            {normalRange.replace(/Normal Range: |Comfort Range: /, "")}
           </span>
         </div>
       )}
 
-      {/* Statistical Summary (Min / Avg / Peak) */}
+      {/* Statistical Summary */}
       <div className="mt-auto">
         <MiniStats items={miniStats} />
       </div>
 
-      {/* Tactical Timestamp Footer */}
+      {/* Timestamp Footer */}
       {updatedText && (
-        <div className="mt-2.5 flex items-center gap-1.5 border-t border-[var(--color-border)] pt-2 font-mono text-[10px] text-[var(--color-text-muted)]">
+        <div className="mt-2.5 flex items-center gap-1.5 border-t border-[var(--color-border)] pt-2 text-[11px] text-[var(--color-text-muted)]">
           <IoTimeOutline size={12} className="shrink-0" />
-          <span className="truncate">SYNCED: {updatedText}</span>
+          <span className="truncate">Updated {updatedText}</span>
         </div>
       )}
     </article>

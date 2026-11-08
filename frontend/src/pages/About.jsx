@@ -42,23 +42,23 @@ export default function About() {
 
           <div className="relative z-10 flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-400/30 bg-teal-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-teal-400">
+              <span className="tg-badge tg-badge-optimal">
                 <IoShieldCheckmarkOutline className="h-3.5 w-3.5" />
                 SWAAS / TrailGuard Ecosystem
               </span>
-              <span className="rounded-full border border-[var(--border-default)] bg-[var(--surface-elevated)] px-3 py-1 font-mono text-xs font-medium text-[var(--text-secondary)]">
+              <span className="tg-badge tg-badge-neutral">
                 Smart Wearable Safety
               </span>
-              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
+              <span className="tg-badge tg-badge-optimal">
                 <IoCheckmarkCircleOutline className="h-3.5 w-3.5" /> Off-Grid Ready
               </span>
             </div>
 
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)] sm:text-3xl">
+              <h1 className="tg-page-title">
                 Protection That Goes Where Cell Towers Can't
               </h1>
-              <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[var(--text-secondary)] sm:text-base">
+              <p className="tg-page-subtitle mt-2 max-w-3xl text-sm leading-relaxed sm:text-base">
                 TrailGuard (SWAAS) is an autonomous safety companion designed for lone hikers,
                 mountaineers, and outdoor enthusiasts. Combining real-time on-wrist biometrics,
                 intelligent fall detection, and off-grid radio links, TrailGuard ensures you never
