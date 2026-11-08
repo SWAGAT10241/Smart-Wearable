@@ -1,5 +1,5 @@
 import React from "react";
-import { Clock3 } from "lucide-react";
+import { IoTimeOutline } from "react-icons/io5";
 import useUpdatedTime from "../hooks/useUpdatedTime";
 import MiniStats from "./common/MiniStats";
 import { LineTrace, BarTrace, GaugeBar, TemperatureGauge } from "./charts";
@@ -164,7 +164,7 @@ export default function StatCard({
       {/* Relative Updated Timestamp */}
       {updatedText && (
         <div className="mt-3 flex items-center gap-1.5 border-t border-[var(--color-border)] pt-2.5 text-xs font-medium text-[var(--color-text-secondary)]">
-          <Clock3 size={14} strokeWidth={1.8} />
+          <IoTimeOutline size={14} />
           <span>Last seen {updatedText}</span>
         </div>
       )}

@@ -5,7 +5,18 @@ import ChartCard from "../components/charts/ChartCard";
 import LiveMap from "../components/LiveMap";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { useTelemetryHistory, HISTORY_RANGES } from "../hooks/useTelemetryHistory";
-import { ShieldAlert, Filter, MapPin, Search, Clock, AlertTriangle, CheckCircle2, X, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  IoShieldOutline,
+  IoFilterOutline,
+  IoLocationOutline,
+  IoSearchOutline,
+  IoTimeOutline,
+  IoWarningOutline,
+  IoCheckmarkCircleOutline,
+  IoCloseOutline,
+  IoChevronBackOutline,
+  IoChevronForwardOutline,
+} from "react-icons/io5";
 import { maskDeviceId } from "../utils/masking";
 
 function formatRelativeTime(date) {
@@ -201,7 +212,7 @@ export default function History() {
         {/* METRIC CATEGORY TABS */}
         <div className="flex flex-wrap items-center gap-2 border-b border-[var(--border-default)] pb-2 text-sm">
           <span className="flex items-center gap-1.5 font-bold text-[var(--text-secondary)]">
-            <Filter className="h-4 w-4 text-teal-400" />
+            <IoFilterOutline className="h-4 w-4 text-teal-400" />
             Filter:
           </span>
           <button
@@ -297,7 +308,7 @@ export default function History() {
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-teal-500/30 bg-teal-500/10 text-[#2DD4BF]">
-                <MapPin className="h-4 w-4" />
+                <IoLocationOutline className="h-4 w-4" />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-[var(--text-primary)] sm:text-base">
@@ -336,7 +347,7 @@ export default function History() {
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2.5">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400">
-                <ShieldAlert className="h-4 w-4" />
+                <IoShieldOutline className="h-4 w-4" />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-[var(--text-primary)] sm:text-base">
@@ -431,7 +442,7 @@ export default function History() {
 
             {/* Quick Search Input */}
             <div className="relative flex items-center">
-              <Search className="absolute left-2.5 h-3.5 w-3.5 text-[var(--text-muted)] pointer-events-none" />
+              <IoSearchOutline className="absolute left-2.5 h-3.5 w-3.5 text-[var(--text-muted)] pointer-events-none" />
               <input
                 type="text"
                 value={fallSearchQuery}
@@ -451,7 +462,7 @@ export default function History() {
                   }}
                   className="absolute right-2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                 >
-                  <X className="h-3.5 w-3.5" />
+                  <IoCloseOutline className="h-3.5 w-3.5" />
                 </button>
               )}
             </div>
@@ -461,7 +472,7 @@ export default function History() {
           <div className="max-h-[380px] overflow-y-auto rounded-xl border border-[var(--border-default)] bg-[var(--surface-elevated)] p-3.5">
             {falls.length === 0 ? (
               <div className="flex h-20 flex-col items-center justify-center gap-1 text-xs text-emerald-400">
-                <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                <IoCheckmarkCircleOutline className="h-5 w-5 text-emerald-400" />
                 <span>Zero fall incidents detected in this {range}h window. Safe status.</span>
               </div>
             ) : filteredFalls.length === 0 ? (
@@ -485,7 +496,7 @@ export default function History() {
                   <div key={groupTitle} className="space-y-2">
                     {/* Time Category Header */}
                     <div className="flex items-center gap-2 sticky top-0 bg-[var(--surface-elevated)]/95 backdrop-blur-sm py-1 z-10">
-                      <Clock className="h-3 w-3 text-teal-400" />
+                      <IoTimeOutline className="h-3 w-3 text-teal-400" />
                       <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                         {groupTitle}
                       </span>
@@ -534,7 +545,7 @@ export default function History() {
                               </div>
 
                               <div className="flex items-center gap-1.5 text-[11px] text-[var(--text-secondary)]">
-                                <MapPin className="h-3 w-3 text-teal-400" />
+                                <IoLocationOutline className="h-3 w-3 text-teal-400" />
                                 <span className="font-mono text-[10px]">
                                   {Number.isFinite(Number(fall.latitude)) && Number.isFinite(Number(fall.longitude))
                                     ? `${Number(fall.latitude).toFixed(5)}, ${Number(fall.longitude).toFixed(5)}`
@@ -594,7 +605,7 @@ export default function History() {
 
                 {pageTimelineSpan && (
                   <div className="flex items-center gap-1.5 rounded-md border border-teal-500/25 bg-teal-500/10 px-2 py-0.5 text-[11px] font-medium text-[#2DD4BF]">
-                    <Clock className="h-3 w-3" />
+                    <IoTimeOutline className="h-3 w-3" />
                     <span>Timeline: {pageTimelineSpan}</span>
                   </div>
                 )}
@@ -634,7 +645,7 @@ export default function History() {
                     disabled={safeCurrentPage <= 1}
                     className="flex h-7 items-center gap-1 rounded-lg border border-[var(--border-default)] bg-[var(--surface-card)] px-2.5 text-xs font-semibold text-[var(--text-secondary)] transition hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-30"
                   >
-                    <ChevronLeft className="h-3.5 w-3.5" />
+                    <IoChevronBackOutline className="h-3.5 w-3.5" />
                     <span>Prev</span>
                   </button>
 
@@ -650,7 +661,7 @@ export default function History() {
                     className="flex h-7 items-center gap-1 rounded-lg border border-[var(--border-default)] bg-[var(--surface-card)] px-2.5 text-xs font-semibold text-[var(--text-secondary)] transition hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-30"
                   >
                     <span>Next</span>
-                    <ChevronRight className="h-3.5 w-3.5" />
+                    <IoChevronForwardOutline className="h-3.5 w-3.5" />
                   </button>
                 </div>
               </div>
