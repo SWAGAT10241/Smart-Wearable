@@ -2,10 +2,6 @@ import React from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import { useAppTheme } from "../theme/theme";
 
-import React from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
-import { useAppTheme } from "../theme/theme";
-
 /**
  * World-class biometric and environmental telemetry card.
  * Incorporates Garmin & Apple Health design patterns:
