@@ -455,23 +455,23 @@ export default function Landing() {
   const faqs = [
     {
       q: "Does TrailGuard require a monthly cellular subscription?",
-      a: "No. TrailGuard operates over open-standard long-range LoRa radio (433/868/915 MHz ISM spectrum) and offline multi-constellation satellite GPS. It transmits directly to basecamp monitoring hubs and peer wearables with zero recurring carrier fees.",
+      a: "No. TrailGuard operates over free-to-use LoRa radio (433/868/915 MHz) and satellite GNSS directly to basecamp hubs with zero recurring carrier fees.",
     },
     {
       q: "How does the on-device Edge Risk Engine eliminate false fall alarms?",
-      a: "The ESP32-S3 firmware evaluates a 3-stage kinematic vector heuristic: micro-freefall (<0.5g), instantaneous impact shock (>3.0g), and post-impact repose with biomechanical orientation change. A 30-second cancel timer ensures false trips from dropped packs are dismissed before radio broadcast.",
+      a: "The firmware evaluates micro-freefall, impact shock (>3.0g), and repose posture, backed by a 30-second haptic cancel countdown to dismiss false trips.",
     },
     {
       q: "What happens if a hiker's companion phone battery dies?",
-      a: "The wrist wearable operates completely autonomously. Even if the paired phone is depleted or damaged, the hardware node continues acquiring satellite coordinates, monitoring pulse oximetry, and broadcasting emergency packets over LoRa mesh.",
+      a: "The wrist wearable is fully autonomous. It continues acquiring satellite coordinates, monitoring vitals, and broadcasting LoRa distress packets independently.",
     },
     {
       q: "What is TrailGuard's strict privacy invariant?",
-      a: "Unlike commercial fitness bands that monetize your heartbeat in cloud data lakes, everyday vitals remain strictly on-device in an encrypted 7-day rolling buffer. Only during an active, authenticated emergency is an encrypted 6-hour dossier relayed to Search and Rescue coordinators.",
+      a: "Continuous telemetry remains strictly in an encrypted 7-day local buffer. Only an active, authenticated emergency transmits a 6-hour dossier to rescue teams.",
     },
     {
       q: "Can the basecamp dashboard function during internet blackouts?",
-      a: "Yes. TrailGuard is built as an offline-first Progressive Web App (PWA). It caches map tiles, controls, and telemetry protocols locally so coordinators can operate in basecamp without internet connectivity.",
+      a: "Yes. Built as an offline-first Progressive Web App (PWA), basecamp hubs cache maps and telemetry protocols locally to operate without connectivity.",
     },
   ];
 
@@ -607,10 +607,10 @@ export default function Landing() {
                 Off-Grid Telemetry and Fall Rescue for Wilderness Operations
               </h1>
 
-              <p className={`mt-6 max-w-2xl text-base leading-relaxed sm:text-lg font-sans ${
+              <p className={`mt-5 max-w-2xl text-base leading-relaxed sm:text-lg font-sans ${
                 isDark ? "text-slate-300" : "text-slate-600"
               }`}>
-                TrailGuard (SWAAS) delivers industrial-grade autonomous safety for lone workers, alpine hikers, and search-and-rescue units. Combining continuous on-wrist biometrics, 3-stage kinematic fall impact detection, and 15 km LoRa mesh radio links with strict local-first privacy.
+                Autonomous on-wrist biometrics, 3-stage kinematic fall impact detection, and 15 km LoRa mesh radio links with strict local-first privacy.
               </p>
 
               <div className="mt-9 flex flex-wrap items-center gap-4 font-mono text-xs">
@@ -699,8 +699,8 @@ export default function Landing() {
                 tagColor: isDark ? "border-emerald-500/30 text-emerald-400 bg-emerald-950/20" : "border-emerald-200 text-emerald-800 bg-emerald-50",
                 icon: IoPulseOutline,
                 iconColor: "text-emerald-500",
-                spec: "Dual Red/IR photodetector at 100Hz sampling",
-                desc: "Continuously tracks heart rate and blood oxygen saturation to detect hypoxia, hypothermia shock, or sudden cardiac stress during alpine ascent.",
+                spec: "Dual Red/IR photodetector at 100Hz",
+                desc: "Continuously tracks pulse and SpO2 to detect hypoxia, hypothermia, or sudden cardiac stress.",
               },
               {
                 id: "MPU6050",
@@ -709,8 +709,8 @@ export default function Landing() {
                 tagColor: isDark ? "border-cyan-500/30 text-cyan-400 bg-cyan-950/20" : "border-cyan-200 text-cyan-800 bg-cyan-50",
                 icon: IoSpeedometerOutline,
                 iconColor: "text-cyan-500",
-                spec: "3-axis accelerometer + 3-axis gyroscope up to ±16g",
-                desc: "Evaluates micro-freefall, instantaneous impact shock, and post-impact repose angle to differentiate genuine slips from dropped equipment.",
+                spec: "3-axis accelerometer + gyro to ±16g",
+                desc: "Evaluates freefall, impact shock, and rest posture to distinguish slips from dropped equipment.",
               },
               {
                 id: "LORA",
@@ -719,8 +719,8 @@ export default function Landing() {
                 tagColor: isDark ? "border-blue-500/30 text-blue-400 bg-blue-950/20" : "border-blue-200 text-blue-800 bg-blue-50",
                 icon: IoRadioOutline,
                 iconColor: "text-blue-500",
-                spec: "433/868/915 MHz ISM band, +20dBm PA output",
-                desc: "Broadcasts distress packets up to 15 kilometers over line-of-sight terrain, bypassing cellular tower failures with zero monthly carrier fees.",
+                spec: "433/868/915 MHz ISM, +20dBm output",
+                desc: "Transmits distress packets up to 15 km without cellular towers or recurring fees.",
               },
               {
                 id: "GPS",
@@ -729,8 +729,8 @@ export default function Landing() {
                 tagColor: isDark ? "border-amber-500/30 text-amber-400 bg-amber-950/20" : "border-amber-200 text-amber-800 bg-amber-50",
                 icon: IoCompassOutline,
                 iconColor: "text-amber-500",
-                spec: "50-channel receiver, 2.5m CEP horizontal accuracy",
-                desc: "Acquires high-precision WGS-84 coordinates and altitude even in deep ravines and dense alpine tree cover, appended to distress beacons.",
+                spec: "50-channel receiver, 2.5m CEP accuracy",
+                desc: "Locks high-precision coordinates and altitude even in deep ravines and dense tree cover.",
               },
               {
                 id: "BME280",
@@ -739,8 +739,8 @@ export default function Landing() {
                 tagColor: isDark ? "border-purple-500/30 text-purple-400 bg-purple-950/20" : "border-purple-200 text-purple-800 bg-purple-50",
                 icon: IoThermometerOutline,
                 iconColor: "text-purple-500",
-                spec: "±1 hPa barometric pressure, ±0.5°C ambient temp",
-                desc: "Forecasts rapid barometric pressure drops signaling mountain blizzards, flash floods, or rapid altitude ascent sickness.",
+                spec: "±1 hPa barometric pressure, ±0.5°C temp",
+                desc: "Forecasts rapid barometric pressure drops signaling blizzards, flash floods, or rapid altitude shifts.",
               },
               {
                 id: "ESP32S3",
@@ -749,8 +749,8 @@ export default function Landing() {
                 tagColor: isDark ? "border-rose-500/30 text-rose-400 bg-rose-950/20" : "border-rose-200 text-rose-800 bg-rose-50",
                 icon: IoLayersOutline,
                 iconColor: "text-rose-500",
-                spec: "Xtensa 32-bit LX7 @ 240MHz, hardware AES-256",
-                desc: "Executes the on-device Edge Risk Engine locally with hardware flash encryption and Ed25519 cryptographic authorization.",
+                spec: "Xtensa 32-bit LX7 @ 240MHz, AES-256",
+                desc: "Runs the on-device Edge Risk Engine with hardware flash encryption and Ed25519 authentication.",
               },
             ].map((sensor) => {
               const Icon = sensor.icon;
@@ -874,7 +874,7 @@ export default function Landing() {
                     </span>
                   </div>
                   <p className={`mt-3 text-sm leading-relaxed ${isDark ? "text-slate-300" : "text-slate-600"}`}>
-                    Heart rate, pulse oximetry, and multi-satellite GPS are streaming to the encrypted local SQLite buffer on the user's phone. No cellular or cloud data leaves the mobile device.
+                    Continuous vitals buffer securely on-device in local SQLite. Zero cloud leakage.
                   </p>
                   <div className="mt-6 flex flex-wrap gap-4 font-mono text-xs">
                     <span className={`rounded-[6px] border px-3 py-1 font-semibold ${
@@ -921,7 +921,7 @@ export default function Landing() {
                     </span>
                   </div>
                   <p className={`mt-3 text-sm leading-relaxed ${isDark ? "text-slate-300" : "text-slate-600"}`}>
-                    A severe kinematic impact shock was registered followed by biomechanical stillness. The wrist wearable is vibrating vigorously and sounding an audible alarm. The user has {simTimer} seconds to cancel before emergency dispatch.
+                    3.8G kinematic shock registered with repose angle. 30-second haptic cancel timer active before radio dispatch.
                   </p>
                   <div className="mt-6 flex items-center gap-4">
                     <button
@@ -958,7 +958,7 @@ export default function Landing() {
                     </span>
                   </div>
                   <p className={`mt-3 text-sm leading-relaxed ${isDark ? "text-slate-300" : "text-slate-600"}`}>
-                    Fall countdown expired. The hardware node has engaged LoRa transmitter at +20dBm power. Satellite GPS coordinates and pre-incident biometric package transmitted to Alpine SAR and Basecamp Hub.
+                    Countdown expired. Broadcasting +20dBm emergency beacon and coordinates via LoRa mesh to Alpine SAR and Basecamp.
                   </p>
                   <div className="mt-6 flex flex-wrap gap-4 font-mono text-xs">
                     <span className={`rounded-[6px] border px-3 py-1 font-semibold ${
@@ -1014,7 +1014,7 @@ export default function Landing() {
               Zero-Tolerance Invariants: We Never Sell Your Telemetry
             </h2>
             <p className={`mt-3 text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-              Unlike commercial fitness trackers that monetize your heartbeat into cloud lakes, TrailGuard treats privacy as a safety-critical engineering invariant.
+              Safety without surveillance. Health and location telemetry stays strictly under your control.
             </p>
           </div>
 
@@ -1025,7 +1025,7 @@ export default function Landing() {
               <div className="font-mono text-xs text-cyan-500 font-bold">INVARIANT 01</div>
               <h3 className={`mt-2 text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Local-First Privacy</h3>
               <p className={`mt-2 text-xs leading-relaxed ${isDark ? "text-slate-300" : "text-slate-600"}`}>
-                Normal continuous health telemetry remains strictly in a rolling 7-day encrypted SQLite buffer on your phone. The cloud backend receives zero biometric data unless an emergency is active.
+                Continuous vitals stay in an encrypted 7-day mobile buffer. The cloud receives zero telemetry during normal conditions.
               </p>
             </div>
 
@@ -1035,7 +1035,7 @@ export default function Landing() {
               <div className="font-mono text-xs text-emerald-500 font-bold">INVARIANT 02</div>
               <h3 className={`mt-2 text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Emergency-Bounded Cloud</h3>
               <p className={`mt-2 text-xs leading-relaxed ${isDark ? "text-slate-300" : "text-slate-600"}`}>
-                When SOS or fall countdown triggers, data leaving the device is strictly bounded to the active incident plus at most the preceding 6 hours. Replay queries are hard-capped at 100 points per sensor.
+                Distress packages are strictly capped to the active incident plus preceding 6 hours and 100 points per sensor.
               </p>
             </div>
 
@@ -1045,7 +1045,7 @@ export default function Landing() {
               <div className="font-mono text-xs text-purple-500 font-bold">INVARIANT 03</div>
               <h3 className={`mt-2 text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Fail-Closed Audit Log</h3>
               <p className={`mt-2 text-xs leading-relaxed ${isDark ? "text-slate-300" : "text-slate-600"}`}>
-                Any access by search-and-rescue staff to protected health coordinates writes an immutable audit record first. If writing the audit record fails for any reason, the request throws AUDIT_FAILURE (500) and returns zero health data.
+                Every SAR data access requires an immutable audit write. Any write failure immediately halts data release.
               </p>
             </div>
           </div>
