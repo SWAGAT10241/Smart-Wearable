@@ -9,6 +9,7 @@ import Button from "../components/auth/Button";
 import { useAuth } from "../context/AuthContext";
 import { authApi } from "../lib/apiClient";
 import { isProfileComplete } from "../lib/profileCompletion";
+import { cleanEmail } from "../utils/sanitizeEmail";
 
 export default function Login() {
   const { login } = useAuth();
@@ -28,8 +29,9 @@ export default function Login() {
     setBusy(true);
     setVerificationStage(2);
 
+    const sanitizedEmail = cleanEmail(form.email);
     try {
-      const user = await login(form.email, form.password);
+      const user = await login(sanitizedEmail, form.password);
       setVerificationStage(3);
       navigate(isProfileComplete(user) ? "/dashboard" : "/complete-profile");
     } catch (err) {
@@ -123,6 +125,7 @@ export default function Login() {
             placeholder="you@example.com"
             value={form.email}
             onChange={onChange}
+            onBlur={() => setForm((f) => ({ ...f, email: cleanEmail(f.email) }))}
             required
           />
 

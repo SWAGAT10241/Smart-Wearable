@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const User = require("../models/User");
 const AppError = require("../utils/appError");
+const { cleanEmail } = require("../utils/sanitizeEmail");
 
 /**
  * Sign a JWT token for a given user ID.
@@ -53,7 +54,7 @@ async function registerUser(userData) {
     );
   }
 
-  const sanitizedEmail = String(email).trim().toLowerCase();
+  const sanitizedEmail = cleanEmail(email);
   const existing = await User.findOne({ email: sanitizedEmail });
   if (existing) {
     throw new AppError("Email already registered", 409, "DUPLICATE_EMAIL");
@@ -104,7 +105,7 @@ async function loginUser({ email, password }) {
     throw new AppError("Invalid email or password", 401, "INVALID_CREDENTIALS");
   }
 
-  const sanitizedEmail = String(email).trim().toLowerCase();
+  const sanitizedEmail = cleanEmail(email);
   const user = await User.findOne({ email: sanitizedEmail }).select("+password");
   if (!user || !user.password) {
     throw new AppError("Invalid email or password", 401, "INVALID_CREDENTIALS");
