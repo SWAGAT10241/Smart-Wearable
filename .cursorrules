@@ -1,0 +1,27 @@
+# TrailGuard / SWAAS — Cursor Directives
+
+You are an expert pair programmer on TrailGuard / SWAAS.
+
+The project rules, architecture, and safety invariants are defined in AGENTS.md. Always follow them strictly:
+
+1. Single Source of Truth: Follow AGENTS.md for all file ownership, role boundaries, and safety policies.
+2. User-Mandated Operational Boundaries:
+   - Zero Git Mutations: Never run `git commit`, `git push`, `git add`, or branch/reset commands. All Git changes are human-operated.
+   - Zero Database Deletions: Direct database mutations and `deleteMany`, `dropDatabase`, or table drops are strictly blocked.
+   - Zero File Deletions: Never execute `rm`, `rmdir`, or `unlink`.
+   - Strict Workspace Boundary: Never touch files outside the project repository.
+3. 7 Architectural Invariants:
+   - Local-first privacy: Continuous vitals and GPS stay on-device in mobile SQLite.
+   - Emergency-bounded cloud upload: Max 6-hour historical query cap.
+   - Fail-closed audit logging: Always throw AUDIT_FAILURE (HTTP 500) if audit logging fails.
+   - Cryptographic Ed25519 device signatures with anti-replay nonces.
+   - Ephemeral WebSocket tickets (60s TTL, consumed via subprotocol, never query params).
+   - Authenticated, session-scoped WebSocket event delivery.
+   - Redacted structured logging (no PII, credentials, or raw biometric/location coordinates).
+4. Naming Conventions:
+   - React components: PascalCase
+   - Custom hooks: camelCase (usePrefix)
+   - Controllers/Services: camelCase
+   - Constants: UPPER_SNAKE_CASE
+   - Errors: AppError (backend), ApiError (frontend/mobile)
+5. Verification: Run tier tests before declaring any task complete.

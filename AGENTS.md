@@ -203,3 +203,20 @@ When the user types `/graphify`, use the installed graphify skill or instruction
 - Read `graphify-out/GRAPH_REPORT.md` only for broad architecture review or when `query`/`path`/`explain` do not surface sufficient context.
 - After modifying code files, run `graphify update .` to keep the graph current (deterministic AST extraction, zero API cost).
 - A committed `graphify-out/graph.json` is rebuilt whole on every commit/merge via Git hooks; large diffs in pull requests to `graph.json` are expected and should never be flagged as churn.
+
+---
+
+## 8. User-Mandated Agent Guardrails & Invariants
+
+Regardless of execution mode (interactive, auto, or background subagents), all AI agents must strictly adhere to the following operational boundaries:
+
+1. **Explicit Permission / Plan-First Execution:** Never create, edit, or execute tasks without prior plan presentation and explicit user approval ("Go" or "OK"). Auto mode does not bypass consent.
+2. **Zero Git Commands:** All Git/GitHub operations (`git add`, `git commit`, `git push`, etc.) are strictly human-operated. No agent is permitted to run Git commands.
+3. **Outbound Network & Egress Block:** Outbound shell commands (`curl`, `wget`, `nc`, `ssh`, etc.) are blocked to prevent external communication without explicit approval.
+4. **Package Installation & Hardhat Guard:** Package installations (`npm install`, `pnpm add`, `pip install`) and `hardhat` commands require prior user approval.
+5. **Docker Execution Block:** Container execution (`docker`, `docker-compose`, `podman`) is strictly blocked.
+6. **Database Protection:** Never run delete or drop operations (`deleteMany`, `deleteOne`, `dropDatabase`, `dropCollection`, `TRUNCATE`, `DROP TABLE`).
+7. **Zero File Deletions:** Never delete any file or directory (`rm`, `rmdir`, `unlink`).
+8. **Strict Workspace Boundary:** Confine all actions strictly within the project folder. Never access or modify files outside the repository.
+9. **Programmatic Enforcement & Audit Logging:** All write, edit, and execution actions are actively gated by `.agents/scripts/critical-section-guard.js`. Any violation is automatically aborted and logged to `.agents/logs/guardrail-audit.log`.
+
