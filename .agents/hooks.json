@@ -1,0 +1,17 @@
+{
+  "critical-section-guard": {
+    "enabled": true,
+    "PreToolUse": [
+      {
+        "matcher": "write_file|edit_file|run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/critical-section-guard.js",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

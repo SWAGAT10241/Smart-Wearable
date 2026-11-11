@@ -26,7 +26,11 @@ __pycache__/
 !.env.example
 
 # Agent artifacts
-.agents/
+.agents/*
+!.agents/hooks.json
+!.agents/rules/
+!.agents/scripts/
+.agents/logs/
 skills-lock.json
 graphify-out/cache/
 graphify-out/.*
