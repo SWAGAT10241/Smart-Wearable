@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "daisyui";
 
 /* =========================================================================
    LAYER 1: PRIMITIVES (Core Colors)
