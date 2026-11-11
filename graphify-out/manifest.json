@@ -42,9 +42,9 @@
     "semantic_hash": ""
   },
   "backend/app.js": {
-    "mtime": 1794129873.8365302,
-    "seen": 1794130522.276045,
-    "ast_hash": "45ca3f7af493ee03c30dc630b1a91024",
+    "mtime": 1794404242.5845346,
+    "seen": 1794414859.0230532,
+    "ast_hash": "fb88c33067e952943cdd585e9d6a882e",
     "semantic_hash": ""
   },
   "backend/config/db.js": {
@@ -1308,9 +1308,9 @@
     "semantic_hash": ""
   },
   "AGENTS.md": {
-    "mtime": 1793549407.9320474,
-    "seen": 1793799804.664303,
-    "ast_hash": "587e67fe9a50de0a6a7e97481018a202",
+    "mtime": 1794406233.0472865,
+    "seen": 1794414859.0233338,
+    "ast_hash": "2c899c6c9212e83c8438e6e53ae227b8",
     "semantic_hash": ""
   },
   "ARCHITECTURE.md": {
@@ -1659,6 +1659,36 @@
     "mtime": 1794403245.7732084,
     "seen": 1794403328.757646,
     "ast_hash": "0b5160d20c3424256883f3dd33402f47",
+    "semantic_hash": ""
+  },
+  "backend/middleware/injectionGuard.js": {
+    "mtime": 1794404159.4744055,
+    "seen": 1794414859.023076,
+    "ast_hash": "5fb355c73acead11afc744ad32a377c7",
+    "semantic_hash": ""
+  },
+  "backend/tests/concurrencyGuard.test.js": {
+    "mtime": 1794404427.3205318,
+    "seen": 1794414859.023134,
+    "ast_hash": "37a7526c172e68b6d64b469cd7063ca5",
+    "semantic_hash": ""
+  },
+  "backend/tests/injectionGuard.test.js": {
+    "mtime": 1794404272.200731,
+    "seen": 1794414859.023139,
+    "ast_hash": "442e8468f3dba8d48ce59a5e1412660c",
+    "semantic_hash": ""
+  },
+  ".github/copilot-instructions.md": {
+    "mtime": 1794405505.348145,
+    "seen": 1794414859.023328,
+    "ast_hash": "4cac3bc0408fdc140e4ac7ade2cf9c0f",
+    "semantic_hash": ""
+  },
+  "CLAUDE.md": {
+    "mtime": 1794406444.3726792,
+    "seen": 1794414859.023336,
+    "ast_hash": "41878b0c8aebbf6b271058b0a0236795",
     "semantic_hash": ""
   },
   "backend/pnpm-lock.yaml": {
