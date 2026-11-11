@@ -12,6 +12,7 @@ const { createApiRouter } = require("./routes");
 const notFoundHandler = require("./middleware/notFoundHandler");
 const errorHandler = require("./middleware/errorHandler");
 const { apiLimiter, authLimiter } = require("./middleware/rateLimiter");
+const { injectionGuard } = require("./middleware/injectionGuard");
 
 const app = express();
 
@@ -65,6 +66,9 @@ app.use(
     },
   }),
 );
+
+// NoSQL and parameter injection defense
+app.use(injectionGuard);
 
 app.use(passport.initialize());
 
