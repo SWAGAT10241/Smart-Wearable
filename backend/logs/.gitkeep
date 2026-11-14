@@ -1,0 +1,3 @@
+# Keep logs directory in git while ignoring log files
+*.log
+!logs/.gitkeep
