@@ -7,8 +7,8 @@ export function ThemeProvider({ children }) {
     if (savedTheme === "dark" || savedTheme === "light") {
       return savedTheme;
     }
-    // Default to light theme
-    return "light";
+    // Default to dark theme for mission control
+    return "dark";
   });
   useEffect(() => {
     const root = document.documentElement;
@@ -32,6 +32,7 @@ export function ThemeProvider({ children }) {
     <ThemeContext.Provider
       value={{
         theme,
+        themeMode: theme,
         setTheme,
         toggleTheme,
         setLightTheme,

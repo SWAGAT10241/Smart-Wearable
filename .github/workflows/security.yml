@@ -5,7 +5,7 @@ on:
     branches: [main, SWAAS]
 
   push:
-    branches: [main]
+    branches: [main, SWAAS]
 
   workflow_dispatch:
 

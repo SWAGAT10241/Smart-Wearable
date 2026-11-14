@@ -8,6 +8,7 @@ import Field from "../components/auth/Field";
 import PhoneField from "../components/auth/PhoneField";
 import Button from "../components/auth/Button";
 import { useAuth } from "../context/AuthContext";
+import { cleanEmail } from "../utils/sanitizeEmail";
 
 const EMPTY = {
   username: "",
@@ -37,7 +38,7 @@ export default function Register() {
     setBusy(true);
 
     try {
-      await register(form);
+      await register({ ...form, email: cleanEmail(form.email) });
       navigate("/dashboard");
     } catch (err) {
       setError(err.message || "Registration failed");
@@ -115,6 +116,7 @@ export default function Register() {
               placeholder="you@example.com"
               value={form.email}
               onChange={onChange}
+              onBlur={() => setForm((f) => ({ ...f, email: cleanEmail(f.email) }))}
               required
             />
           </div>

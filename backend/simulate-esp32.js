@@ -20,6 +20,8 @@
 require("dotenv").config();
 
 const crypto = require("crypto");
+const fs = require("fs");
+const path = require("path");
 
 // ─────────────────────────────────────────────
 // Configuration
@@ -32,6 +34,31 @@ const BASE_URL = process.env.DEVICE_BASE_URL || `http://localhost:${PORT}/api`;
 const DEVICE_ID = process.env.DEVICE_ID || "TRAILGUARD-DEMO-001";
 
 const DEVICE_KEY = process.env.DEVICE_KEY || "test-device-secret-001";
+
+const KEY_FILE = path.join(__dirname, "sim-private-key.pem");
+let privateKey = null;
+if (fs.existsSync(KEY_FILE)) {
+  try {
+    privateKey = crypto.createPrivateKey(fs.readFileSync(KEY_FILE, "utf8"));
+  } catch (err) {
+    console.warn("Could not load sim-private-key.pem:", err.message);
+  }
+}
+
+function signHeaders(method, originalUrl, rawBody) {
+  if (!privateKey) return {};
+  const timestamp = String(Date.now());
+  const nonce = crypto.randomBytes(32).toString("base64url");
+  const bodyHash = crypto.createHash("sha256").update(rawBody).digest("hex");
+  const canonicalMessage = ["v1", method, originalUrl, DEVICE_ID, timestamp, nonce, bodyHash].join("\n");
+  const signature = crypto.sign(null, Buffer.from(canonicalMessage, "utf8"), privateKey).toString("base64url");
+  return {
+    "X-Device-ID": DEVICE_ID,
+    "X-Device-Timestamp": timestamp,
+    "X-Device-Nonce": nonce,
+    "X-Device-Signature": signature,
+  };
+}
 
 const TELEMETRY_INTERVAL_MS = 3000;
 const FALL_INTERVAL_MS = 60000;
@@ -248,12 +275,17 @@ async function sendTelemetry() {
   const packet = buildTelemetryPacket();
 
   try {
-    const response = await fetch(`${BASE_URL}/device/readings`, {
+    const rawBody = JSON.stringify(packet);
+    const targetUrl = new URL(`${BASE_URL}/device/readings`);
+    const authHeaders = signHeaders("POST", targetUrl.pathname, rawBody);
+
+    const response = await fetch(targetUrl.toString(), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...authHeaders,
       },
-      body: JSON.stringify(packet),
+      body: rawBody,
     });
 
     let data = {};
@@ -293,7 +325,11 @@ async function sendTelemetry() {
         `Tilt: ${packet.tiltAngle}°`,
     );
 
-    console.log(`[AUTH] HMAC: ` + `${packet.signature.slice(0, 16)}...`);
+    if (authHeaders["X-Device-Signature"]) {
+      console.log(`[AUTH] Ed25519: ${authHeaders["X-Device-Signature"].slice(0, 16)}... | Nonce: ${authHeaders["X-Device-Nonce"].slice(0, 10)}...`);
+    } else {
+      console.log(`[AUTH] HMAC: ` + `${packet.signature.slice(0, 16)}...`);
+    }
 
     console.log("");
   } catch (error) {
@@ -349,12 +385,17 @@ async function simulateFall() {
   packet.signature = createSignature(packet);
 
   try {
-    const response = await fetch(`${BASE_URL}/device/readings`, {
+    const rawBody = JSON.stringify(packet);
+    const targetUrl = new URL(`${BASE_URL}/device/readings`);
+    const authHeaders = signHeaders("POST", targetUrl.pathname, rawBody);
+
+    const response = await fetch(targetUrl.toString(), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...authHeaders,
       },
-      body: JSON.stringify(packet),
+      body: rawBody,
     });
 
     let data = {};
@@ -427,8 +468,8 @@ console.log("");
 
 console.log("Security:");
 console.log(" ✓ deviceId authentication");
-console.log(" ✓ HMAC-SHA256");
-console.log(" ✓ timestamp");
+console.log(" ✓ Ed25519 asymmetric signature");
+console.log(" ✓ Replay nonce & timestamp validation");
 console.log(" ✓ no userId from device");
 console.log(" ✓ backend resolves device → user");
 
