@@ -191,7 +191,7 @@ export default function History() {
                   onClick={() => setRange(item.hours)}
                   className={`rounded-md px-2.5 py-1 text-xs font-semibold transition ${
                     range === item.hours
-                      ? "border border-teal-500/30 bg-[#0E9C8C]/25 text-[#42E3D0] shadow-sm"
+                      ? "border border-teal-500/30 bg-[var(--brand-teal-subtle)] text-[var(--brand-teal-light)] shadow-sm"
                       : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                   }`}
                 >
@@ -307,7 +307,7 @@ export default function History() {
         <div className="flex flex-col rounded-[22px] border border-[var(--border-default)] bg-[var(--surface-card)] p-4 shadow-sm">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-teal-500/30 bg-teal-500/10 text-[#2DD4BF]">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-teal-500/30 bg-teal-500/10 text-[var(--brand-teal)]">
                 <IoLocationOutline className="h-4 w-4" />
               </div>
               <div>
@@ -388,7 +388,7 @@ export default function History() {
                 }}
                 className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
                   fallSeverityFilter === "all"
-                    ? "bg-[#0E9C8C]/25 text-[#42E3D0] border border-teal-500/30 font-bold"
+                    ? "bg-[var(--brand-teal-subtle)] text-[var(--brand-teal-light)] border border-teal-500/30 font-bold"
                     : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
@@ -604,7 +604,7 @@ export default function History() {
                 </span>
 
                 {pageTimelineSpan && (
-                  <div className="flex items-center gap-1.5 rounded-md border border-teal-500/25 bg-teal-500/10 px-2 py-0.5 text-[11px] font-medium text-[#2DD4BF]">
+                  <div className="flex items-center gap-1.5 rounded-md border border-teal-500/25 bg-teal-500/10 px-2 py-0.5 text-[11px] font-medium text-[var(--brand-teal)]">
                     <IoTimeOutline className="h-3 w-3" />
                     <span>Timeline: {pageTimelineSpan}</span>
                   </div>
@@ -627,7 +627,7 @@ export default function History() {
                         }}
                         className={`rounded px-2 py-0.5 text-[11px] font-semibold transition ${
                           pageSize === size
-                            ? "bg-[#0E9C8C]/25 text-[#42E3D0] border border-teal-500/30"
+                            ? "bg-[var(--brand-teal-subtle)] text-[var(--brand-teal-light)] border border-teal-500/30"
                             : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                         }`}
                       >

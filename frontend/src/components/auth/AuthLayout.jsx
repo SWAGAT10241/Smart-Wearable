@@ -14,14 +14,14 @@ const FEATURES = [
 export default function AuthLayout({ headline, children }) {
   return (
     <div
-      className="relative flex min-h-screen overflow-hidden bg-[#071C2E]"
+      className="relative flex min-h-screen overflow-hidden bg-[var(--brand-navy-alt)]"
       style={{
         backgroundImage: `url(${loginBackground})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      <div className="absolute inset-0 bg-[#061C2E]/30" />
+      <div className="absolute inset-0 bg-[var(--brand-navy-soft)]/30" />
 
       {/* 52% left */}
       <div className="absolute inset-y-0 left-0 w-[52%] bg-[linear-gradient(to_bottom,rgba(3,24,42,.94),rgba(5,34,56,.88)_35%,rgba(8,50,78,.60)_68%,rgba(8,50,78,.20))]" />
@@ -33,8 +33,8 @@ export default function AuthLayout({ headline, children }) {
       <div className="relative z-10 flex w-[52%] flex-col px-10 py-10 text-white lg:px-[76px] lg:pt-[74px]">
         
         {/* Logo */}
-        <div className="flex items-center gap-3 text-[26px] font-semibold tracking-[-0.02em]">
-          <span className="inline-flex h-11 w-11 items-center justify-center rounded-[14px] border border-teal-300/35 bg-teal-400/20 text-xl">
+        <div className="flex items-center gap-[var(--space-3)] text-[var(--font-size-2xl)] font-semibold tracking-[-0.02em]">
+          <span className="inline-flex h-11 w-11 items-center justify-center rounded-[var(--radius-lg)] border border-teal-300/35 bg-teal-400/20 text-xl">
             🛡
           </span>
 
@@ -49,7 +49,7 @@ export default function AuthLayout({ headline, children }) {
               typewriter
                 .typeString("Trail")
                 .pauseFor(400)
-                .typeString('<span style="color:#2DD4BF">Guard</span>')
+                .typeString('<span style="color:var(--brand-teal)">Guard</span>')
                 .pauseFor(1800)
                 .deleteAll()
                 .pauseFor(500)
@@ -64,28 +64,28 @@ export default function AuthLayout({ headline, children }) {
         </h1>
 
         {/* Description */}
-        <p className="mt-7 max-w-[510px] text-[17px] leading-7 text-slate-200/90">
+        <p className="mt-7 max-w-[510px] text-[var(--font-size-md)] leading-7 text-slate-200/90">
           Live vitals, fall detection, and GPS tracking for hikers — with
           instant alerts to the people who matter.
         </p>
 
         {/* Features */}
-        <ul className="mt-9 flex list-none flex-col gap-4 p-0">
+        <ul className="mt-9 flex list-none flex-col gap-[var(--space-4)] p-0">
           {FEATURES.map(([icon, title, sub]) => (
             <li
               key={title}
-              className="flex items-center gap-4"
+              className="flex items-center gap-[var(--space-4)]"
             >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-teal-400/20 text-[19px] text-teal-300">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-teal-400/20 text-[19px] text-teal-300">
                 {icon}
               </span>
 
               <div>
-                <div className="text-[14px] font-semibold">
+                <div className="text-[var(--font-size-sm)] font-semibold">
                   {title}
                 </div>
 
-                <div className="mt-1 text-[12px] text-[var(--color-text-secondary)]">
+                <div className="mt-1 text-[var(--font-size-xs)] text-[var(--color-text-secondary)]">
                   {sub}
                 </div>
               </div>
@@ -95,12 +95,12 @@ export default function AuthLayout({ headline, children }) {
       </div>
 
       {/* Right content */}
-      <div className="relative z-10 flex w-[48%] items-center justify-center p-6 sm:p-8 lg:px-[50px]">
+      <div className="relative z-10 flex w-[48%] items-center justify-center p-[var(--space-6)] sm:p-[var(--space-8)] lg:px-[50px]">
         {children}
       </div>
 
       {/* Global footer */}
-      <footer className="absolute bottom-5 left-0 z-20 flex w-full justify-center px-6 text-center text-[12px] text-slate-200/75">
+      <footer className="absolute bottom-[var(--space-5)] left-0 z-20 flex w-full justify-center px-6 text-center text-[var(--font-size-xs)] text-slate-200/75">
         <span>TrailGuard secures your adventures.</span>
         <span className="mx-3 text-[var(--color-text-secondary)]/50">|</span>
         <span>Stay safe. Explore more.</span>

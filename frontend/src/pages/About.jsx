@@ -75,7 +75,7 @@ export default function About() {
                   onClick={() => setActiveTab(id)}
                   className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold transition sm:text-sm ${
                     activeTab === id
-                      ? "border border-teal-500/30 bg-[#0E9C8C]/25 text-[#42E3D0] shadow-sm"
+                      ? "border border-teal-500/30 bg-[var(--brand-teal-subtle)] text-[var(--brand-teal-light)] shadow-sm"
                       : "border border-[var(--border-default)] bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
                   }`}
                 >
@@ -137,7 +137,7 @@ function OverviewTab() {
             key={title}
             className="flex flex-col gap-3 rounded-[20px] border border-[var(--border-default)] bg-[var(--surface-card)] p-5 shadow-sm"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-400/15 text-[#2DD4BF]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-400/15 text-[var(--brand-teal)]">
               <Icon className="h-5 w-5" />
             </div>
             <h3 className="text-base font-semibold text-[var(--text-primary)]">
@@ -157,7 +157,7 @@ function OverviewTab() {
         </h2>
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div className="rounded-xl border border-[var(--border-default)] bg-[var(--surface-elevated)] p-4 text-center">
-            <span className="font-mono text-2xl font-bold text-[#2DD4BF]">
+            <span className="font-mono text-2xl font-bold text-[var(--brand-teal)]">
               15 km
             </span>
             <p className="mt-1 text-xs text-[var(--text-secondary)]">
@@ -236,7 +236,7 @@ function HowItWorksTab() {
           >
             <div>
               <div className="flex items-center justify-between">
-                <span className="font-mono text-sm font-bold text-[#2DD4BF]">
+                <span className="font-mono text-sm font-bold text-[var(--brand-teal)]">
                   {step}
                 </span>
                 <Icon className="h-5 w-5 text-[var(--text-muted)]" />
@@ -322,7 +322,7 @@ function HardwareTab({ selectedDevice }) {
             className="flex flex-col gap-3 rounded-[20px] border border-[var(--border-default)] bg-[var(--surface-card)] p-5 shadow-sm"
           >
             <div className="flex items-center justify-between">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-400/15 text-[#2DD4BF]">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-400/15 text-[var(--brand-teal)]">
                 <Icon className="h-4 w-4" />
               </div>
               <span className="rounded-md border border-[var(--border-default)] bg-[var(--surface-elevated)] px-2 py-0.5 font-mono text-xs text-[var(--text-secondary)]">
@@ -377,7 +377,7 @@ function PrivacyTab() {
             className="flex flex-col gap-2 rounded-[20px] border border-[var(--border-default)] bg-[var(--surface-card)] p-5 shadow-sm"
           >
             <div className="flex items-center gap-2">
-              <IoCheckmarkCircleOutline className="h-4 w-4 text-[#2DD4BF]" />
+              <IoCheckmarkCircleOutline className="h-4 w-4 text-[var(--brand-teal)]" />
               <h3 className="text-base font-semibold text-[var(--text-primary)]">
                 {title}
               </h3>

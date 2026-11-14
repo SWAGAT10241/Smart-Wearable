@@ -10,13 +10,13 @@ export default function MiniStats({ items = [] }) {
   if (!Array.isArray(items) || items.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-3 border-t border-[var(--color-border)] pt-3">
+    <div className="grid grid-cols-3 border-t border-[var(--color-border)] pt-[var(--space-3)]">
       {items.map(([label, value], index) => (
         <div
           key={`${label}-${index}`}
           className={`min-w-0 ${
-            index > 0 ? "border-l border-[var(--color-border)] pl-2.5" : "pr-2"
-          } ${index === 2 ? "pl-2.5 pr-0" : ""}`}
+            index > 0 ? "border-l border-[var(--color-border)] pl-[var(--space-2-5)]" : "pr-[var(--space-2)]"
+          } ${index === 2 ? "pl-[var(--space-2-5)] pr-0" : ""}`}
         >
           <div className="truncate text-sm font-bold leading-5 tabular-nums text-[var(--color-text)] sm:text-base">
             {value}

@@ -24,6 +24,8 @@ const MAP_STYLES = {
   },
 };
 
+const MAP_TRAIL_LINE_COLOR = "#16B890";
+
 function useDarkMode() {
   const [isDark, setIsDark] = useState(() =>
     document.documentElement.classList.contains("dark"),
@@ -173,7 +175,7 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
           "line-join": "round",
         },
         paint: {
-          "line-color": "#16B890",
+          "line-color": MAP_TRAIL_LINE_COLOR,
           "line-width": 5,
           "line-opacity": 0.95,
           "line-dasharray": [2, 1.5],
@@ -309,7 +311,7 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
             "line-join": "round",
           },
           paint: {
-            "line-color": "#16B890",
+            "line-color": MAP_TRAIL_LINE_COLOR,
             "line-width": 5,
             "line-opacity": 0.95,
             "line-dasharray": [2, 1.5],
@@ -333,13 +335,13 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
   };
 
   return (
-    <div className="relative h-full min-h-[320px] w-full overflow-hidden rounded-[16px]">
-      <div ref={mapContainer} className="h-full min-h-[320px] w-full" />
+    <div className="relative h-full min-h-[var(--map-min-height)] w-full overflow-hidden rounded-[var(--radius-xl)]">
+      <div ref={mapContainer} className="h-full min-h-[var(--map-min-height)] w-full" />
 
       {/* Standby overlay when location is acquiring */}
       {!hasLocation && (
         <div className="pointer-events-none absolute inset-0 z-[999] flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
-          <div className="flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]/95 px-3.5 py-2 text-xs font-semibold text-[var(--color-text)] shadow-lg backdrop-blur-md">
+          <div className="flex items-center gap-2 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)]/95 px-3.5 py-2 text-xs font-semibold text-[var(--color-text)] shadow-lg backdrop-blur-md">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
@@ -356,7 +358,7 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
           onClick={() => setStyleMenuOpen((value) => !value)}
           className="
             flex items-center gap-2
-            rounded-xl
+            rounded-[var(--radius-lg)]
             border border-[var(--color-border)]
             bg-[var(--color-surface)]/95
             px-3 py-2
@@ -436,7 +438,7 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
         "
       >
         <div className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-[#16B890]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[var(--map-trail-color)]" />
           Trail
         </div>
 
@@ -446,7 +448,7 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
         </div>
 
         <div className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-[#1976D2]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[var(--map-marker-color)]" />
           You
         </div>
       </div>

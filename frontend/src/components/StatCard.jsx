@@ -64,17 +64,17 @@ export default function StatCard({
   const chartVariant = ["ppg", "line", "bars", "pressure"].includes(variant);
 
   return (
-    <article className="flex min-w-0 flex-col rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-card)]">
+    <article className="flex min-w-0 flex-col rounded-[var(--card-radius-compact)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--card-padding-compact)] shadow-[var(--shadow-card)]">
       {/* Icon */}
       <div
-        className="mb-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px]"
+        className="mb-[var(--space-3)] flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-lg)]"
         style={{ background: style.bg }}
       >
         {icon}
       </div>
 
       {/* Title + Status */}
-      <div className="mb-2 flex min-h-[22px] items-center justify-between gap-2">
+      <div className="mb-[var(--space-2)] flex min-h-[22px] items-center justify-between gap-[var(--space-2)]">
         <span className="min-w-0 truncate text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
           {label}
         </span>
@@ -93,8 +93,8 @@ export default function StatCard({
       </div>
 
       {/* Current Value */}
-      <div className="mb-3 flex min-h-[38px] items-baseline gap-1.5">
-        <span className="text-[28px] font-bold leading-none tracking-[-0.03em] tabular-nums text-[var(--color-text)]">
+      <div className="mb-[var(--space-3)] flex min-h-[38px] items-baseline gap-[var(--space-1-5)]">
+        <span className="text-[var(--font-size-stat)] font-bold leading-none tracking-[-0.03em] tabular-nums text-[var(--color-text)]">
           {value}
         </span>
 
@@ -106,7 +106,7 @@ export default function StatCard({
       </div>
 
       {/* Sensor Visual */}
-      <div className={chartVariant ? "mb-2 h-[76px]" : "mb-2 h-[64px]"}>
+      <div className={chartVariant ? "mb-[var(--space-2)] h-[var(--chart-height-md)]" : "mb-[var(--space-2)] h-[var(--chart-height-sm)]"}>
         {variant === "ppg" && (
           <LineTrace
             color={style.color}

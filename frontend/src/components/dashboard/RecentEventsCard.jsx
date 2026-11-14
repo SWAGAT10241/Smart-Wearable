@@ -1,20 +1,20 @@
 export default function RecentEventsCard({ recentFalls = [] }) {
   return (
-    <section className="flex flex-col rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-card)]">
-      <div className="mb-3 flex shrink-0 items-center justify-between">
-        <h2 className="text-[17px] font-semibold tracking-[-0.02em] text-[var(--color-text)]">
+    <section className="flex flex-col rounded-[var(--card-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--card-padding)] shadow-[var(--shadow-card)]">
+      <div className="mb-[var(--space-3)] flex shrink-0 items-center justify-between">
+        <h2 className="text-[var(--font-size-md)] font-semibold tracking-[-0.02em] text-[var(--color-text)]">
           Recent Events
         </h2>
 
-        <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-2.5 py-0.5 font-mono text-[10px] text-[var(--color-text-secondary)]">
+        <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-[var(--space-2-5)] py-[var(--space-0-5)] font-mono text-[var(--font-size-3xs)] text-[var(--color-text-secondary)]">
           {recentFalls.length} today
         </span>
       </div>
 
       <div className="h-[340px] sm:h-[385px] overflow-y-auto pr-1">
         {recentFalls.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center gap-2 rounded-2xl border border-emerald-200/30 bg-emerald-500/10 p-6 text-center">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 text-lg font-bold">
+          <div className="flex h-full flex-col items-center justify-center gap-[var(--space-2)] rounded-[var(--radius-xl)] border border-emerald-200/30 bg-emerald-500/10 p-[var(--space-6)] text-center">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-emerald-500/20 text-emerald-400 text-lg font-bold">
               ✓
             </div>
 
@@ -29,13 +29,13 @@ export default function RecentEventsCard({ recentFalls = [] }) {
             </div>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-[var(--space-2)]">
             {recentFalls.map((fall) => (
               <div
                 key={fall._id}
-                className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-3 transition hover:border-[var(--color-accent)]/40"
+                className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-[var(--space-3)] transition hover:border-[var(--color-accent)]/40"
               >
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start justify-between gap-[var(--space-3)]">
                   <div className="min-w-0">
                     <div className="text-xs font-bold text-[var(--color-text)]">
                       {new Date(fall.timestamp).toLocaleString(undefined, {

@@ -15,8 +15,7 @@ export default function TemperatureGauge({ temperature }) {
       <div
         className="absolute left-0 right-0 top-[32px] h-[7px] rounded-full"
         style={{
-          background:
-            "linear-gradient(90deg,#1976D2,#18BFC1,#9DDC67,#F2A93B,#F59E0B)",
+          background: "var(--thermal-gradient)",
         }}
       />
 

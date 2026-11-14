@@ -151,6 +151,144 @@
   --shadow-sidebar: 2px 0 12px rgba(15, 23, 42, 0.06);
 
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* =========================================================================
+     LAYER 3: SPACING, RADIUS, SIZING & TYPOGRAPHY TOKENS
+     Modular scale tokens replacing hardcoded px & arbitrary values.
+     ========================================================================= */
+  /* Spacing Scale (4px baseline) */
+  --space-0: 0px;
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-2-5: 10px;
+  --space-3: 12px;
+  --space-3-5: 14px;
+  --space-4: 16px;
+  --space-4-5: 18px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-9: 36px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* Corner Radius Tokens */
+  --radius-none: 0px;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-button: 13px;
+  --radius-xl: 16px;
+  --radius-stat-card: 20px;
+  --radius-2xl: 20px;
+  --radius-section-card: 24px;
+  --radius-3xl: 24px;
+  --radius-auth-card: 26px;
+  --radius-full: 9999px;
+
+  /* Component Dimensions & Layout Constraints */
+  --sidebar-width: 250px;
+  --mobile-nav-height: 72px;
+  --input-height: 56px;
+  --button-height-lg: 64px;
+  --map-min-height: 320px;
+  --chart-height-sm: 64px;
+  --chart-height-md: 76px;
+
+  /* Typography Scale */
+  --font-size-3xs: 10px;
+  --font-size-2xs: 11px;
+  --font-size-xs: 12px;
+  --font-size-sm-alt: 13px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-md: 17px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-stat: 28px;
+  --font-size-3xl: 30px;
+  --font-size-4xl: 36px;
+
+  /* =========================================================================
+     LAYER 4: SEMANTIC COMPONENT & LAYOUT TOKENS (Single Source of Truth)
+     Modify any value below to update padding, radius, and sizing across
+     all matching components simultaneously!
+     ========================================================================= */
+
+  /* Card Surfaces (SectionCard, LiveLocationCard, RecentEventsCard, PageHeader) */
+  --card-padding: var(--space-5);            /* Standard padding for all main cards */
+  --card-padding-compact: var(--space-4);    /* Padding for metric/stat cards */
+  --card-padding-expanded: var(--space-8);   /* Padding for auth cards & spacious containers */
+  --card-radius: var(--radius-section-card); /* Standard card corner radius (24px) */
+  --card-radius-compact: var(--radius-stat-card); /* Stat & compact card corner radius (20px) */
+  --card-radius-expanded: var(--radius-auth-card);/* Auth card corner radius (26px) */
+  --card-gap: var(--space-4);                /* Internal element spacing within cards */
+
+  /* Page Layout & Container Spacing */
+  --page-padding-mobile: var(--space-3-5);   /* Padding on mobile screens */
+  --page-padding-tablet: var(--space-5);     /* Padding on tablet screens */
+  --page-padding-desktop: var(--space-6);    /* Padding on desktop screens */
+  --page-section-gap: var(--space-4);        /* Spacing between major layout sections */
+
+  /* Interactive Elements (Buttons & Inputs) */
+  --btn-height: var(--button-height-lg);     /* Action button height (64px) */
+  --btn-padding-x: var(--space-5);           /* Button horizontal padding */
+  --btn-radius: var(--radius-button);        /* Button corner radius (13px) */
+  --btn-gap: var(--space-2);                 /* Button icon-to-label gap */
+  --input-padding-x: var(--space-4);         /* Textfield horizontal padding */
+  --input-radius: var(--radius-lg);          /* Textfield corner radius (12px) */
+
+  /* Modals & Dialogs */
+  --modal-padding: var(--space-12);          /* Alert modal internal padding */
+  --modal-radius: var(--radius-section-card);/* Alert modal corner radius */
+  --modal-gap: var(--space-4);               /* Modal element gap */
+
+  /* Popovers & Floating Menus */
+  --popover-padding: var(--space-4);         /* Popover header/content padding */
+  --popover-radius: var(--radius-xl);        /* Popover corner radius (16px) */
+
+  /* =========================================================================
+     LAYER 5: NAMED BRAND & THEME COLOR TOKENS
+     Named color definitions replacing raw hex literals across views
+     ========================================================================= */
+  /* Brand Navy Palette (Sidebar, Auth & Night Atmospheres) */
+  --brand-navy-deep: #031827;
+  --brand-navy: #061B2D;
+  --brand-navy-alt: #071C2E;
+  --brand-navy-soft: #061C2E;
+  --brand-navy-card: #102F4A;
+  --brand-navy-card-border: rgba(16, 47, 74, 0.8);
+  --brand-navy-card-bg: rgba(16, 47, 74, 0.7);
+  --brand-navy-card-hover: #092238;
+  --brand-navy-text: #06202D;
+
+  /* Brand Teal Palette (Accent, Highlights & Active States) */
+  --brand-teal: #2DD4BF;
+  --brand-teal-light: #42E3D0;
+  --brand-teal-hover: #5EEAD4;
+  --brand-teal-dark: #0E9C8C;
+  --brand-teal-subtle: rgba(14, 156, 140, 0.25);
+  --brand-teal-glow: rgba(45, 212, 191, 0.35);
+
+  /* Map & Marker Colors */
+  --map-trail-color: #16B890;
+  --map-marker-color: #1976D2;
+
+  /* Avatar Gradient */
+  --avatar-gradient-start: #b7f3df;
+  --avatar-gradient-end: #15967f;
+
+  /* Thermal Spectrum Gradient */
+  --thermal-gradient: linear-gradient(90deg, #1976D2, #18BFC1, #9DDC67, #F2A93B, #F59E0B);
 }
 
 /* =========================================================================
@@ -250,6 +388,40 @@ html.dark {
   --color-status-sos: var(--status-sos);
   --color-status-warning: var(--status-warning);
   --color-status-info: var(--status-info);
+
+  /* Radius theme mappings */
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-button: var(--btn-radius);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+  --radius-3xl: var(--radius-3xl);
+  --radius-card: var(--card-radius);
+  --radius-stat: var(--card-radius-compact);
+  --radius-auth: var(--card-radius-expanded);
+  --radius-modal: var(--modal-radius);
+  --radius-popover: var(--popover-radius);
+
+  /* Spacing theme mappings */
+  --spacing-card-p: var(--card-padding);
+  --spacing-stat-p: var(--card-padding-compact);
+  --spacing-card-gap: var(--card-gap);
+  --spacing-modal-p: var(--modal-padding);
+  --spacing-modal-gap: var(--modal-gap);
+  --spacing-sidebar: var(--sidebar-width);
+
+  /* Named brand color mappings */
+  --color-brand-navy-deep: var(--brand-navy-deep);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-navy-alt: var(--brand-navy-alt);
+  --color-brand-navy-soft: var(--brand-navy-soft);
+  --color-brand-navy-card: var(--brand-navy-card);
+  --color-brand-teal: var(--brand-teal);
+  --color-brand-teal-light: var(--brand-teal-light);
+  --color-brand-teal-hover: var(--brand-teal-hover);
+  --color-brand-teal-dark: var(--brand-teal-dark);
 }
 
 @layer base {
@@ -313,7 +485,8 @@ html.dark {
   }
 
   .tg-formcard__title {
-    @apply m-0 text-[30px] font-semibold tracking-[-0.02em];
+    @apply m-0 font-semibold tracking-[-0.02em];
+    font-size: var(--font-size-3xl);
     color: var(--color-text);
   }
 
@@ -323,11 +496,15 @@ html.dark {
   }
 
   .tg-formcard__error {
-    @apply rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-[13px] font-medium text-red-700;
+    @apply border border-red-200 bg-red-50 font-medium text-red-700;
+    border-radius: var(--radius-lg);
+    padding: var(--space-2-5) var(--space-3);
+    font-size: var(--font-size-sm-alt);
   }
 
   .tg-formcard__divider {
-    @apply flex items-center gap-2.5;
+    @apply flex items-center;
+    gap: var(--space-2-5);
   }
 
   .tg-formcard__divider span {
@@ -341,7 +518,8 @@ html.dark {
   }
 
   .tg-formcard__footer {
-    @apply mt-1 w-full text-center text-[13px] leading-5;
+    @apply mt-1 w-full text-center leading-5;
+    font-size: var(--font-size-sm-alt);
     color: var(--color-text-muted);
   }
 
@@ -351,7 +529,9 @@ html.dark {
   }
 
   .tg-formcard__section-label {
-    @apply flex items-center gap-2 pt-1 text-[12px] font-semibold tracking-[0.03em];
+    @apply flex items-center pt-1 font-semibold tracking-[0.03em];
+    gap: var(--space-2);
+    font-size: var(--font-size-xs);
     color: var(--color-text);
   }
 
@@ -367,7 +547,8 @@ html.dark {
   }
 
   .tg-formcard__row {
-    @apply flex gap-4;
+    @apply flex;
+    gap: var(--space-4);
   }
 
   .tg-formcard__row>* {
@@ -376,7 +557,9 @@ html.dark {
   }
 
   .tg-badge-pill {
-    @apply inline-flex self-start rounded-full bg-teal-100 px-3 py-1 text-[10.5px] font-bold tracking-[0.08em] text-sky-700;
+    @apply inline-flex self-start rounded-full bg-teal-100 font-bold tracking-[0.08em] text-sky-700;
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--font-size-2xs);
   }
 
   /* MapLibre marker */
@@ -389,7 +572,7 @@ html.dark {
   .tg-map-marker-pulse {
     position: absolute;
     inset: 2px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: rgba(45, 212, 191, 0.25);
     animation: tg-map-pulse 1.8s ease-out infinite;
   }
@@ -402,7 +585,7 @@ html.dark {
     height: 14px;
     transform: translate(-50%, -50%);
     border: 3px solid var(--color-white);
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: var(--color-accent);
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
   }
@@ -433,10 +616,10 @@ html.dark {
     display: flex;
     align-items: center;
     width: 100%;
-    height: 56px;
+    height: var(--input-height);
     overflow: hidden;
     border: 1px solid var(--color-border);
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     background: var(--color-surface);
     color: var(--color-text);
     transition:

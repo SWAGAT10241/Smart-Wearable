@@ -32,19 +32,19 @@ export default function NotificationBell({ notifications = [] }) {
         <div
           className="
             absolute right-0 top-12 z-50 w-[340px]
-            overflow-hidden rounded-2xl
+            overflow-hidden rounded-[var(--popover-radius)]
             border border-[var(--color-border)]
             bg-[var(--color-surface)]
             shadow-xl
           "
         >
-          <div className="flex items-center justify-between border-b border-[var(--color-border)] px-4 py-3">
+          <div className="flex items-center justify-between border-b border-[var(--color-border)] px-[var(--popover-padding)] py-[var(--space-3)]">
             <h3 className="text-sm font-semibold text-[var(--color-text)]">
               Notifications
             </h3>
 
             {hasNotifications && (
-              <span className="rounded-full bg-red-50 px-2 py-1 text-[10px] font-semibold text-red-600">
+              <span className="rounded-full bg-red-50 px-2 py-1 text-[var(--font-size-3xs)] font-semibold text-red-600">
                 {notifications.length} new
               </span>
             )}
@@ -74,12 +74,12 @@ export default function NotificationBell({ notifications = [] }) {
                   key={notification.id}
                   className="
                     border-b border-[var(--color-border)]
-                    px-4 py-3 transition
+                    px-[var(--space-4)] py-[var(--space-3)] transition
                     hover:bg-[var(--color-surface-alt)]
                   "
                 >
-                  <div className="flex gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-500">
+                  <div className="flex gap-[var(--space-3)]">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-red-50 text-red-500">
                       ⚠
                     </div>
 
@@ -93,7 +93,7 @@ export default function NotificationBell({ notifications = [] }) {
                       </p>
 
                       {notification.time && (
-                        <p className="mt-1 text-[10px] text-[var(--color-text-muted)]">
+                        <p className="mt-1 text-[var(--font-size-3xs)] text-[var(--color-text-muted)]">
                           {notification.time}
                         </p>
                       )}
