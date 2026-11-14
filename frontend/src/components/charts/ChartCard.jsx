@@ -1,10 +1,9 @@
-import React from "react";
 import Sparkline from "./Sparkline";
 
 export default function ChartCard({
   title,
   points,
-  color = "#16B890",
+  color,
   unit,
   sensorType = "generic",
   normalRange,
@@ -30,38 +29,30 @@ export default function ChartCard({
   };
 
   return (
-    <div className="tg-card justify-between hover:border-[var(--color-accent)]/50">
-      {/* Top Accent Stroke */}
-      <div
-        className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-80"
-        style={{ background: `linear-gradient(90deg, ${color}, transparent 65%)` }}
-      />
-
-      {/* Header Deck */}
-      <div className="mb-2 flex items-start justify-between gap-2">
+    <div className="rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] p-3.5 shadow-sm transition hover:border-[var(--color-accent)]/30 hover:shadow-md">
+      {/* Header */}
+      <div className="mb-2.5 flex items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <h3 className="tg-metric-label truncate">
-              {title}
-            </h3>
+            <h3 className="truncate text-xs font-bold text-[var(--color-text)]">{title}</h3>
             {normalRange && (
-              <span className="tg-badge tg-badge-optimal text-[10px] py-0 px-1.5">
-                {normalRange.replace(/Norm: |Mild: |Comfort: |Std: /, "")}
+              <span className="shrink-0 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-1.5 py-0.5 font-mono text-[9px] font-medium text-emerald-400">
+                {normalRange}
               </span>
             )}
           </div>
+          <p className="mt-0.5 text-[10px] text-[var(--color-text-muted)]">Scale & History</p>
         </div>
-
         <div className="shrink-0 text-right">
-          <div className="text-xl font-bold tabular-nums text-[var(--color-text)] leading-tight font-sans">
+          <div className="text-base font-bold tabular-nums text-[var(--color-text)] leading-tight">
             {latest != null ? formatValue(latest) : "--"}
           </div>
-          {unit && <div className="text-[11px] text-[var(--color-text-muted)]">{unit}</div>}
+          {unit && <div className="text-[9px] font-mono text-[var(--color-text-muted)]">{unit}</div>}
         </div>
       </div>
 
-      {/* Sparkline Viewport */}
-      <div className="overflow-hidden rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)]/60 p-2 shadow-2xs tg-card-inner">
+      {/* Chart with scale */}
+      <div className="rounded-xl bg-[var(--color-surface-alt)] p-2">
         <Sparkline
           points={values}
           color={color}
@@ -70,25 +61,25 @@ export default function ChartCard({
         />
       </div>
 
-      {/* Min / Avg / Max Summary */}
-      <div className="mt-2.5 grid grid-cols-3 border-t border-[var(--color-border)] pt-2 text-center font-mono">
+      {/* Statistics */}
+      <div className="mt-2.5 grid grid-cols-3 border-t border-[var(--color-border)] pt-2 text-center">
         <div className="pr-1.5">
-          <div className="text-xs font-bold tabular-nums text-[var(--color-text)]">
+          <div className="text-[11px] font-semibold tabular-nums text-[var(--color-text)]">
             {minimum != null ? formatValue(minimum) : "--"}
           </div>
-          <div className="mt-0.5 text-[9px] font-medium uppercase text-[var(--color-text-muted)]">Min</div>
+          <div className="mt-0.5 text-[8px] font-medium uppercase text-[var(--color-text-muted)]">MIN</div>
         </div>
         <div className="border-l border-[var(--color-border)] px-1.5">
-          <div className="text-xs font-bold tabular-nums text-[var(--color-text)]">
+          <div className="text-[11px] font-semibold tabular-nums text-[var(--color-text)]">
             {average != null ? formatValue(average) : "--"}
           </div>
-          <div className="mt-0.5 text-[9px] font-medium uppercase text-[var(--color-text-muted)]">Avg</div>
+          <div className="mt-0.5 text-[8px] font-medium uppercase text-[var(--color-text-muted)]">AVG</div>
         </div>
         <div className="border-l border-[var(--color-border)] pl-1.5">
-          <div className="text-xs font-bold tabular-nums text-[var(--color-text)]">
+          <div className="text-[11px] font-semibold tabular-nums text-[var(--color-text)]">
             {maximum != null ? formatValue(maximum) : "--"}
           </div>
-          <div className="mt-0.5 text-[9px] font-medium uppercase text-[var(--color-text-muted)]">Max</div>
+          <div className="mt-0.5 text-[8px] font-medium uppercase text-[var(--color-text-muted)]">MAX</div>
         </div>
       </div>
     </div>

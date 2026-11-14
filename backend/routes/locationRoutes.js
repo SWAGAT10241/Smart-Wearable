@@ -1,7 +1,7 @@
 const express = require("express");
+const locationController = require("../controllers/locationController");
 const protect = require("../middleware/authMiddleware");
 const { queryLimiter } = require("../middleware/rateLimiter");
-const locationController = require("../controllers/locationController");
 
 module.exports = function () {
   const router = express.Router();

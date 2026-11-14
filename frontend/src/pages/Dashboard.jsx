@@ -68,19 +68,19 @@ export default function Dashboard() {
             "Resting",
             heartRateStats.min != null
               ? Math.round(heartRateStats.min)
-              : (vitalStats?.minHeartRate ?? (hr?.heartRate != null ? Math.round(hr.heartRate) : "--")),
+              : (vitalStats?.minHeartRate ?? "--"),
           ],
           [
             "Avg 1h",
             heartRateStats.average != null
               ? Math.round(heartRateStats.average)
-              : (vitalStats?.averageHeartRate ?? (hr?.heartRate != null ? Math.round(hr.heartRate) : "--")),
+              : (vitalStats?.averageHeartRate ?? "--"),
           ],
           [
             "Peak",
             heartRateStats.max != null
               ? Math.round(heartRateStats.max)
-              : (vitalStats?.maxHeartRate ?? (hr?.heartRate != null ? Math.round(hr.heartRate) : "--")),
+              : (vitalStats?.maxHeartRate ?? "--"),
           ],
         ],
       },
@@ -97,30 +97,12 @@ export default function Dashboard() {
         normalRange: "Normal Range: 95% - 100%",
         updatedAt: heartRateTimestamp,
         miniStats: [
-          [
-            "Min",
-            spo2Stats.min != null
-              ? `${spo2Stats.min.toFixed(0)}%`
-              : hr?.spo2 != null
-                ? `${Number(hr.spo2).toFixed(0)}%`
-                : "--",
-          ],
+          ["Min", spo2Stats.min != null ? `${spo2Stats.min.toFixed(0)}%` : "--"],
           [
             "Avg",
-            spo2Stats.average != null
-              ? `${spo2Stats.average.toFixed(1)}%`
-              : hr?.spo2 != null
-                ? `${Number(hr.spo2).toFixed(0)}%`
-                : "--",
+            spo2Stats.average != null ? `${spo2Stats.average.toFixed(1)}%` : "--",
           ],
-          [
-            "Max",
-            spo2Stats.max != null
-              ? `${spo2Stats.max.toFixed(0)}%`
-              : hr?.spo2 != null
-                ? `${Number(hr.spo2).toFixed(0)}%`
-                : "--",
-          ],
+          ["Max", spo2Stats.max != null ? `${spo2Stats.max.toFixed(0)}%` : "--"],
         ],
       },
       {
@@ -175,40 +157,25 @@ export default function Dashboard() {
         status: env?.humidity != null ? "Normal" : undefined,
         statusColor: "var(--status-optimal)",
         variant: "bars",
-        signal:
-          environmentHistory.length > 0
-            ? environmentHistory
-                .map((item) => item.humidity)
-                .filter((value) => value != null)
-            : env?.humidity != null
-              ? [Number(env.humidity)]
-              : [],
+        signal: environmentHistory
+          .map((item) => item.humidity)
+          .filter((value) => value != null),
         normalRange: "Comfort Range: 30% - 60%",
         updatedAt: environmentTimestamp,
         miniStats: [
           [
             "Low",
-            humidityStats.min != null
-              ? `${humidityStats.min.toFixed(1)}%`
-              : env?.humidity != null
-                ? `${Number(env.humidity).toFixed(1)}%`
-                : "--",
+            humidityStats.min != null ? `${humidityStats.min.toFixed(1)}%` : "--",
           ],
           [
             "Avg",
             humidityStats.average != null
               ? `${humidityStats.average.toFixed(1)}%`
-              : env?.humidity != null
-                ? `${Number(env.humidity).toFixed(1)}%`
-                : "--",
+              : "--",
           ],
           [
             "High",
-            humidityStats.max != null
-              ? `${humidityStats.max.toFixed(1)}%`
-              : env?.humidity != null
-                ? `${Number(env.humidity).toFixed(1)}%`
-                : "--",
+            humidityStats.max != null ? `${humidityStats.max.toFixed(1)}%` : "--",
           ],
         ],
       },
@@ -229,27 +196,17 @@ export default function Dashboard() {
         miniStats: [
           [
             "Low",
-            pressureStats.min != null
-              ? pressureStats.min.toFixed(1)
-              : env?.pressure != null
-                ? Number(env.pressure).toFixed(1)
-                : "--",
+            pressureStats.min != null ? pressureStats.min.toFixed(1) : "--",
           ],
           [
             "Avg",
             pressureStats.average != null
               ? pressureStats.average.toFixed(1)
-              : env?.pressure != null
-                ? Number(env.pressure).toFixed(1)
-                : "--",
+              : "--",
           ],
           [
             "High",
-            pressureStats.max != null
-              ? pressureStats.max.toFixed(1)
-              : env?.pressure != null
-                ? Number(env.pressure).toFixed(1)
-                : "--",
+            pressureStats.max != null ? pressureStats.max.toFixed(1) : "--",
           ],
         ],
       },

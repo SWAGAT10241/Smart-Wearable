@@ -14,7 +14,7 @@ const AppError = require("../utils/appError");
  * @param {Function} [broadcast] - Broadcast callback for real-time subscribers
  * @returns {Promise<object>}
  */
-async function processReadings(payload, broadcast = () => {}, existingDevice = null) {
+async function processReadings(payload, broadcast = () => {}) {
   const {
     deviceId,
     heartRate,
@@ -50,12 +50,10 @@ async function processReadings(payload, broadcast = () => {}, existingDevice = n
 
   const normalizedDeviceId = deviceId.trim().toUpperCase();
 
-  const device =
-    existingDevice ||
-    (await Device.findOne({
-      deviceId: normalizedDeviceId,
-      status: "active",
-    }));
+  const device = await Device.findOne({
+    deviceId: normalizedDeviceId,
+    status: "active",
+  });
 
   if (!device) {
     throw new AppError("Unknown or inactive device", 401, "INACTIVE_DEVICE");
@@ -93,7 +91,6 @@ async function processReadings(payload, broadcast = () => {}, existingDevice = n
     broadcast({
       type: "vitals",
       deviceId: normalizedDeviceId,
-      userId: device.userId,
       data: reading,
     });
   }
@@ -122,7 +119,6 @@ async function processReadings(payload, broadcast = () => {}, existingDevice = n
     broadcast({
       type: "environment",
       deviceId: normalizedDeviceId,
-      userId: device.userId,
       data: reading,
     });
   }
@@ -154,7 +150,6 @@ async function processReadings(payload, broadcast = () => {}, existingDevice = n
     broadcast({
       type: "location",
       deviceId: normalizedDeviceId,
-      userId: device.userId,
       data: reading,
     });
   }
@@ -199,7 +194,6 @@ async function processReadings(payload, broadcast = () => {}, existingDevice = n
     broadcast({
       type: "fall_detected",
       deviceId: normalizedDeviceId,
-      userId: device.userId,
       data: fallEvent,
     });
   }

@@ -1,0 +1,34 @@
+import { IoPulseOutline, IoTimeOutline, IoSettingsOutline } from "react-icons/io5";
+import { NavLink } from "react-router-dom";
+
+const items = [
+  { to: "/dashboard", label: "Dashboard", Icon: IoPulseOutline },
+  { to: "/history", label: "History", Icon: IoTimeOutline },
+  { to: "/settings", label: "Settings", Icon: IoSettingsOutline },
+];
+
+export default function MobileNav() {
+  return (
+    <nav
+      aria-label="Primary navigation"
+      className="fixed inset-x-0 bottom-0 z-40 flex h-[var(--mobile-nav-height)] items-center justify-around border-t border-[var(--color-border)] bg-[color:var(--color-surface)]/95 px-[var(--space-3)] pb-[env(safe-area-inset-bottom)] shadow-[0_-10px_28px_rgba(16,42,67,0.08)] backdrop-blur lg:hidden"
+    >
+      {items.map(({ to, label, Icon }) => (
+        <NavLink
+          key={to}
+          to={to}
+          className={({ isActive }) =>
+            `flex min-w-[var(--mobile-nav-height)] flex-col items-center gap-[var(--space-1)] rounded-[var(--radius-lg)] px-[var(--space-3)] py-[var(--space-2)] text-[var(--font-size-3xs)] font-semibold transition ${
+              isActive
+                ? "bg-teal-400/10 text-teal-700"
+                : "text-[var(--color-text-muted)]"
+            }`
+          }
+        >
+          <Icon aria-hidden="true" size={20} />
+          <span>{label}</span>
+        </NavLink>
+      ))}
+    </nav>
+  );
+}

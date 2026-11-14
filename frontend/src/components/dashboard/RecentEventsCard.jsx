@@ -1,62 +1,43 @@
-import React from "react";
-
 export default function RecentEventsCard({ recentFalls = [] }) {
   return (
-    <section className="tg-card h-full min-h-[410px]">
-      {/* Top Accent Stroke */}
-      <div
-        className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-80"
-        style={{
-          background: recentFalls.length > 0
-            ? "linear-gradient(90deg, var(--status-sos), transparent 65%)"
-            : "linear-gradient(90deg, var(--status-optimal), transparent 65%)",
-        }}
-      />
+    <section className="flex flex-col rounded-[var(--card-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--card-padding)] shadow-[var(--shadow-card)]">
+      <div className="mb-[var(--space-3)] flex shrink-0 items-center justify-between">
+        <h2 className="text-[var(--font-size-md)] font-semibold tracking-[-0.02em] text-[var(--color-text)]">
+          Recent Events
+        </h2>
 
-      {/* Header Deck */}
-      <div className="tg-card-header">
-        <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-[10px] border border-black/5 dark:border-white/10 bg-[var(--surface-warning)] text-xs text-[var(--status-warning)] tg-squircle-sm">
-            <span>⚡</span>
-          </div>
-          <h2 className="tg-card-title">
-            Incident Log
-          </h2>
-        </div>
-
-        <span className="tg-badge tg-badge-neutral font-mono text-[11px]">
+        <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-[var(--space-2-5)] py-[var(--space-0-5)] font-mono text-[var(--font-size-3xs)] text-[var(--color-text-secondary)]">
           {recentFalls.length} today
         </span>
       </div>
 
-      {/* Events List */}
-      <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+      <div className="h-[340px] sm:h-[385px] overflow-y-auto pr-1">
         {recentFalls.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center gap-2 rounded-[16px] border border-dashed border-[var(--color-border)] bg-[var(--color-surface-alt)]/40 p-4 text-center tg-card-inner">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[var(--surface-accent)] text-[var(--status-optimal)] text-base font-bold tg-squircle-sm">
+          <div className="flex h-full flex-col items-center justify-center gap-[var(--space-2)] rounded-[var(--radius-xl)] border border-emerald-200/30 bg-emerald-500/10 p-[var(--space-6)] text-center">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-emerald-500/20 text-emerald-400 text-lg font-bold">
               ✓
             </div>
 
             <div>
               <div className="text-sm font-semibold text-[var(--color-text)]">
-                No incidents detected
+                No fall events detected
               </div>
 
-              <div className="mt-0.5 text-xs text-emerald-600 dark:text-emerald-400">
-                All systems operating normally
+              <div className="mt-1 text-xs text-emerald-400">
+                Safe operational status
               </div>
             </div>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-[var(--space-2)]">
             {recentFalls.map((fall) => (
               <div
                 key={fall._id}
-                className="rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-2.5 transition-all hover:border-[var(--color-accent)]/50 tg-card-inner"
+                className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-[var(--space-3)] transition hover:border-[var(--color-accent)]/40"
               >
-                <div className="flex items-start justify-between gap-2">
+                <div className="flex items-start justify-between gap-[var(--space-3)]">
                   <div className="min-w-0">
-                    <div className="text-xs font-semibold text-[var(--color-text)]">
+                    <div className="text-xs font-bold text-[var(--color-text)]">
                       {new Date(fall.timestamp).toLocaleString(undefined, {
                         month: "short",
                         day: "numeric",
@@ -66,18 +47,18 @@ export default function RecentEventsCard({ recentFalls = [] }) {
                     </div>
 
                     <div className="mt-0.5 text-xs capitalize text-[var(--color-text-secondary)]">
-                      {fall.severity} fall event
+                      {fall.severity} fall
                     </div>
                   </div>
 
                   <span
-                    className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border ${
+                    className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
                       fall.severity === "severe"
-                        ? "bg-red-500/15 text-red-500 border-red-500/30"
-                        : "bg-amber-500/15 text-amber-500 border-amber-500/30"
+                        ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                        : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
                     }`}
                   >
-                    {fall.status?.replace(/_/g, " ") || "LOGGED"}
+                    {fall.status?.replace(/_/g, " ") || "DETECTED"}
                   </span>
                 </div>
               </div>

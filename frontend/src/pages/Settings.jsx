@@ -123,44 +123,44 @@ export default function Settings() {
   const height = user?.height != null ? `${user.height} cm` : "Not provided";
   const weight = user?.weight != null ? `${user.weight} kg` : "Not provided";
 
-  const card = "tg-card";
+  const card =
+    "rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]";
 
   const option = (active) =>
-    `rounded-[14px] border p-3.5 text-left transition tg-card-inner ${
+    `rounded-xl border p-4 text-left transition ${
       active
-        ? "border-emerald-500 bg-emerald-500/10 ring-1 ring-emerald-500/30 text-[var(--color-text)]"
-        : "border-[var(--color-border)] bg-[var(--color-surface-alt)] hover:border-[var(--color-border-hover,rgba(255,255,255,0.2))] text-[var(--color-text-secondary)]"
+        ? "border-teal-400 bg-teal-400/10 ring-2 ring-teal-400/20"
+        : "border-[var(--color-border)] bg-[var(--color-surface-alt)] hover:border-teal-400/40"
     }`;
 
   return (
     <AppLayout>
-      <div className="space-y-4">
+      <div className="space-y-6">
         {/* Header */}
-        <header className="px-1 py-1">
-          <h1 className="tg-page-title">
+        <header>
+          <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text)]">
             Settings
           </h1>
-          <p className="tg-page-subtitle">
-            Manage your account preferences, safety information, and paired devices.
+          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+            Manage your account, safety information, and TrailGuard devices.
           </p>
         </header>
 
         {/* Appearance */}
         <section className={card}>
-          <div className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-80" style={{ background: "linear-gradient(90deg, var(--status-info), transparent 60%)" }} />
-          <h3 className="tg-card-title">Appearance</h3>
-          <p className="tg-card-subtitle">
-            Choose your preferred theme across all screens.
+          <h3 className="text-lg font-semibold text-[var(--color-text)]">Appearance</h3>
+          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+            Choose how TrailGuard looks on your device.
           </p>
 
-          <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <button type="button" onClick={setLightTheme} className={option(theme === "light")}>
               <div className="flex items-center gap-3">
-                <span className="text-xl">☀️</span>
+                <span className="text-2xl">☀️</span>
                 <div>
-                  <p className="text-sm font-semibold text-[var(--color-text)]">Light</p>
-                  <p className="text-xs text-[var(--color-text-muted)]">
-                    Default bright theme
+                  <p className="font-semibold text-[var(--color-text)]">Light</p>
+                  <p className="text-xs text-[var(--color-text-secondary)]">
+                    Use the bright theme
                   </p>
                 </div>
               </div>
@@ -168,11 +168,11 @@ export default function Settings() {
 
             <button type="button" onClick={setDarkTheme} className={option(theme === "dark")}>
               <div className="flex items-center gap-3">
-                <span className="text-xl">🌙</span>
+                <span className="text-2xl">🌙</span>
                 <div>
-                  <p className="text-sm font-semibold text-[var(--color-text)]">Dark</p>
-                  <p className="text-xs text-[var(--color-text-muted)]">
-                    High contrast dark theme
+                  <p className="font-semibold text-[var(--color-text)]">Dark</p>
+                  <p className="text-xs text-[var(--color-text-secondary)]">
+                    Use the dark theme
                   </p>
                 </div>
               </div>
@@ -269,7 +269,7 @@ export default function Settings() {
           </p>
           {deviceStatus && (
             <div
-              className="mb-4 rounded-[14px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 tg-card-inner"
+              className="mb-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4"
               aria-label="Device status"
             >
               <div className="mb-3 flex items-baseline justify-between gap-3">
@@ -360,11 +360,11 @@ export default function Settings() {
 
           {/* Device list */}
           {devicesLoading ? (
-            <div className="rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-6 text-center text-sm text-[var(--color-text-secondary)] tg-card-inner">
+            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-6 text-center text-sm text-[var(--color-text-secondary)]">
               Loading devices…
             </div>
           ) : devices.length === 0 ? (
-            <div className="rounded-[16px] border border-dashed border-[var(--color-border)] bg-[var(--color-surface-alt)] p-6 text-center tg-card-inner">
+            <div className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface-alt)] p-6 text-center">
               <div className="text-sm font-semibold text-[var(--color-text)]">
                 No devices connected
               </div>

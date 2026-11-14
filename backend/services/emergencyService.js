@@ -1,44 +1,45 @@
 const { sendEmergencySMS } = require("./smsService");
 const { sendEmergencyWhatsApp } = require("./whatsappService");
-const logger = require("../utils/logger");
 
 /**
- * Dispatch emergency alerts (SMS and WhatsApp) to a contact.
+ * Dispatch emergency SMS and WhatsApp notifications in parallel.
  *
  * @param {object} params
- * @param {string} params.to - Emergency recipient phone number
- * @param {string} params.userName - Name of user in distress
+ * @param {string} params.to - Emergency contact phone number
+ * @param {string} params.userName - Name of user triggering the alert
  * @param {number} [params.latitude] - GPS latitude
  * @param {number} [params.longitude] - GPS longitude
+ * @returns {Promise<{sms: boolean, whatsapp: boolean}>}
  */
 async function dispatchEmergencyAlerts({ to, userName, latitude, longitude }) {
-  if (!to) return;
+  if (!to) return { sms: false, whatsapp: false };
 
-  const results = {
-    sms: null,
-    whatsapp: null,
-  };
+  const results = { sms: false, whatsapp: false };
 
+  // Trigger SMS
   try {
-    results.sms = await sendEmergencySMS({
+    await sendEmergencySMS({
       to,
       userName,
       latitude,
       longitude,
     });
-  } catch (smsError) {
-    logger.error("[SMS] Failed to send emergency SMS:", smsError.message);
+    results.sms = true;
+  } catch (error) {
+    console.error("[SMS] Failed to send emergency SMS:", error.message);
   }
 
+  // Trigger WhatsApp
   try {
-    results.whatsapp = await sendEmergencyWhatsApp({
+    await sendEmergencyWhatsApp({
       to,
       userName,
       latitude,
       longitude,
     });
-  } catch (whatsappError) {
-    logger.error("[WhatsApp] Failed to send emergency WhatsApp:", whatsappError.message);
+    results.whatsapp = true;
+  } catch (error) {
+    console.error("[WhatsApp] Failed to send emergency WhatsApp:", error.message);
   }
 
   return results;

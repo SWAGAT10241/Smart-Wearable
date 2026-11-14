@@ -69,7 +69,7 @@ export default function NotFound() {
 
   return (
     <div
-      className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-[#061B2D] px-4 py-12 text-[var(--text-primary)]"
+      className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-[var(--brand-navy)] px-4 py-12 text-[var(--text-primary)]"
       style={{
         backgroundImage: `linear-gradient(to bottom, rgba(6, 27, 45, 0.88), rgba(6, 27, 45, 0.96)), url(${loginBackground})`,
         backgroundSize: "cover",
@@ -80,7 +80,7 @@ export default function NotFound() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(45,212,191,0.08),transparent_70%)]" />
 
       {/* Main Container Card */}
-      <div className="relative z-10 mx-auto flex w-full max-w-xl flex-col items-center rounded-3xl border border-white/10 bg-[#092238]/90 p-6 text-center shadow-2xl backdrop-blur-xl sm:p-10">
+      <div className="relative z-10 mx-auto flex w-full max-w-xl flex-col items-center rounded-3xl border border-white/10 bg-[var(--brand-navy-card-hover)]/90 p-6 text-center shadow-2xl backdrop-blur-xl sm:p-10">
         
         {/* Animated Sonar Radar Beacon */}
         <div className="relative mb-6 flex h-28 w-28 items-center justify-center">
@@ -90,7 +90,7 @@ export default function NotFound() {
           <span className="absolute inset-2 rounded-full border border-teal-500/30 bg-teal-950/40" />
 
           {/* Center Glow Icon */}
-          <div className="relative z-10 flex h-14 w-14 items-center justify-center rounded-2xl border border-teal-400/40 bg-gradient-to-br from-teal-500/20 to-teal-900/40 text-[#2DD4BF] shadow-[0_0_20px_rgba(45,212,191,0.35)]">
+          <div className="relative z-10 flex h-14 w-14 items-center justify-center rounded-2xl border border-teal-400/40 bg-gradient-to-br from-teal-500/20 to-teal-900/40 text-[var(--brand-teal)] shadow-[0_0_20px_var(--brand-teal-glow)]">
             <IoCompassOutline className="h-8 w-8 animate-[spin_10s_linear_infinite]" />
           </div>
 
@@ -134,12 +134,12 @@ export default function NotFound() {
               value={searchTarget}
               onChange={(e) => setSearchTarget(e.target.value)}
               placeholder="Quick jump: dashboard, history, about, settings..."
-              className="w-full rounded-xl border border-white/10 bg-[#061B2D]/80 py-2 pl-9 pr-3 text-xs text-white placeholder-slate-400 focus:border-teal-400 focus:outline-none focus:ring-1 focus:ring-teal-400"
+              className="w-full rounded-xl border border-white/10 bg-[var(--brand-navy)]/80 py-2 pl-9 pr-3 text-xs text-white placeholder-slate-400 focus:border-teal-400 focus:outline-none focus:ring-1 focus:ring-teal-400"
             />
           </div>
           <button
             type="submit"
-            className="flex items-center justify-center gap-1.5 rounded-xl border border-teal-500/30 bg-[#0E9C8C] px-4 py-2 text-xs font-semibold text-white shadow-md transition hover:bg-[#0c8577] active:scale-95"
+            className="flex items-center justify-center gap-1.5 rounded-xl border border-teal-500/30 bg-[var(--brand-teal-dark)] px-4 py-2 text-xs font-semibold text-white shadow-md transition hover:opacity-90 active:scale-95"
           >
             <span>Re-Route</span>
             <IoReturnDownBackOutline className="h-3 w-3" />
@@ -179,7 +179,7 @@ export default function NotFound() {
         <div className="flex w-full flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-center">
           <Link
             to={user ? "/dashboard" : "/login"}
-            className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0E9C8C] to-[#2DD4BF] px-5 py-2.5 text-xs font-bold text-[#061B2D] shadow-lg shadow-teal-500/20 transition hover:opacity-95 active:scale-95"
+            className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--brand-teal-dark)] to-[var(--brand-teal)] px-5 py-2.5 text-xs font-bold text-[var(--brand-navy-text)] shadow-lg shadow-teal-500/20 transition hover:opacity-95 active:scale-95"
           >
             <IoHomeOutline className="h-4 w-4" />
             <span>Return to Base Camp</span>

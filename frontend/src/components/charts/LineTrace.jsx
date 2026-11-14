@@ -120,17 +120,13 @@ export default function LineTrace({
   const safeLastValue = Math.min(Math.max(lastValue, chartMin), chartMax);
   const lastY = 6 + ((chartMax - safeLastValue) / range) * (height - 12);
 
-  const firstX = 4;
-  const areaPoints = `${points} ${lastX},${height} ${firstX},${height}`;
-  const gradientId = React.useId ? React.useId().replace(/:/g, "") : `grad-${sensorType}`;
-
   return (
     <div className="relative grid h-[86px] grid-cols-[34px_minmax(0,1fr)] gap-2">
       <div className="flex h-full flex-col justify-between py-[1px]">
         {labels.map((label, index) => (
           <span
             key={`${label}-${index}`}
-            className="text-[9px] font-semibold leading-none tabular-nums text-[var(--color-text-muted)]"
+            className="text-[9px] font-medium leading-none tabular-nums text-[var(--color-text-muted)]"
           >
             {label}
           </span>
@@ -143,13 +139,6 @@ export default function LineTrace({
           className="h-full w-full"
           preserveAspectRatio="none"
         >
-          <defs>
-            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity={isBaseline ? "0.14" : "0.32"} />
-              <stop offset="100%" stopColor={color} stopOpacity="0.0" />
-            </linearGradient>
-          </defs>
-
           {[0, 1, 2].map((index) => {
             const y = 6 + (index / 2) * (height - 12);
             return (
@@ -162,49 +151,33 @@ export default function LineTrace({
                 stroke="var(--color-border)"
                 strokeWidth="1"
                 strokeDasharray="3 4"
-                opacity="0.6"
               />
             );
           })}
-
-          <polygon
-            points={areaPoints}
-            fill={`url(#${gradientId})`}
-          />
 
           <polyline
             points={points}
             fill="none"
             stroke={color}
-            strokeWidth={isBaseline ? "1.8" : "2.2"}
+            strokeWidth={isBaseline ? "1.8" : "2"}
             strokeDasharray={isBaseline ? "4 3" : undefined}
-            opacity={isBaseline ? 0.7 : 1}
+            opacity={isBaseline ? 0.6 : 1}
             strokeLinecap="round"
             strokeLinejoin="round"
           />
 
-          {!isBaseline && (
-            <circle
-              cx={lastX}
-              cy={lastY}
-              r="6"
-              fill={color}
-              opacity="0.2"
-            />
-          )}
-
           <circle
             cx={lastX}
             cy={lastY}
-            r="3"
+            r="2.5"
             fill={color}
             opacity={isBaseline ? 0.7 : 1}
           />
         </svg>
 
-        {isBaseline && singleVal == null && (
-          <span className="absolute right-1.5 top-1 rounded border border-[var(--color-border)] bg-[var(--color-surface)]/90 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] backdrop-blur-md">
-            Baseline
+        {isBaseline && (
+          <span className="absolute right-1.5 top-1 rounded bg-[var(--color-surface)]/80 px-1 py-0.5 text-[8px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] backdrop-blur-sm">
+            Standby
           </span>
         )}
       </div>

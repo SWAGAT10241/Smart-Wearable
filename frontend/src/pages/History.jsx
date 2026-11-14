@@ -164,34 +164,26 @@ export default function History() {
     <AppLayout>
       <div className="flex flex-col gap-3.5">
         {/* HEADER & CONTROLS */}
-        <div className="tg-card sm:flex-row sm:items-center sm:justify-between">
-          {/* Top Accent Stroke */}
-          <div
-            className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-80"
-            style={{
-              background: "linear-gradient(90deg, var(--status-optimal), var(--status-info) 50%, transparent 80%)",
-            }}
-          />
-
+        <div className="flex flex-col gap-2.5 rounded-[18px] border border-[var(--border-default)] bg-[var(--surface-card)] p-3.5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="tg-page-title">
+              <h1 className="text-lg font-bold tracking-tight text-[var(--text-primary)] sm:text-xl">
                 Telemetry History
               </h1>
-              <span className="tg-badge tg-badge-neutral text-[10px]">
-                {range}h Window
+              <span className="rounded-md border border-[var(--border-default)] bg-[var(--surface-elevated)] px-2 py-0.5 font-mono text-[10px] text-[var(--text-secondary)]">
+                Interactive Route
               </span>
             </div>
-            <p className="tg-page-subtitle">
+            <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
               {selectedDevice
-                ? `${selectedDevice.deviceName || selectedDevice.name || "Wearable"} · ${maskDeviceId(selectedDevice.deviceId)}`
+                ? `${selectedDevice.deviceName || selectedDevice.name || "TrailGuard Wearable"} · ${maskDeviceId(selectedDevice.deviceId)}`
                 : "No device selected"}
             </p>
           </div>
 
-          <div className="mt-3 sm:mt-0 flex items-center gap-2">
+          <div className="flex items-center gap-2">
             {/* Range Selector */}
-            <div className="flex rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-0.5 font-mono">
+            <div className="flex rounded-lg border border-[var(--border-default)] bg-[var(--surface-elevated)] p-0.5">
               {HISTORY_RANGES.map((item) => (
                 <button
                   key={item.label}
@@ -199,8 +191,8 @@ export default function History() {
                   onClick={() => setRange(item.hours)}
                   className={`rounded-md px-2.5 py-1 text-xs font-semibold transition ${
                     range === item.hours
-                      ? "border border-emerald-500/30 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold"
-                      : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+                      ? "border border-teal-500/30 bg-[var(--brand-teal-subtle)] text-[var(--brand-teal-light)] shadow-sm"
+                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                   }`}
                 >
                   {item.label}
@@ -212,35 +204,35 @@ export default function History() {
 
         {/* LOADING INDICATOR */}
         {loading && (
-          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-2 text-xs text-[var(--color-text-secondary)]">
-            <LoadingSpinner size="sm" label="Loading telemetry..." />
+          <div className="rounded-xl border border-[var(--border-default)] bg-[var(--surface-card)] p-2 text-xs text-[var(--text-secondary)]">
+            <LoadingSpinner size="sm" label="Aggregating history window..." />
           </div>
         )}
 
         {/* METRIC CATEGORY TABS */}
-        <div className="flex flex-wrap items-center gap-2 border-b border-[var(--color-border)] pb-2 text-xs">
-          <span className="flex items-center gap-1.5 font-semibold text-[var(--color-text-secondary)]">
-            <IoFilterOutline className="h-3.5 w-3.5 text-[var(--status-optimal)]" />
+        <div className="flex flex-wrap items-center gap-2 border-b border-[var(--border-default)] pb-2 text-sm">
+          <span className="flex items-center gap-1.5 font-bold text-[var(--text-secondary)]">
+            <IoFilterOutline className="h-4 w-4 text-teal-400" />
             Filter:
           </span>
           <button
             type="button"
             onClick={() => setMetricFilter("all")}
-            className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
+            className={`rounded-lg px-3 py-1 text-xs sm:text-sm font-semibold transition ${
               metricFilter === "all"
-                ? "bg-[var(--color-surface-alt)] text-[var(--color-text)] border border-[var(--color-border)] font-bold"
-                : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+                ? "bg-[var(--surface-elevated)] text-[var(--action-primary)] font-bold border border-teal-500/30"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             }`}
           >
-            All (5)
+            All Charts (5)
           </button>
           <button
             type="button"
             onClick={() => setMetricFilter("vitals")}
-            className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
+            className={`rounded-lg px-3 py-1 text-xs sm:text-sm font-semibold transition ${
               metricFilter === "vitals"
-                ? "bg-[var(--color-surface-alt)] text-[var(--color-text)] border border-[var(--color-border)] font-bold"
-                : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+                ? "bg-[var(--surface-elevated)] text-[var(--action-primary)] font-bold border border-teal-500/30"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             }`}
           >
             Biometrics (2)
@@ -248,10 +240,10 @@ export default function History() {
           <button
             type="button"
             onClick={() => setMetricFilter("env")}
-            className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
+            className={`rounded-lg px-3 py-1 text-xs sm:text-sm font-semibold transition ${
               metricFilter === "env"
-                ? "bg-[var(--color-surface-alt)] text-[var(--color-text)] border border-[var(--color-border)] font-bold"
-                : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+                ? "bg-[var(--surface-elevated)] text-[var(--action-primary)] font-bold border border-teal-500/30"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             }`}
           >
             Environment (3)
@@ -312,37 +304,29 @@ export default function History() {
         </div>
 
         {/* PROMINENT GPS MOVEMENT MAP (LARGE INTERACTIVE VIEW) */}
-        <div className="tg-card font-mono">
-          {/* Tactical Top Accent Line */}
-          <div
-            className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-70"
-            style={{
-              background: "linear-gradient(90deg, var(--status-optimal), transparent 60%)",
-            }}
-          />
-
+        <div className="flex flex-col rounded-[22px] border border-[var(--border-default)] bg-[var(--surface-card)] p-4 shadow-sm">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-[10px] border border-black/5 dark:border-white/10 bg-[var(--surface-accent)] text-xs text-[var(--status-optimal)] tg-squircle-sm">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-teal-500/30 bg-teal-500/10 text-[var(--brand-teal)]">
                 <IoLocationOutline className="h-4 w-4" />
               </div>
               <div>
-                <h3 className="tg-card-title">
-                  Trail Route
+                <h3 className="text-sm font-bold text-[var(--text-primary)] sm:text-base">
+                  GPS Movement Route & Terrain
                 </h3>
-                <p className="tg-card-subtitle">
-                  Recorded waypoints ({range}h window)
+                <p className="text-[11px] text-[var(--text-muted)]">
+                  Interactive satellite topography and recorded GPS waypoints ({range}h window)
                 </p>
               </div>
             </div>
-            <span className="tg-badge tg-badge-neutral font-bold tabular-nums">
+            <span className="rounded-full border border-[var(--border-default)] bg-[var(--surface-elevated)] px-3 py-1 font-mono text-xs text-[var(--text-secondary)]">
               {latestLocation
-                ? `${Number(latestLocation.latitude).toFixed(5)}°N, ${Number(latestLocation.longitude).toFixed(5)}°E`
-                : "No GPS fix"}
+                ? `${Number(latestLocation.latitude).toFixed(5)}, ${Number(latestLocation.longitude).toFixed(5)}`
+                : "No Coordinates"}
             </span>
           </div>
 
-          <div className="h-[360px] overflow-hidden rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] sm:h-[400px] tg-card-inner">
+          <div className="h-[360px] overflow-hidden rounded-xl border border-[var(--border-default)] bg-[var(--surface-elevated)] sm:h-[400px]">
             {latestLocation ? (
               <LiveMap
                 latitude={latestLocation.latitude}
@@ -350,7 +334,7 @@ export default function History() {
                 trail={trail}
               />
             ) : (
-              <div className="flex h-full items-center justify-center text-xs text-[var(--color-text-muted)]">
+              <div className="flex h-full items-center justify-center text-xs text-[var(--text-muted)]">
                 No GPS coordinates recorded for this {range}h window.
               </div>
             )}
@@ -358,26 +342,19 @@ export default function History() {
         </div>
 
         {/* FALL INCIDENTS CATEGORIZED TIMELINE */}
-        <div className="tg-card font-mono">
-          {/* Tactical Top Accent Line */}
-          <div
-            className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-70"
-            style={{
-              background: "linear-gradient(90deg, var(--status-warning), transparent 60%)",
-            }}
-          />
+        <div className="flex flex-col rounded-[22px] border border-[var(--border-default)] bg-[var(--surface-card)] p-4 shadow-sm">
           {/* Header & Badges */}
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2.5">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-[10px] border border-amber-500/30 bg-amber-500/10 text-amber-400 tg-squircle-sm">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400">
                 <IoShieldOutline className="h-4 w-4" />
               </div>
               <div>
-                <h3 className="tg-card-title">
-                  Fall Incidents
+                <h3 className="text-sm font-bold text-[var(--text-primary)] sm:text-base">
+                  Fall Incidents & Impact Timeline
                 </h3>
-                <p className="tg-card-subtitle">
-                  Event log categorized by time window and severity
+                <p className="text-[11px] text-[var(--text-muted)]">
+                  Chronological event log categorized by time window and impact severity
                 </p>
               </div>
             </div>
@@ -400,7 +377,7 @@ export default function History() {
           </div>
 
           {/* Filter & Search Toolbar */}
-          <div className="mb-3 flex flex-col gap-2 rounded-[14px] border border-[var(--border-default)] bg-[var(--surface-elevated)] p-2 sm:flex-row sm:items-center sm:justify-between tg-card-inner">
+          <div className="mb-3 flex flex-col gap-2 rounded-xl border border-[var(--border-default)] bg-[var(--surface-elevated)] p-2 sm:flex-row sm:items-center sm:justify-between">
             {/* Severity Category Chips */}
             <div className="flex flex-wrap items-center gap-1">
               <button
@@ -411,7 +388,7 @@ export default function History() {
                 }}
                 className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
                   fallSeverityFilter === "all"
-                    ? "bg-[#0E9C8C]/25 text-[#42E3D0] border border-teal-500/30 font-bold"
+                    ? "bg-[var(--brand-teal-subtle)] text-[var(--brand-teal-light)] border border-teal-500/30 font-bold"
                     : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
@@ -492,7 +469,7 @@ export default function History() {
           </div>
 
           {/* Timeline Scrollable View */}
-          <div className="max-h-[380px] overflow-y-auto rounded-[14px] border border-[var(--border-default)] bg-[var(--surface-elevated)] p-3.5 tg-card-inner">
+          <div className="max-h-[380px] overflow-y-auto rounded-xl border border-[var(--border-default)] bg-[var(--surface-elevated)] p-3.5">
             {falls.length === 0 ? (
               <div className="flex h-20 flex-col items-center justify-center gap-1 text-xs text-emerald-400">
                 <IoCheckmarkCircleOutline className="h-5 w-5 text-emerald-400" />
@@ -627,7 +604,7 @@ export default function History() {
                 </span>
 
                 {pageTimelineSpan && (
-                  <div className="flex items-center gap-1.5 rounded-md border border-teal-500/25 bg-teal-500/10 px-2 py-0.5 text-[11px] font-medium text-[#2DD4BF]">
+                  <div className="flex items-center gap-1.5 rounded-md border border-teal-500/25 bg-teal-500/10 px-2 py-0.5 text-[11px] font-medium text-[var(--brand-teal)]">
                     <IoTimeOutline className="h-3 w-3" />
                     <span>Timeline: {pageTimelineSpan}</span>
                   </div>
@@ -650,7 +627,7 @@ export default function History() {
                         }}
                         className={`rounded px-2 py-0.5 text-[11px] font-semibold transition ${
                           pageSize === size
-                            ? "bg-[#0E9C8C]/25 text-[#42E3D0] border border-teal-500/30"
+                            ? "bg-[var(--brand-teal-subtle)] text-[var(--brand-teal-light)] border border-teal-500/30"
                             : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                         }`}
                       >

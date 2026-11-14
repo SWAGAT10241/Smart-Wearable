@@ -30,14 +30,14 @@ export default function FallAlertModal() {
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/45">
-      <div className="flex w-[560px] max-w-[92vw] flex-col items-center gap-4 rounded-[24px] border-2 border-red-600 bg-[var(--color-surface)] p-12 text-center shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
-        <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-red-100">
+      <div className="flex w-[560px] max-w-[92vw] flex-col items-center gap-[var(--modal-gap)] rounded-[var(--modal-radius)] border-2 border-red-600 bg-[var(--color-surface)] p-[var(--modal-padding)] text-center shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+        <div className="flex h-[var(--mobile-nav-height)] w-[var(--mobile-nav-height)] items-center justify-center rounded-full bg-red-100">
           <span className="h-7 w-7 rounded-full bg-red-600" />
         </div>
-        <span className="rounded-full bg-red-100 px-2.5 py-1 text-[11px] font-bold tracking-[0.08em] text-red-700">
+        <span className="rounded-full bg-red-100 px-[var(--space-2-5)] py-[var(--space-1)] text-[var(--font-size-2xs)] font-bold tracking-[0.08em] text-red-700">
           {(activeFall.severity || "moderate").toUpperCase()} SEVERITY
         </span>
-        <h1 className="m-0 text-[30px] font-bold text-[var(--color-text)]">
+        <h1 className="m-0 text-[var(--font-size-3xl)] font-bold text-[var(--color-text)]">
           Fall Detected
         </h1>
         <p className="m-0 max-w-[440px] text-sm text-[var(--color-text-secondary)]">
@@ -50,7 +50,7 @@ export default function FallAlertModal() {
             : "."}
         </p>
 
-        <div className="mt-1 flex w-full gap-3.5">
+        <div className="mt-1 flex w-full gap-[var(--space-3-5)]">
           <Button variant="primary" onClick={handleUserOkay} disabled={busy}>
             User is OK
           </Button>

@@ -3,13 +3,13 @@ export default function AuthCard({ children, className = "" }) {
     <div
       className={`
         w-full
-        rounded-[26px]
+        rounded-[var(--card-radius-expanded)]
         border border-[var(--color-border)]
         bg-[var(--color-surface)]/[0.78]
-        p-8
+        p-[var(--card-padding-expanded)]
         shadow-[0_20px_60px_rgba(7,28,46,0.22)]
         backdrop-blur-xl
-        sm:p-9
+        sm:p-[var(--space-9)]
         ${className}
       `}
     >

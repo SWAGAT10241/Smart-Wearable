@@ -1,13 +1,13 @@
 const fallService = require("../services/fallService");
 const asyncHandler = require("../utils/asyncHandler");
 
-const getUserFalls = asyncHandler(async (req, res) => {
-  const result = await fallService.getUserFalls(req.userId);
+const getFalls = asyncHandler(async (req, res) => {
+  const result = await fallService.getFalls(req.userId, req.query.deviceId);
   res.json(result);
 });
 
 const getLatest = asyncHandler(async (req, res) => {
-  const result = await fallService.getLatestFall(req.userId);
+  const result = await fallService.getLatestFall(req.userId, req.query.deviceId);
   res.json(result);
 });
 
@@ -23,7 +23,7 @@ const updateStatus = (broadcast) =>
   });
 
 module.exports = {
-  getUserFalls,
+  getFalls,
   getLatest,
   updateStatus,
 };

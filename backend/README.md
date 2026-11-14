@@ -42,7 +42,7 @@ Create a local `backend/.env` file from `.env.example`:
 | :--- | :---: | :--- |
 | `PORT` | No | `3000` — HTTP server port |
 | `NODE_ENV` | Yes | `development` / `production` / `test` |
-| `MONGODB_URI` | Yes | MongoDB connection string (e.g. `mongodb://127.0.0.1:27017/trailguard`) |
+| `MONGO_URI` | Yes | MongoDB connection string (e.g. `mongodb://127.0.0.1:27017/trailguard`) |
 | `JWT_SECRET` | Yes | Strong secret for signing user tokens ($\ge 32$ chars) |
 | `JWT_EXPIRES_IN`| No | Token validity duration (e.g. `7d`) |
 | `CORS_ORIGIN` | Yes | Allowed frontend origins (e.g. `http://localhost:5173`) |

@@ -3,27 +3,20 @@ import ProfileMenu from "../app/ProfileMenu";
 
 export default function DashboardHeader({ user, selectedDevice, notifications = [] }) {
   return (
-    <header className="flex shrink-0 items-center justify-between gap-4 px-1 py-1">
+    <header className="flex shrink-0 items-center justify-between gap-[var(--space-4)] px-1">
       <div className="min-w-0">
-        <div className="flex items-center gap-2.5">
-          <h1 className="tg-page-title truncate">
-            Welcome back, {user?.username || "Explorer"}
-          </h1>
+        <h1 className="truncate text-[var(--font-size-2xl)] font-bold tracking-[-0.03em] text-[var(--color-text)]">
+          Welcome back, {user?.username || "User"}! 👋
+        </h1>
 
-          <span className="hidden items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 sm:inline-flex">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Live
-          </span>
-        </div>
-
-        <p className="tg-page-subtitle truncate">
+        <p className="mt-0.5 text-[var(--font-size-sm)] text-[var(--color-text-secondary)]">
           {selectedDevice
-            ? `${selectedDevice.deviceName || selectedDevice.name || "Wearable"} · Active tracking`
-            : "No device selected"}
+            ? `${selectedDevice.deviceName || selectedDevice.name || "TrailGuard Wearable"} · Your trail overview for today.`
+            : "No device selected."}
         </p>
       </div>
 
-      <div className="flex shrink-0 items-center gap-3">
+      <div className="flex shrink-0 items-center gap-[var(--space-4)]">
         <NotificationBell notifications={notifications} />
         <ProfileMenu />
       </div>

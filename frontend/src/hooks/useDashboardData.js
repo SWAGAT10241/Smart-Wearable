@@ -218,6 +218,39 @@ export function useDashboardData(deviceId) {
     });
   }, [deviceId, environment, environmentUpdatedAt]);
 
+  // Merge live location reading into local trail buffer
+  useEffect(() => {
+    if (!deviceId || !location) return;
+
+    const lat = Number(location.latitude);
+    const lng = Number(location.longitude);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+    const timestamp =
+      location.timestamp ||
+      location.createdAt ||
+      location.recordedAt ||
+      locationUpdatedAt ||
+      new Date().toISOString();
+
+    setTrail((prev) => {
+      const exists = prev.some(
+        (item) =>
+          (item.timestamp || item.createdAt || item.recordedAt) === timestamp,
+      );
+      if (exists) return prev;
+      return [
+        ...prev,
+        {
+          ...location,
+          latitude: lat,
+          longitude: lng,
+          timestamp,
+        },
+      ].slice(-200);
+    });
+  }, [deviceId, location, locationUpdatedAt]);
+
   // Resolve active telemetry values (live stream takes priority over initial fetch)
   const hr = vitals || initialVitals;
   const env = environment || initialEnv;

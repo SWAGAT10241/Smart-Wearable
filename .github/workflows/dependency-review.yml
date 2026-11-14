@@ -4,10 +4,6 @@ on:
   pull_request:
     branches: [main, SWAAS]
 
-concurrency:
-  group: dep-review-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 permissions:
   contents: read
 

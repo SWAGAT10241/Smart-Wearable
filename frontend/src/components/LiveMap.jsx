@@ -24,31 +24,7 @@ const MAP_STYLES = {
   },
 };
 
-const styleCache = new Map();
-
-/**
- * Fetches and sanitizes OpenFreeMap styles, removing highway shield layers
- * that cause benign filter evaluation warnings in MapLibre worker.
- */
-async function getSanitizedStyle(styleKey) {
-  const meta = MAP_STYLES[styleKey] || MAP_STYLES.bright;
-  if (styleCache.has(styleKey)) return styleCache.get(styleKey);
-
-  try {
-    const res = await fetch(meta.url);
-    if (!res.ok) throw new Error("Failed to load map style");
-    const json = await res.json();
-    if (Array.isArray(json.layers)) {
-      json.layers = json.layers.filter(
-        (l) => !l.id || (!l.id.includes("highway-shield") && !l.id.includes("road_shield")),
-      );
-    }
-    styleCache.set(styleKey, json);
-    return json;
-  } catch {
-    return meta.url;
-  }
-}
+const MAP_TRAIL_LINE_COLOR = "#16B890";
 
 function useDarkMode() {
   const [isDark, setIsDark] = useState(() =>
@@ -111,9 +87,10 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
   const lng = Number(longitude);
 
   const hasLocation = Number.isFinite(lat) && Number.isFinite(lng);
+  const DEFAULT_COORDS = [85.8245, 20.2961];
 
   const position = useMemo(
-    () => (hasLocation ? [lng, lat] : null),
+    () => (hasLocation ? [lng, lat] : DEFAULT_COORDS),
     [lat, lng, hasLocation],
   );
 
@@ -148,147 +125,129 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
       return;
     }
 
-    let isCancelled = false;
+    const map = new maplibregl.Map({
+      container: mapContainer.current,
+      style: MAP_STYLES[selectedStyle].url,
+      center: position,
+      zoom: hasLocation ? 14 : 11,
+      attributionControl: false,
+    });
 
-    const setupMap = async () => {
-      const sanitizedStyle = await getSanitizedStyle(selectedStyle);
-      if (isCancelled || !mapContainer.current || mapRef.current) return;
+    mapRef.current = map;
 
-      const defaultCenter = position || [85.8245, 20.2961];
+    map.addControl(
+      new maplibregl.NavigationControl({
+        showCompass: true,
+        showZoom: true,
+        visualizePitch: true,
+      }),
+      "top-right",
+    );
 
-      const map = new maplibregl.Map({
-        container: mapContainer.current,
-        style: sanitizedStyle,
-        center: defaultCenter,
-        zoom: position ? 14 : 11,
-        attributionControl: false,
+    map.addControl(
+      new maplibregl.AttributionControl({
+        compact: true,
+      }),
+      "bottom-right",
+    );
+
+    map.on("load", () => {
+      /*
+       * Trail source.
+       */
+      map.addSource("trail", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          geometry: {
+            type: "LineString",
+            coordinates: trailPositions,
+          },
+        },
       });
 
-      mapRef.current = map;
-
-      map.addControl(
-        new maplibregl.NavigationControl({
-          showCompass: true,
-          showZoom: true,
-          visualizePitch: true,
-        }),
-        "top-right",
-      );
-
-      map.addControl(
-        new maplibregl.AttributionControl({
-          compact: true,
-        }),
-        "bottom-right",
-      );
-
-      map.on("load", () => {
-        if (isCancelled) return;
-
-        /*
-         * Trail source.
-         */
-        map.addSource("trail", {
-          type: "geojson",
-          data: {
-            type: "Feature",
-            geometry: {
-              type: "LineString",
-              coordinates: trailPositions,
-            },
-          },
-        });
-
-        map.addLayer({
-          id: "trail-line",
-          type: "line",
-          source: "trail",
-          layout: {
-            "line-cap": "round",
-            "line-join": "round",
-          },
-          paint: {
-            "line-color": "#16B890",
-            "line-width": 5,
-            "line-opacity": 0.95,
-            "line-dasharray": [2, 1.5],
-          },
-        });
-
-        trailSourceReady.current = true;
-
-        /*
-         * Current location marker.
-         */
-        if (position) {
-          const marker = new maplibregl.Marker({
-            element: createMarkerElement(),
-            anchor: "center",
-          })
-            .setLngLat(position)
-            .addTo(map);
-
-          markerRef.current = marker;
-        }
-
-        /*
-         * Fit initial trail.
-         */
-        if (trailPositions.length > 1) {
-          const bounds = new maplibregl.LngLatBounds();
-
-          trailPositions.forEach((point) => {
-            bounds.extend(point);
-          });
-
-          map.fitBounds(bounds, {
-            padding: 50,
-            maxZoom: 15,
-            duration: 0,
-          });
-        }
+      map.addLayer({
+        id: "trail-line",
+        type: "line",
+        source: "trail",
+        layout: {
+          "line-cap": "round",
+          "line-join": "round",
+        },
+        paint: {
+          "line-color": MAP_TRAIL_LINE_COLOR,
+          "line-width": 5,
+          "line-opacity": 0.95,
+          "line-dasharray": [2, 1.5],
+        },
       });
-    };
 
-    setupMap();
+      trailSourceReady.current = true;
+
+      /*
+       * Current location marker.
+       */
+      if (hasLocation && position) {
+        const marker = new maplibregl.Marker({
+          element: createMarkerElement(),
+          anchor: "center",
+        })
+          .setLngLat(position)
+          .addTo(map);
+
+        markerRef.current = marker;
+      }
+
+      /*
+       * Fit initial trail.
+       */
+      if (trailPositions.length > 1) {
+        const bounds = new maplibregl.LngLatBounds();
+
+        trailPositions.forEach((point) => {
+          bounds.extend(point);
+        });
+
+        map.fitBounds(bounds, {
+          padding: 50,
+          maxZoom: 15,
+          duration: 0,
+        });
+      }
+    });
 
     return () => {
-      isCancelled = true;
       markerRef.current?.remove();
       markerRef.current = null;
 
-      mapRef.current?.remove();
+      map.remove();
       mapRef.current = null;
       trailSourceReady.current = false;
     };
   }, []);
 
   /*
-   * Update marker position and ease camera.
+   * Update marker position.
    */
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !position) return;
+    if (!mapRef.current || !hasLocation || !position) return;
 
-    if (markerRef.current) {
-      markerRef.current.setLngLat(position);
-    } else {
-      const marker = new maplibregl.Marker({
+    if (!markerRef.current) {
+      markerRef.current = new maplibregl.Marker({
         element: createMarkerElement(),
         anchor: "center",
       })
         .setLngLat(position)
-        .addTo(map);
-
-      markerRef.current = marker;
+        .addTo(mapRef.current);
+    } else {
+      markerRef.current.setLngLat(position);
     }
 
-    map.easeTo({
+    mapRef.current.easeTo({
       center: position,
-      zoom: Math.max(map.getZoom(), 14),
       duration: 1000,
     });
-  }, [position]);
+  }, [position, hasLocation]);
 
   /*
    * Update trail.
@@ -314,7 +273,7 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
   /*
    * Change map style.
    */
-  const changeMapStyle = async (styleName) => {
+  const changeMapStyle = (styleName) => {
     const map = mapRef.current;
 
     if (!map) return;
@@ -326,8 +285,7 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
     setSelectedStyle(styleName);
     setStyleMenuOpen(false);
 
-    const sanitizedStyle = await getSanitizedStyle(styleName);
-    map.setStyle(sanitizedStyle);
+    map.setStyle(style.url);
 
     map.once("style.load", () => {
       trailSourceReady.current = false;
@@ -353,7 +311,7 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
             "line-join": "round",
           },
           paint: {
-            "line-color": "#16B890",
+            "line-color": MAP_TRAIL_LINE_COLOR,
             "line-width": 5,
             "line-opacity": 0.95,
             "line-dasharray": [2, 1.5],
@@ -377,18 +335,18 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
   };
 
   return (
-    <div className="relative h-full min-h-[320px] w-full overflow-hidden rounded-[16px]">
-      <div ref={mapContainer} className="h-full min-h-[320px] w-full" />
+    <div className="relative h-full min-h-[var(--map-min-height)] w-full overflow-hidden rounded-[var(--radius-xl)]">
+      <div ref={mapContainer} className="h-full min-h-[var(--map-min-height)] w-full" />
 
-      {/* Awaiting GPS indicator overlay */}
+      {/* Standby overlay when location is acquiring */}
       {!hasLocation && (
-        <div className="pointer-events-none absolute inset-0 z-[500] flex items-center justify-center bg-black/25 backdrop-blur-[1px]">
-          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-900/85 px-4 py-2 text-xs font-semibold text-slate-200 shadow-xl backdrop-blur-md">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber-500" />
+        <div className="pointer-events-none absolute inset-0 z-[999] flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
+          <div className="flex items-center gap-2 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)]/95 px-3.5 py-2 text-xs font-semibold text-[var(--color-text)] shadow-lg backdrop-blur-md">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
             </span>
-            Waiting for live GPS coordinates...
+            <span>Waiting for GPS fix...</span>
           </div>
         </div>
       )}
@@ -400,7 +358,7 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
           onClick={() => setStyleMenuOpen((value) => !value)}
           className="
             flex items-center gap-2
-            rounded-xl
+            rounded-[var(--radius-lg)]
             border border-[var(--color-border)]
             bg-[var(--color-surface)]/95
             px-3 py-2
@@ -480,7 +438,7 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
         "
       >
         <div className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-[#16B890]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[var(--map-trail-color)]" />
           Trail
         </div>
 
@@ -490,7 +448,7 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
         </div>
 
         <div className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-[#1976D2]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[var(--map-marker-color)]" />
           You
         </div>
       </div>

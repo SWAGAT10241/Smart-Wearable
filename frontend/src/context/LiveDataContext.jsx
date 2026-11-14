@@ -54,6 +54,12 @@ export function LiveDataProvider({ children }) {
   const wsRef = useRef(null);
   const reconnectTimerRef = useRef(null);
   const stoppedRef = useRef(false);
+  const selectedDeviceIdRef = useRef(selectedDeviceId);
+  const onMessageRef = useRef(null);
+
+  useEffect(() => {
+    selectedDeviceIdRef.current = selectedDeviceId;
+  }, [selectedDeviceId]);
 
   /*
    * ----------------------------------------------------------
@@ -109,22 +115,18 @@ export function LiveDataProvider({ children }) {
       }
 
       /*
-       * Ignore messages belonging
-       * to another selected device.
+       * Filter messages if a specific device is selected.
        */
-
+      const currentSelectedId = selectedDeviceIdRef.current;
       const messageDeviceId = msg.deviceId || msg.data?.deviceId;
-      if (!selectedDeviceId) {
-        return;
-      }
-      if (!messageDeviceId) {
-        return;
-      }
-      if (
-        messageDeviceId.trim().toUpperCase() !==
-        selectedDeviceId.trim().toUpperCase()
-      ) {
-        return;
+
+      if (currentSelectedId && messageDeviceId) {
+        if (
+          messageDeviceId.trim().toUpperCase() !==
+          currentSelectedId.trim().toUpperCase()
+        ) {
+          return;
+        }
       }
 
       /*
@@ -226,6 +228,10 @@ export function LiveDataProvider({ children }) {
     [],
   );
 
+  useEffect(() => {
+    onMessageRef.current = onMessage;
+  }, [onMessage]);
+
   /*
    * ----------------------------------------------------------
    * Connect WebSocket
@@ -278,7 +284,9 @@ export function LiveDataProvider({ children }) {
       setConnected(true);
     };
 
-    ws.onmessage = onMessage;
+    ws.onmessage = (event) => {
+      onMessageRef.current?.(event);
+    };
     ws.onerror = (error) => {
       console.error("[LiveData] WebSocket error:", error);
     };

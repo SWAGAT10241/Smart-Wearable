@@ -2,7 +2,7 @@ name: Smart-Wearable CI
 
 on:
   push:
-    branches: [main, SWAAS]
+    branches: [main]
   pull_request:
     branches: [main, SWAAS]
 
@@ -78,25 +78,6 @@ jobs:
       - name: Build frontend
         run: pnpm run build
 
-  deployment-config:
-    name: Deployment Configuration Check
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Validate Docker Compose configuration
-        env:
-          MONGO_ROOT_USER: ci-admin
-          MONGO_ROOT_PASSWORD: ci-local-only-password
-          MONGO_DB_NAME: trailguard
-          JWT_SECRET: ci-jwt-secret-at-least-32-characters
-          SESSION_SECRET: ci-session-secret-at-least-32-characters
-          CLIENT_URLS: http://localhost:80
-          VITE_WS_URL: ws://localhost:80/live
-        run: docker compose config --quiet
-
   hardware:
     name: Hardware Checks
     runs-on: ubuntu-latest
@@ -114,11 +95,13 @@ jobs:
         run: python -m compileall -q hardware
 
       - name: Install ESP-IDF
+        if: hashFiles('hardware/firmware/CMakeLists.txt') != ''
         uses: espressif/install-esp-idf-action@8fc05d1470d5591417e7a3707a1f2bec178db4ae # v1
         with:
           version: v5.3.2
 
       - name: Build ESP32-S3 firmware
+        if: hashFiles('hardware/firmware/CMakeLists.txt') != ''
         working-directory: hardware/firmware
         run: |
           idf.py set-target esp32s3

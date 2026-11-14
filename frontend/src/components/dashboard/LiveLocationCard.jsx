@@ -2,47 +2,23 @@ import LiveMap from "../LiveMap";
 
 export default function LiveLocationCard({ loc, trail, hasLocation, locationUpdatedText }) {
   return (
-    <section className="tg-card h-full min-h-[410px]">
-      {/* Top Accent Stroke */}
-      <div
-        className="pointer-events-none absolute top-0 left-0 right-0 h-[2px] opacity-80"
-        style={{
-          background: hasLocation
-            ? "linear-gradient(90deg, var(--status-optimal), transparent 65%)"
-            : "linear-gradient(90deg, var(--status-warning), transparent 65%)",
-        }}
-      />
+    <section className="flex h-[400px] sm:h-[420px] flex-col rounded-[var(--card-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--card-padding)] shadow-[var(--shadow-card)]">
+      <div className="mb-[var(--space-3)] flex shrink-0 items-center justify-between">
+        <h2 className="text-[var(--font-size-md)] font-semibold tracking-[-0.02em] text-[var(--color-text)]">
+          Live Location
+        </h2>
 
-      {/* Header Deck */}
-      <div className="tg-card-header">
-        <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-[10px] border border-black/5 dark:border-white/10 bg-[var(--surface-accent)] text-xs text-[var(--status-optimal)] tg-squircle-sm">
-            <span>📍</span>
-          </div>
-          <h2 className="tg-card-title">
-            Live Location
-          </h2>
-        </div>
-
-        <span className={`tg-badge ${hasLocation ? "tg-badge-optimal" : "tg-badge-warning"}`}>
-          <span className="relative flex h-2 w-2">
-            <span
-              className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                hasLocation ? "animate-ping bg-emerald-400" : "bg-amber-400"
-              }`}
-            />
-            <span
-              className={`relative inline-flex h-2 w-2 rounded-full ${
-                hasLocation ? "bg-emerald-500" : "bg-amber-500"
-              }`}
-            />
-          </span>
+        <span className="flex items-center gap-[var(--space-2)] text-xs font-medium text-[var(--color-text-secondary)]">
+          <span
+            className={`h-2 w-2 rounded-full ${
+              hasLocation ? "bg-emerald-500" : "bg-slate-400"
+            }`}
+          />
           {locationUpdatedText}
         </span>
       </div>
 
-      {/* Map Viewport */}
-      <div className="min-h-0 flex-1 overflow-hidden rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] shadow-inner tg-card-inner">
+      <div className="min-h-0 flex-1 overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-surface-alt)]">
         <LiveMap
           latitude={loc?.latitude}
           longitude={loc?.longitude}
@@ -50,16 +26,10 @@ export default function LiveLocationCard({ loc, trail, hasLocation, locationUpda
         />
       </div>
 
-      {/* Coordinates Footer */}
-      <div className="mt-2.5 flex shrink-0 items-center justify-between rounded-[12px] border border-[var(--color-border)] bg-[var(--color-surface-alt)]/80 px-3 py-1.5 font-mono text-xs tg-card-inner">
-        <span className="text-[11px] text-[var(--color-text-muted)]">
-          Coordinates
-        </span>
-        <span className="font-bold tracking-tight text-[var(--color-text)] tabular-nums">
-          {hasLocation
-            ? `${Number(loc.latitude).toFixed(4)}° N, ${Number(loc.longitude).toFixed(4)}° E`
-            : "No signal"}
-        </span>
+      <div className="mt-[var(--space-3)] shrink-0 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-[var(--space-4)] py-[var(--space-2)] font-mono text-sm font-semibold text-[var(--color-text-secondary)]">
+        {hasLocation
+          ? `${Number(loc.latitude).toFixed(5)}, ${Number(loc.longitude).toFixed(5)}`
+          : "--, --"}
       </div>
     </section>
   );

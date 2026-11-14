@@ -35,30 +35,30 @@ export default function About() {
     <AppLayout>
       <div className="flex flex-col gap-6">
         {/* HERO BANNER */}
-        <div className="tg-card p-6 sm:p-8">
+        <div className="relative overflow-hidden rounded-[24px] border border-[var(--border-default)] bg-[var(--surface-card)] p-6 shadow-sm sm:p-8">
           {/* Subtle atmospheric glow backdrop */}
           <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-teal-500/10 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-cyan-500/10 blur-3xl" />
 
           <div className="relative z-10 flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="tg-badge tg-badge-optimal">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-400/30 bg-teal-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-teal-400">
                 <IoShieldCheckmarkOutline className="h-3.5 w-3.5" />
                 SWAAS / TrailGuard Ecosystem
               </span>
-              <span className="tg-badge tg-badge-neutral">
+              <span className="rounded-full border border-[var(--border-default)] bg-[var(--surface-elevated)] px-3 py-1 font-mono text-xs font-medium text-[var(--text-secondary)]">
                 Smart Wearable Safety
               </span>
-              <span className="tg-badge tg-badge-optimal">
+              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
                 <IoCheckmarkCircleOutline className="h-3.5 w-3.5" /> Off-Grid Ready
               </span>
             </div>
 
             <div>
-              <h1 className="tg-page-title">
+              <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)] sm:text-3xl">
                 Protection That Goes Where Cell Towers Can't
               </h1>
-              <p className="tg-page-subtitle mt-2 max-w-3xl text-sm leading-relaxed sm:text-base">
+              <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[var(--text-secondary)] sm:text-base">
                 TrailGuard (SWAAS) is an autonomous safety companion designed for lone hikers,
                 mountaineers, and outdoor enthusiasts. Combining real-time on-wrist biometrics,
                 intelligent fall detection, and off-grid radio links, TrailGuard ensures you never
@@ -75,7 +75,7 @@ export default function About() {
                   onClick={() => setActiveTab(id)}
                   className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold transition sm:text-sm ${
                     activeTab === id
-                      ? "border border-teal-500/30 bg-[#0E9C8C]/25 text-[#42E3D0] shadow-sm"
+                      ? "border border-teal-500/30 bg-[var(--brand-teal-subtle)] text-[var(--brand-teal-light)] shadow-sm"
                       : "border border-[var(--border-default)] bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
                   }`}
                 >
@@ -135,9 +135,9 @@ function OverviewTab() {
         {pillars.map(({ icon: Icon, title, description }) => (
           <div
             key={title}
-            className="tg-card p-5"
+            className="flex flex-col gap-3 rounded-[20px] border border-[var(--border-default)] bg-[var(--surface-card)] p-5 shadow-sm"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-[12px] border border-teal-300/30 bg-teal-400/15 text-[#2DD4BF] tg-squircle-sm">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-400/15 text-[var(--brand-teal)]">
               <Icon className="h-5 w-5" />
             </div>
             <h3 className="text-base font-semibold text-[var(--text-primary)]">
@@ -151,20 +151,20 @@ function OverviewTab() {
       </div>
 
       {/* QUICK HIGHLIGHTS */}
-      <div className="tg-card p-6">
+      <div className="rounded-[24px] border border-[var(--border-default)] bg-[var(--surface-card)] p-6 shadow-sm">
         <h2 className="text-lg font-bold text-[var(--text-primary)]">
           Built for Extreme Wilderness
         </h2>
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div className="rounded-[14px] border border-[var(--border-default)] bg-[var(--surface-elevated)] p-4 text-center tg-card-inner">
-            <span className="font-mono text-2xl font-bold text-[#2DD4BF]">
+          <div className="rounded-xl border border-[var(--border-default)] bg-[var(--surface-elevated)] p-4 text-center">
+            <span className="font-mono text-2xl font-bold text-[var(--brand-teal)]">
               15 km
             </span>
             <p className="mt-1 text-xs text-[var(--text-secondary)]">
               Off-Grid Radio Range
             </p>
           </div>
-          <div className="rounded-[14px] border border-[var(--border-default)] bg-[var(--surface-elevated)] p-4 text-center tg-card-inner">
+          <div className="rounded-xl border border-[var(--border-default)] bg-[var(--surface-elevated)] p-4 text-center">
             <span className="font-mono text-2xl font-bold text-emerald-400">
               IP67
             </span>
@@ -172,7 +172,7 @@ function OverviewTab() {
               Water & Dust Sealed
             </p>
           </div>
-          <div className="rounded-[14px] border border-[var(--border-default)] bg-[var(--surface-elevated)] p-4 text-center tg-card-inner">
+          <div className="rounded-xl border border-[var(--border-default)] bg-[var(--surface-elevated)] p-4 text-center">
             <span className="font-mono text-2xl font-bold text-amber-400">
               48 hrs
             </span>
@@ -180,7 +180,7 @@ function OverviewTab() {
               Expedition Battery Life
             </p>
           </div>
-          <div className="rounded-[14px] border border-[var(--border-default)] bg-[var(--surface-elevated)] p-4 text-center tg-card-inner">
+          <div className="rounded-xl border border-[var(--border-default)] bg-[var(--surface-elevated)] p-4 text-center">
             <span className="font-mono text-2xl font-bold text-teal-400">
               ±2.5 m
             </span>
@@ -232,11 +232,11 @@ function HowItWorksTab() {
         {steps.map(({ step, title, desc, icon: Icon }) => (
           <div
             key={step}
-            className="tg-card justify-between p-6"
+            className="flex flex-col justify-between rounded-[22px] border border-[var(--border-default)] bg-[var(--surface-card)] p-6 shadow-sm"
           >
             <div>
               <div className="flex items-center justify-between">
-                <span className="font-mono text-sm font-bold text-[#2DD4BF]">
+                <span className="font-mono text-sm font-bold text-[var(--brand-teal)]">
                   {step}
                 </span>
                 <Icon className="h-5 w-5 text-[var(--text-muted)]" />
@@ -296,7 +296,7 @@ function HardwareTab({ selectedDevice }) {
   return (
     <div className="flex flex-col gap-6">
       {/* PAIRED DEVICE STATUS */}
-      <div className="tg-card flex-col items-start justify-between gap-4 p-6 sm:flex-row sm:items-center">
+      <div className="flex flex-col items-start justify-between gap-4 rounded-[22px] border border-[var(--border-default)] bg-[var(--surface-card)] p-6 shadow-sm sm:flex-row sm:items-center">
         <div>
           <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
             Paired Hardware
@@ -322,7 +322,7 @@ function HardwareTab({ selectedDevice }) {
             className="flex flex-col gap-3 rounded-[20px] border border-[var(--border-default)] bg-[var(--surface-card)] p-5 shadow-sm"
           >
             <div className="flex items-center justify-between">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-400/15 text-[#2DD4BF]">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-400/15 text-[var(--brand-teal)]">
                 <Icon className="h-4 w-4" />
               </div>
               <span className="rounded-md border border-[var(--border-default)] bg-[var(--surface-elevated)] px-2 py-0.5 font-mono text-xs text-[var(--text-secondary)]">
@@ -374,10 +374,10 @@ function PrivacyTab() {
         {commitments.map(({ title, desc }) => (
           <div
             key={title}
-            className="tg-card p-5"
+            className="flex flex-col gap-2 rounded-[20px] border border-[var(--border-default)] bg-[var(--surface-card)] p-5 shadow-sm"
           >
             <div className="flex items-center gap-2">
-              <IoCheckmarkCircleOutline className="h-4 w-4 text-[#2DD4BF]" />
+              <IoCheckmarkCircleOutline className="h-4 w-4 text-[var(--brand-teal)]" />
               <h3 className="text-base font-semibold text-[var(--text-primary)]">
                 {title}
               </h3>

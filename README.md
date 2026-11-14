@@ -5,7 +5,6 @@
 [![Smart-Wearable CI](https://github.com/SWAGAT10241/Smart-Wearable/actions/workflows/ci.yml/badge.svg)](https://github.com/SWAGAT10241/Smart-Wearable/actions/workflows/ci.yml)
 [![Security Scan](https://github.com/SWAGAT10241/Smart-Wearable/actions/workflows/security.yml/badge.svg)](https://github.com/SWAGAT10241/Smart-Wearable/actions/workflows/security.yml)
 [![CodeQL](https://github.com/SWAGAT10241/Smart-Wearable/actions/workflows/codeql.yml/badge.svg)](https://github.com/SWAGAT10241/Smart-Wearable/actions/workflows/codeql.yml)
-[![Discussions](https://img.shields.io/badge/Discussions-Active-brightgreen.svg)](https://github.com/SWAGAT10241/Smart-Wearable/discussions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
@@ -135,16 +134,6 @@ cd mobile && node scripts/check-syntax.js && pnpm exec expo-doctor
 # Hardware Python toolchain checks
 python3 -m compileall -q hardware
 ```
-
----
-
-## 🚀 Active Development & Discussions
-
-We are actively developing **[Phase 2: Mobile Local-First Privacy & Edge Risk Engine](https://github.com/SWAGAT10241/Smart-Wearable/milestone/4)** on the `SWAAS` branch:
-
-- 📢 **Architecture Planning:** [Discussion #153](https://github.com/SWAGAT10241/Smart-Wearable/discussions/153)
-- 💡 **Strategic Ideas & Proposals:** [Discussion #154 (Alpine Mesh, Basecamp Hub, Multi-Patient Triage)](https://github.com/SWAGAT10241/Smart-Wearable/discussions/154)
-- 🛠️ **Active Issues:** [#150](https://github.com/SWAGAT10241/Smart-Wearable/issues/150) (Encrypted SQLite Buffer), [#151](https://github.com/SWAGAT10241/Smart-Wearable/issues/151) (Edge Risk Engine), [#152](https://github.com/SWAGAT10241/Smart-Wearable/issues/152) (BLE Pipeline)
 
 ---
 

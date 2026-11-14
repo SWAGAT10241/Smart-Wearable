@@ -12,19 +12,13 @@
     "test:run": "vitest run"
   },
   "dependencies": {
-    "@headlessui/react": "^2.2.10",
     "@zxing/browser": "^0.1.5",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "daisyui": "^5.7.50",
     "maplibre-gl": "^6.14.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-icons": "^5.7.0",
     "react-phone-number-input": "^3.4.18",
     "react-router-dom": "^7.18.4",
-    "tailwind-merge": "^3.7.0",
-    "tw-elements": "^2.0.0",
     "typewriter-effect": "^2.22.0"
   },
   "devDependencies": {

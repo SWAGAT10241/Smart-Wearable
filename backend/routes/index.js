@@ -18,26 +18,26 @@ const emergencyRoutes = require("./emergencyRoutes");
 function createApiRouter(broadcast) {
   const router = express.Router();
 
-  // Authentication
+  // Authentication (/api/auth/*)
   router.use("/auth", authRoutes);
 
-  // Device registration (POST /api/devices/register)
+  // Device registration (/api/devices/register)
   router.use("/devices", deviceRegistrationRoutes());
 
   // Physical Device ingestion and single device endpoints (/api/device/*)
   router.use("/device", deviceRoutes(broadcast));
 
-  // User Device management (/api/devices, /api/devices/:deviceId, /api/devices/admin/all)
+  // User Device management (/api/devices/*)
   router.use("/devices", deviceManagementRoutes());
-
-  // Emergency session and rescue communication (/api/emergency/*)
-  router.use("/emergency", emergencyRoutes());
 
   // Dashboard Telemetry endpoints
   router.use("/vitals", vitalsRoutes());
   router.use("/falls", fallRoutes(broadcast));
   router.use("/environment", environmentRoutes());
   router.use("/location", locationRoutes());
+
+  // Emergency & WebSocket tickets (/api/emergency/*)
+  router.use("/emergency", emergencyRoutes());
 
   return router;
 }

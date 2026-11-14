@@ -1,20 +1,17 @@
 /**
- * Custom application error class for standardized operational error handling.
+ * Application operational error class.
  */
 class AppError extends Error {
   /**
    * @param {string} message - Human-readable error message
    * @param {number} [statusCode=500] - HTTP status code
-   * @param {string} [code="INTERNAL_ERROR"] - Machine-readable error code
-   * @param {any} [details=null] - Additional validation or contextual details
+   * @param {string} [code="INTERNAL_SERVER_ERROR"] - Machine-readable error code
    */
-  constructor(message, statusCode = 500, code = "INTERNAL_ERROR", details = null) {
+  constructor(message, statusCode = 500, code = "INTERNAL_SERVER_ERROR") {
     super(message);
     this.name = "AppError";
     this.statusCode = statusCode;
-    this.status = statusCode;
     this.code = code;
-    this.details = details;
     this.isOperational = true;
 
     Error.captureStackTrace(this, this.constructor);

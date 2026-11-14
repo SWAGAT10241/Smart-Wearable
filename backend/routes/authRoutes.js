@@ -1,8 +1,10 @@
 const express = require("express");
 const passport = require("passport");
+const authController = require("../controllers/authController");
+const authService = require("../services/authService");
 const protect = require("../middleware/authMiddleware");
 const { authLimiter } = require("../middleware/rateLimiter");
-const authController = require("../controllers/authController");
+const config = require("../config/env");
 
 const router = express.Router();
 
@@ -11,6 +13,7 @@ router.post("/register", authLimiter, authController.register);
 
 // POST /api/auth/login — local login
 router.post("/login", authLimiter, authController.login);
+
 
 // GET /api/auth/google — start Google OAuth
 router.get(
@@ -28,7 +31,25 @@ router.get(
     session: false,
     failureRedirect: "/login-failed",
   }),
-  authController.handleGoogleCallback,
+  (req, res) => {
+    try {
+      const token = authService.signToken(req.user._id);
+      const destination = req.user.profileComplete
+        ? "/dashboard"
+        : "/complete-profile";
+
+      const clientUrl = config.clientUrls[0] || "http://localhost:5173";
+      res.redirect(
+        `${clientUrl}/oauth-success?token=${encodeURIComponent(
+          token,
+        )}&redirect=${encodeURIComponent(destination)}`,
+      );
+    } catch (err) {
+      console.error("Google OAuth callback error:", err);
+      const clientUrl = config.clientUrls[0] || "http://localhost:5173";
+      res.redirect(`${clientUrl}/login?error=oauth_failed`);
+    }
+  },
 );
 
 // PATCH /api/auth/complete-profile
@@ -36,8 +57,5 @@ router.patch("/complete-profile", protect, authController.completeProfile);
 
 // GET /api/auth/me
 router.get("/me", protect, authController.getMe);
-
-// POST /api/auth/ws-ticket — Single-use authenticated ticket for WebSocket handshake
-router.post("/ws-ticket", protect, authController.generateWsTicket);
 
 module.exports = router;

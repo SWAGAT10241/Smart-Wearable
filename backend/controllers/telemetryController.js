@@ -8,21 +8,7 @@ const asyncHandler = require("../utils/asyncHandler");
  */
 const ingestReadings = (broadcast) =>
   asyncHandler(async (req, res) => {
-    const authenticatedDeviceId = req.deviceId;
-    if (
-      typeof req.body?.deviceId !== "string" ||
-      req.body.deviceId.trim().toUpperCase() !== authenticatedDeviceId
-    ) {
-      return res.status(401).json({
-        error: "Telemetry device identity does not match authenticated device",
-      });
-    }
-
-    const result = await telemetryService.processReadings(
-      req.body,
-      broadcast,
-      req.device,
-    );
+    const result = await telemetryService.processReadings(req.body, broadcast);
     res.status(201).json(result);
   });
 

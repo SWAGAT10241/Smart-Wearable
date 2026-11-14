@@ -2,9 +2,13 @@ const VitalsReading = require("../models/VitalsReading");
 const AppError = require("../utils/appError");
 
 /**
- * Fetch latest vitals reading for a device belonging to the user.
+ * Get the latest recorded vitals reading for a user's device.
+ *
+ * @param {string} userId
+ * @param {string} deviceId
+ * @returns {Promise<object>}
  */
-async function getLatest(userId, deviceId) {
+async function getLatestVitals(userId, deviceId) {
   if (!deviceId) {
     throw new AppError("deviceId is required", 400, "VALIDATION_ERROR");
   }
@@ -12,55 +16,57 @@ async function getLatest(userId, deviceId) {
   const reading = await VitalsReading.findOne({
     userId,
     deviceId: deviceId.toUpperCase(),
-  }).sort({
-    timestamp: -1,
-  });
+  }).sort({ timestamp: -1 });
 
   return reading || {};
 }
 
 /**
- * Fetch vitals history for a given duration.
+ * Get historical vitals readings within a given number of hours.
+ *
+ * @param {string} userId
+ * @param {string} deviceId
+ * @param {number} hours
+ * @returns {Promise<Array>}
  */
-async function getHistory(userId, deviceId, hours = 1) {
-  const numericHours = Number(hours);
-
+async function getVitalsHistory(userId, deviceId, hours = 1) {
   if (!deviceId) {
     throw new AppError("deviceId is required", 400, "VALIDATION_ERROR");
   }
 
-  if (!Number.isFinite(numericHours) || numericHours <= 0) {
+  const hoursNum = Number(hours);
+  if (!Number.isFinite(hoursNum) || hoursNum <= 0) {
     throw new AppError("hours must be a positive number", 400, "VALIDATION_ERROR");
   }
 
-  const since = new Date(Date.now() - numericHours * 60 * 60 * 1000);
+  const since = new Date(Date.now() - hoursNum * 60 * 60 * 1000);
 
   return VitalsReading.find({
     userId,
     deviceId: deviceId.toUpperCase(),
-    timestamp: {
-      $gte: since,
-    },
-  }).sort({
-    timestamp: 1,
-  });
+    timestamp: { $gte: since },
+  }).sort({ timestamp: 1 });
 }
 
 /**
- * Calculate vitals statistics (min, avg, max for HR and SpO2).
+ * Compute statistical aggregates (min, avg, max) for vitals over a time window.
+ *
+ * @param {string} userId
+ * @param {string} deviceId
+ * @param {number} hours
+ * @returns {Promise<object>}
  */
-async function getStats(userId, deviceId, hours = 1) {
-  const numericHours = Number(hours);
-
+async function getVitalsStats(userId, deviceId, hours = 1) {
   if (!deviceId) {
     throw new AppError("deviceId is required", 400, "VALIDATION_ERROR");
   }
 
-  if (!Number.isFinite(numericHours) || numericHours <= 0) {
+  const hoursNum = Number(hours);
+  if (!Number.isFinite(hoursNum) || hoursNum <= 0) {
     throw new AppError("hours must be a positive number", 400, "VALIDATION_ERROR");
   }
 
-  const since = new Date(Date.now() - numericHours * 60 * 60 * 1000);
+  const since = new Date(Date.now() - hoursNum * 60 * 60 * 1000);
 
   const result = await VitalsReading.aggregate([
     {
@@ -85,7 +91,6 @@ async function getStats(userId, deviceId, hours = 1) {
   ]);
 
   const stats = result[0];
-
   if (!stats) {
     return {
       minHeartRate: null,
@@ -110,7 +115,7 @@ async function getStats(userId, deviceId, hours = 1) {
 }
 
 module.exports = {
-  getLatest,
-  getHistory,
-  getStats,
+  getLatestVitals,
+  getVitalsHistory,
+  getVitalsStats,
 };

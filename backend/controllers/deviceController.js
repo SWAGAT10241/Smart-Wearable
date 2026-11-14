@@ -62,14 +62,6 @@ const updateStatus = asyncHandler(async (req, res) => {
   res.json(result);
 });
 
-/**
- * Admin view: Get all devices in system.
- */
-const getAllDevicesAdmin = asyncHandler(async (req, res) => {
-  const devices = await deviceService.getAllDevicesAdmin();
-  res.json({ devices });
-});
-
 module.exports = {
   registerDevice,
   renameDevice,
@@ -77,5 +69,4 @@ module.exports = {
   getUserDevices,
   unpairDevice,
   updateStatus,
-  getAllDevicesAdmin,
 };

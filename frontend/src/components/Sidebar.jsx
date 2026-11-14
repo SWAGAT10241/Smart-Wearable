@@ -48,9 +48,9 @@ export default function Sidebar() {
   return (
     <>
       {/* SIDEBAR */}
-      <aside className="relative hidden min-h-screen w-[250px] shrink-0 overflow-hidden border-r border-[#102F4A]/80 bg-[#061B2D] lg:flex lg:flex-col">
+      <aside className="relative hidden min-h-screen w-[var(--sidebar-width)] shrink-0 overflow-hidden border-r border-[var(--brand-navy-card-border)] bg-[var(--brand-navy)] lg:flex lg:flex-col">
         {/* ATMOSPHERIC BACKGROUND WITH MOUNTAIN SILHOUETTE */}
-        <div className="absolute inset-0 bg-[#061B2D]" />
+        <div className="absolute inset-0 bg-[var(--brand-navy)]" />
 
         <div
           className="pointer-events-none absolute inset-x-0 bottom-0 h-[52%] bg-cover bg-bottom opacity-85"
@@ -61,11 +61,11 @@ export default function Sidebar() {
           className="pointer-events-none absolute inset-x-0 bottom-0 h-[65%]"
           style={{
             background:
-              "linear-gradient(to bottom, #061B2D 0%, rgba(6,27,45,.97) 20%, rgba(6,27,45,.88) 45%, rgba(6,27,45,.62) 72%, rgba(6,27,45,.78) 100%)",
+              "linear-gradient(to bottom, var(--brand-navy) 0%, rgba(6,27,45,.97) 20%, rgba(6,27,45,.88) 45%, rgba(6,27,45,.62) 72%, rgba(6,27,45,.78) 100%)",
           }}
         />
 
-        <div className="pointer-events-none absolute inset-0 bg-[#031827]/10" />
+        <div className="pointer-events-none absolute inset-0 bg-[var(--brand-navy-deep)]/10" />
 
         <div className="relative z-10 flex min-h-screen flex-col px-4 py-5">
           {/* LOGO & BRAND IDENTITY */}
@@ -76,7 +76,7 @@ export default function Sidebar() {
 
             <div className="flex flex-col">
               <span className="text-xl font-bold tracking-tight text-white">
-                Trail<span className="text-[#2DD4BF]">Guard</span>
+                Trail<span className="text-[var(--brand-teal)]">Guard</span>
               </span>
             </div>
           </div>
@@ -90,7 +90,7 @@ export default function Sidebar() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition ${
                     isActive
-                      ? "border border-teal-500/30 bg-[#0E9C8C]/25 font-semibold text-[#42E3D0] shadow-sm"
+                      ? "border border-teal-500/30 bg-[var(--brand-teal-subtle)] font-semibold text-[var(--brand-teal-light)] shadow-sm"
                       : "text-slate-300 hover:bg-white/10 hover:text-white"
                   }`
                 }
@@ -104,9 +104,9 @@ export default function Sidebar() {
           {/* DEVICE & SAFETY CARDS */}
           <div className="mt-6 space-y-3">
             {/* SAFETY */}
-            <div className="rounded-[20px] border border-white/10 bg-[#102F4A]/70 p-4 shadow-lg backdrop-blur-sm">
+            <div className="rounded-2xl border border-white/10 bg-[var(--brand-navy-card-bg)] p-4 shadow-lg backdrop-blur-sm">
               <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] border border-teal-300/20 bg-teal-400/15 text-teal-300 tg-squircle-sm">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-teal-300/20 bg-teal-400/15 text-teal-300">
                   🛡
                 </div>
 
@@ -125,7 +125,7 @@ export default function Sidebar() {
             </div>
 
             {/* DEVICE */}
-            <div className="rounded-[20px] border border-white/10 bg-[#102F4A]/70 p-4 shadow-lg backdrop-blur-sm">
+            <div className="rounded-2xl border border-white/10 bg-[var(--brand-navy-card-bg)] p-4 shadow-lg backdrop-blur-sm">
               {selectedDevice ? (
                 <>
                   <div className="flex items-start gap-3">
@@ -178,7 +178,7 @@ export default function Sidebar() {
                   <button
                     type="button"
                     onClick={openPairModal}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#2DD4BF] px-3 py-2 text-[11px] font-semibold text-[#06202D] transition hover:bg-[#5EEAD4]"
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-teal)] px-3 py-2 text-[11px] font-semibold text-[var(--brand-navy-text)] transition hover:bg-[var(--brand-teal-hover)]"
                   >
                     <FiLink className="text-[15px]" />
                     Pair Device

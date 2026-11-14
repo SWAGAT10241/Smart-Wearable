@@ -2,7 +2,7 @@ const authService = require("../services/authService");
 const asyncHandler = require("../utils/asyncHandler");
 
 /**
- * Handle user registration.
+ * Register user controller.
  */
 const register = asyncHandler(async (req, res) => {
   const result = await authService.registerUser(req.body);
@@ -10,7 +10,7 @@ const register = asyncHandler(async (req, res) => {
 });
 
 /**
- * Handle local login.
+ * Login user controller.
  */
 const login = asyncHandler(async (req, res) => {
   const result = await authService.loginUser(req.body);
@@ -18,55 +18,24 @@ const login = asyncHandler(async (req, res) => {
 });
 
 /**
- * Handle Google OAuth callback redirect.
- */
-const handleGoogleCallback = (req, res) => {
-  try {
-    const token = authService.signToken(req.user._id);
-    const destination = req.user.profileComplete ? "/dashboard" : "/complete-profile";
-
-    res.redirect(
-      `${process.env.CLIENT_URL}/oauth-success?token=${encodeURIComponent(
-        token,
-      )}&redirect=${encodeURIComponent(destination)}`,
-    );
-  } catch (err) {
-    console.error("Google OAuth callback error:", err);
-    res.redirect(`${process.env.CLIENT_URL}/login?error=oauth_failed`);
-  }
-};
-
-/**
- * Complete user profile.
+ * Complete profile controller.
  */
 const completeProfile = asyncHandler(async (req, res) => {
-  const result = await authService.completeUserProfile(req.userId, req.body);
+  const result = await authService.completeProfile(req.userId, req.body);
   res.json(result);
 });
 
 /**
- * Get current authenticated user profile.
+ * Get current profile controller.
  */
 const getMe = asyncHandler(async (req, res) => {
-  const user = await authService.getUserProfile(req.userId);
+  const user = await authService.getCurrentUser(req.userId);
   res.json({ user });
-});
-
-const webSocketTicketService = require("../services/webSocketTicketService");
-
-/**
- * Generate a single-use WebSocket authentication ticket.
- */
-const generateWsTicket = asyncHandler(async (req, res) => {
-  const result = await webSocketTicketService.createTicket(req.userId, req.user?.role);
-  res.status(201).json(result);
 });
 
 module.exports = {
   register,
   login,
-  handleGoogleCallback,
   completeProfile,
   getMe,
-  generateWsTicket,
 };
