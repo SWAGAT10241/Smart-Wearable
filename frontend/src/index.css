@@ -811,3 +811,75 @@ html.dark {
     box-shadow: var(--shadow-card-lg) !important;
   }
 }
+
+/* =========================================================================
+   MODERN WEB PLATFORM ENHANCEMENTS
+   - SPA View Transitions (same-document-transitions)
+   - Hardware-Accelerated Dialog Transitions (animate-to-from-top-layer)
+   - Accessible Reduced-Motion Overrides
+   ========================================================================= */
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: 160ms cubic-bezier(0.4, 0, 1, 1) both tg-fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 200ms cubic-bezier(0, 0, 0.2, 1) both tg-fade-in;
+}
+
+@keyframes tg-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes tg-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal hardware-accelerated transitions */
+.tg-modal-backdrop {
+  opacity: 1;
+  transition: opacity 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tg-modal-card {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  transition: opacity 200ms cubic-bezier(0.16, 1, 0.3, 1), transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@starting-style {
+  .tg-modal-backdrop {
+    opacity: 0;
+  }
+  .tg-modal-card {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
+  .tg-modal-backdrop,
+  .tg-modal-card {
+    transition: none !important;
+  }
+}

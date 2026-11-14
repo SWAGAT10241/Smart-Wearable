@@ -17,6 +17,7 @@ export default function MobileNav() {
         <NavLink
           key={to}
           to={to}
+          viewTransition
           className={({ isActive }) =>
             `flex min-w-[var(--mobile-nav-height)] flex-col items-center gap-[var(--space-1)] rounded-[var(--radius-lg)] px-[var(--space-3)] py-[var(--space-2)] text-[var(--font-size-3xs)] font-semibold transition ${
               isActive

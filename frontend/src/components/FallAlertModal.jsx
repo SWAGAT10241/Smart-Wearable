@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { fallsApi } from "../lib/apiClient";
 import { useAuth } from "../context/AuthContext";
 import { useLiveData } from "../context/LiveDataContext";
@@ -10,6 +10,23 @@ export default function FallAlertModal() {
   const { activeFall, dismissFall } = useLiveData();
   const { user } = useAuth();
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!activeFall) return;
+    const originalOverflow = document.body.style.overflow;
+    const originalPaddingRight = document.body.style.paddingRight;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+    document.body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.paddingRight = originalPaddingRight;
+    };
+  }, [activeFall]);
 
   if (!activeFall) return null;
 
@@ -29,8 +46,8 @@ export default function FallAlertModal() {
   const handleAlertReceived = () => handleStatus("resolved");
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/45">
-      <div className="flex w-[560px] max-w-[92vw] flex-col items-center gap-[var(--modal-gap)] rounded-[var(--modal-radius)] border-2 border-red-600 bg-[var(--color-surface)] p-[var(--modal-padding)] text-center shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+    <div className="tg-modal-backdrop fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/45">
+      <div className="tg-modal-card flex w-[560px] max-w-[92vw] flex-col items-center gap-[var(--modal-gap)] rounded-[var(--modal-radius)] border-2 border-red-600 bg-[var(--color-surface)] p-[var(--modal-padding)] text-center shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
         <div className="flex h-[var(--mobile-nav-height)] w-[var(--mobile-nav-height)] items-center justify-center rounded-full bg-red-100">
           <span className="h-7 w-7 rounded-full bg-red-600" />
         </div>

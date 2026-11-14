@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { FiLink, FiX } from "react-icons/fi";
 import { HiOutlineSquares2X2, HiOutlineInformationCircle } from "react-icons/hi2";
@@ -22,6 +22,23 @@ export default function Sidebar() {
 
   const [showUnpairModal, setShowUnpairModal] = useState(false);
   const [unpairing, setUnpairing] = useState(false);
+
+  useEffect(() => {
+    if (!showUnpairModal) return;
+    const originalOverflow = document.body.style.overflow;
+    const originalPaddingRight = document.body.style.paddingRight;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+    document.body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.paddingRight = originalPaddingRight;
+    };
+  }, [showUnpairModal]);
 
   const deviceName =
     selectedDevice?.deviceName || selectedDevice?.name || "TrailGuard Wearable";
@@ -87,6 +104,7 @@ export default function Sidebar() {
               <NavLink
                 key={to}
                 to={to}
+                viewTransition
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition ${
                     isActive
@@ -192,10 +210,10 @@ export default function Sidebar() {
 
       {/* MODAL BACKDROP */}
       {showUnpairModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-[2px]">
+        <div className="tg-modal-backdrop fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-[2px]">
           {/* UNPAIR MODAL */}
           {showUnpairModal && selectedDevice && (
-            <div className="w-full max-w-[440px] rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-2xl">
+            <div className="tg-modal-card w-full max-w-[440px] rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-2xl">
               <ModalHeader
                 title="Unpair Device?"
                 text="This will disconnect the wearable from your account."
