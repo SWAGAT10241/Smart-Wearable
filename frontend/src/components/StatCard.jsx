@@ -83,7 +83,7 @@ export default function StatCard({
 
         {status && (
           <span
-            className="shrink-0 rounded-full px-[var(--dash-badge-padding-x)] py-[var(--dash-badge-padding-y)] text-[var(--dash-badge-text-size)] font-bold uppercase tracking-wider"
+            className="shrink-0 rounded-full px-[var(--dash-badge-padding-x)] py-[var(--dash-badge-padding-y)] text-[length:var(--dash-badge-text-size)] font-bold uppercase tracking-wider"
             style={{
               background: `${resolvedStatusColor}20`,
               color: resolvedStatusColor,
@@ -98,7 +98,7 @@ export default function StatCard({
       <div className="mb-[var(--space-3)] flex min-h-[var(--dash-card-value-min-height)] items-baseline gap-[var(--space-1-5)]">
         <span
           key={value}
-          className="animate-telemetry-flash text-[var(--font-size-stat)] font-bold leading-none tracking-[-0.03em] tabular-nums text-[var(--color-text)]"
+          className="animate-telemetry-flash text-[length:var(--font-size-stat)] font-bold leading-none tracking-[-0.03em] tabular-nums text-[var(--color-text)]"
         >
           {value}
         </span>
@@ -169,7 +169,7 @@ export default function StatCard({
       {/* Relative Updated Timestamp */}
       {updatedText && (
         <div className="mt-[var(--space-3)] flex items-center gap-[var(--space-1-5)] border-t border-[var(--color-border)] pt-[var(--space-2-5)] text-xs font-medium text-[var(--color-text-secondary)]">
-          <IoTimeOutline className="text-[var(--font-size-sm)]" />
+          <IoTimeOutline className="text-[length:var(--font-size-sm)]" />
           <span>Last seen {updatedText}</span>
         </div>
       )}
