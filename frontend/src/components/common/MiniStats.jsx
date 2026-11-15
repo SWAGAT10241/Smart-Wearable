@@ -22,7 +22,7 @@ export default function MiniStats({ items = [] }) {
             {value}
           </div>
 
-          <div className="mt-0.5 truncate text-xs font-semibold text-[var(--color-text-secondary)]">
+          <div className="mt-[var(--space-0-5)] truncate text-xs font-semibold text-[var(--color-text-secondary)]">
             {label}
           </div>
         </div>

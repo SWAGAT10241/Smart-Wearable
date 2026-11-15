@@ -341,10 +341,10 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
       {/* Standby overlay when location is acquiring */}
       {!hasLocation && (
         <div className="pointer-events-none absolute inset-0 z-[999] flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
-          <div className="flex items-center gap-2 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)]/95 px-3.5 py-2 text-xs font-semibold text-[var(--color-text)] shadow-lg backdrop-blur-md">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+          <div className="flex items-center gap-[var(--space-2)] rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)]/95 px-[var(--space-3-5)] py-[var(--space-2)] text-xs font-semibold text-[var(--color-text)] shadow-lg backdrop-blur-md">
+            <span className="relative flex h-[var(--dash-range-dot-size)] w-[var(--dash-range-dot-size)]">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--status-optimal)] opacity-75" />
+              <span className="relative inline-flex h-[var(--dash-range-dot-size)] w-[var(--dash-range-dot-size)] rounded-full bg-[var(--status-optimal)]" />
             </span>
             <span>Waiting for GPS fix...</span>
           </div>
@@ -352,16 +352,16 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
       )}
 
       {/* Map style selector */}
-      <div className="absolute left-3 top-3 z-[1000]">
+      <div className="absolute left-[var(--space-3)] top-[var(--space-3)] z-[1000]">
         <button
           type="button"
           onClick={() => setStyleMenuOpen((value) => !value)}
           className="
-            flex items-center gap-2
+            flex items-center gap-[var(--space-2)]
             rounded-[var(--radius-lg)]
             border border-[var(--color-border)]
             bg-[var(--color-surface)]/95
-            px-3 py-2
+            px-[var(--space-3)] py-[var(--space-2)]
             text-sm font-semibold
             text-[var(--color-text)]
             shadow-lg
@@ -381,13 +381,13 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
         {styleMenuOpen && (
           <div
             className="
-              mt-2
-              w-[190px]
+              mt-[var(--space-2)]
+              w-[var(--dash-map-menu-width)]
               overflow-hidden
-              rounded-2xl
+              rounded-[var(--radius-xl)]
               border border-[var(--color-border)]
               bg-[var(--color-surface)]/98
-              p-1.5
+              p-[var(--space-1-5)]
               shadow-xl
               backdrop-blur-md
             "
@@ -400,8 +400,8 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
                 className={`
                     flex w-full items-center
                     justify-between
-                    rounded-xl
-                    px-3 py-2.5
+                    rounded-[var(--radius-lg)]
+                    px-[var(--space-3)] py-[var(--space-2-5)]
                     text-left text-sm
                     transition-colors
                     ${
@@ -425,30 +425,30 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
       {/* Map legend */}
       <div
         className="
-          absolute bottom-3 left-3 z-[1000]
-          flex items-center gap-4
-          rounded-xl
+          absolute bottom-[var(--space-3)] left-[var(--space-3)] z-[1000]
+          flex items-center gap-[var(--card-gap)]
+          rounded-[var(--radius-lg)]
           border border-[var(--color-border)]/80
           bg-[var(--color-surface)]/95
-          px-3 py-2
-          text-[11px] font-medium
+          px-[var(--space-3)] py-[var(--space-2)]
+          text-[length:var(--dash-badge-text-size)] font-medium
           text-[var(--color-text-secondary)]
           shadow-md
           backdrop-blur-sm
         "
       >
-        <div className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-[var(--map-trail-color)]" />
+        <div className="flex items-center gap-[var(--space-1-5)]">
+          <span className="h-[var(--space-2-5)] w-[var(--space-2-5)] rounded-full bg-[var(--map-trail-color)]" />
           Trail
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <span className="h-2 w-5 border-t-2 border-dashed border-slate-400" />
+        <div className="flex items-center gap-[var(--space-1-5)]">
+          <span className="h-[var(--space-2)] w-5 border-t-2 border-dashed border-[var(--text-muted)]" />
           Path
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-[var(--map-marker-color)]" />
+        <div className="flex items-center gap-[var(--space-1-5)]">
+          <span className="h-[var(--space-2-5)] w-[var(--space-2-5)] rounded-full bg-[var(--map-marker-color)]" />
           You
         </div>
       </div>

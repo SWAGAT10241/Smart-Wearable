@@ -208,6 +208,15 @@ async function processReadings(
   device.lastSeen = new Date();
   await device.save();
 
+  broadcast({
+    type: "device_heartbeat",
+    deviceId: normalizedDeviceId,
+    data: {
+      deviceId: normalizedDeviceId,
+      lastSeen: device.lastSeen,
+    },
+  });
+
   return {
     success: true,
     device: {

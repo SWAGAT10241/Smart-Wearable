@@ -2,7 +2,7 @@ import LiveMap from "../LiveMap";
 
 export default function LiveLocationCard({ loc, trail, hasLocation, locationUpdatedText }) {
   return (
-    <section className="flex h-[400px] sm:h-[420px] flex-col rounded-[var(--card-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--card-padding)] shadow-[var(--shadow-card)]">
+    <section className="flex h-full min-h-[var(--dash-card-min-height)] flex-col rounded-[var(--card-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--card-padding)] shadow-[var(--shadow-card)]">
       <div className="mb-[var(--space-3)] flex shrink-0 items-center justify-between">
         <h2 className="text-[var(--font-size-md)] font-semibold tracking-[-0.02em] text-[var(--color-text)]">
           Live Location
@@ -10,8 +10,8 @@ export default function LiveLocationCard({ loc, trail, hasLocation, locationUpda
 
         <span className="flex items-center gap-[var(--space-2)] text-xs font-medium text-[var(--color-text-secondary)]">
           <span
-            className={`h-2 w-2 rounded-full ${
-              hasLocation ? "bg-emerald-500" : "bg-slate-400"
+            className={`h-[var(--dash-range-dot-size)] w-[var(--dash-range-dot-size)] rounded-full ${
+              hasLocation ? "bg-[var(--status-optimal)]" : "bg-[var(--text-muted)]"
             }`}
           />
           {locationUpdatedText}

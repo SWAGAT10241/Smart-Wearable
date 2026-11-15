@@ -6,6 +6,7 @@ import { MdHistory } from "react-icons/md";
 import { FiSettings } from "react-icons/fi";
 
 import { useDevices } from "../context/DeviceContext";
+import useUpdatedTime from "../hooks/useUpdatedTime";
 import loginBackground from "../assets/images/login-background.png";
 import { maskDeviceId } from "../utils/masking";
 
@@ -42,6 +43,7 @@ export default function Sidebar() {
 
   const deviceName =
     selectedDevice?.deviceName || selectedDevice?.name || "TrailGuard Wearable";
+  const lastSeenText = useUpdatedTime(selectedDevice?.lastSeen);
 
   const handleUnpair = async () => {
     if (!selectedDevice?.deviceId) return;
@@ -161,6 +163,11 @@ export default function Sidebar() {
                       <p className="mt-0.5 truncate font-mono text-[10px] text-slate-400">
                         {maskDeviceId(selectedDevice.deviceId)}
                       </p>
+
+                      <div className="mt-2 flex items-center gap-1.5 text-[10px] font-mono text-emerald-400">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span>Last seen: {lastSeenText || "Never seen"}</span>
+                      </div>
                     </div>
 
                     <FiLink className="text-[18px] text-emerald-400" />
