@@ -8,7 +8,11 @@ const asyncHandler = require("../utils/asyncHandler");
  */
 const ingestReadings = (broadcast) =>
   asyncHandler(async (req, res) => {
-    const result = await telemetryService.processReadings(req.body, broadcast);
+    const result = await telemetryService.processReadings(
+      { ...req.body, deviceId: req.deviceId },
+      broadcast,
+      req.device,
+    );
     res.status(201).json(result);
   });
 

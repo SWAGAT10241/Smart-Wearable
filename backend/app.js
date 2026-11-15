@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const passport = require("passport");
 const helmet = require("helmet");
+const mongoose = require("mongoose");
 
 const config = require("./config/env");
 require("./config/passport");
@@ -47,8 +48,17 @@ app.use(
   }),
 );
 
-// JSON body parser with strict size limit
-app.use(express.json({ limit: "100kb" }));
+// JSON body parser with strict size limit and raw body capture for device signatures
+app.use(
+  express.json({
+    limit: "100kb",
+    verify: (req, res, buffer) => {
+      if (req.originalUrl.split("?")[0] === "/api/device/readings") {
+        req.rawBody = Buffer.from(buffer);
+      }
+    },
+  }),
+);
 
 app.use(passport.initialize());
 
@@ -60,6 +70,18 @@ app.use("/api/auth/register", authLimiter);
 app.get("/", (req, res) => {
   res.status(200).json({
     status: "TrailGuard backend running",
+  });
+});
+
+app.get("/livez", (req, res) => {
+  res.status(200).json({ status: "live" });
+});
+
+app.get("/readyz", (req, res) => {
+  const isMongoReady = mongoose.connection.readyState === 1;
+  res.status(isMongoReady ? 200 : 503).json({
+    status: isMongoReady ? "ready" : "not_ready",
+    dependencies: { mongodb: isMongoReady ? "available" : "unavailable" },
   });
 });
 
