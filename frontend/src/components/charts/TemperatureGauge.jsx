@@ -11,18 +11,18 @@ export default function TemperatureGauge({ temperature }) {
     : 0;
 
   return (
-    <div className="relative h-[72px] w-full">
+    <div className="relative h-[var(--dash-gauge-track-wrapper-height)] w-full">
       <div
-        className="absolute left-0 right-0 top-[32px] h-[7px] rounded-full"
+        className="absolute left-0 right-0 top-[var(--dash-gauge-track-top)] h-[var(--dash-gauge-track-thickness)] rounded-full"
         style={{
           background: "var(--thermal-gradient)",
         }}
       />
 
       <span
-        className="absolute top-[26px] h-[19px] w-[19px] rounded-full bg-[var(--surface-card)] transition-all duration-700"
+        className="absolute top-[var(--dash-gauge-thumb-top)] h-[var(--dash-gauge-thumb-size)] w-[var(--dash-gauge-thumb-size)] rounded-full bg-[var(--surface-card)] transition-all duration-700"
         style={{
-          left: `calc(${pct}% - 9.5px)`,
+          left: `calc(${pct}% - 9px)`,
           border: "2px solid var(--status-warning)",
           boxShadow: "0 2px 6px rgba(245,158,11,0.25)",
         }}

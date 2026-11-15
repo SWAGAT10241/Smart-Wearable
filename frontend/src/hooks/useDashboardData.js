@@ -31,6 +31,7 @@ export function useDashboardData(deviceId) {
     vitalsUpdatedAt,
     environmentUpdatedAt,
     locationUpdatedAt,
+    lastSeen,
   } = useLiveData();
 
   const [initialVitals, setInitialVitals] = useState(null);
@@ -427,5 +428,6 @@ export function useDashboardData(deviceId) {
     locationTimestamp,
     locationUpdatedText,
     notifications,
+    lastSeen,
   };
 }

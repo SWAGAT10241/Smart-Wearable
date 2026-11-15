@@ -64,24 +64,26 @@ export default function StatCard({
   const chartVariant = ["ppg", "line", "bars", "pressure"].includes(variant);
 
   return (
-    <article className="flex min-w-0 flex-col rounded-[var(--card-radius-compact)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--card-padding-compact)] shadow-[var(--shadow-card)]">
+    <article className="flex min-w-0 flex-col rounded-[var(--card-radius-compact)] border border-[var(--color-border)] bg-[var(--color-surface)]/90 backdrop-blur-sm p-[var(--card-padding-compact)] shadow-[var(--shadow-card)] transition-all hover:border-[var(--color-accent)]/30">
       {/* Icon */}
       <div
-        className="mb-[var(--space-3)] flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-lg)]"
+        className={`mb-[var(--space-3)] flex h-[var(--dash-icon-box-size)] w-[var(--dash-icon-box-size)] shrink-0 items-center justify-center rounded-[var(--radius-lg)] ${
+          iconType === "heart" && value !== "--" ? "animate-cardiac-pulse" : ""
+        }`}
         style={{ background: style.bg }}
       >
         {icon}
       </div>
 
       {/* Title + Status */}
-      <div className="mb-[var(--space-2)] flex min-h-[22px] items-center justify-between gap-[var(--space-2)]">
+      <div className="mb-[var(--space-2)] flex min-h-[var(--dash-card-header-min-height)] items-center justify-between gap-[var(--space-2)]">
         <span className="min-w-0 truncate text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
           {label}
         </span>
 
         {status && (
           <span
-            className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider"
+            className="shrink-0 rounded-full px-[var(--dash-badge-padding-x)] py-[var(--dash-badge-padding-y)] text-[var(--dash-badge-text-size)] font-bold uppercase tracking-wider"
             style={{
               background: `${resolvedStatusColor}20`,
               color: resolvedStatusColor,
@@ -92,9 +94,12 @@ export default function StatCard({
         )}
       </div>
 
-      {/* Current Value */}
-      <div className="mb-[var(--space-3)] flex min-h-[38px] items-baseline gap-[var(--space-1-5)]">
-        <span className="text-[var(--font-size-stat)] font-bold leading-none tracking-[-0.03em] tabular-nums text-[var(--color-text)]">
+      {/* Current Value with Flash Transition */}
+      <div className="mb-[var(--space-3)] flex min-h-[var(--dash-card-value-min-height)] items-baseline gap-[var(--space-1-5)]">
+        <span
+          key={value}
+          className="animate-telemetry-flash text-[var(--font-size-stat)] font-bold leading-none tracking-[-0.03em] tabular-nums text-[var(--color-text)]"
+        >
           {value}
         </span>
 
@@ -139,14 +144,14 @@ export default function StatCard({
           />
         )}
 
-        {variant === "plain" && <div className="h-[64px]" />}
+        {variant === "plain" && <div className="h-[var(--chart-height-sm)]" />}
       </div>
 
       {/* Normal Range Indicator */}
       {normalRange && (
-        <div className="mb-3 flex items-center gap-1.5">
+        <div className="mb-[var(--space-3)] flex items-center gap-[var(--space-1-5)]">
           <span
-            className="h-2 w-2 shrink-0 rounded-full"
+            className="h-[var(--dash-range-dot-size)] w-[var(--dash-range-dot-size)] shrink-0 rounded-full"
             style={{ background: "var(--status-optimal)" }}
           />
 
@@ -163,8 +168,8 @@ export default function StatCard({
 
       {/* Relative Updated Timestamp */}
       {updatedText && (
-        <div className="mt-3 flex items-center gap-1.5 border-t border-[var(--color-border)] pt-2.5 text-xs font-medium text-[var(--color-text-secondary)]">
-          <IoTimeOutline size={14} />
+        <div className="mt-[var(--space-3)] flex items-center gap-[var(--space-1-5)] border-t border-[var(--color-border)] pt-[var(--space-2-5)] text-xs font-medium text-[var(--color-text-secondary)]">
+          <IoTimeOutline className="text-[var(--font-size-sm)]" />
           <span>Last seen {updatedText}</span>
         </div>
       )}

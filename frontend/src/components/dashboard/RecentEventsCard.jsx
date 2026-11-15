@@ -1,20 +1,20 @@
 export default function RecentEventsCard({ recentFalls = [] }) {
   return (
-    <section className="flex flex-col rounded-[var(--card-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--card-padding)] shadow-[var(--shadow-card)]">
+    <section className="flex h-full min-h-[var(--dash-card-min-height)] flex-col rounded-[var(--card-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--card-padding)] shadow-[var(--shadow-card)]">
       <div className="mb-[var(--space-3)] flex shrink-0 items-center justify-between">
         <h2 className="text-[var(--font-size-md)] font-semibold tracking-[-0.02em] text-[var(--color-text)]">
           Recent Events
         </h2>
 
-        <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-[var(--space-2-5)] py-[var(--space-0-5)] font-mono text-[var(--font-size-3xs)] text-[var(--color-text-secondary)]">
+        <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-[var(--dash-badge-padding-x)] py-[var(--dash-badge-padding-y)] font-mono text-[var(--dash-badge-text-size)] text-[var(--color-text-secondary)]">
           {recentFalls.length} today
         </span>
       </div>
 
-      <div className="h-[340px] sm:h-[385px] overflow-y-auto pr-1">
+      <div className="min-h-0 flex-1 overflow-y-auto pr-[var(--space-1)]">
         {recentFalls.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center gap-[var(--space-2)] rounded-[var(--radius-xl)] border border-emerald-200/30 bg-emerald-500/10 p-[var(--space-6)] text-center">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-emerald-500/20 text-emerald-400 text-lg font-bold">
+          <div className="flex h-full flex-col items-center justify-center gap-[var(--space-2)] rounded-[var(--radius-xl)] border border-[var(--status-optimal)]/30 bg-[var(--status-optimal)]/10 p-[var(--space-6)] text-center">
+            <div className="flex h-[var(--dash-icon-box-size)] w-[var(--dash-icon-box-size)] shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--status-optimal)]/20 text-[var(--status-optimal)] text-lg font-bold">
               ✓
             </div>
 
@@ -23,7 +23,7 @@ export default function RecentEventsCard({ recentFalls = [] }) {
                 No fall events detected
               </div>
 
-              <div className="mt-1 text-xs text-emerald-400">
+              <div className="mt-[var(--space-1)] text-xs text-[var(--status-optimal)]">
                 Safe operational status
               </div>
             </div>
@@ -46,16 +46,16 @@ export default function RecentEventsCard({ recentFalls = [] }) {
                       })}
                     </div>
 
-                    <div className="mt-0.5 text-xs capitalize text-[var(--color-text-secondary)]">
+                    <div className="mt-[var(--space-0-5)] text-xs capitalize text-[var(--color-text-secondary)]">
                       {fall.severity} fall
                     </div>
                   </div>
 
                   <span
-                    className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                    className={`shrink-0 rounded px-[var(--space-1-5)] py-[var(--space-0-5)] text-[var(--dash-badge-text-size)] font-bold uppercase tracking-wider ${
                       fall.severity === "severe"
-                        ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                        : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                        ? "bg-[var(--status-sos)]/20 text-[var(--status-sos)] border border-[var(--status-sos)]/30"
+                        : "bg-[var(--status-warning)]/20 text-[var(--status-warning)] border border-[var(--status-warning)]/30"
                     }`}
                   >
                     {fall.status?.replace(/_/g, " ") || "DETECTED"}
