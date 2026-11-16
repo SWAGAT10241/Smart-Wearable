@@ -66,10 +66,18 @@ app.use(passport.initialize());
 app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/register", authLimiter);
 
-// Health check endpoint
+// Health & status endpoints
 app.get("/", (req, res) => {
   res.status(200).json({
     status: "TrailGuard backend running",
+  });
+});
+
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "TrailGuard backend running",
+    uptime: process.uptime(),
   });
 });
 

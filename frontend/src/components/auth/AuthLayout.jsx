@@ -76,7 +76,7 @@ export default function AuthLayout({ headline, children }) {
               key={title}
               className="flex items-center gap-[var(--space-4)]"
             >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-teal-400/20 text-[19px] text-teal-300">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-teal-400/20 text-[var(--font-size-lg)] text-teal-300">
                 {icon}
               </span>
 

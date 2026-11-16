@@ -51,3 +51,8 @@ demo.html
 backend/device-authority-private.pem
 backend/device-authority-public.txt
 backend/sim-private-key.pem
+
+# PM2 and runtime logs
+logs/
+*.log
+
