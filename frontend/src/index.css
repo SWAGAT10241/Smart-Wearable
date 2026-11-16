@@ -122,6 +122,7 @@
   --status-optimal: var(--color-primary-500);
   --status-sos: var(--color-red-500);
   --status-warning: var(--color-yellow-500);
+  --text-warning: var(--color-yellow-800);
   --status-info: var(--color-secondary-400);
 
   /* Backward Compatibility Aliases */
@@ -400,6 +401,7 @@ html.dark {
   --status-optimal: var(--color-primary-500);
   --status-sos: var(--color-red-500);
   --status-warning: var(--color-yellow-500);
+  --text-warning: var(--color-yellow-500);
   --status-info: var(--color-secondary-400);
 
   /* Backward Compatibility Aliases */

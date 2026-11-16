@@ -55,7 +55,7 @@ export default function RecentEventsCard({ recentFalls = [] }) {
                     className={`shrink-0 rounded px-[var(--space-1-5)] py-[var(--space-0-5)] text-[var(--dash-badge-text-size)] font-bold uppercase tracking-wider ${
                       fall.severity === "severe"
                         ? "bg-[var(--status-sos)]/20 text-[var(--status-sos)] border border-[var(--status-sos)]/30"
-                        : "bg-[var(--status-warning)]/20 text-[var(--status-warning)] border border-[var(--status-warning)]/30"
+                        : "bg-[var(--status-warning)]/20 text-[var(--text-warning)] border border-[var(--status-warning)]/30"
                     }`}
                   >
                     {fall.status?.replace(/_/g, " ") || "DETECTED"}

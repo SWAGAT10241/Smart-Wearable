@@ -93,7 +93,7 @@ function SummaryItem({
           color,
         }}
       >
-        <span className="text-[var(--dash-activity-icon-size)]">{icon}</span>
+        <span className="text-[length:var(--dash-activity-icon-size)]">{icon}</span>
       </div>
 
       {/* Content */}
@@ -192,7 +192,7 @@ export default function ActivitySummary({
       <div className="border-b border-[var(--color-border)] px-[var(--card-padding)] py-[var(--space-4)]">
         <div className="flex items-center justify-between gap-[var(--card-gap)]">
           <div>
-            <h2 className="text-[var(--font-size-md)] font-semibold text-[var(--color-text)]">
+            <h2 className="text-[length:var(--font-size-md)] font-semibold text-[var(--color-text)]">
               Activity Summary
             </h2>
 
@@ -201,7 +201,7 @@ export default function ActivitySummary({
             </p>
           </div>
 
-          <span className="rounded-full border border-[var(--color-accent)]/20 bg-[var(--color-accent)]/10 px-[var(--dash-badge-padding-x)] py-[var(--dash-badge-padding-y)] text-[var(--dash-badge-text-size)] font-semibold uppercase tracking-wide text-[var(--color-accent)]">
+          <span className="rounded-full border border-[var(--color-accent)]/20 bg-[var(--color-accent)]/10 px-[var(--dash-badge-padding-x)] py-[var(--dash-badge-padding-y)] text-[length:var(--dash-badge-text-size)] font-semibold uppercase tracking-wide text-[var(--color-accent)]">
             TODAY
           </span>
         </div>

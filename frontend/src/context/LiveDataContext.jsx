@@ -144,10 +144,12 @@ export function LiveDataProvider({ children }) {
         msg.timestamp ||
         new Date().toISOString();
 
-      // Keep real-time lastSeen synchronized on any active reading or heartbeat
-      setLastSeen(messageTimestamp);
-      if (updateDeviceHeartbeat) {
-        updateDeviceHeartbeat(messageDeviceId || currentSelectedId, messageTimestamp);
+      // Fall status timestamps describe the original fall, not fresh device contact.
+      if (msg.type !== "fall_status_update") {
+        setLastSeen(messageTimestamp);
+        if (updateDeviceHeartbeat) {
+          updateDeviceHeartbeat(messageDeviceId || currentSelectedId, messageTimestamp);
+        }
       }
 
       switch (msg.type) {

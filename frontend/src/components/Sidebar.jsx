@@ -166,7 +166,7 @@ export default function Sidebar() {
 
                       <div className="mt-2 flex items-center gap-1.5 text-[10px] font-mono text-emerald-400">
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                        <span>Last seen: {lastSeenText || "Online"}</span>
+                        <span>Last seen: {lastSeenText || "Never seen"}</span>
                       </div>
                     </div>
 

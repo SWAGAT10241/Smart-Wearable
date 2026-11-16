@@ -1,12 +1,14 @@
 import React from "react";
 import { act, cleanup, render } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { LiveDataProvider } from "../src/context/LiveDataContext";
+import { LiveDataProvider, useLiveData } from "../src/context/LiveDataContext";
 import { emergencyApi } from "../src/lib/apiClient";
 import { WS_URL } from "../src/config/env";
 
+const updateDeviceHeartbeat = vi.hoisted(() => vi.fn());
+
 vi.mock("../src/context/DeviceContext", () => ({
-  useDevices: () => ({ selectedDeviceId: null }),
+  useDevices: () => ({ selectedDeviceId: null, updateDeviceHeartbeat }),
 }));
 vi.mock("../src/lib/apiClient", () => ({
   emergencyApi: { getWsTicket: vi.fn() },
@@ -15,6 +17,7 @@ vi.mock("../src/lib/apiClient", () => ({
 }));
 
 beforeEach(() => {
+  updateDeviceHeartbeat.mockClear();
   vi.stubGlobal("WebSocket", vi.fn(function () {
     this.close = vi.fn();
   }));
@@ -43,4 +46,39 @@ it("authenticates using only the ticket subprotocol", async () => {
   await act(async () => render(<LiveDataProvider><div /></LiveDataProvider>));
 
   expect(WebSocket).toHaveBeenCalledExactlyOnceWith(WS_URL, ["trailguard", "ticket.single-use"]);
+});
+
+
+it("preserves freshness on fall status changes and updates it on device activity", async () => {
+  emergencyApi.getWsTicket.mockResolvedValue({ ticket: "single-use" });
+  let liveData;
+  function Probe() {
+    liveData = useLiveData();
+    return null;
+  }
+  await act(async () => render(<LiveDataProvider><Probe /></LiveDataProvider>));
+  const socket = WebSocket.mock.instances[0];
+  const send = (type, data) => act(() => socket.onmessage({
+    data: JSON.stringify({ type, deviceId: "device-1", data }),
+  }));
+  const contact = "2026-11-15T12:00:00Z";
+  const originalFall = "2026-11-15T11:00:00Z";
+
+  send("fall_status_update", { timestamp: originalFall, status: "resolved" });
+  expect(liveData.lastSeen).toBeNull();
+  expect(updateDeviceHeartbeat).not.toHaveBeenCalled();
+
+  send("vitals", { timestamp: contact, heartRate: 75 });
+  expect(liveData.lastSeen).toBe(contact);
+  expect(updateDeviceHeartbeat).toHaveBeenLastCalledWith("device-1", contact);
+  updateDeviceHeartbeat.mockClear();
+
+  send("fall_status_update", { timestamp: originalFall, status: "resolved" });
+  expect(liveData.lastSeen).toBe(contact);
+  expect(updateDeviceHeartbeat).not.toHaveBeenCalled();
+
+  const heartbeat = "2026-11-15T12:01:00Z";
+  send("device_heartbeat", { lastSeen: heartbeat });
+  expect(liveData.lastSeen).toBe(heartbeat);
+  expect(updateDeviceHeartbeat).toHaveBeenLastCalledWith("device-1", heartbeat);
 });

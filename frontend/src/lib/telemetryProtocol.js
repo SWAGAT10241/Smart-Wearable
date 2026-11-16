@@ -5,7 +5,7 @@ export const TELEMETRY_MAX_SEQUENCE_GAP = 32;
 export const TELEMETRY_MAX_BUFFERED_FRAMES = 32;
 
 const UUID_V4_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const TIMESTAMP_PATTERN =
   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 const ENVELOPE_KEYS = [
@@ -169,7 +169,7 @@ export function parseTelemetryFrame(
     typeof frame.bootId !== "string" ||
     !UUID_V4_PATTERN.test(frame.bootId)
   ) {
-    reject("invalid_identity", "deviceId and bootId must be lowercase UUIDv4 values.");
+    reject("invalid_identity", "deviceId and bootId must be valid UUIDv4 values.");
   }
   if (
     !Number.isInteger(frame.sequence) ||
@@ -180,6 +180,8 @@ export function parseTelemetryFrame(
   }
   validateTimestamp(frame.timestamp, nowMs, maxTimestampSkewMs);
   validatePayload(frame.payload);
+  frame.deviceId = frame.deviceId.toLowerCase();
+  frame.bootId = frame.bootId.toLowerCase();
   return frame;
 }
 
