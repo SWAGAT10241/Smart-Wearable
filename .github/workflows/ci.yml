@@ -24,10 +24,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: 22
 
@@ -56,10 +56,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: 22
 
@@ -84,12 +84,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Check Python syntax
         run: python -m compileall -q hardware
@@ -117,10 +117,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: 22
 
@@ -141,3 +141,93 @@ jobs:
 
       - name: Validate bundle export
         run: npx expo export -p android --no-bytecode
+
+  gateway-go:
+    name: Go Ingestion Gateway Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Check if Go workspace exists
+        id: check_go
+        run: |
+          if [ -f "services/gateway-go/go.mod" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "services/gateway-go/go.mod not found, skipping Go check."
+          fi
+
+      - name: Setup Go
+        if: steps.check_go.outputs.exists == 'true'
+        uses: actions/setup-go@41dfa10bab2bb2ab485699fb406da422647106f3 # v5.1.0
+        with:
+          go-version-file: services/gateway-go/go.mod
+          cache-dependency-path: services/gateway-go/go.sum
+
+      - name: Verify dependencies
+        if: steps.check_go.outputs.exists == 'true'
+        working-directory: services/gateway-go
+        run: go mod verify
+
+      - name: Run Go vet (Static Analysis)
+        if: steps.check_go.outputs.exists == 'true'
+        working-directory: services/gateway-go
+        run: go vet ./...
+
+      - name: Run Go tests with race detector and coverage
+        if: steps.check_go.outputs.exists == 'true'
+        working-directory: services/gateway-go
+        run: go test -v -race -cover ./...
+
+      - name: Build Go binary
+        if: steps.check_go.outputs.exists == 'true'
+        working-directory: services/gateway-go
+        run: go build -v -o /dev/null ./cmd/server
+
+      - name: Verify Docker build
+        if: steps.check_go.outputs.exists == 'true'
+        working-directory: services/gateway-go
+        run: docker build -t gateway-go:ci .
+
+  crypto-rust:
+    name: Rust Crypto Core Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Check if Rust workspace exists
+        id: check_rust
+        run: |
+          if [ -f "services/crypto-rs/Cargo.toml" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "services/crypto-rs/Cargo.toml not found, skipping Rust check."
+          fi
+
+      - name: Setup Rust toolchain
+        if: steps.check_rust.outputs.exists == 'true'
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          components: clippy, rustfmt
+
+      - name: Check code formatting
+        if: steps.check_rust.outputs.exists == 'true'
+        working-directory: services/crypto-rs
+        run: cargo fmt --check
+
+      - name: Run Clippy linter
+        if: steps.check_rust.outputs.exists == 'true'
+        working-directory: services/crypto-rs
+        run: cargo clippy -- -D warnings
+
+      - name: Run Rust tests
+        if: steps.check_rust.outputs.exists == 'true'
+        working-directory: services/crypto-rs
+        run: cargo test --verbose
