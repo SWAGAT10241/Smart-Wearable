@@ -37,6 +37,19 @@ updates:
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 1
+    groups:
+      hardware-dependencies:
+        patterns: ["*"]
+
+  # Go Ingestion Gateway: 1 monthly check
+  - package-ecosystem: "gomod"
+    directory: "/services/gateway-go"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 1
+    groups:
+      gateway-dependencies:
+        patterns: ["*"]
 
   # GitHub Actions: 1 monthly check
   - package-ecosystem: "github-actions"
@@ -44,3 +57,6 @@ updates:
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 1
+    groups:
+      actions-dependencies:
+        patterns: ["*"]
