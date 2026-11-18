@@ -19,6 +19,23 @@ function emergencyRoutes() {
     }
   });
 
+  // POST /api/emergency/ws-ticket/verify — Single-use ticket verification for Go gateway / internal services
+  router.post("/ws-ticket/verify", async (req, res, next) => {
+    try {
+      const ticket = req.body?.ticket;
+      if (!ticket) {
+        return res.status(400).json({ error: "Ticket is required" });
+      }
+      const session = await webSocketTicketService.consumeTicket(ticket);
+      if (!session) {
+        return res.status(401).json({ error: "Invalid or expired ticket" });
+      }
+      res.status(200).json(session);
+    } catch (err) {
+      next(err);
+    }
+  });
+
   router.post("/sessions", protect, emergencySessionController.createSession);
   router.get("/sessions/active", protect, emergencySessionController.getActiveSessions);
   router.get(
