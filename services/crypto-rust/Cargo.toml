@@ -1,0 +1,26 @@
+[package]
+name = "trailguard-crypto"
+version = "0.1.0"
+edition = "2021"
+authors = ["TrailGuard SWAAS Team"]
+description = "Zero-GC Ed25519 cryptographic verification and binary telemetry packet unpacking core for SWAAS / TrailGuard"
+license = "MIT"
+
+[lib]
+name = "trailguard_crypto"
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "trailguard-crypto"
+path = "src/bin/main.rs"
+
+[dependencies]
+ed25519-dalek = { version = "2.1", default-features = false, features = ["std", "rand_core"] }
+sha2 = "0.10"
+hex = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+
+[dev-dependencies]
+rand = "0.8"
