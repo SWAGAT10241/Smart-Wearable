@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaUserCheck } from "react-icons/fa6";
-import { IoShieldOutline, IoRadioOutline } from "react-icons/io5";
 import AuthLayout from "../components/auth/AuthLayout";
 import AuthCard from "../components/auth/AuthCard";
 import Field from "../components/auth/Field";
@@ -49,57 +47,31 @@ export default function Register() {
 
   return (
     <AuthLayout headline="Set up your safety profile.">
-      <AuthCard className="max-w-[700px]">
-        <form className="flex flex-col gap-4" onSubmit={onSubmit}>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h2 className="tg-formcard__title">Create your account</h2>
-              <p className="tg-formcard__sub">
-                Takes about a minute — every level keeps you safer on the trail.
-              </p>
+      <AuthCard className="max-w-[640px]">
+        <form className="flex flex-col gap-[var(--space-5)]" onSubmit={onSubmit}>
+          <div>
+            <h2 className="text-[var(--font-size-2xl)] font-bold tracking-tight text-[var(--text-primary)] sm:text-[var(--font-size-3xl)]">
+              Create your account
+            </h2>
+            <p className="mt-[var(--space-1)] text-[var(--font-size-sm)] text-[var(--text-secondary)]">
+              Takes about a minute — every field here keeps you safer on trail.
+            </p>
+          </div>
+
+          {error && (
+            <div className="rounded-[var(--radius-lg)] border border-[var(--action-destructive)]/30 bg-[var(--surface-error)] px-[var(--space-4)] py-[var(--space-3)] text-[var(--font-size-sm)] font-medium text-[var(--action-destructive)]">
+              {error}
             </div>
-            <span className="rounded-full border border-teal-500/30 bg-teal-500/10 px-3 py-1 font-mono text-[11px] font-bold text-teal-300">
-              3-Level Setup
-            </span>
+          )}
+
+          {/* Section: Your Account */}
+          <div className="flex items-center gap-[var(--space-2)] pt-[var(--space-2)] text-[var(--font-size-xs)] font-bold uppercase tracking-wider text-[var(--action-primary)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--action-primary)]" />
+            <span>Your Account</span>
+            <div className="h-px flex-1 bg-[var(--border-default)]" />
           </div>
 
-          {/* 3-Tiered Registration Flow Progress Bar */}
-          <div className="rounded-xl border border-[var(--border-default)] bg-[var(--surface-elevated)] p-3">
-            <div className="flex items-center gap-2">
-              <div className="flex flex-1 items-center gap-1.5">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-500/20 text-[10px] font-bold text-teal-300 border border-teal-500/40">
-                  1
-                </span>
-                <span className="text-[11px] font-bold text-teal-300">Level 1: Account</span>
-              </div>
-              <div className="h-px w-6 bg-[var(--border-default)]" />
-              <div className="flex flex-1 items-center gap-1.5">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-500/20 text-[10px] font-bold text-teal-300 border border-teal-500/40">
-                  2
-                </span>
-                <span className="text-[11px] font-bold text-teal-300">Level 2: Safety</span>
-              </div>
-              <div className="h-px w-6 bg-[var(--border-default)]" />
-              <div className="flex flex-1 items-center gap-1.5">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/20 text-[10px] font-bold text-amber-300 border border-amber-500/40">
-                  3
-                </span>
-                <span className="text-[11px] font-bold text-amber-300">Level 3: Wearable</span>
-              </div>
-            </div>
-          </div>
-
-          {error && <div className="tg-formcard__error">{error}</div>}
-
-          {/* LEVEL 1: YOUR ACCOUNT */}
-          <div className="tg-formcard__section-label">
-            <span className="flex items-center gap-1.5">
-              <FaUserCheck className="h-3.5 w-3.5 text-teal-400" />
-              LEVEL 1: ACCOUNT & CREDENTIALS
-            </span>
-          </div>
-
-          <div className="tg-formcard__row">
+          <div className="grid grid-cols-1 gap-[var(--space-4)] sm:grid-cols-2">
             <Field
               label="Username"
               name="username"
@@ -131,15 +103,14 @@ export default function Register() {
             required
           />
 
-          {/* LEVEL 2: SAFETY INFO */}
-          <div className="tg-formcard__section-label">
-            <span className="flex items-center gap-1.5">
-              <IoShieldOutline className="h-3.5 w-3.5 text-teal-400" />
-              LEVEL 2: EMERGENCY & VITALS BASELINE
-            </span>
+          {/* Section: Safety Info */}
+          <div className="flex items-center gap-[var(--space-2)] pt-[var(--space-2)] text-[var(--font-size-xs)] font-bold uppercase tracking-wider text-[var(--action-primary)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--action-primary)]" />
+            <span>Safety Information</span>
+            <div className="h-px flex-1 bg-[var(--border-default)]" />
           </div>
 
-          <div className="tg-formcard__row">
+          <div className="grid grid-cols-1 gap-[var(--space-4)] sm:grid-cols-2">
             <PhoneField
               label="Phone Number"
               name="phoneNumber"
@@ -161,7 +132,7 @@ export default function Register() {
             />
           </div>
 
-          <div className="tg-formcard__row">
+          <div className="grid grid-cols-1 gap-[var(--space-4)] sm:grid-cols-2">
             <Field
               label="Emergency contact name"
               name="emergencyContactName"
@@ -191,21 +162,23 @@ export default function Register() {
             defaultCountry="IN"
           />
 
-          {/* LEVEL 3 NOTICE */}
-          <div className="flex items-center gap-2 rounded-xl border border-teal-500/20 bg-teal-500/10 px-3.5 py-2.5 text-xs text-teal-300">
-            <IoRadioOutline className="h-4 w-4 shrink-0 text-teal-400 animate-pulse" />
-            <span>
-              <strong>Level 3 (Hardware Pairing):</strong> Your Ed25519 cryptographic key will be registered upon account completion.
-            </span>
-          </div>
-
-          <Button type="submit" disabled={busy}>
-            {busy ? "Registering & Authenticating…" : "Complete Registration & Proceed"}
+          <Button type="submit" disabled={busy} className="mt-[var(--space-2)]">
+            {busy ? (
+              <span className="flex items-center justify-center gap-[var(--space-2)]">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                <span>Creating account…</span>
+              </span>
+            ) : (
+              "Create account"
+            )}
           </Button>
 
-          <p className="tg-formcard__footer">
+          <p className="text-center text-[var(--font-size-sm)] text-[var(--text-muted)]">
             Already have an account?{" "}
-            <Link to="/login" className="tg-formcard__link">
+            <Link
+              to="/login"
+              className="font-medium text-[var(--action-primary)] transition-colors hover:text-[var(--action-primary-hover)] underline underline-offset-4"
+            >
               Log in
             </Link>
           </p>
