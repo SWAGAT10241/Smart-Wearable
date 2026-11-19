@@ -65,6 +65,10 @@ describe("telemetry protocol v1", () => {
       sequence: 10,
       payload: { heartRateBpm: 78, temperatureC: 36.7 },
     });
+    expect(parse(makeFrame({ deviceId: deviceId.toUpperCase(), bootId: bootId.toUpperCase() }))).toMatchObject({
+      deviceId,
+      bootId,
+    });
   });
 
   it("rejects oversized and malformed frames", () => {

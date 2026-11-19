@@ -79,7 +79,7 @@ export default function StatCard({
 
           {/* Uniform Tactical Status Flag Pill */}
           <span
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border"
+            className="shrink-0 rounded-full px-[var(--dash-badge-padding-x)] py-[var(--dash-badge-padding-y)] text-[length:var(--dash-badge-text-size)] font-bold uppercase tracking-wider"
             style={{
               background: `${resolvedStatusColor}18`,
               borderColor: `${resolvedStatusColor}40`,
@@ -94,10 +94,18 @@ export default function StatCard({
           </span>
         </div>
 
-        {/* Title */}
-        <div className="mb-[var(--space-1-5)] flex items-center justify-between">
-          <span className="min-w-0 truncate text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
-            {label}
+      {/* Current Value with Flash Transition */}
+      <div className="mb-[var(--space-3)] flex min-h-[var(--dash-card-value-min-height)] items-baseline gap-[var(--space-1-5)]">
+        <span
+          key={value}
+          className="animate-telemetry-flash text-[length:var(--font-size-stat)] font-bold leading-none tracking-[-0.03em] tabular-nums text-[var(--color-text)]"
+        >
+          {value}
+        </span>
+
+        {unit && (
+          <span className="text-sm font-semibold text-[var(--color-text-secondary)]">
+            {unit}
           </span>
         </div>
 

@@ -19,6 +19,7 @@ import Settings from "./pages/Settings";
 import About from "./pages/About";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
+import Landing from "./pages/Landing";
 
 export default function App() {
   return (
@@ -31,6 +32,8 @@ export default function App() {
                 <FallAlertModal />
 
               <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/landing" element={<Landing />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/oauth-success" element={<OAuthSuccess />} />

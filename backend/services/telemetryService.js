@@ -14,7 +14,11 @@ const AppError = require("../utils/appError");
  * @param {Function} [broadcast] - Broadcast callback for real-time subscribers
  * @returns {Promise<object>}
  */
-async function processReadings(payload, broadcast = () => {}) {
+async function processReadings(
+  payload,
+  broadcast = () => {},
+  authenticatedDevice = null,
+) {
   const {
     deviceId,
     heartRate,
@@ -50,10 +54,12 @@ async function processReadings(payload, broadcast = () => {}) {
 
   const normalizedDeviceId = deviceId.trim().toUpperCase();
 
-  const device = await Device.findOne({
-    deviceId: normalizedDeviceId,
-    status: "active",
-  });
+  const device =
+    authenticatedDevice ||
+    (await Device.findOne({
+      deviceId: normalizedDeviceId,
+      status: "active",
+    }));
 
   if (!device) {
     throw new AppError("Unknown or inactive device", 401, "INACTIVE_DEVICE");

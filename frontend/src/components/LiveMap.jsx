@@ -431,7 +431,7 @@ export default function LiveMap({ latitude, longitude, trail = [] }) {
           border border-[var(--color-border)]/80
           bg-[var(--color-surface)]/95
           px-[var(--space-3)] py-[var(--space-2)]
-          text-[var(--dash-badge-text-size)] font-medium
+          text-[length:var(--dash-badge-text-size)] font-medium
           text-[var(--color-text-secondary)]
           shadow-md
           backdrop-blur-sm

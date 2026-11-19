@@ -1,14 +1,21 @@
 {
   "name": "trailguard-backend",
-  "version": "1.2.3",
+  "version": "2.0.0",
   "description": "Backend server for TrailGuard - Smart Wearable Safety and Health Monitoring System",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
     "simulate": "node simulate-esp32.js",
+    "provision-device": "node scripts/provision-device.js",
+    "generate-device-authority-keys": "node scripts/generate-device-authority-keys.js",
     "test": "jest --runInBand",
-    "test:load": "k6 run ../scripts/load-test-k6.js"
+    "test:load": "k6 run ../scripts/load-test-k6.js",
+    "test:max": "k6 run ../scripts/max-stress-k6.js",
+    "pm2:start": "pm2 start ../ecosystem.config.cjs",
+    "pm2:stop": "pm2 stop trailguard-backend",
+    "pm2:restart": "pm2 restart trailguard-backend",
+    "pm2:logs": "pm2 logs trailguard-backend"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -24,6 +31,7 @@
     "mongoose": "^9.11.4",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
+    "qrcode": "^1.5.4",
     "twilio": "^6.2.0",
     "ws": "^8.22.0"
   },

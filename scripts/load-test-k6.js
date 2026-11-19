@@ -8,8 +8,8 @@ const wsConnectionSuccess = new Rate("ws_connection_success");
 const wsMessagesReceived = new Counter("ws_messages_received");
 const ticketFetchDuration = new Trend("ticket_fetch_duration");
 
-const BASE_HTTP_URL = __ENV.API_URL || "http://localhost:5000";
-const BASE_WS_URL = __ENV.WS_URL || "ws://localhost:5000";
+const BASE_HTTP_URL = __ENV.API_URL || "http://localhost:3000";
+const BASE_WS_URL = __ENV.WS_URL || "ws://localhost:3000";
 
 export const options = {
   scenarios: {
@@ -122,6 +122,7 @@ export function testWebSocketFlow() {
     check(response, {
       "unauthenticated ws upgrade is rejected": (r) => r && r.status === 401,
     });
+    sleep(1);
     return;
   }
 
@@ -145,6 +146,7 @@ export function testWebSocketFlow() {
 
   if (!ticketOk) {
     wsConnectionSuccess.add(false);
+    sleep(1);
     return;
   }
 
