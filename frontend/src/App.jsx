@@ -17,6 +17,7 @@ import Dashboard from "./pages/Dashboard";
 import History from "./pages/History";
 import Settings from "./pages/Settings";
 import About from "./pages/About";
+import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 import Landing from "./pages/Landing";
 
@@ -45,6 +46,10 @@ export default function App() {
                   <Route path="/about" element={<About />} />
                 </Route>
 
+                <Route
+                  path="/"
+                  element={<Landing />}
+                />
                 <Route
                   path="*"
                   element={<NotFound />}

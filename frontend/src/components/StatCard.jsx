@@ -59,40 +59,40 @@ export default function StatCard({
 }) {
   const style = STYLES[iconType] || STYLES.oxygen;
   const updatedText = useUpdatedTime(updatedAt);
+  const displayStatus = status || (value !== "--" ? "Nominal" : "Standby");
   const resolvedStatusColor =
-    STATUS_COLORS[String(status || "").toLowerCase()] || statusColor;
-  const chartVariant = ["ppg", "line", "bars", "pressure"].includes(variant);
+    STATUS_COLORS[String(displayStatus || "").toLowerCase()] || statusColor;
 
   return (
-    <article className="flex min-w-0 flex-col rounded-[var(--card-radius-compact)] border border-[var(--color-border)] bg-[var(--color-surface)]/90 backdrop-blur-sm p-[var(--card-padding-compact)] shadow-[var(--shadow-card)] transition-all hover:border-[var(--color-accent)]/30">
-      {/* Icon */}
-      <div
-        className={`mb-[var(--space-3)] flex h-[var(--dash-icon-box-size)] w-[var(--dash-icon-box-size)] shrink-0 items-center justify-center rounded-[var(--radius-lg)] ${
-          iconType === "heart" && value !== "--" ? "animate-cardiac-pulse" : ""
-        }`}
-        style={{ background: style.bg }}
-      >
-        {icon}
-      </div>
+    <article className="flex h-full min-w-0 flex-col justify-between rounded-[var(--card-radius-compact)] border border-[var(--color-border)] bg-[var(--color-surface)]/90 backdrop-blur-sm p-[var(--card-padding-compact)] shadow-[var(--shadow-card)] transition-all hover:border-[var(--color-accent)]/30">
+      <div>
+        {/* Icon & Uniform Status Flag */}
+        <div className="mb-[var(--space-3)] flex items-center justify-between gap-[var(--space-2)]">
+          <div
+            className={`flex h-[var(--dash-icon-box-size)] w-[var(--dash-icon-box-size)] shrink-0 items-center justify-center rounded-[var(--radius-lg)] ${
+              iconType === "heart" && value !== "--" ? "animate-cardiac-pulse" : ""
+            }`}
+            style={{ background: style.bg }}
+          >
+            {icon}
+          </div>
 
-      {/* Title + Status */}
-      <div className="mb-[var(--space-2)] flex min-h-[var(--dash-card-header-min-height)] items-center justify-between gap-[var(--space-2)]">
-        <span className="min-w-0 truncate text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
-          {label}
-        </span>
-
-        {status && (
+          {/* Uniform Tactical Status Flag Pill */}
           <span
             className="shrink-0 rounded-full px-[var(--dash-badge-padding-x)] py-[var(--dash-badge-padding-y)] text-[length:var(--dash-badge-text-size)] font-bold uppercase tracking-wider"
             style={{
-              background: `${resolvedStatusColor}20`,
+              background: `${resolvedStatusColor}18`,
+              borderColor: `${resolvedStatusColor}40`,
               color: resolvedStatusColor,
             }}
           >
-            {status}
+            <span
+              className="h-1.5 w-1.5 shrink-0 rounded-full animate-pulse"
+              style={{ background: resolvedStatusColor }}
+            />
+            <span>{displayStatus}</span>
           </span>
-        )}
-      </div>
+        </div>
 
       {/* Current Value with Flash Transition */}
       <div className="mb-[var(--space-3)] flex min-h-[var(--dash-card-value-min-height)] items-baseline gap-[var(--space-1-5)]">
@@ -107,72 +107,90 @@ export default function StatCard({
           <span className="text-sm font-semibold text-[var(--color-text-secondary)]">
             {unit}
           </span>
-        )}
-      </div>
+        </div>
 
-      {/* Sensor Visual */}
-      <div className={chartVariant ? "mb-[var(--space-2)] h-[var(--chart-height-md)]" : "mb-[var(--space-2)] h-[var(--chart-height-sm)]"}>
-        {variant === "ppg" && (
-          <LineTrace
-            color={style.color}
-            samples={signal}
-            sensorType="heart"
-            emptyText="Waiting for pulse data..."
-          />
-        )}
-
-        {variant === "line" && (
-          <LineTrace color={style.color} samples={signal} />
-        )}
-
-        {variant === "bars" && (
-          <BarTrace
-            color={style.color}
-            samples={signal}
-            emptyText="Waiting for humidity data..."
-          />
-        )}
-
-        {variant === "gauge" && <GaugeBar pct={gaugePct} color={style.color} />}
-        {variant === "tempGauge" && <TemperatureGauge temperature={value} />}
-        {variant === "pressure" && (
-          <LineTrace
-            color={style.color}
-            samples={signal}
-            sensorType="pressure"
-            emptyText="Waiting for pressure data..."
-          />
-        )}
-
-        {variant === "plain" && <div className="h-[var(--chart-height-sm)]" />}
-      </div>
-
-      {/* Normal Range Indicator */}
-      {normalRange && (
-        <div className="mb-[var(--space-3)] flex items-center gap-[var(--space-1-5)]">
+        {/* Current Value with Flash Transition */}
+        <div className="mb-[var(--space-3)] flex min-h-[var(--dash-card-value-min-height)] items-baseline gap-[var(--space-1-5)]">
           <span
-            className="h-[var(--dash-range-dot-size)] w-[var(--dash-range-dot-size)] shrink-0 rounded-full"
-            style={{ background: "var(--status-optimal)" }}
-          />
-
-          <span className="truncate text-xs font-medium text-[var(--color-text-secondary)]">
-            {normalRange}
+            key={value}
+            className="animate-telemetry-flash text-[var(--font-size-stat)] font-bold leading-none tracking-[-0.03em] tabular-nums text-[var(--color-text)]"
+          >
+            {value}
           </span>
-        </div>
-      )}
 
-      {/* Min / Avg / Peak Summary */}
-      <div className="mt-auto">
-        <MiniStats items={miniStats} />
+          {unit && (
+            <span className="text-sm font-semibold text-[var(--color-text-secondary)]">
+              {unit}
+            </span>
+          )}
+        </div>
+
+        {/* Uniform Sensor Visual (Identical 86px height across all 5 cards) */}
+        <div className="mb-[var(--space-3)] flex h-[86px] w-full flex-col justify-center overflow-hidden">
+          {variant === "ppg" && (
+            <LineTrace
+              color={style.color}
+              samples={signal}
+              sensorType="heart"
+              emptyText="Waiting for pulse data..."
+            />
+          )}
+
+          {variant === "line" && (
+            <LineTrace color={style.color} samples={signal} />
+          )}
+
+          {variant === "bars" && (
+            <BarTrace
+              color={style.color}
+              samples={signal}
+              emptyText="Waiting for humidity data..."
+            />
+          )}
+
+          {variant === "gauge" && <GaugeBar pct={gaugePct} color={style.color} />}
+          {variant === "tempGauge" && <TemperatureGauge temperature={value} />}
+          {variant === "pressure" && (
+            <LineTrace
+              color={style.color}
+              samples={signal}
+              sensorType="pressure"
+              emptyText="Waiting for pressure data..."
+            />
+          )}
+
+          {variant === "plain" && <div className="h-[86px]" />}
+        </div>
+
+        {/* Normal Range Indicator */}
+        {normalRange && (
+          <div className="mb-[var(--space-3)] flex items-center gap-[var(--space-1-5)]">
+            <span
+              className="h-[var(--dash-range-dot-size)] w-[var(--dash-range-dot-size)] shrink-0 rounded-full"
+              style={{ background: "var(--status-optimal)" }}
+            />
+
+            <span className="truncate text-xs font-medium text-[var(--color-text-secondary)]">
+              {normalRange}
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Relative Updated Timestamp */}
-      {updatedText && (
-        <div className="mt-[var(--space-3)] flex items-center gap-[var(--space-1-5)] border-t border-[var(--color-border)] pt-[var(--space-2-5)] text-xs font-medium text-[var(--color-text-secondary)]">
-          <IoTimeOutline className="text-[length:var(--font-size-sm)]" />
-          <span>Last seen {updatedText}</span>
+      <div>
+        {/* Min / Avg / Peak Summary */}
+        <div className="mt-auto">
+          <MiniStats items={miniStats} />
         </div>
-      )}
+
+        {/* Relative Updated Timestamp */}
+        {updatedText && (
+          <div className="mt-[var(--space-3)] flex items-center gap-[var(--space-1-5)] border-t border-[var(--color-border)] pt-[var(--space-2-5)] text-xs font-medium text-[var(--color-text-secondary)]">
+            <IoTimeOutline className="text-[var(--font-size-sm)]" />
+            <span>Last seen {updatedText}</span>
+          </div>
+        )}
+      </div>
     </article>
   );
 }

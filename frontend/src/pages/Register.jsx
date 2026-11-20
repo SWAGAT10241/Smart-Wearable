@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaUserCheck } from "react-icons/fa6";
-import { IoShieldOutline, IoRadioOutline } from "react-icons/io5";
 import AuthLayout from "../components/auth/AuthLayout";
 import AuthCard from "../components/auth/AuthCard";
 import Field from "../components/auth/Field";
@@ -119,9 +117,7 @@ export default function Register() {
                 />
               </div>
             </div>
-          </div>
-
-          {error && <div className="tg-formcard__error">{error}</div>}
+          )}
 
           {/* SECTION 01: ACCOUNT CREDENTIALS */}
           <div className="tg-formcard__section-label">
@@ -131,7 +127,7 @@ export default function Register() {
             </span>
           </div>
 
-          <div className="tg-formcard__row">
+          <div className="grid grid-cols-1 gap-[var(--space-4)] sm:grid-cols-2">
             <Field
               label="Username"
               name="username"
@@ -171,7 +167,7 @@ export default function Register() {
             </span>
           </div>
 
-          <div className="tg-formcard__row">
+          <div className="grid grid-cols-1 gap-[var(--space-4)] sm:grid-cols-2">
             <PhoneField
               label="Phone Number"
               name="phoneNumber"
@@ -193,7 +189,7 @@ export default function Register() {
             />
           </div>
 
-          <div className="tg-formcard__row">
+          <div className="grid grid-cols-1 gap-[var(--space-4)] sm:grid-cols-2">
             <Field
               label="Emergency contact name"
               name="emergencyContactName"
@@ -245,7 +241,7 @@ export default function Register() {
             </Button>
           </div>
 
-          <p className="tg-formcard__footer">
+          <p className="text-center text-[var(--font-size-sm)] text-[var(--text-muted)]">
             Already have an account?{" "}
             <Link to="/login" className="tg-formcard__link">
               Sign in

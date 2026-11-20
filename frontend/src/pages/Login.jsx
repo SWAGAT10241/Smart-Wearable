@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
-import { IoShieldCheckmarkOutline } from "react-icons/io5";
 import AuthLayout from "../components/auth/AuthLayout";
 import AuthCard from "../components/auth/AuthCard";
 import Field from "../components/auth/Field";
@@ -111,6 +110,7 @@ export default function Login() {
             variant="secondary"
             type="button"
             onClick={() => (window.location.href = authApi.googleLoginUrl())}
+            className="flex items-center justify-center gap-[var(--space-3)]"
           >
             <FcGoogle className="text-[var(--auth-social-icon-size)]" />
             Continue with Google
@@ -119,7 +119,10 @@ export default function Login() {
           {/* Footer: Balanced margin handled via .tg-formcard__footer token */}
           <p className="tg-formcard__footer">
             Don't have an account?{" "}
-            <Link to="/register" className="tg-formcard__link">
+            <Link
+              to="/register"
+              className="font-medium text-[var(--action-primary)] transition-colors hover:text-[var(--action-primary-hover)] underline underline-offset-4"
+            >
               Sign up
             </Link>
           </p>
