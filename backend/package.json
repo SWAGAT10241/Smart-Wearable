@@ -21,23 +21,22 @@
     "bcrypt": "^6.0.0",
     "connect-mongo": "^6.0.0",
     "cors": "^2.8.5",
-    "dotenv": "^18.0.8",
+    "dotenv": "^18.0.10",
     "express": "^5.3.0",
-    "express-rate-limit": "^8.7.1",
+    "express-rate-limit": "^8.7.4",
     "express-session": "^1.18.0",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^7.7.0",
-    "mongoose": "^9.11.4",
+    "mongodb": "^7.9.0",
+    "mongoose": "^9.12.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "qrcode": "^1.5.4",
-    "twilio": "^6.2.0",
-    "ws": "^8.22.0"
+    "twilio": "^6.3.0",
+    "ws": "^8.23.0"
   },
   "devDependencies": {
     "jest": "^30.5.2",
-    "supertest": "^7.3.1"
+    "supertest": "^7.3.2"
   },
   "engines": {
     "node": ">=18.0.0"
