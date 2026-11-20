@@ -116,6 +116,12 @@ self.addEventListener("fetch", (event) => {
 
 // Support manual skipWaiting trigger from UI
 self.addEventListener("message", (event) => {
+  const trustedOrigin = self.location.origin;
+
+  if (!event.origin || event.origin !== trustedOrigin) {
+    return;
+  }
+
   if (event.data && event.data.type === "SKIP_WAITING") {
     self.skipWaiting();
   }
