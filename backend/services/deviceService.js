@@ -228,16 +228,20 @@ async function unpairDevice(userId, deviceId) {
     {
       deviceId: normalizedDeviceId,
       userId,
+      $or: [
+        { state: "PAIRED" },
+        { state: { $exists: false } },
+      ],
     },
     {
       $set: {
         status: "inactive",
+        state: "PROVISIONED",
         userId: null,
       },
     },
     {
       new: true,
-      runValidators: false,
     },
   ).select("deviceId deviceName status lastSeen");
 

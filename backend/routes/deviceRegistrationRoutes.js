@@ -1,16 +1,34 @@
 const express = require("express");
 const protect = require("../middleware/authMiddleware");
 const { deviceLimiter } = require("../middleware/rateLimiter");
-const deviceController = require("../controllers/deviceController");
+const deviceRegistrationController = require("../controllers/deviceRegistrationController");
 
 module.exports = function () {
   const router = express.Router();
 
-  /**
-   * POST /api/devices/register
-   * One-time device activation/registration endpoint.
-   */
-  router.post("/register", deviceLimiter, protect, deviceController.registerDevice(true));
+  router.post(
+    "/pairing-challenges",
+    deviceLimiter,
+    protect,
+    deviceRegistrationController.startPairingChallenge,
+  );
+  router.post(
+    "/pairing-challenges/:challengeId/complete",
+    deviceLimiter,
+    protect,
+    deviceRegistrationController.completePairingChallenge,
+  );
+  router.post(
+    "/telemetry-receipts",
+    deviceLimiter,
+    protect,
+    deviceRegistrationController.getTelemetryReceipt,
+  );
+  router.post(
+    "/register",
+    protect,
+    deviceRegistrationController.rejectLegacyRegistration,
+  );
 
   return router;
 };

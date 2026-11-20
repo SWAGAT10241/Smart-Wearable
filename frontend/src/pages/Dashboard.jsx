@@ -44,6 +44,7 @@ export default function Dashboard() {
     environmentTimestamp,
     locationUpdatedText,
     notifications,
+    lastSeen,
   } = useDashboardData(selectedDeviceId);
 
   // Configuration for 5 quick metric stat cards
@@ -230,11 +231,12 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
-      <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <div className="flex min-h-0 flex-1 flex-col gap-[var(--page-section-gap)]">
         {/* Header */}
         <DashboardHeader
           user={user}
           selectedDevice={selectedDevice}
+          lastSeen={lastSeen}
           notifications={notifications}
         />
 
@@ -242,7 +244,7 @@ export default function Dashboard() {
         <QuickStatsGrid stats={stats} />
 
         {/* Live Location and Recent Events */}
-        <section className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[1.45fr_minmax(300px,0.8fr)]">
+        <section className="grid min-h-0 flex-1 gap-[var(--page-section-gap)] xl:grid-cols-[1.45fr_minmax(var(--dash-events-col-min-width),0.8fr)]">
           <LiveLocationCard
             loc={loc}
             trail={trail}

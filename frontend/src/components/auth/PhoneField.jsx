@@ -11,11 +11,11 @@ export default function PhoneField({
   required = false,
 }) {
   return (
-    <div className="flex w-full flex-col gap-2">
+    <div className="flex w-full flex-col gap-[var(--space-2)]">
       {label && (
         <label
           htmlFor={name}
-          className="text-[13px] font-medium text-[var(--color-text)]"
+          className="text-[var(--font-size-sm-alt)] font-medium text-[var(--color-text)]"
         >
           {label}
         </label>

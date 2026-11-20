@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { FiLink, FiX } from "react-icons/fi";
 import { HiOutlineSquares2X2, HiOutlineInformationCircle } from "react-icons/hi2";
@@ -6,6 +6,7 @@ import { MdHistory } from "react-icons/md";
 import { FiSettings } from "react-icons/fi";
 
 import { useDevices } from "../context/DeviceContext";
+import useUpdatedTime from "../hooks/useUpdatedTime";
 import loginBackground from "../assets/images/login-background.png";
 import { maskDeviceId } from "../utils/masking";
 
@@ -23,8 +24,26 @@ export default function Sidebar() {
   const [showUnpairModal, setShowUnpairModal] = useState(false);
   const [unpairing, setUnpairing] = useState(false);
 
+  useEffect(() => {
+    if (!showUnpairModal) return;
+    const originalOverflow = document.body.style.overflow;
+    const originalPaddingRight = document.body.style.paddingRight;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+    document.body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.paddingRight = originalPaddingRight;
+    };
+  }, [showUnpairModal]);
+
   const deviceName =
     selectedDevice?.deviceName || selectedDevice?.name || "TrailGuard Wearable";
+  const lastSeenText = useUpdatedTime(selectedDevice?.lastSeen);
 
   const handleUnpair = async () => {
     if (!selectedDevice?.deviceId) return;
@@ -48,9 +67,9 @@ export default function Sidebar() {
   return (
     <>
       {/* SIDEBAR */}
-      <aside className="relative hidden min-h-screen w-[250px] shrink-0 overflow-hidden border-r border-[#102F4A]/80 bg-[#061B2D] lg:flex lg:flex-col">
+      <aside className="relative hidden min-h-screen w-[var(--sidebar-width)] shrink-0 overflow-hidden border-r border-[var(--brand-navy-card-border)] bg-[var(--brand-navy)] lg:flex lg:flex-col">
         {/* ATMOSPHERIC BACKGROUND WITH MOUNTAIN SILHOUETTE */}
-        <div className="absolute inset-0 bg-[#061B2D]" />
+        <div className="absolute inset-0 bg-[var(--brand-navy)]" />
 
         <div
           className="pointer-events-none absolute inset-x-0 bottom-0 h-[52%] bg-cover bg-bottom opacity-85"
@@ -61,11 +80,11 @@ export default function Sidebar() {
           className="pointer-events-none absolute inset-x-0 bottom-0 h-[65%]"
           style={{
             background:
-              "linear-gradient(to bottom, #061B2D 0%, rgba(6,27,45,.97) 20%, rgba(6,27,45,.88) 45%, rgba(6,27,45,.62) 72%, rgba(6,27,45,.78) 100%)",
+              "linear-gradient(to bottom, var(--brand-navy) 0%, rgba(6,27,45,.97) 20%, rgba(6,27,45,.88) 45%, rgba(6,27,45,.62) 72%, rgba(6,27,45,.78) 100%)",
           }}
         />
 
-        <div className="pointer-events-none absolute inset-0 bg-[#031827]/10" />
+        <div className="pointer-events-none absolute inset-0 bg-[var(--brand-navy-deep)]/10" />
 
         <div className="relative z-10 flex min-h-screen flex-col px-4 py-5">
           {/* LOGO & BRAND IDENTITY */}
@@ -76,7 +95,7 @@ export default function Sidebar() {
 
             <div className="flex flex-col">
               <span className="text-xl font-bold tracking-tight text-white">
-                Trail<span className="text-[#2DD4BF]">Guard</span>
+                Trail<span className="text-[var(--brand-teal)]">Guard</span>
               </span>
             </div>
           </div>
@@ -87,10 +106,11 @@ export default function Sidebar() {
               <NavLink
                 key={to}
                 to={to}
+                viewTransition
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition ${
                     isActive
-                      ? "border border-teal-500/30 bg-[#0E9C8C]/25 font-semibold text-[#42E3D0] shadow-sm"
+                      ? "border border-teal-500/30 bg-[var(--brand-teal-subtle)] font-semibold text-[var(--brand-teal-light)] shadow-sm"
                       : "text-slate-300 hover:bg-white/10 hover:text-white"
                   }`
                 }
@@ -104,7 +124,7 @@ export default function Sidebar() {
           {/* DEVICE & SAFETY CARDS */}
           <div className="mt-6 space-y-3">
             {/* SAFETY */}
-            <div className="rounded-2xl border border-white/10 bg-[#102F4A]/70 p-4 shadow-lg backdrop-blur-sm">
+            <div className="rounded-2xl border border-white/10 bg-[var(--brand-navy-card-bg)] p-4 shadow-lg backdrop-blur-sm">
               <div className="flex items-start gap-3">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-teal-300/20 bg-teal-400/15 text-teal-300">
                   🛡
@@ -125,7 +145,7 @@ export default function Sidebar() {
             </div>
 
             {/* DEVICE */}
-            <div className="rounded-2xl border border-white/10 bg-[#102F4A]/70 p-4 shadow-lg backdrop-blur-sm">
+            <div className="rounded-2xl border border-white/10 bg-[var(--brand-navy-card-bg)] p-4 shadow-lg backdrop-blur-sm">
               {selectedDevice ? (
                 <>
                   <div className="flex items-start gap-3">
@@ -143,6 +163,11 @@ export default function Sidebar() {
                       <p className="mt-0.5 truncate font-mono text-[10px] text-slate-400">
                         {maskDeviceId(selectedDevice.deviceId)}
                       </p>
+
+                      <div className="mt-2 flex items-center gap-1.5 text-[10px] font-mono text-emerald-400">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span>Last seen: {lastSeenText || "Never seen"}</span>
+                      </div>
                     </div>
 
                     <FiLink className="text-[18px] text-emerald-400" />
@@ -178,7 +203,7 @@ export default function Sidebar() {
                   <button
                     type="button"
                     onClick={openPairModal}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#2DD4BF] px-3 py-2 text-[11px] font-semibold text-[#06202D] transition hover:bg-[#5EEAD4]"
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-teal)] px-3 py-2 text-[11px] font-semibold text-[var(--brand-navy-text)] transition hover:bg-[var(--brand-teal-hover)]"
                   >
                     <FiLink className="text-[15px]" />
                     Pair Device
@@ -192,10 +217,10 @@ export default function Sidebar() {
 
       {/* MODAL BACKDROP */}
       {showUnpairModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-[2px]">
+        <div className="tg-modal-backdrop fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-[2px]">
           {/* UNPAIR MODAL */}
           {showUnpairModal && selectedDevice && (
-            <div className="w-full max-w-[440px] rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-2xl">
+            <div className="tg-modal-card w-full max-w-[440px] rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-2xl">
               <ModalHeader
                 title="Unpair Device?"
                 text="This will disconnect the wearable from your account."

@@ -1,11 +1,28 @@
-import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
+import React, { useState } from "react";
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../context/AuthContext";
+import { useAppTheme } from "../theme/theme";
 
 export default function CompleteProfileScreen() {
-  const { completeProfile } = useAuth();
+  const theme = useAppTheme();
+  const { completeProfile, logout } = useAuth();
   const [form, setForm] = useState({
-    phoneNumber: "", emergencyContactName: "", emergencyContactPhone: "", height: "", weight: "",
+    phoneNumber: "",
+    emergencyContactName: "",
+    emergencyContactPhone: "",
+    height: "",
+    weight: "",
   });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -16,62 +33,190 @@ export default function CompleteProfileScreen() {
     setError("");
     setBusy(true);
     try {
-      // Success flips profileComplete in AuthContext; App.js swaps to the main tabs automatically.
-      await completeProfile(form);
+      await completeProfile({
+        ...form,
+        height: form.height ? Number(form.height) : undefined,
+        weight: form.weight ? Number(form.weight) : undefined,
+      });
     } catch (err) {
-      setError(err.message || "Something went wrong");
+      setError(err.message || "Failed to complete profile");
     } finally {
       setBusy(false);
     }
   };
 
+  const fields = [
+    { key: "phoneNumber", label: "Phone number", placeholder: "+1 (555) 000-0000", kbType: "phone-pad" },
+    { key: "emergencyContactName", label: "Emergency contact name", placeholder: "e.g. Jane Doe", kbType: "default" },
+    { key: "emergencyContactPhone", label: "Emergency contact phone", placeholder: "+1 (555) 111-2222", kbType: "phone-pad" },
+    { key: "height", label: "Height (cm)", placeholder: "e.g. 175", kbType: "numeric" },
+    { key: "weight", label: "Weight (kg)", placeholder: "e.g. 70", kbType: "numeric" },
+  ];
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.badge}>ONE LAST STEP</Text>
-      <Text style={styles.title}>Finish your safety profile</Text>
-      <Text style={styles.subtitle}>
-        We need this so TrailGuard knows who to alert, and where, if something goes wrong.
-      </Text>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-      {[
-        ["phoneNumber", "Phone number", "phone-pad"],
-        ["emergencyContactName", "Emergency contact name", "default"],
-        ["emergencyContactPhone", "Emergency contact phone", "phone-pad"],
-        ["height", "Height (cm)", "numeric"],
-        ["weight", "Weight (kg)", "numeric"],
-      ].map(([key, placeholder, kbType]) => (
-        <TextInput
-          key={key}
-          style={styles.input}
-          placeholder={placeholder}
-          keyboardType={kbType}
-          value={form[key]}
-          onChangeText={set(key)}
-        />
-      ))}
-      <TouchableOpacity style={styles.button} onPress={onSubmit} disabled={busy}>
-        {busy ? <ActivityIndicator color="#102A43" /> : <Text style={styles.buttonText}>Complete profile</Text>}
-      </TouchableOpacity>
-    </ScrollView>
+    <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <ScrollView
+          contentContainerStyle={styles.container}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={[styles.badge, { backgroundColor: theme.primaryLight }]}>
+            <Text style={[styles.badgeText, { color: theme.primary }]}>
+              ONE LAST STEP
+            </Text>
+          </View>
+
+          <Text style={[styles.title, { color: theme.text }]}>
+            Finish your safety profile
+          </Text>
+          <Text style={[styles.subtitle, { color: theme.secondaryText }]}>
+            TrailGuard uses this safety information to dispatch help to your emergency contacts during active falls or SOS events.
+          </Text>
+
+          {error ? (
+            <View style={[styles.errorContainer, { borderColor: theme.danger }]}>
+              <Text style={[styles.error, { color: theme.danger }]}>{error}</Text>
+            </View>
+          ) : null}
+
+          {fields.map(({ key, label, placeholder, kbType }) => (
+            <View key={key} style={styles.inputGroup}>
+              <Text style={[styles.label, { color: theme.secondaryText }]}>{label}</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.card,
+                    borderColor: theme.border,
+                    color: theme.text,
+                  },
+                ]}
+                placeholder={placeholder}
+                placeholderTextColor={theme.secondaryText}
+                keyboardType={kbType}
+                value={form[key]}
+                onChangeText={set(key)}
+              />
+            </View>
+          ))}
+
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: theme.primary }]}
+            onPress={onSubmit}
+            disabled={busy}
+          >
+            {busy ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Complete Safety Profile</Text>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.logoutButton}
+            onPress={logout}
+            disabled={busy}
+          >
+            <Text style={[styles.logoutText, { color: theme.secondaryText }]}>
+              Sign out / Use another account
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 24, backgroundColor: "#F4F9FA", flexGrow: 1, justifyContent: "center" },
-  badge: {
-    alignSelf: "flex-start", backgroundColor: "#CCFBF1", color: "#0369A1", fontWeight: "700",
-    fontSize: 11, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, marginBottom: 12,
+  safe: {
+    flex: 1,
   },
-  title: { fontSize: 24, fontWeight: "700", color: "#102A43", marginBottom: 6 },
-  subtitle: { fontSize: 14, color: "#5C7086", marginBottom: 16 },
-  error: { color: "#D64545", marginBottom: 12 },
+  keyboardView: {
+    flex: 1,
+  },
+  container: {
+    padding: 24,
+    flexGrow: 1,
+    justifyContent: "center",
+  },
+  badge: {
+    alignSelf: "flex-start",
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 999,
+    marginBottom: 12,
+  },
+  badgeText: {
+    fontWeight: "700",
+    fontSize: 11,
+    letterSpacing: 0.5,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: "700",
+    marginBottom: 8,
+    letterSpacing: -0.5,
+  },
+  subtitle: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 20,
+  },
+  errorContainer: {
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+    backgroundColor: "rgba(220, 38, 38, 0.08)",
+  },
+  error: {
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  inputGroup: {
+    marginBottom: 14,
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: "600",
+    marginBottom: 6,
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
+  },
   input: {
-    height: 52, borderRadius: 12, borderWidth: 1, borderColor: "#D9E4E8",
-    backgroundColor: "#fff", paddingHorizontal: 16, marginBottom: 12, fontSize: 15,
+    height: 52,
+    borderRadius: 14,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    fontSize: 15,
   },
   button: {
-    height: 52, borderRadius: 12, backgroundColor: "#2DD4BF",
-    alignItems: "center", justifyContent: "center", marginTop: 8,
+    height: 54,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  buttonText: { color: "#102A43", fontWeight: "700", fontSize: 16 },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 16,
+  },
+  logoutButton: {
+    alignItems: "center",
+    paddingVertical: 16,
+    marginTop: 4,
+  },
+  logoutText: {
+    fontSize: 13,
+    fontWeight: "600",
+  },
 });

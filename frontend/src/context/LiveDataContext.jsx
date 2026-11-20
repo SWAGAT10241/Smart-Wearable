@@ -36,12 +36,13 @@ const TELEMETRY_CHARACTERISTIC_UUID =
 const LiveDataContext = createContext(null);
 
 export function LiveDataProvider({ children }) {
-  const { selectedDeviceId } = useDevices();
+  const { selectedDeviceId, updateDeviceHeartbeat } = useDevices();
   const [connected, setConnected] = useState(false);
   const [bleConnected, setBleConnected] = useState(false);
   const [bleConnectionState, setBleConnectionState] = useState("DISCONNECTED");
   const [deviceStatus, setDeviceStatus] = useState(null);
   const [deviceStatusUpdatedAt, setDeviceStatusUpdatedAt] = useState(null);
+  const [lastSeen, setLastSeen] = useState(null);
   const [vitals, setVitals] = useState(null);
   const [environment, setEnvironment] = useState(null);
   const [location, setLocation] = useState(null);
@@ -77,6 +78,7 @@ export function LiveDataProvider({ children }) {
     setLocationUpdatedAt(null);
     setDeviceStatus(null);
     setDeviceStatusUpdatedAt(null);
+    setLastSeen(null);
   }, [selectedDeviceId]);
 
   useEffect(() => {
@@ -142,7 +144,28 @@ export function LiveDataProvider({ children }) {
         msg.timestamp ||
         new Date().toISOString();
 
+      // Fall status timestamps describe the original fall, not fresh device contact.
+      if (msg.type !== "fall_status_update") {
+        setLastSeen(messageTimestamp);
+        if (updateDeviceHeartbeat) {
+          updateDeviceHeartbeat(messageDeviceId || currentSelectedId, messageTimestamp);
+        }
+      }
+
       switch (msg.type) {
+        /* -----------------------------------------------
+         * DEVICE HEARTBEAT
+         * --------------------------------------------- */
+
+        case "device_heartbeat": {
+          const timestamp = msg.data?.lastSeen || messageTimestamp;
+          setLastSeen(timestamp);
+          if (updateDeviceHeartbeat) {
+            updateDeviceHeartbeat(messageDeviceId || currentSelectedId, timestamp);
+          }
+          break;
+        }
+
         /* -----------------------------------------------
          * VITALS
          * --------------------------------------------- */
@@ -691,6 +714,7 @@ export function LiveDataProvider({ children }) {
     deviceStatus,
     deviceStatusUpdatedAt,
     selectedDeviceId,
+    lastSeen,
     vitals,
     environment,
     location,

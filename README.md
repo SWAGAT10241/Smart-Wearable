@@ -137,6 +137,17 @@ python3 -m compileall -q hardware
 
 ---
 
+## 🚀 Active Roadmap & Architectural Proposals
+
+We are actively developing **[Phase 2: Mobile Local-First Privacy & Edge Risk Engine](https://github.com/SWAGAT10241/Smart-Wearable/milestone/4)** on the `SWAAS` branch:
+
+- 📢 **Phase 2 Planning:** [Discussion #153](https://github.com/SWAGAT10241/Smart-Wearable/discussions/153)
+- 💡 **Strategic Ideas & Proposals:** [Discussion #154](https://github.com/SWAGAT10241/Smart-Wearable/discussions/154)
+- 🌐 **Polyglot Architecture RFC:** [Discussion #158 (Rust + Go + Node.js + Python)](https://github.com/SWAGAT10241/Smart-Wearable/discussions/158)
+- 📄 **Technical Blueprints:** [Polyglot Architecture Plan](docs/POLYGLOT_ARCHITECTURE_PLAN.md) · [Strategic Roadmap](STRATEGIC_REPOSITORY_ROADMAP.md)
+
+---
+
 ## 📖 In-Depth Documentation
 
 For exhaustive technical references, consult the **[Official SWAAS GitHub Wiki](https://github.com/SWAGAT10241/Smart-Wearable/wiki)**:
@@ -148,6 +159,7 @@ For exhaustive technical references, consult the **[Official SWAAS GitHub Wiki](
 | **[16 — Privacy & Governance](https://github.com/SWAGAT10241/Smart-Wearable/wiki/16---Privacy-&-Data-Governance)** | Local-first storage model, 6h emergency bounds, and TTL cleanup |
 | **[17 — Real-Time Communication](https://github.com/SWAGAT10241/Smart-Wearable/wiki/17---Real-Time-Communication)** | Single-use WebSocket tickets, subprotocols, and scoped routing |
 | **[18 — Device Lifecycle](https://github.com/SWAGAT10241/Smart-Wearable/wiki/18---Device-Provisioning-&-Lifecycle)** | Factory provisioning, Ed25519 pairing, and receipt verification |
+| **[Polyglot Architecture Plan](docs/POLYGLOT_ARCHITECTURE_PLAN.md)** | 4-Language backend specification (Rust + Go + Node.js + Python) |
 | **[Knowledge Graph Hub](https://github.com/SWAGAT10241/Smart-Wearable/wiki/Knowledge-Graph)** | Codebase AST graph (2,012 nodes · 3,317 edges · 147 communities) |
 
 ---
