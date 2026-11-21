@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/trailguard/gateway-go/internal/packet"
+	"github.com/SWAGAT10241/Smart-Wearable/services/gateway-go/internal/packet"
 )
 
 // Client represents an authenticated listener (rescuer or user app).

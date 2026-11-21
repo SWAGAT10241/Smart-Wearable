@@ -12,8 +12,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/trailguard/gateway-go/internal/hub"
-	"github.com/trailguard/gateway-go/internal/packet"
+	"github.com/SWAGAT10241/Smart-Wearable/services/gateway-go/internal/hub"
+	"github.com/SWAGAT10241/Smart-Wearable/services/gateway-go/internal/packet"
 )
 
 func main() {

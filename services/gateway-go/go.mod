@@ -1,6 +1,3 @@
-module github.com/trailguard/gateway-go
-
-go 1.22
 module github.com/SWAGAT10241/Smart-Wearable/services/gateway-go
 
 go 1.23
