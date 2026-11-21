@@ -1,0 +1,32 @@
+title = "TrailGuard Gitleaks Configuration"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allowlist for test fixtures, mocks, build artifacts, and documentation"
+paths = [
+  '''(?i)node_modules''',
+  '''(?i)\.git''',
+  '''(?i)backend/tests/fixtures''',
+  '''(?i)backend/tests/''',
+  '''(?i)frontend/test/''',
+  '''(?i)mobile/tests/''',
+  '''(?i)SECURITY_AUDIT\.md''',
+  '''(?i)SECURITY\.md''',
+  '''(?i)graphify-out/''',
+  '''(?i)hardware/firmware/build/''',
+  '''(?i)dist/''',
+  '''(?i)\.cursor/''',
+  '''(?i)\.vscode/'''
+]
+stopwords = [
+  "dummy",
+  "mock",
+  "sample",
+  "placeholder",
+  "fake_key",
+  "test_secret",
+  "example_token",
+  "00000000000000000000000000000000"
+]
