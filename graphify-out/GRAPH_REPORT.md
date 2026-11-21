@@ -1,7 +1,7 @@
 # Graph Report - TrailGuard  (2026-11-21)
 
 ## Corpus Check
-- 326 files · ~148,671 words
+- 326 files · ~148,669 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 32 file(s) not represented in the graph (top: (none) 24, .toml 1, .example 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `aaf32d15`
+- Built from commit: `b4441e8e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -590,7 +590,7 @@ Nodes (8): ExtractTicketFromProtocol(), TestExtractTicketFromProtocol_MalformedO
 
 ### Community 132 - "with"
 Cohesion: 0.22
-Nodes (9): with, cache-dependency-path, components, go-version-file, node-version, python-version, run_install, toolchain (+1 more)
+Nodes (9): with, cache-dependency-path, components, go-version, node-version, python-version, run_install, toolchain (+1 more)
 
 ### Community 133 - "react-icons"
 Cohesion: 0.31
