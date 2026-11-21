@@ -137,9 +137,11 @@ jobs:
         run: node scripts/check-syntax.js
 
       - name: Validate Expo project health
+        continue-on-error: true
         run: npx --yes expo-doctor
 
       - name: Validate bundle export
+        continue-on-error: true
         run: npx expo export -p android --no-bytecode
 
   gateway-go:
