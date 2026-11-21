@@ -372,9 +372,9 @@
     "semantic_hash": ""
   },
   "frontend/src/App.jsx": {
-    "mtime": 1795285070.1944768,
-    "seen": 1795285081.331126,
-    "ast_hash": "195731b3b6624cad19475c65e4228cfe",
+    "mtime": 1795288907.4498346,
+    "seen": 1795290931.9654028,
+    "ast_hash": "a62d2b8c624381647aab0d9b28453365",
     "semantic_hash": ""
   },
   "frontend/src/components/ActivitySummary.jsx": {
@@ -408,9 +408,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/StatCard.jsx": {
-    "mtime": 1795285070.2067769,
-    "seen": 1795285081.3311338,
-    "ast_hash": "1b214f1ffa10c36cd81fc51705cbb765",
+    "mtime": 1795289080.118128,
+    "seen": 1795290931.9654112,
+    "ast_hash": "a02edc9f563c9824be725eedc8480464",
     "semantic_hash": ""
   },
   "frontend/src/components/app/AppLayout.jsx": {
@@ -450,9 +450,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/auth/AuthLayout.jsx": {
-    "mtime": 1795285070.215975,
-    "seen": 1795285081.331142,
-    "ast_hash": "eb451bc9d2e219238ea57b181ef5c7f2",
+    "mtime": 1795289797.737634,
+    "seen": 1795290931.965421,
+    "ast_hash": "d2aaf0575b3663a2aa0e70719afffecd",
     "semantic_hash": ""
   },
   "frontend/src/components/auth/Button.jsx": {
@@ -564,9 +564,9 @@
     "semantic_hash": ""
   },
   "frontend/src/context/LiveDataContext.jsx": {
-    "mtime": 1795285070.2256293,
-    "seen": 1795285081.331171,
-    "ast_hash": "56a947f3863b8a61569702f64ef56271",
+    "mtime": 1795289971.794208,
+    "seen": 1795290931.965454,
+    "ast_hash": "e4e46def803b72391c12a88a053c4bb0",
     "semantic_hash": ""
   },
   "frontend/src/context/ThemeContext.jsx": {
@@ -636,9 +636,9 @@
     "semantic_hash": ""
   },
   "frontend/src/pages/Register.jsx": {
-    "mtime": 1795285070.2333853,
-    "seen": 1795285081.331192,
-    "ast_hash": "ecbf289945c848acce582c8f4c134856",
+    "mtime": 1795289036.3287318,
+    "seen": 1795290931.9654799,
+    "ast_hash": "88ba780d43b9066e8b06f5e1dc4acf1f",
     "semantic_hash": ""
   },
   "frontend/src/pages/Settings.jsx": {
@@ -684,9 +684,9 @@
     "semantic_hash": ""
   },
   "frontend/vite.config.js": {
-    "mtime": 1795277713.952381,
-    "seen": 1795277841.760608,
-    "ast_hash": "9bbc0c437f9bcbdc00e58081ba989dd9",
+    "mtime": 1795290149.700721,
+    "seen": 1795290931.9655051,
+    "ast_hash": "182f1c1636f98d53c9a2222d1853e787",
     "semantic_hash": ""
   },
   "hardware/Drivers/Unispace12x24.c": {
@@ -1152,9 +1152,9 @@
     "semantic_hash": ""
   },
   "frontend/src/pages/NotFound.jsx": {
-    "mtime": 1795285070.233094,
-    "seen": 1795285081.33119,
-    "ast_hash": "525ad1993b172151f6aeae749b33427d",
+    "mtime": 1795289823.2490869,
+    "seen": 1795290931.9654772,
+    "ast_hash": "cb2ace8f6870369cbf01a64ca74b501a",
     "semantic_hash": ""
   },
   "frontend/src/utils/masking.js": {
@@ -1692,9 +1692,9 @@
     "semantic_hash": ""
   },
   "frontend/public/sw.js": {
-    "mtime": 1795285070.1940498,
-    "seen": 1795285086.8476548,
-    "ast_hash": "25dcac03e503e0bba83ebd96390881d5",
+    "mtime": 1795290356.073863,
+    "seen": 1795290931.9654012,
+    "ast_hash": "3c28aa5c74f3c409b864deb75fa9f28d",
     "semantic_hash": ""
   },
   "frontend/src/components/common/OfflineBanner.jsx": {
@@ -1716,9 +1716,9 @@
     "semantic_hash": ""
   },
   "frontend/src/pages/Landing.jsx": {
-    "mtime": 1795285070.2322826,
-    "seen": 1795285086.8477309,
-    "ast_hash": "75558c2458c90652a471577375376d1b",
+    "mtime": 1795289847.992461,
+    "seen": 1795290931.965475,
+    "ast_hash": "9d99ab1218582d77a06d25eb259123a8",
     "semantic_hash": ""
   },
   "frontend/src/registerServiceWorker.js": {
@@ -2031,6 +2031,18 @@
     "mtime": 1795285070.2026482,
     "seen": 1795285086.8479218,
     "ast_hash": "76b4cece41f824d208f2203b23671b39",
+    "semantic_hash": ""
+  },
+  "frontend/src/assets/images/login-background.webp": {
+    "mtime": 1795289783.7413597,
+    "seen": 1795290931.965675,
+    "ast_hash": "01e5a6ac760244a4cf1816cd491cd03c",
+    "semantic_hash": ""
+  },
+  "frontend/src/assets/images/sar-helicopter.webp": {
+    "mtime": 1795289783.8544743,
+    "seen": 1795290931.965677,
+    "ast_hash": "0cfdf32c434395c3c6150cf5ceda48f5",
     "semantic_hash": ""
   },
   "backend/pnpm-lock.yaml": {
