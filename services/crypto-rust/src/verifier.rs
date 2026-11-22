@@ -40,11 +40,15 @@ pub fn parse_public_key(input: &[u8]) -> Result<VerifyingKey, CryptoError> {
             .map_err(|_| CryptoError::InvalidPublicKey("Malformed key encoding".to_string()))?;
 
         if decoded.len() == 32 {
-            let key_bytes: [u8; 32] = decoded.as_slice().try_into().unwrap();
+            let key_bytes: [u8; 32] = decoded.as_slice().try_into().map_err(|_| {
+                CryptoError::InvalidPublicKey("Invalid decoded 32-byte key".to_string())
+            })?;
             return VerifyingKey::from_bytes(&key_bytes)
                 .map_err(|e| CryptoError::InvalidPublicKey(e.to_string()));
         } else if decoded.len() == 44 && decoded.starts_with(&ED25519_SPKI_PREFIX) {
-            let key_bytes: [u8; 32] = decoded[12..44].try_into().unwrap();
+            let key_bytes: [u8; 32] = decoded[12..44].try_into().map_err(|_| {
+                CryptoError::InvalidPublicKey("Invalid decoded SPKI key slice".to_string())
+            })?;
             return VerifyingKey::from_bytes(&key_bytes)
                 .map_err(|e| CryptoError::InvalidPublicKey(e.to_string()));
         }
@@ -71,7 +75,9 @@ pub fn parse_signature(input: &[u8]) -> Result<Signature, CryptoError> {
             .map_err(|_| CryptoError::InvalidSignature("Malformed signature encoding".to_string()))?;
 
         if decoded.len() == 64 {
-            let sig_bytes: [u8; 64] = decoded.as_slice().try_into().unwrap();
+            let sig_bytes: [u8; 64] = decoded.as_slice().try_into().map_err(|_| {
+                CryptoError::InvalidSignature("Invalid decoded 64-byte signature".to_string())
+            })?;
             return Ok(Signature::from_bytes(&sig_bytes));
         }
     }
@@ -166,12 +172,9 @@ fn decode_base64_or_hex(input: &str) -> Result<Vec<u8>, ()> {
         let b2 = b64_val(chars[i + 2]);
         let b3 = b64_val(chars[i + 3]);
 
-        if b0.is_none() || b1.is_none() {
+        let (Some(u0), Some(u1)) = (b0, b1) else {
             return Err(());
-        }
-
-        let u0 = b0.unwrap();
-        let u1 = b1.unwrap();
+        };
         decoded.push((u0 << 2) | (u1 >> 4));
 
         if let Some(u2) = b2 {
