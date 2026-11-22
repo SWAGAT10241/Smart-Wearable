@@ -9,11 +9,30 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
-    alias: {
-      react: path.resolve(__dirname, "./node_modules/react"),
-      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
-    },
     dedupe: ["react", "react-dom"],
+  },
+  build: {
+    target: "esnext",
+    cssCodeSplit: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (
+            id.includes("node_modules/react/") ||
+            id.includes("node_modules/react-dom/") ||
+            id.includes("node_modules/react-router")
+          ) {
+            return "vendor";
+          }
+          if (id.includes("node_modules/maplibre-gl/")) {
+            return "maplibre";
+          }
+          if (id.includes("node_modules/react-icons/")) {
+            return "icons";
+          }
+        },
+      },
+    },
   },
   test: {
     environment: "jsdom",

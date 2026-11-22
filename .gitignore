@@ -52,6 +52,11 @@ backend/device-authority-private.pem
 backend/device-authority-public.txt
 backend/sim-private-key.pem
 
+# Rust
+target/
+Cargo.lock.bak
+**/*.rs.bk
+
 # PM2 and runtime logs
 logs/
 *.log

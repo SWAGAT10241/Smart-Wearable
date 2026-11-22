@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 
 const CANVAS_W = 64;
 const CANVAS_H = 36;
@@ -17,8 +17,10 @@ export default function VideoAmbient({
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const rafRef = useRef(0);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
+    if (hasError) return;
     const video = videoRef.current;
     const canvas = canvasRef.current;
     if (!video || !canvas) return;
@@ -55,11 +57,11 @@ export default function VideoAmbient({
       video.removeEventListener("loadeddata", paint);
       video.removeEventListener("seeked", paint);
     };
-  }, []);
+  }, [hasError]);
 
   return (
     <div
-      className={`relative w-full overflow-visible ${className}`}
+      className={`relative w-full overflow-hidden rounded-2xl ${className}`}
       style={{ aspectRatio }}
     >
       {/* 21st.dev Ambient Light Halo Canvas */}
@@ -77,20 +79,45 @@ export default function VideoAmbient({
         }}
       />
 
-      {/* Main Foreground Video Element */}
-      <video
-        ref={videoRef}
-        src={src}
-        poster={poster}
-        controls
-        playsInline
-        crossOrigin="anonymous"
-        preload="metadata"
-        autoPlay={autoPlay}
-        muted={muted}
-        loop={loop}
-        className="relative z-10 h-full w-full rounded-2xl border border-white/10 object-cover shadow-2xl"
-      />
+      {/* Main Video or Resilient Tactical Poster Fallback */}
+      {!hasError ? (
+        <video
+          ref={videoRef}
+          src={src}
+          poster={poster}
+          controls
+          playsInline
+          crossOrigin="anonymous"
+          preload="metadata"
+          autoPlay={autoPlay}
+          muted={muted}
+          loop={loop}
+          onError={() => setHasError(true)}
+          className="relative z-10 h-full w-full rounded-2xl border border-white/10 object-cover shadow-2xl"
+        />
+      ) : (
+        <div className="relative z-10 flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-slate-950 shadow-2xl">
+          {poster && (
+            <img
+              src={poster}
+              alt="Sector Reconnaissance Feed"
+              className="absolute inset-0 h-full w-full object-cover opacity-60"
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+          <div className="relative z-20 flex flex-col items-center text-center p-4">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-400 mb-2 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+              🛰
+            </span>
+            <span className="font-mono text-xs font-semibold tracking-wider text-cyan-300">
+              TACTICAL AERIAL FEED // SATELLITE STANDBY
+            </span>
+            <span className="mt-1 font-mono text-[10px] text-slate-400">
+              Mesh Link 433-915 MHz Active · Alpine Telemetry Synchronized
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

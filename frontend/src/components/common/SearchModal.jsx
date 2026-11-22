@@ -164,15 +164,26 @@ export default function SearchModal({ isOpen, onClose }) {
         description: "View MapLibre terrain and live GPS tracking trace",
         icon: FiMapPin,
         action: () => {
-          navigate("/dashboard#map");
+          navigate("/dashboard");
+          onClose();
+        },
+      },
+      {
+        id: "action-theme",
+        category: "Tactical Actions",
+        label: isDark ? "Switch to Light Theme" : "Switch to Dark Theme",
+        description: "Toggle high-contrast tactical display theme",
+        icon: isDark ? FiSun : FiMoon,
+        action: () => {
+          toggleTheme?.();
           onClose();
         },
       },
       {
         id: "action-export",
         category: "Tactical Actions",
-        label: "Export Telemetry Audit Log",
-        description: "Download verified incident CSV & cryptographic receipt",
+        label: "Download Telemetry Audit Logs",
+        description: "Export encrypted session records and incident traces",
         icon: FiDownload,
         action: () => {
           navigate("/history");
@@ -181,30 +192,13 @@ export default function SearchModal({ isOpen, onClose }) {
       }
     );
 
-    // 4. Quick Preferences
-    if (toggleTheme) {
-      items.push({
-        id: "pref-theme",
-        category: "Preferences",
-        label: isDark ? "Switch to High-Contrast Light Theme" : "Switch to Alpine Night Dark Theme",
-        description: "Toggle console color profile between day patrol and night recon",
-        icon: isDark ? FiSun : FiMoon,
-        badge: isDark ? "NIGHT" : "DAY",
-        badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
-        action: () => {
-          toggleTheme();
-          onClose();
-        },
-      });
-    }
-
     return items;
-  }, [activeFall, selectedDevice, isDark, toggleTheme, navigate, onClose]);
+  }, [activeFall, selectedDevice, isDark, navigate, onClose, toggleTheme]);
 
   // Filter items based on user query
   const filteredItems = useMemo(() => {
     if (!query.trim()) return allItems;
-    const q = query.toLowerCase().trim();
+    const q = query.toLowerCase();
     return allItems.filter(
       (item) =>
         item.label.toLowerCase().includes(q) ||
@@ -213,19 +207,19 @@ export default function SearchModal({ isOpen, onClose }) {
     );
   }, [allItems, query]);
 
-  // Keyboard navigation inside modal list
+  // Keyboard navigation inside list
   const handleKeyDown = (e) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setSelectedIndex((prev) => (prev + 1) % Math.max(1, filteredItems.length));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setSelectedIndex((prev) => (prev - 1 + filteredItems.length) % Math.max(1, filteredItems.length));
-    } else if (e.key === "Enter") {
+      setSelectedIndex((prev) =>
+        prev === 0 ? Math.max(0, filteredItems.length - 1) : prev - 1
+      );
+    } else if (e.key === "Enter" && filteredItems[selectedIndex]) {
       e.preventDefault();
-      if (filteredItems[selectedIndex]) {
-        filteredItems[selectedIndex].action();
-      }
+      filteredItems[selectedIndex].action();
     }
   };
 
@@ -235,17 +229,20 @@ export default function SearchModal({ isOpen, onClose }) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Incident Search & Command Palette"
-      className="fixed inset-0 z-[120] flex items-start justify-center p-4 pt-20 sm:pt-28 backdrop-blur-md bg-slate-950/75 animate-fadeIn"
-      onClick={onClose}
+      aria-label="Command & Incident Search"
+      className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-16 sm:pt-24"
     >
+      {/* Backdrop */}
       <div
-        className="w-full max-w-xl overflow-hidden rounded-[var(--modal-radius,24px)] border border-white/15 bg-[var(--brand-navy-deep,#04101d)] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] ring-1 ring-white/10"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Search Header */}
-        <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3.5">
-          <FiSearch className="h-5 w-5 text-teal-400 shrink-0" />
+        className="fixed inset-0 bg-black/70 backdrop-blur-md transition-opacity"
+        onClick={onClose}
+      />
+
+      {/* Modal Dialog Card */}
+      <div className="relative z-10 w-full max-w-xl overflow-hidden rounded-[var(--modal-radius)] border border-white/10 bg-[var(--brand-navy-deep,#031827)] text-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.6),inset_0_1px_0_0_rgba(255,255,255,0.1)]">
+        {/* Header Search Input */}
+        <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3.5 bg-white/[0.02]">
+          <FiSearch className="h-5 w-5 shrink-0 text-[var(--brand-teal,#2dd4bf)]" />
           <input
             ref={inputRef}
             type="text"
@@ -262,12 +259,12 @@ export default function SearchModal({ isOpen, onClose }) {
             <button
               type="button"
               onClick={() => setQuery("")}
-              className="text-slate-400 hover:text-white transition cursor-pointer"
+              className="text-slate-400 hover:text-white transition"
             >
               <FiX className="h-4 w-4" />
             </button>
           )}
-          <kbd className="hidden sm:inline-block rounded-[var(--radius-xs,2px)] bg-black/40 px-2 py-0.5 font-mono text-[10px] font-semibold text-slate-400 border border-white/10">
+          <kbd className="hidden sm:inline-block rounded-[var(--radius-xs)] bg-black/40 px-2 py-0.5 font-mono text-[10px] font-semibold text-slate-400 border border-white/10">
             ESC
           </kbd>
         </div>
@@ -291,7 +288,7 @@ export default function SearchModal({ isOpen, onClose }) {
                     type="button"
                     onClick={item.action}
                     onMouseEnter={() => setSelectedIndex(idx)}
-                    className={`flex w-full items-center justify-between gap-3 rounded-[var(--radius-xl,16px)] px-3.5 py-2.5 text-left text-xs transition cursor-pointer ${
+                    className={`flex w-full items-center justify-between gap-3 rounded-[var(--radius-xl)] px-3.5 py-2.5 text-left text-xs transition cursor-pointer ${
                       isSelected
                         ? "bg-teal-500/15 border border-teal-500/30 text-white shadow-[0_0_12px_rgba(45,212,191,0.12)]"
                         : "border border-transparent text-slate-300 hover:bg-white/5 hover:text-white"
@@ -299,7 +296,7 @@ export default function SearchModal({ isOpen, onClose }) {
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <span
-                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-lg,12px)] border ${
+                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-lg)] border ${
                           isSelected
                             ? "border-teal-400/40 bg-teal-400/20 text-[var(--brand-teal,#2dd4bf)]"
                             : "border-white/10 bg-white/5 text-slate-400"
@@ -312,7 +309,7 @@ export default function SearchModal({ isOpen, onClose }) {
                           <span className="font-semibold truncate">{item.label}</span>
                           {item.badge && (
                             <span
-                              className={`rounded-[var(--radius-xs,2px)] border px-1.5 py-0.2 font-mono text-[9px] font-bold ${
+                              className={`rounded-[var(--radius-xs)] border px-1.5 py-0.2 font-mono text-[9px] font-bold ${
                                 item.badgeColor || "bg-white/10 text-slate-300 border-white/20"
                               }`}
                             >

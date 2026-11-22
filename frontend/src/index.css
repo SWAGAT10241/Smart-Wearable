@@ -157,43 +157,70 @@
      LAYER 3: SPACING, RADIUS, SIZING & TYPOGRAPHY TOKENS
      Modular scale tokens replacing hardcoded px & arbitrary values.
      ========================================================================= */
-  /* Spacing Scale (4px baseline) */
+  /* =========================================================================
+     CORE 4PX SPACING GRID
+     Predictable harmonic rhythm: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64px
+     ========================================================================= */
+  --space-1: 4px;                            /* Tight gap, badge padding */
+  --space-2: 8px;                            /* Standard inline element gap */
+  --space-3: 12px;                           /* Form field gap, card inner margin */
+  --space-4: 16px;                           /* Card compact padding, section gaps */
+  --space-5: 20px;                           /* Standard card padding */
+  --space-6: 24px;                           /* Page header separation */
+  --space-8: 32px;                           /* Spacious section divider */
+  --space-10: 40px;                          /* Large container padding */
+  --space-12: 48px;                          /* Modal dialog padding */
+  --space-16: 64px;                          /* Hero vertical rhythm */
+
+  /* Backward-Compatible Fractional / Legacy Spacers */
   --space-0: 0px;
   --space-0-5: 2px;
-  --space-1: 4px;
   --space-1-5: 6px;
-  --space-2: 8px;
   --space-2-5: 10px;
-  --space-3: 12px;
   --space-3-5: 14px;
-  --space-4: 16px;
   --space-4-5: 18px;
-  --space-5: 20px;
-  --space-6: 24px;
   --space-7: 28px;
-  --space-8: 32px;
   --space-9: 36px;
-  --space-10: 40px;
-  --space-12: 48px;
   --space-14: 56px;
-  --space-16: 64px;
   --space-20: 80px;
   --space-24: 96px;
 
-  /* Corner Radius Tokens */
+  /* =========================================================================
+     CORE RADIUS TOKENS (Fatigue-Free 5-Tier Apple Continuous Curvature System)
+     Single source of truth: 5 core tiers replacing 17 scattered variables.
+     Modify these 5 to effortlessly control every curve across the app!
+     ========================================================================= */
+  --radius-sm: 6px;                          /* 1. Micro: Badges, tags, kbd shortcuts */
+  --radius-md: 12px;                         /* 2. Interactive: Buttons, inputs, search fields */
+  --radius-lg: 16px;                         /* 3. Concentric Inner: Secondary containers, inner cards, popovers */
+  --radius-card: 24px;                       /* 4. Primary Surfaces: Dashboard cards, modals, sheets */
+  --radius-full: 9999px;                     /* 5. Pill: Round badges, circular avatars, status dots */
+
+  /* Mathematical Concentric Curve (R_inner = R_card - padding) */
+  --radius-inner: calc(var(--radius-card) - 10px);
+
+  /* Unified Semantic Aliases (Zero Broken References Across Codebase) */
   --radius-none: 0px;
-  --radius-xs: 2px;
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-button: 13px;
-  --radius-xl: 16px;
-  --radius-stat-card: 20px;
-  --radius-2xl: 20px;
-  --radius-section-card: 24px;
-  --radius-3xl: 24px;
-  --radius-auth-card: 26px;
-  --radius-full: 9999px;
+  --radius-xs: var(--radius-sm);
+  --radius-xl: var(--radius-lg);
+  --radius-2xl: var(--radius-card);
+  --radius-3xl: var(--radius-card);
+  --radius-button: var(--radius-md);
+  --radius-stat-card: var(--radius-card);
+  --radius-section-card: var(--radius-card);
+  --radius-auth-card: var(--radius-card);
+  --card-radius: var(--radius-card);
+  --card-radius-compact: var(--radius-card);
+  --card-radius-expanded: var(--radius-card);
+  --card-radius-inner: var(--radius-inner);
+  --card-radius-inner-compact: var(--radius-inner);
+  --btn-radius: var(--radius-md);
+  --input-radius: var(--radius-md);
+  --modal-radius: var(--radius-card);
+  --popover-radius: var(--radius-lg);
+  --auth-notice-radius: var(--radius-md);
+  --auth-badge-radius: var(--radius-full);
+  --auth-meter-radius: var(--radius-full);
 
   /* Component Dimensions & Layout Constraints */
   --sidebar-width: 250px;
@@ -204,19 +231,24 @@
   --chart-height-sm: 64px;
   --chart-height-md: 76px;
 
-  /* Typography Scale */
+  /* =========================================================================
+     CORE TYPOGRAPHY SCALE (7-Step Industry Standard: Modular 1.25 Major Third)
+     Clean, fatigue-free hierarchy eliminating random 1px step fragmentation.
+     ========================================================================= */
+  --font-size-xs: 12px;                      /* Micro: Captions, status badges, timestamps */
+  --font-size-sm: 14px;                      /* Secondary: Field labels, helper copy */
+  --font-size-base: 16px;                    /* Base: Primary body text, inputs, buttons */
+  --font-size-lg: 18px;                      /* Subheading: Card titles, interactive icons */
+  --font-size-xl: 20px;                      /* Section: Subsection titles, modal headers */
+  --font-size-2xl: 24px;                     /* Page Title: Main headers, auth titles */
+  --font-size-3xl: 32px;                     /* Hero Metric: Big telemetry numbers, stats */
+
+  /* Backward-Compatible Typographic Aliases (Zero Broken References) */
   --font-size-3xs: 10px;
   --font-size-2xs: 11px;
-  --font-size-xs: 12px;
   --font-size-sm-alt: 13px;
-  --font-size-sm: 14px;
-  --font-size-base: 16px;
   --font-size-md: 17px;
-  --font-size-lg: 18px;
-  --font-size-xl: 20px;
-  --font-size-2xl: 24px;
   --font-size-stat: 28px;
-  --font-size-3xl: 30px;
   --font-size-4xl: 36px;
 
   /* =========================================================================
@@ -229,9 +261,6 @@
   --card-padding: var(--space-5);            /* Standard padding for all main cards */
   --card-padding-compact: var(--space-4);    /* Padding for metric/stat cards */
   --card-padding-expanded: var(--space-8);   /* Padding for auth cards & spacious containers */
-  --card-radius: var(--radius-section-card); /* Standard card corner radius (24px) */
-  --card-radius-compact: var(--radius-stat-card); /* Stat & compact card corner radius (20px) */
-  --card-radius-expanded: var(--radius-auth-card);/* Auth card corner radius (26px) */
   --card-gap: var(--space-4);                /* Internal element spacing within cards */
 
   /* Page Layout & Container Spacing */
@@ -243,19 +272,15 @@
   /* Interactive Elements (Buttons & Inputs) */
   --btn-height: var(--button-height-lg);     /* Action button height (64px) */
   --btn-padding-x: var(--space-5);           /* Button horizontal padding */
-  --btn-radius: var(--radius-button);        /* Button corner radius (13px) */
   --btn-gap: var(--space-2);                 /* Button icon-to-label gap */
   --input-padding-x: var(--space-4);         /* Textfield horizontal padding */
-  --input-radius: var(--radius-lg);          /* Textfield corner radius (12px) */
 
   /* Modals & Dialogs */
   --modal-padding: var(--space-12);          /* Alert modal internal padding */
-  --modal-radius: var(--radius-section-card);/* Alert modal corner radius */
   --modal-gap: var(--space-4);               /* Modal element gap */
 
   /* Popovers & Floating Menus */
   --popover-padding: var(--space-4);         /* Popover header/content padding */
-  --popover-radius: var(--radius-xl);        /* Popover corner radius (16px) */
 
   /* =========================================================================
      AUTH FORMS & SURFACES (Login, Register, CompleteProfile)
@@ -456,20 +481,23 @@ html.dark {
   --color-status-warning: var(--status-warning);
   --color-status-info: var(--status-info);
 
-  /* Radius theme mappings */
-  --radius-xs: var(--radius-xs);
+  /* Core 5-Tier Radius Theme Mappings */
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
-  --radius-button: var(--btn-radius);
-  --radius-xl: var(--radius-xl);
-  --radius-2xl: var(--radius-2xl);
-  --radius-3xl: var(--radius-3xl);
-  --radius-card: var(--card-radius);
-  --radius-stat: var(--card-radius-compact);
-  --radius-auth: var(--card-radius-expanded);
-  --radius-modal: var(--modal-radius);
-  --radius-popover: var(--popover-radius);
+  --radius-card: var(--radius-card);
+  --radius-full: var(--radius-full);
+
+  /* Semantic Theme Aliases */
+  --radius-xs: var(--radius-sm);
+  --radius-xl: var(--radius-lg);
+  --radius-2xl: var(--radius-card);
+  --radius-3xl: var(--radius-card);
+  --radius-button: var(--radius-md);
+  --radius-stat: var(--radius-card);
+  --radius-auth: var(--radius-card);
+  --radius-modal: var(--radius-card);
+  --radius-popover: var(--radius-lg);
 
   /* Spacing theme mappings */
   --spacing-card-p: var(--card-padding);
