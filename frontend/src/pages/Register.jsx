@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { FaUserCheck } from "react-icons/fa6";
+import { IoShieldOutline, IoRadioOutline } from "react-icons/io5";
 import AuthLayout from "../components/auth/AuthLayout";
 import AuthCard from "../components/auth/AuthCard";
 import Field from "../components/auth/Field";
@@ -117,7 +119,7 @@ export default function Register() {
                 />
               </div>
             </div>
-          )}
+          </div>
 
           {/* SECTION 01: ACCOUNT CREDENTIALS */}
           <div className="tg-formcard__section-label">

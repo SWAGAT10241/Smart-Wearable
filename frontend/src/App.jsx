@@ -19,7 +19,6 @@ import Settings from "./pages/Settings";
 import About from "./pages/About";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
-import Landing from "./pages/Landing";
 
 export default function App() {
   return (
