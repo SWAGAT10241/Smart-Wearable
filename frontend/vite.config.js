@@ -4,16 +4,28 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  resolve: {
+    dedupe: ["react", "react-dom"],
+  },
   build: {
     target: "esnext",
     cssCodeSplit: true,
-    minify: "esbuild",
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ["react", "react-dom", "react-router-dom"],
-          maplibre: ["maplibre-gl"],
-          icons: ["react-icons"],
+        manualChunks(id) {
+          if (
+            id.includes("node_modules/react/") ||
+            id.includes("node_modules/react-dom/") ||
+            id.includes("node_modules/react-router")
+          ) {
+            return "vendor";
+          }
+          if (id.includes("node_modules/maplibre-gl/")) {
+            return "maplibre";
+          }
+          if (id.includes("node_modules/react-icons/")) {
+            return "icons";
+          }
         },
       },
     },
