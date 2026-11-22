@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaUserCheck } from "react-icons/fa";
+import { FaUserCheck } from "react-icons/fa6";
 import { IoShieldOutline, IoRadioOutline } from "react-icons/io5";
 import AuthLayout from "../components/auth/AuthLayout";
 import AuthCard from "../components/auth/AuthCard";

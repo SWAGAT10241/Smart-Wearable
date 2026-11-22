@@ -95,7 +95,7 @@ export default function StatCard({
         </div>
 
         {/* Current Value with Flash Transition */}
-        <div className="mb-[var(--space-3)] flex min-h-[var(--dash-card-value-min-height)] items-baseline gap-[var(--space-1-5)]">
+      <div className="mb-[var(--space-3)] flex min-h-[var(--dash-card-value-min-height)] items-baseline gap-[var(--space-1-5)]">
           <span
             key={value}
             className="animate-telemetry-flash text-[var(--font-size-stat)] font-bold leading-none tracking-[-0.03em] tabular-nums text-[var(--color-text)]"

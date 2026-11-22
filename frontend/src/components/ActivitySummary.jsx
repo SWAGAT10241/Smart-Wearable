@@ -192,7 +192,7 @@ export default function ActivitySummary({
       <div className="border-b border-[var(--color-border)] px-[var(--card-padding)] py-[var(--space-4)]">
         <div className="flex items-center justify-between gap-[var(--card-gap)]">
           <div>
-            <h2 className="text-[length:var(--font-size-md)] font-semibold text-[var(--color-text)]">
+            <h2 className="text-base sm:text-lg font-bold tracking-tight text-[var(--color-text)]">
               Activity Summary
             </h2>
 

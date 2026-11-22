@@ -23,7 +23,7 @@ export default function LiveLocationCard({ loc, trail, hasLocation, locationUpda
   return (
     <section className="flex h-full min-h-[var(--dash-card-min-height)] flex-col rounded-[var(--card-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--card-padding)] shadow-[var(--shadow-card)]">
       <div className="mb-[var(--space-3)] flex shrink-0 items-center justify-between">
-        <h2 className="text-[var(--font-size-md)] font-semibold tracking-[-0.02em] text-[var(--color-text)]">
+        <h2 className="text-base sm:text-lg font-bold tracking-tight text-[var(--color-text)]">
           Live Location
         </h2>
 
