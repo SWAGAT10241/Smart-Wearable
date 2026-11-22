@@ -54,6 +54,7 @@ export function LiveDataProvider({ children }) {
   const bleSessionRef = useRef(null);
   const wsRef = useRef(null);
   const reconnectTimerRef = useRef(null);
+  const reconnectAttemptsRef = useRef(0);
   const stoppedRef = useRef(false);
   const selectedDeviceIdRef = useRef(selectedDeviceId);
   const onMessageRef = useRef(null);
@@ -304,6 +305,7 @@ export function LiveDataProvider({ children }) {
       }
 
       console.log("[LiveData] WebSocket connected");
+      reconnectAttemptsRef.current = 0;
       setConnected(true);
     };
 
@@ -330,10 +332,15 @@ export function LiveDataProvider({ children }) {
       if (reconnectTimerRef.current) {
         clearTimeout(reconnectTimerRef.current);
       }
+      reconnectAttemptsRef.current += 1;
+      const delay = Math.min(
+        1500 * Math.pow(1.5, Math.min(reconnectAttemptsRef.current - 1, 5)),
+        15000,
+      );
       reconnectTimerRef.current = setTimeout(() => {
         reconnectTimerRef.current = null;
         connect();
-      }, 3000);
+      }, delay);
     };
   }, [onMessage]);
 

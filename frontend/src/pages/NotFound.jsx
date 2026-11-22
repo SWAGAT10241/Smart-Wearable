@@ -10,7 +10,7 @@ import {
   IoReturnDownBackOutline,
 } from "react-icons/io5";
 import { useAuth } from "../context/AuthContext";
-import loginBackground from "../assets/images/login-background.png";
+import loginBackground from "../assets/images/login-background.webp";
 
 const TYPEWRITER_PHRASES = [
   "Searching GPS constellation... 0 satellites responding.",

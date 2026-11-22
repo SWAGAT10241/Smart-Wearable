@@ -1,4 +1,4 @@
-import loginBackground from "../../assets/images/login-background.png";
+import loginBackground from "../../assets/images/login-background.webp";
 import { LuHeartPulse } from "react-icons/lu";
 import { FaPersonFalling, FaRegBell } from "react-icons/fa6";
 import { IoLocationOutline } from "react-icons/io5";

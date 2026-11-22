@@ -117,7 +117,7 @@ export default function Register() {
                 />
               </div>
             </div>
-          )}
+          </div>
 
           {/* SECTION 01: ACCOUNT CREDENTIALS */}
           <div className="tg-formcard__section-label">

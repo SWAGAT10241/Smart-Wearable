@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import VideoAmbient from "../components/common/VideoAmbient";
-import loginBg from "../assets/images/login-background.png";
-import sarHelicopterImg from "../assets/images/sar-helicopter.jpg";
+import loginBg from "../assets/images/login-background.webp";
+import sarHelicopterImg from "../assets/images/sar-helicopter.webp";
 import {
   IoShieldCheckmarkOutline,
   IoPulseOutline,
