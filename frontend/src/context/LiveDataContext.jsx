@@ -36,12 +36,13 @@ const TELEMETRY_CHARACTERISTIC_UUID =
 const LiveDataContext = createContext(null);
 
 export function LiveDataProvider({ children }) {
-  const { selectedDeviceId } = useDevices();
+  const { selectedDeviceId, updateDeviceHeartbeat } = useDevices();
   const [connected, setConnected] = useState(false);
   const [bleConnected, setBleConnected] = useState(false);
   const [bleConnectionState, setBleConnectionState] = useState("DISCONNECTED");
   const [deviceStatus, setDeviceStatus] = useState(null);
   const [deviceStatusUpdatedAt, setDeviceStatusUpdatedAt] = useState(null);
+  const [lastSeen, setLastSeen] = useState(null);
   const [vitals, setVitals] = useState(null);
   const [environment, setEnvironment] = useState(null);
   const [location, setLocation] = useState(null);
@@ -53,6 +54,7 @@ export function LiveDataProvider({ children }) {
   const bleSessionRef = useRef(null);
   const wsRef = useRef(null);
   const reconnectTimerRef = useRef(null);
+  const reconnectAttemptsRef = useRef(0);
   const stoppedRef = useRef(false);
   const selectedDeviceIdRef = useRef(selectedDeviceId);
   const onMessageRef = useRef(null);
@@ -77,6 +79,7 @@ export function LiveDataProvider({ children }) {
     setLocationUpdatedAt(null);
     setDeviceStatus(null);
     setDeviceStatusUpdatedAt(null);
+    setLastSeen(null);
   }, [selectedDeviceId]);
 
   useEffect(() => {
@@ -142,7 +145,28 @@ export function LiveDataProvider({ children }) {
         msg.timestamp ||
         new Date().toISOString();
 
+      // Fall status timestamps describe the original fall, not fresh device contact.
+      if (msg.type !== "fall_status_update") {
+        setLastSeen(messageTimestamp);
+        if (updateDeviceHeartbeat) {
+          updateDeviceHeartbeat(messageDeviceId || currentSelectedId, messageTimestamp);
+        }
+      }
+
       switch (msg.type) {
+        /* -----------------------------------------------
+         * DEVICE HEARTBEAT
+         * --------------------------------------------- */
+
+        case "device_heartbeat": {
+          const timestamp = msg.data?.lastSeen || messageTimestamp;
+          setLastSeen(timestamp);
+          if (updateDeviceHeartbeat) {
+            updateDeviceHeartbeat(messageDeviceId || currentSelectedId, timestamp);
+          }
+          break;
+        }
+
         /* -----------------------------------------------
          * VITALS
          * --------------------------------------------- */
@@ -281,6 +305,7 @@ export function LiveDataProvider({ children }) {
       }
 
       console.log("[LiveData] WebSocket connected");
+      reconnectAttemptsRef.current = 0;
       setConnected(true);
     };
 
@@ -307,10 +332,15 @@ export function LiveDataProvider({ children }) {
       if (reconnectTimerRef.current) {
         clearTimeout(reconnectTimerRef.current);
       }
+      reconnectAttemptsRef.current += 1;
+      const delay = Math.min(
+        1500 * Math.pow(1.5, Math.min(reconnectAttemptsRef.current - 1, 5)),
+        15000,
+      );
       reconnectTimerRef.current = setTimeout(() => {
         reconnectTimerRef.current = null;
         connect();
-      }, 3000);
+      }, delay);
     };
   }, [onMessage]);
 
@@ -691,6 +721,7 @@ export function LiveDataProvider({ children }) {
     deviceStatus,
     deviceStatusUpdatedAt,
     selectedDeviceId,
+    lastSeen,
     vitals,
     environment,
     location,

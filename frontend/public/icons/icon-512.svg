@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#061B2D"/>
+      <stop offset="100%" stop-color="#020C15"/>
+    </linearGradient>
+    <linearGradient id="shieldGrad512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2DD4BF"/>
+      <stop offset="100%" stop-color="#0D9488"/>
+    </linearGradient>
+    <linearGradient id="pulseGrad512" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34D399"/>
+      <stop offset="100%" stop-color="#2DD4BF"/>
+    </linearGradient>
+  </defs>
+  <!-- Background squircle -->
+  <rect width="512" height="512" rx="116" fill="url(#bg512)"/>
+  <rect width="508" height="508" x="2" y="2" rx="114" fill="none" stroke="#2DD4BF" stroke-opacity="0.25" stroke-width="4"/>
+  
+  <!-- Outer Shield Aura -->
+  <path d="M256 86 L384 144 V256 C384 336 328 402 256 426 C184 402 128 336 128 256 V144 Z" 
+        fill="url(#shieldGrad512)" fill-opacity="0.12" stroke="url(#shieldGrad512)" stroke-width="8" stroke-linejoin="round"/>
+        
+  <!-- Inner Shield Core -->
+  <path d="M256 122 L352 166 V256 C352 318 310 368 256 390 C202 368 160 318 160 256 V166 Z" 
+        fill="url(#shieldGrad512)" fill-opacity="0.22"/>
+
+  <!-- Pulse / Vitals Line -->
+  <path d="M182 262 H218 L234 224 L256 300 L278 236 L294 262 H330" 
+        fill="none" stroke="url(#pulseGrad512)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+        
+  <!-- Satellite / Beacon Ping -->
+  <circle cx="256" cy="122" r="9" fill="#34D399"/>
+</svg>

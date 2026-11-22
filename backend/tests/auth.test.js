@@ -231,7 +231,7 @@ describe("TrailGuard Authentication API", () => {
       const response = await request(app)
         .get("/api/auth/me")
         .set("Authorization", `Bearer ${token}`);
-      expect(response.statusCode).toBe(404);
+      expect(response.statusCode).toBe(401);
       expect(response.body.error).toBe("User not found");
     });
   });
@@ -256,6 +256,12 @@ describe("TrailGuard Authentication API", () => {
       const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
         expiresIn: "1h",
       });
+      mockUserFindById.mockResolvedValue({
+        _id: userId,
+       username: "Test User",
+       email: "test@example.com",
+       profileComplete: false,
+      });
       const response = await request(app)
         .patch("/api/auth/complete-profile")
         .set("Authorization", `Bearer ${token}`)
@@ -271,6 +277,12 @@ describe("TrailGuard Authentication API", () => {
     test("completes profile successfully", async () => {
       const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
         expiresIn: "1h",
+      });
+    mockUserFindById.mockResolvedValue({
+      _id: userId,
+      username: "Test User",
+      email: "test@example.com",
+      profileComplete: false,
       });
       mockUserFindByIdAndUpdate.mockResolvedValue({
         _id: userId,

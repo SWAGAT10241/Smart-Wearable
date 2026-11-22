@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaUserCheck } from "react-icons/fa6";
+import { FaUserCheck } from "react-icons/fa";
 import { IoShieldOutline, IoRadioOutline } from "react-icons/io5";
 import AuthLayout from "../components/auth/AuthLayout";
 import AuthCard from "../components/auth/AuthCard";
@@ -8,6 +8,7 @@ import Field from "../components/auth/Field";
 import PhoneField from "../components/auth/PhoneField";
 import Button from "../components/auth/Button";
 import { useAuth } from "../context/AuthContext";
+import { cleanEmail } from "../utils/sanitizeEmail";
 
 const EMPTY = {
   username: "",
@@ -28,6 +29,27 @@ export default function Register() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // Dynamic safety profile readiness calculation (8 required fields)
+  const checks = [
+    Boolean(form.username.trim()),
+    cleanEmail(form.email).includes("@") && cleanEmail(form.email).includes("."),
+    form.password.length >= 6,
+    Boolean(form.phoneNumber.trim()),
+    Boolean(form.height) && Number(form.height) > 0,
+    Boolean(form.emergencyContactName.trim()),
+    Boolean(form.weight) && Number(form.weight) > 0,
+    Boolean(form.emergencyContactPhone.trim()),
+  ];
+  const completedCount = checks.filter(Boolean).length;
+  const progressPercent = Math.round((completedCount / checks.length) * 100);
+
+  const getStatusText = () => {
+    if (completedCount === 8) return "100% • Trail-Ready";
+    if (completedCount >= 5) return `${progressPercent}% • Calibrating (${completedCount}/8)`;
+    if (completedCount >= 1) return `${progressPercent}% • In Progress (${completedCount}/8)`;
+    return "0% • Awaiting Input";
+  };
+
   const onChange = (e) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
@@ -37,7 +59,7 @@ export default function Register() {
     setBusy(true);
 
     try {
-      await register(form);
+      await register({ ...form, email: cleanEmail(form.email) });
       navigate("/dashboard");
     } catch (err) {
       setError(err.message || "Registration failed");
@@ -48,57 +70,66 @@ export default function Register() {
 
   return (
     <AuthLayout headline="Set up your safety profile.">
-      <AuthCard className="max-w-[700px]">
-        <form className="flex flex-col gap-4" onSubmit={onSubmit}>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h2 className="tg-formcard__title">Create your account</h2>
-              <p className="tg-formcard__sub">
-                Takes about a minute — every level keeps you safer on the trail.
-              </p>
+      <AuthCard className="max-w-[var(--auth-card-max-width-wide)]">
+        <form className="flex flex-col gap-[var(--auth-field-gap)]" onSubmit={onSubmit}>
+          {/* Header Block with Live Safety Readiness Meter */}
+          <div className="mb-[var(--auth-header-margin-bottom)]">
+            <div className="flex items-start justify-between gap-[var(--auth-header-gap)]">
+              <div>
+                <h2 className="tg-formcard__title">Create your account</h2>
+                <p className="tg-formcard__sub">
+                  Set up your baseline safety profile for automated rescue dispatch.
+                </p>
+              </div>
+              <span
+                className={`shrink-0 rounded-[var(--auth-badge-radius)] border px-[var(--auth-badge-padding-x)] py-[var(--auth-badge-padding-y)] text-[var(--auth-section-label-size)] font-semibold tracking-wider transition-all duration-300 ${
+                  completedCount === 8
+                    ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-400"
+                    : "border-[var(--color-accent)]/30 bg-[var(--color-accent)]/10 text-[var(--color-accent)]"
+                }`}
+              >
+                {completedCount === 8 ? "ARMED & READY" : "SAFETY PROFILE"}
+              </span>
             </div>
-            <span className="rounded-full border border-teal-500/30 bg-teal-500/10 px-3 py-1 font-mono text-[11px] font-bold text-teal-300">
-              3-Level Setup
-            </span>
+
+            {/* Live Dynamic Readiness Meter */}
+            <div className="mt-[var(--auth-meter-margin-top)] rounded-[var(--auth-notice-radius)] border border-[var(--color-border)] bg-[var(--surface-elevated)]/60 p-[var(--space-3)]">
+              <div className="flex items-center justify-between text-[var(--font-size-xs)]">
+                <span className="font-medium text-[var(--color-text-secondary)]">
+                  Safety Readiness
+                </span>
+                <span
+                  className={`font-semibold transition-colors duration-300 ${
+                    completedCount === 8
+                      ? "text-emerald-400"
+                      : "text-[var(--color-accent)]"
+                  }`}
+                >
+                  {getStatusText()}
+                </span>
+              </div>
+              <div className="mt-2 h-[var(--auth-meter-height)] w-full overflow-hidden rounded-[var(--auth-meter-radius)] bg-[var(--auth-meter-track-bg)]">
+                <div
+                  className={`h-full rounded-[var(--auth-meter-radius)] transition-all duration-300 ease-out ${
+                    completedCount === 8
+                      ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]"
+                      : "bg-[var(--auth-meter-fill-bg)]"
+                  }`}
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+            </div>
           </div>
 
-          {/* 3-Tiered Registration Flow Progress Bar */}
-          <div className="rounded-xl border border-[var(--border-default)] bg-[var(--surface-elevated)] p-3">
-            <div className="flex items-center gap-2">
-              <div className="flex flex-1 items-center gap-1.5">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-500/20 text-[10px] font-bold text-teal-300 border border-teal-500/40">
-                  1
-                </span>
-                <span className="text-[11px] font-bold text-teal-300">Level 1: Account</span>
-              </div>
-              <div className="h-px w-6 bg-[var(--border-default)]" />
-              <div className="flex flex-1 items-center gap-1.5">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-500/20 text-[10px] font-bold text-teal-300 border border-teal-500/40">
-                  2
-                </span>
-                <span className="text-[11px] font-bold text-teal-300">Level 2: Safety</span>
-              </div>
-              <div className="h-px w-6 bg-[var(--border-default)]" />
-              <div className="flex flex-1 items-center gap-1.5">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/20 text-[10px] font-bold text-amber-300 border border-amber-500/40">
-                  3
-                </span>
-                <span className="text-[11px] font-bold text-amber-300">Level 3: Wearable</span>
-              </div>
-            </div>
-          </div>
-
-          {error && <div className="tg-formcard__error">{error}</div>}
-
-          {/* LEVEL 1: YOUR ACCOUNT */}
+          {/* SECTION 01: ACCOUNT CREDENTIALS */}
           <div className="tg-formcard__section-label">
-            <span className="flex items-center gap-1.5">
-              <FaUserCheck className="h-3.5 w-3.5 text-teal-400" />
-              LEVEL 1: ACCOUNT & CREDENTIALS
+            <span className="flex items-center gap-[var(--auth-section-label-gap)]">
+              <FaUserCheck className="h-3.5 w-3.5 text-[var(--color-accent)]" />
+              01 / ACCOUNT & CREDENTIALS
             </span>
           </div>
 
-          <div className="tg-formcard__row">
+          <div className="grid grid-cols-1 gap-[var(--space-4)] sm:grid-cols-2">
             <Field
               label="Username"
               name="username"
@@ -115,6 +146,7 @@ export default function Register() {
               placeholder="you@example.com"
               value={form.email}
               onChange={onChange}
+              onBlur={() => setForm((f) => ({ ...f, email: cleanEmail(f.email) }))}
               required
             />
           </div>
@@ -129,15 +161,15 @@ export default function Register() {
             required
           />
 
-          {/* LEVEL 2: SAFETY INFO */}
-          <div className="tg-formcard__section-label">
-            <span className="flex items-center gap-1.5">
-              <IoShieldOutline className="h-3.5 w-3.5 text-teal-400" />
-              LEVEL 2: EMERGENCY & VITALS BASELINE
+          {/* SECTION 02: SAFETY & EMERGENCY BASELINE */}
+          <div className="tg-formcard__section-label mt-[var(--space-2)]">
+            <span className="flex items-center gap-[var(--auth-section-label-gap)]">
+              <IoShieldOutline className="h-3.5 w-3.5 text-[var(--color-accent)]" />
+              02 / EMERGENCY CONTACT & FALL BASELINE
             </span>
           </div>
 
-          <div className="tg-formcard__row">
+          <div className="grid grid-cols-1 gap-[var(--space-4)] sm:grid-cols-2">
             <PhoneField
               label="Phone Number"
               name="phoneNumber"
@@ -159,7 +191,7 @@ export default function Register() {
             />
           </div>
 
-          <div className="tg-formcard__row">
+          <div className="grid grid-cols-1 gap-[var(--space-4)] sm:grid-cols-2">
             <Field
               label="Emergency contact name"
               name="emergencyContactName"
@@ -189,22 +221,32 @@ export default function Register() {
             defaultCountry="IN"
           />
 
-          {/* LEVEL 3 NOTICE */}
-          <div className="flex items-center gap-2 rounded-xl border border-teal-500/20 bg-teal-500/10 px-3.5 py-2.5 text-xs text-teal-300">
-            <IoRadioOutline className="h-4 w-4 shrink-0 text-teal-400 animate-pulse" />
+          {/* HARDWARE STATUS REASSURANCE */}
+          <div className="flex items-center gap-[var(--space-3)] rounded-[var(--auth-notice-radius)] border border-[var(--color-accent)]/20 bg-[var(--color-accent)]/5 px-[var(--space-3-5)] py-[var(--space-2-5)] text-[var(--font-size-xs)] text-[var(--color-text-secondary)]">
+            <IoRadioOutline className="h-4 w-4 shrink-0 text-[var(--color-accent)] animate-pulse" />
             <span>
-              <strong>Level 3 (Hardware Pairing):</strong> Your Ed25519 cryptographic key will be registered upon account completion.
+              <strong className="text-[var(--color-text)]">Hardware Link:</strong> ESP32-S3 wearable & Ed25519 pairing activates post-setup.
             </span>
           </div>
 
-          <Button type="submit" disabled={busy}>
-            {busy ? "Registering & Authenticating…" : "Complete Registration & Proceed"}
-          </Button>
+          {/* ACTION BUTTON */}
+          <div className="mt-[var(--auth-button-margin-top)]">
+            <Button type="submit" disabled={busy}>
+              {busy ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  <span>Creating Safety Profile…</span>
+                </span>
+              ) : (
+                "Create Safety Profile"
+              )}
+            </Button>
+          </div>
 
-          <p className="tg-formcard__footer">
+          <p className="text-center text-[var(--font-size-sm)] text-[var(--text-muted)]">
             Already have an account?{" "}
             <Link to="/login" className="tg-formcard__link">
-              Log in
+              Sign in
             </Link>
           </p>
         </form>

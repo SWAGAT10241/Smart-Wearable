@@ -4,9 +4,11 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useAuth } from "../context/AuthContext";
+import { isProfileComplete } from "../lib/profileCompletion";
 
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
+import CompleteProfileScreen from "../screens/CompleteProfileScreen";
 import DashboardScreen from "../screens/DashboardScreen";
 import LiveMapScreen from "../screens/LiveMapScreen";
 import HistoryScreen from "../screens/HistoryScreen";
@@ -30,6 +32,18 @@ function AuthStack() {
   );
 }
 
+function ProfileStack() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name="CompleteProfile" component={CompleteProfileScreen} />
+    </Stack.Navigator>
+  );
+}
+
 function MainTabs() {
   return (
     <Tab.Navigator
@@ -41,22 +55,55 @@ function MainTabs() {
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
       <Tab.Screen name="LiveMap" component={LiveMapScreen} />
       <Tab.Screen name="History" component={HistoryScreen} />
-      <Tab.Screen name="Alerts" component={AlertsScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
 }
 
+function AuthenticatedStack() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name="MainTabs" component={MainTabs} />
+      <Stack.Screen
+        name="Alerts"
+        component={AlertsScreen}
+        options={{ animation: "slide_from_right" }}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{ animation: "slide_from_right" }}
+      />
+      <Stack.Screen
+        name="Profile"
+        component={SettingsScreen}
+        options={{ animation: "slide_from_right" }}
+      />
+    </Stack.Navigator>
+  );
+}
+
 export default function AppNavigator() {
-  const { isAuthenticated, loading } = useAuth();
-  console.log("AUTH STATE:", { loading, isAuthenticated });
+  const { isAuthenticated, loading, user } = useAuth();
+
   if (loading) {
     return null;
   }
 
+  const profileComplete = isProfileComplete(user);
+
   return (
     <NavigationContainer>
-      {isAuthenticated ? <MainTabs /> : <AuthStack />}
+      {!isAuthenticated ? (
+        <AuthStack />
+      ) : !profileComplete ? (
+        <ProfileStack />
+      ) : (
+        <AuthenticatedStack />
+      )}
     </NavigationContainer>
   );
 }

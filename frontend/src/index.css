@@ -122,6 +122,7 @@
   --status-optimal: var(--color-primary-500);
   --status-sos: var(--color-red-500);
   --status-warning: var(--color-yellow-500);
+  --text-warning: var(--color-yellow-800);
   --status-info: var(--color-secondary-400);
 
   /* Backward Compatibility Aliases */
@@ -151,6 +152,234 @@
   --shadow-sidebar: 2px 0 12px rgba(15, 23, 42, 0.06);
 
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* =========================================================================
+     LAYER 3: SPACING, RADIUS, SIZING & TYPOGRAPHY TOKENS
+     Modular scale tokens replacing hardcoded px & arbitrary values.
+     ========================================================================= */
+  /* =========================================================================
+     CORE 4PX SPACING GRID
+     Predictable harmonic rhythm: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64px
+     ========================================================================= */
+  --space-1: 4px;                            /* Tight gap, badge padding */
+  --space-2: 8px;                            /* Standard inline element gap */
+  --space-3: 12px;                           /* Form field gap, card inner margin */
+  --space-4: 16px;                           /* Card compact padding, section gaps */
+  --space-5: 20px;                           /* Standard card padding */
+  --space-6: 24px;                           /* Page header separation */
+  --space-8: 32px;                           /* Spacious section divider */
+  --space-10: 40px;                          /* Large container padding */
+  --space-12: 48px;                          /* Modal dialog padding */
+  --space-16: 64px;                          /* Hero vertical rhythm */
+
+  /* Backward-Compatible Fractional / Legacy Spacers */
+  --space-0: 0px;
+  --space-0-5: 2px;
+  --space-1-5: 6px;
+  --space-2-5: 10px;
+  --space-3-5: 14px;
+  --space-4-5: 18px;
+  --space-7: 28px;
+  --space-9: 36px;
+  --space-14: 56px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* =========================================================================
+     CORE RADIUS TOKENS (Fatigue-Free 5-Tier Apple Continuous Curvature System)
+     Single source of truth: 5 core tiers replacing 17 scattered variables.
+     Modify these 5 to effortlessly control every curve across the app!
+     ========================================================================= */
+  --radius-sm: 6px;                          /* 1. Micro: Badges, tags, kbd shortcuts */
+  --radius-md: 12px;                         /* 2. Interactive: Buttons, inputs, search fields */
+  --radius-lg: 16px;                         /* 3. Concentric Inner: Secondary containers, inner cards, popovers */
+  --radius-card: 24px;                       /* 4. Primary Surfaces: Dashboard cards, modals, sheets */
+  --radius-full: 9999px;                     /* 5. Pill: Round badges, circular avatars, status dots */
+
+  /* Mathematical Concentric Curve (R_inner = R_card - padding) */
+  --radius-inner: calc(var(--radius-card) - 10px);
+
+  /* Unified Semantic Aliases (Zero Broken References Across Codebase) */
+  --radius-none: 0px;
+  --radius-xs: var(--radius-sm);
+  --radius-xl: var(--radius-lg);
+  --radius-2xl: var(--radius-card);
+  --radius-3xl: var(--radius-card);
+  --radius-button: var(--radius-md);
+  --radius-stat-card: var(--radius-card);
+  --radius-section-card: var(--radius-card);
+  --radius-auth-card: var(--radius-card);
+  --card-radius: var(--radius-card);
+  --card-radius-compact: var(--radius-card);
+  --card-radius-expanded: var(--radius-card);
+  --card-radius-inner: var(--radius-inner);
+  --card-radius-inner-compact: var(--radius-inner);
+  --btn-radius: var(--radius-md);
+  --input-radius: var(--radius-md);
+  --modal-radius: var(--radius-card);
+  --popover-radius: var(--radius-lg);
+  --auth-notice-radius: var(--radius-md);
+  --auth-badge-radius: var(--radius-full);
+  --auth-meter-radius: var(--radius-full);
+
+  /* Component Dimensions & Layout Constraints */
+  --sidebar-width: 250px;
+  --mobile-nav-height: 72px;
+  --input-height: 56px;
+  --button-height-lg: 64px;
+  --map-min-height: 320px;
+  --chart-height-sm: 64px;
+  --chart-height-md: 76px;
+
+  /* =========================================================================
+     CORE TYPOGRAPHY SCALE (7-Step Industry Standard: Modular 1.25 Major Third)
+     Clean, fatigue-free hierarchy eliminating random 1px step fragmentation.
+     ========================================================================= */
+  --font-size-xs: 12px;                      /* Micro: Captions, status badges, timestamps */
+  --font-size-sm: 14px;                      /* Secondary: Field labels, helper copy */
+  --font-size-base: 16px;                    /* Base: Primary body text, inputs, buttons */
+  --font-size-lg: 18px;                      /* Subheading: Card titles, interactive icons */
+  --font-size-xl: 20px;                      /* Section: Subsection titles, modal headers */
+  --font-size-2xl: 24px;                     /* Page Title: Main headers, auth titles */
+  --font-size-3xl: 32px;                     /* Hero Metric: Big telemetry numbers, stats */
+
+  /* Backward-Compatible Typographic Aliases (Zero Broken References) */
+  --font-size-3xs: 10px;
+  --font-size-2xs: 11px;
+  --font-size-sm-alt: 13px;
+  --font-size-md: 17px;
+  --font-size-stat: 28px;
+  --font-size-4xl: 36px;
+
+  /* =========================================================================
+     LAYER 4: SEMANTIC COMPONENT & LAYOUT TOKENS (Single Source of Truth)
+     Modify any value below to update padding, radius, and sizing across
+     all matching components simultaneously!
+     ========================================================================= */
+
+  /* Card Surfaces (SectionCard, LiveLocationCard, RecentEventsCard, PageHeader) */
+  --card-padding: var(--space-5);            /* Standard padding for all main cards */
+  --card-padding-compact: var(--space-4);    /* Padding for metric/stat cards */
+  --card-padding-expanded: var(--space-8);   /* Padding for auth cards & spacious containers */
+  --card-gap: var(--space-4);                /* Internal element spacing within cards */
+
+  /* Page Layout & Container Spacing */
+  --page-padding-mobile: var(--space-3-5);   /* Padding on mobile screens */
+  --page-padding-tablet: var(--space-5);     /* Padding on tablet screens */
+  --page-padding-desktop: var(--space-6);    /* Padding on desktop screens */
+  --page-section-gap: var(--space-4);        /* Spacing between major layout sections */
+
+  /* Interactive Elements (Buttons & Inputs) */
+  --btn-height: var(--button-height-lg);     /* Action button height (64px) */
+  --btn-padding-x: var(--space-5);           /* Button horizontal padding */
+  --btn-gap: var(--space-2);                 /* Button icon-to-label gap */
+  --input-padding-x: var(--space-4);         /* Textfield horizontal padding */
+
+  /* Modals & Dialogs */
+  --modal-padding: var(--space-12);          /* Alert modal internal padding */
+  --modal-gap: var(--space-4);               /* Modal element gap */
+
+  /* Popovers & Floating Menus */
+  --popover-padding: var(--space-4);         /* Popover header/content padding */
+
+  /* =========================================================================
+     AUTH FORMS & SURFACES (Login, Register, CompleteProfile)
+     Single-source-of-truth tokens for auth card dimensions, vertical rhythm,
+     line-heights, and inter-element spacing across all authentication views.
+     ========================================================================= */
+  --auth-card-max-width: 450px;              /* Optimal reading & input width (Linear / Stripe style) */
+  --auth-card-max-width-wide: 700px;         /* Multi-column registration card width */
+  --auth-header-gap: var(--space-4);         /* 16px horizontal gap between header text & icon */
+  --auth-header-margin-bottom: var(--space-6);/* 24px vertical separation below header */
+  --auth-title-size: var(--font-size-2xl);   /* 24px bold title */
+  --auth-title-line-height: 1.25;            /* Tight, authoritative heading rhythm */
+  --auth-sub-margin-top: var(--space-2);     /* 8px clean breathing room below title */
+  --auth-sub-size: var(--font-size-sm);      /* 14px secondary text */
+  --auth-sub-line-height: 1.55;             /* Relaxed readability for instruction copy */
+  --auth-icon-badge-size: 40px;              /* Square shield badge dimension */
+  --auth-icon-size: 20px;                    /* Internal icon size */
+  --auth-field-gap: var(--space-4);          /* 16px vertical gap between form fields */
+  --auth-button-margin-top: var(--space-6);  /* 24px deliberate separation above primary action */
+  --auth-divider-margin-y: var(--space-6);   /* 24px vertical margins for 'or' divider */
+  --auth-footer-margin-top: var(--space-6);  /* 24px separation above footer link */
+  --auth-footer-size: var(--font-size-sm-alt);/* 13px footer size */
+  --auth-footer-line-height: 1.4;            /* Compact footer line height */
+  --auth-social-icon-size: 20px;             /* Provider icon dimension */
+  --auth-section-gap: var(--space-5);        /* 20px vertical gap between form sections */
+  --auth-section-label-gap: var(--space-2);  /* 8px gap between icon and section label */
+  --auth-section-label-size: var(--font-size-xs);/* 12px uppercase section label */
+  --auth-notice-radius: var(--radius-lg);    /* 12px notice banner corner radius */
+  --auth-badge-padding-x: var(--space-3);    /* Pill badge horizontal padding */
+  --auth-badge-padding-y: var(--space-1);    /* Pill badge vertical padding */
+  --auth-badge-radius: var(--radius-full);   /* Pill badge full radius */
+  --auth-meter-height: 4px;                  /* 4px sleek readiness track */
+  --auth-meter-track-bg: var(--border-default);/* Track background */
+  --auth-meter-fill-bg: var(--action-primary);/* Optimal progress fill */
+  --auth-meter-radius: var(--radius-full);   /* Rounded pill ends */
+  --auth-meter-margin-top: var(--space-3);   /* 12px separation below title */
+
+  /* =========================================================================
+     DASHBOARD & TELEMETRY SURFACES
+     Single-source-of-truth tokens for dashboard cards, telemetry stat indicators,
+     gauges, activity summaries, and status badges.
+     ========================================================================= */
+  --dash-header-padding-x: var(--space-1);
+  --dash-card-min-height: 420px;
+  --dash-events-col-min-width: 300px;
+  --dash-status-group-gap: var(--space-2);
+  --dash-status-dot-size: 6px;
+  --dash-range-dot-size: 8px;
+  --dash-icon-box-size: var(--space-10);              /* 40px */
+  --dash-icon-box-lg: var(--space-12);                /* 48px */
+  --dash-badge-padding-x: var(--space-2-5);           /* 10px */
+  --dash-badge-padding-y: var(--space-0-5);           /* 2px */
+  --dash-badge-text-size: var(--font-size-3xs);       /* 10px */
+  --dash-card-header-min-height: 22px;
+  --dash-card-value-min-height: 38px;
+  --dash-gauge-track-wrapper-height: 72px;
+  --dash-gauge-track-top: 32px;
+  --dash-gauge-track-thickness: 7px;
+  --dash-gauge-thumb-top: 26px;
+  --dash-gauge-thumb-size: 18px;
+  --dash-activity-graph-height: 28px;
+  --dash-activity-item-px: var(--space-5);
+  --dash-activity-item-py: var(--space-5);
+  --dash-activity-icon-size: var(--font-size-2xl);    /* 24px */
+  --dash-map-menu-width: 190px;                       /* Map style popover menu width */
+
+  /* =========================================================================
+     LAYER 5: NAMED BRAND & THEME COLOR TOKENS
+     Named color definitions replacing raw hex literals across views
+     ========================================================================= */
+  /* Brand Navy Palette (Sidebar, Auth & Night Atmospheres) */
+  --brand-navy-deep: #031827;
+  --brand-navy: #061B2D;
+  --brand-navy-alt: #071C2E;
+  --brand-navy-soft: #061C2E;
+  --brand-navy-card: #102F4A;
+  --brand-navy-card-border: rgba(16, 47, 74, 0.8);
+  --brand-navy-card-bg: rgba(16, 47, 74, 0.7);
+  --brand-navy-card-hover: #092238;
+  --brand-navy-text: #06202D;
+
+  /* Brand Teal Palette (Accent, Highlights & Active States) */
+  --brand-teal: #2DD4BF;
+  --brand-teal-light: #42E3D0;
+  --brand-teal-hover: #5EEAD4;
+  --brand-teal-dark: #0E9C8C;
+  --brand-teal-subtle: rgba(14, 156, 140, 0.25);
+  --brand-teal-glow: rgba(45, 212, 191, 0.35);
+
+  /* Map & Marker Colors */
+  --map-trail-color: #16B890;
+  --map-marker-color: #1976D2;
+
+  /* Avatar Gradient */
+  --avatar-gradient-start: #b7f3df;
+  --avatar-gradient-end: #15967f;
+
+  /* Thermal Spectrum Gradient */
+  --thermal-gradient: linear-gradient(90deg, #1976D2, #18BFC1, #9DDC67, #F2A93B, #F59E0B);
 }
 
 /* =========================================================================
@@ -197,6 +426,7 @@ html.dark {
   --status-optimal: var(--color-primary-500);
   --status-sos: var(--color-red-500);
   --status-warning: var(--color-yellow-500);
+  --text-warning: var(--color-yellow-500);
   --status-info: var(--color-secondary-400);
 
   /* Backward Compatibility Aliases */
@@ -250,6 +480,43 @@ html.dark {
   --color-status-sos: var(--status-sos);
   --color-status-warning: var(--status-warning);
   --color-status-info: var(--status-info);
+
+  /* Core 5-Tier Radius Theme Mappings */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-card: var(--radius-card);
+  --radius-full: var(--radius-full);
+
+  /* Semantic Theme Aliases */
+  --radius-xs: var(--radius-sm);
+  --radius-xl: var(--radius-lg);
+  --radius-2xl: var(--radius-card);
+  --radius-3xl: var(--radius-card);
+  --radius-button: var(--radius-md);
+  --radius-stat: var(--radius-card);
+  --radius-auth: var(--radius-card);
+  --radius-modal: var(--radius-card);
+  --radius-popover: var(--radius-lg);
+
+  /* Spacing theme mappings */
+  --spacing-card-p: var(--card-padding);
+  --spacing-stat-p: var(--card-padding-compact);
+  --spacing-card-gap: var(--card-gap);
+  --spacing-modal-p: var(--modal-padding);
+  --spacing-modal-gap: var(--modal-gap);
+  --spacing-sidebar: var(--sidebar-width);
+
+  /* Named brand color mappings */
+  --color-brand-navy-deep: var(--brand-navy-deep);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-navy-alt: var(--brand-navy-alt);
+  --color-brand-navy-soft: var(--brand-navy-soft);
+  --color-brand-navy-card: var(--brand-navy-card);
+  --color-brand-teal: var(--brand-teal);
+  --color-brand-teal-light: var(--brand-teal-light);
+  --color-brand-teal-hover: var(--brand-teal-hover);
+  --color-brand-teal-dark: var(--brand-teal-dark);
 }
 
 @layer base {
@@ -312,22 +579,41 @@ html.dark {
     @apply flex min-h-screen;
   }
 
+  .tg-formcard--card {
+    @apply flex flex-col w-full;
+    max-width: var(--auth-card-max-width-wide);
+    gap: var(--auth-field-gap);
+    border-radius: var(--card-radius-expanded);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: var(--card-padding-expanded);
+    box-shadow: 0 20px 60px rgba(7, 28, 46, 0.22);
+  }
+
   .tg-formcard__title {
-    @apply m-0 text-[30px] font-semibold tracking-[-0.02em];
+    @apply m-0 font-bold tracking-tight;
+    font-size: var(--auth-title-size, var(--font-size-2xl));
+    line-height: var(--auth-title-line-height, 1.25);
     color: var(--color-text);
   }
 
   .tg-formcard__sub {
-    @apply -mt-2 mb-1 text-sm leading-6;
+    margin-top: var(--auth-sub-margin-top, var(--space-2));
+    font-size: var(--auth-sub-size, var(--font-size-sm));
+    line-height: var(--auth-sub-line-height, 1.55);
     color: var(--color-text-secondary);
   }
 
   .tg-formcard__error {
-    @apply rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-[13px] font-medium text-red-700;
+    @apply border border-red-200 bg-red-50 font-medium text-red-700;
+    border-radius: var(--radius-lg);
+    padding: var(--space-2-5) var(--space-3);
+    font-size: var(--font-size-sm-alt);
   }
 
   .tg-formcard__divider {
-    @apply flex items-center gap-2.5;
+    @apply flex items-center;
+    gap: var(--space-2-5);
   }
 
   .tg-formcard__divider span {
@@ -341,7 +627,11 @@ html.dark {
   }
 
   .tg-formcard__footer {
-    @apply mt-1 w-full text-center text-[13px] leading-5;
+    width: 100%;
+    margin-top: var(--auth-footer-margin-top, var(--space-6));
+    text-align: center;
+    font-size: var(--auth-footer-size, var(--font-size-sm-alt));
+    line-height: var(--auth-footer-line-height, 1.4);
     color: var(--color-text-muted);
   }
 
@@ -351,13 +641,16 @@ html.dark {
   }
 
   .tg-formcard__section-label {
-    @apply flex items-center gap-2 pt-1 text-[12px] font-semibold tracking-[0.03em];
+    @apply flex items-center pt-2 font-semibold tracking-[0.04em];
+    gap: var(--auth-section-label-gap, var(--space-2));
+    font-size: var(--auth-section-label-size, var(--font-size-xs));
     color: var(--color-text);
   }
 
   .tg-formcard__section-label::before {
     content: "";
-    @apply h-1.5 w-1.5 rounded-full bg-teal-400;
+    @apply h-1.5 w-1.5 rounded-full;
+    background: var(--color-accent);
   }
 
   .tg-formcard__section-label::after {
@@ -367,7 +660,8 @@ html.dark {
   }
 
   .tg-formcard__row {
-    @apply flex gap-4;
+    @apply flex;
+    gap: var(--space-4);
   }
 
   .tg-formcard__row>* {
@@ -376,7 +670,9 @@ html.dark {
   }
 
   .tg-badge-pill {
-    @apply inline-flex self-start rounded-full bg-teal-100 px-3 py-1 text-[10.5px] font-bold tracking-[0.08em] text-sky-700;
+    @apply inline-flex self-start rounded-full bg-teal-100 font-bold tracking-[0.08em] text-sky-700;
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--font-size-2xs);
   }
 
   /* MapLibre marker */
@@ -389,7 +685,7 @@ html.dark {
   .tg-map-marker-pulse {
     position: absolute;
     inset: 2px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: rgba(45, 212, 191, 0.25);
     animation: tg-map-pulse 1.8s ease-out infinite;
   }
@@ -402,7 +698,7 @@ html.dark {
     height: 14px;
     transform: translate(-50%, -50%);
     border: 3px solid var(--color-white);
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: var(--color-accent);
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
   }
@@ -433,10 +729,10 @@ html.dark {
     display: flex;
     align-items: center;
     width: 100%;
-    height: 56px;
+    height: var(--input-height);
     overflow: hidden;
     border: 1px solid var(--color-border);
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     background: var(--color-surface);
     color: var(--color-text);
     transition:
@@ -627,4 +923,150 @@ html.dark {
   html.dark .shadow-\[var\(--shadow-card-lg\)\] {
     box-shadow: var(--shadow-card-lg) !important;
   }
+}
+
+/* =========================================================================
+   MODERN WEB PLATFORM ENHANCEMENTS
+   - SPA View Transitions (same-document-transitions)
+   - Hardware-Accelerated Dialog Transitions (animate-to-from-top-layer)
+   - Accessible Reduced-Motion Overrides
+   ========================================================================= */
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: 160ms cubic-bezier(0.4, 0, 1, 1) both tg-fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 200ms cubic-bezier(0, 0, 0.2, 1) both tg-fade-in;
+}
+
+@keyframes tg-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes tg-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal hardware-accelerated transitions */
+.tg-modal-backdrop {
+  opacity: 1;
+  transition: opacity 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tg-modal-card {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  transition: opacity 200ms cubic-bezier(0.16, 1, 0.3, 1), transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@starting-style {
+  .tg-modal-backdrop {
+    opacity: 0;
+  }
+  .tg-modal-card {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
+  .tg-modal-backdrop,
+  .tg-modal-card,
+  .animate-cardiac-pulse,
+  .animate-card-entrance,
+  .animate-telemetry-flash {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* =========================================================================
+   TOPOGRAPHIC ELEVATION MESH & EXPEDITION ATMOSPHERE
+   Subtle tactical contour vector lines with ambient depth glows
+   ========================================================================= */
+.tg-topographic-mesh {
+  background-color: var(--surface-canvas);
+  background-image:
+    radial-gradient(circle at 85% 15%, rgba(45, 212, 191, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at 15% 85%, rgba(16, 47, 74, 0.35) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cpath d='M0,35 Q35,15 70,35 T140,35 M0,70 Q35,50 70,70 T140,70 M0,105 Q35,85 70,105 T140,105 M35,0 Q55,35 35,70 T35,140 M105,0 Q125,35 105,70 T105,140' fill='none' stroke='%232dd4bf' stroke-width='0.75' stroke-opacity='0.032' stroke-dasharray='4,4'/%3E%3C/svg%3E");
+}
+
+html:not(.dark) .tg-topographic-mesh {
+  background-image:
+    radial-gradient(circle at 85% 15%, rgba(14, 156, 140, 0.04) 0%, transparent 45%),
+    radial-gradient(circle at 15% 85%, rgba(203, 213, 225, 0.3) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cpath d='M0,35 Q35,15 70,35 T140,35 M0,70 Q35,50 70,70 T140,70 M0,105 Q35,85 70,105 T140,105 M35,0 Q55,35 35,70 T35,140 M105,0 Q125,35 105,70 T105,140' fill='none' stroke='%230f766e' stroke-width='0.75' stroke-opacity='0.03' stroke-dasharray='4,4'/%3E%3C/svg%3E");
+}
+
+/* =========================================================================
+   PURPOSEFUL TELEMETRY MICRO-ANIMATIONS
+   ========================================================================= */
+
+/* Organic Double-Beat Cardiac EKG Pulse */
+@keyframes tg-cardiac-pulse {
+  0% { transform: scale(1); }
+  14% { transform: scale(1.1); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.14); }
+  70% { transform: scale(1); }
+  100% { transform: scale(1); }
+}
+
+.animate-cardiac-pulse {
+  animation: tg-cardiac-pulse 2s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+  transform-origin: center;
+}
+
+/* Staggered Card Entrance */
+@keyframes tg-card-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-card-entrance {
+  animation: tg-card-entrance 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Live Telemetry Refresh Flash */
+@keyframes tg-telemetry-flash {
+  0% {
+    opacity: 0.65;
+    transform: translateY(-1px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-telemetry-flash {
+  animation: tg-telemetry-flash 300ms cubic-bezier(0.16, 1, 0.3, 1);
 }

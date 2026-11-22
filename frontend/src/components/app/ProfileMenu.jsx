@@ -39,7 +39,7 @@ export default function ProfileMenu() {
           hover:shadow-md
         "
       >
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[radial-gradient(circle_at_30%_30%,#b7f3df,#15967f)] text-sm font-bold text-white shadow-inner">
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[radial-gradient(circle_at_30%_30%,var(--avatar-gradient-start),var(--avatar-gradient-end))] text-sm font-bold text-white shadow-inner">
           {username.charAt(0).toUpperCase()}
         </span>
 
@@ -47,7 +47,7 @@ export default function ProfileMenu() {
           <span className="block max-w-[130px] truncate text-sm font-semibold text-[var(--color-text)]">
             {username}
           </span>
-          <span className="block max-w-[130px] truncate text-[11px] text-[var(--color-text-muted)]">
+          <span className="block max-w-[130px] truncate text-[var(--font-size-2xs)] text-[var(--color-text-muted)]">
             {email}
           </span>
         </span>
@@ -62,14 +62,14 @@ export default function ProfileMenu() {
       {open && (
         <div className="
           absolute right-0 top-[calc(100%+10px)] z-50 w-60
-          overflow-hidden rounded-2xl
+          overflow-hidden rounded-[var(--popover-radius)]
           border border-[var(--color-border)]
           bg-[var(--color-surface)]
-          p-2 shadow-xl
+          p-[var(--space-2)] shadow-xl
         ">
-          <div className="border-b border-[var(--color-border)] px-3 py-3">
+          <div className="border-b border-[var(--color-border)] px-[var(--space-3)] py-[var(--space-3)]">
             <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[radial-gradient(circle_at_30%_30%,#b7f3df,#15967f)] font-bold text-white">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[radial-gradient(circle_at_30%_30%,var(--avatar-gradient-start),var(--avatar-gradient-end))] font-bold text-white">
                 {username.charAt(0).toUpperCase()}
               </span>
 
