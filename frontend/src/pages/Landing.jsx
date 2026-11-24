@@ -29,382 +29,26 @@ import {
 } from "react-icons/io5";
 
 /* =========================================================================
-   1. GLOBAL LIVING ATMOSPHERE CANVAS (FULL PAGE CONTINUOUS PARTICLES & FOG)
+   1. GLOBAL CANVAS & HERO WIREFRAME DISABLED (CLEAN UN-SLOPPED INDUSTRIAL UI)
    ========================================================================= */
-function GlobalLivingAtmosphereCanvas({ isDark = true }) {
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let animationFrameId;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
-
-    const handleResize = () => {
-      if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    };
-    window.addEventListener("resize", handleResize);
-
-    let t = 0;
-    const render = () => {
-      animationFrameId = requestAnimationFrame(render);
-      t += 0.015;
-
-      ctx.clearRect(0, 0, width, height);
-
-      // Living ambient diffuse glow orbs that gently drift and illuminate the canvas
-      const orb1X = width * 0.25 + Math.sin(t * 0.4) * 90;
-      const orb1Y = height * 0.25 + Math.cos(t * 0.35) * 75;
-      const grad1 = ctx.createRadialGradient(orb1X, orb1Y, 15, orb1X, orb1Y, 480);
-      grad1.addColorStop(0, isDark ? "rgba(0, 212, 255, 0.14)" : "rgba(14, 165, 233, 0.05)");
-      grad1.addColorStop(0.5, isDark ? "rgba(0, 212, 255, 0.04)" : "rgba(14, 165, 233, 0.02)");
-      grad1.addColorStop(1, "transparent");
-      ctx.fillStyle = grad1;
-      ctx.fillRect(0, 0, width, height);
-
-      const orb2X = width * 0.78 + Math.cos(t * 0.35) * 100;
-      const orb2Y = height * 0.65 + Math.sin(t * 0.45) * 85;
-      const grad2 = ctx.createRadialGradient(orb2X, orb2Y, 20, orb2X, orb2Y, 520);
-      grad2.addColorStop(0, isDark ? "rgba(37, 99, 235, 0.12)" : "rgba(59, 130, 246, 0.04)");
-      grad2.addColorStop(0.5, isDark ? "rgba(37, 99, 235, 0.03)" : "rgba(59, 130, 246, 0.015)");
-      grad2.addColorStop(1, "transparent");
-      ctx.fillStyle = grad2;
-      ctx.fillRect(0, 0, width, height);
-
-      // Third ambient pool in deep center
-      const orb3X = width * 0.5 + Math.sin(t * 0.25) * 120;
-      const orb3Y = height * 0.85 + Math.cos(t * 0.3) * 60;
-      const grad3 = ctx.createRadialGradient(orb3X, orb3Y, 10, orb3X, orb3Y, 450);
-      grad3.addColorStop(0, isDark ? "rgba(0, 212, 255, 0.10)" : "rgba(56, 189, 248, 0.035)");
-      grad3.addColorStop(1, "transparent");
-      ctx.fillStyle = grad3;
-      ctx.fillRect(0, 0, width, height);
-
-      // Living Topographic Contour Flow Waves across the entire viewport
-      const drawContour = (baseY, freq1, freq2, amp1, amp2, speed1, speed2, strokeColor, lineWidth) => {
-        ctx.beginPath();
-        ctx.moveTo(0, baseY);
-        for (let x = 0; x <= width; x += 30) {
-          const y =
-            baseY +
-            Math.sin(x * freq1 + t * speed1) * amp1 +
-            Math.cos(x * freq2 - t * speed2) * amp2;
-          ctx.lineTo(x, y);
-        }
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = lineWidth;
-        ctx.stroke();
-      };
-
-      drawContour(
-        height * 0.35,
-        0.002,
-        0.005,
-        28,
-        18,
-        0.3,
-        0.2,
-        isDark ? "rgba(0, 212, 255, 0.08)" : "rgba(14, 116, 144, 0.05)",
-        1.2
-      );
-      drawContour(
-        height * 0.6,
-        0.003,
-        0.006,
-        35,
-        22,
-        0.4,
-        0.25,
-        isDark ? "rgba(56, 189, 248, 0.07)" : "rgba(5, 150, 105, 0.04)",
-        1.4
-      );
-      drawContour(
-        height * 0.85,
-        0.0025,
-        0.007,
-        30,
-        20,
-        0.35,
-        0.3,
-        isDark ? "rgba(37, 99, 235, 0.07)" : "rgba(37, 99, 235, 0.04)",
-        1.2
-      );
-
-      // Subtle traveling tactical laser scan across the whole page
-      const pageScanY = ((t * 40) % (height + 200)) - 100;
-      if (pageScanY >= 0 && pageScanY <= height) {
-        const scanGrad = ctx.createLinearGradient(0, pageScanY - 20, 0, pageScanY + 20);
-        scanGrad.addColorStop(0, "transparent");
-        scanGrad.addColorStop(0.5, isDark ? "rgba(0, 212, 255, 0.06)" : "rgba(6, 182, 212, 0.03)");
-        scanGrad.addColorStop(1, "transparent");
-        ctx.fillStyle = scanGrad;
-        ctx.fillRect(0, pageScanY - 20, width, 40);
-      }
-    };
-
-    animationFrameId = requestAnimationFrame(render);
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [isDark]);
-
-  return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      <canvas ref={canvasRef} className="h-full w-full object-cover" />
-    </div>
-  );
+function GlobalLivingAtmosphereCanvas() {
+  return null;
 }
 
-/* =========================================================================
-   2. 21ST.DEV SIGNATURE BORDER BEAM CONTAINER
-   ========================================================================= */
+function SeamlessAlpineFlightCanvas() {
+  return null;
+}
+
 function BorderBeamCard({ children, className = "", isDark = true }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-3xl p-[1px] transition-all duration-300 ${className}`}
+      className={`relative rounded-2xl border p-6 sm:p-7 transition-all duration-300 ${
+        isDark
+          ? "border-slate-800 bg-[#0c1017] text-slate-100 shadow-xl"
+          : "border-slate-200 bg-white text-slate-900 shadow-lg"
+      } ${className}`}
     >
-      {/* 21st.dev Conic Gradient Spinning Beam */}
-      <div
-        className={`absolute -inset-[150%] animate-border-beam pointer-events-none opacity-60 ${
-          isDark
-            ? "bg-[conic-gradient(from_0deg,transparent_0_330deg,#38BDF8_360deg)]"
-            : "bg-[conic-gradient(from_0deg,transparent_0_330deg,#0284C7_360deg)]"
-        }`}
-      />
-      {/* Card Content Surface */}
-      <div
-        className={`relative h-full w-full rounded-[23px] backdrop-blur-2xl p-6 sm:p-7 ${
-          isDark
-            ? "bg-[#0b0d14]/90 text-slate-100 shadow-2xl"
-            : "bg-white/95 text-slate-900 shadow-xl"
-        }`}
-      >
-        {children}
-      </div>
-    </div>
-  );
-}
-
-/* =========================================================================
-   3. SEAMLESS INFINITE 3D ALPINE FLIGHT VIDEO ENGINE (PERFECT CONTINUOUS LOOP)
-   ========================================================================= */
-function SeamlessAlpineFlightCanvas({ isDark = true }) {
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let animationFrameId;
-    let width = (canvas.width = canvas.parentElement?.clientWidth || window.innerWidth || 1200);
-    let height = (canvas.height = canvas.parentElement?.clientHeight || 650);
-
-    const handleResize = () => {
-      if (!canvas || !canvas.parentElement) return;
-      width = canvas.width = canvas.parentElement.clientWidth || window.innerWidth || 1200;
-      height = canvas.height = canvas.parentElement.clientHeight || 650;
-    };
-    window.addEventListener("resize", handleResize);
-
-    const cols = 40;
-    const rows = 30;
-    const rowSpacing = 24;
-    let flightTime = 0;
-    const speed = 0.85; // smooth continuous forward units
-
-    const render = () => {
-      animationFrameId = requestAnimationFrame(render);
-      flightTime += speed;
-
-      ctx.clearRect(0, 0, width, height);
-
-      const cx = width / 2;
-      const cy = height * 0.42;
-      const fov = 320;
-
-      // Atmospheric Sky Gradient
-      const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
-      if (isDark) {
-        bgGrad.addColorStop(0, "#030407");
-        bgGrad.addColorStop(0.48, "#080c18");
-        bgGrad.addColorStop(1, "#030408");
-      } else {
-        bgGrad.addColorStop(0, "#f0f9ff");
-        bgGrad.addColorStop(0.45, "#e0f2fe");
-        bgGrad.addColorStop(1, "#f8fafc");
-      }
-      ctx.fillStyle = bgGrad;
-      ctx.fillRect(0, 0, width, height);
-
-      // Distant Alpine Peaks Silhouette
-      ctx.beginPath();
-      ctx.moveTo(0, cy - 20);
-      const peaks = [
-        [0.05, cy - 35],
-        [0.18, cy - 65],
-        [0.32, cy - 40],
-        [0.5, cy - 90], // Mont Blanc Summit
-        [0.68, cy - 50],
-        [0.82, cy - 75],
-        [0.92, cy - 35],
-        [1.0, cy - 20],
-      ];
-      peaks.forEach(([px, py]) => ctx.lineTo(px * width, py));
-      ctx.lineTo(width, cy);
-      ctx.lineTo(0, cy);
-      ctx.fillStyle = isDark ? "rgba(15, 23, 42, 0.75)" : "rgba(203, 213, 225, 0.65)";
-      ctx.fill();
-
-      // Mathematically flawless, continuous infinite terrain flyover:
-      // The camera advances continuously along cameraZ in world coordinates.
-      // Every physical terrain row has a fixed worldRow index, so mountains never mutate or jump.
-      const cameraZ = flightTime;
-      const baseWorldRow = Math.floor(cameraZ / rowSpacing);
-      const points = [];
-
-      for (let r = 0; r < rows; r++) {
-        points[r] = [];
-        const worldRow = baseWorldRow + r;
-        // True camera depth (decreases smoothly with cameraZ)
-        const z = worldRow * rowSpacing - cameraZ + 12;
-        if (z <= 2) continue;
-
-        // Fixed world coordinates for this physical terrain row
-        const worldZ = worldRow * 0.42;
-
-        for (let c = 0; c < cols; c++) {
-          const x = (c - cols / 2) * 28;
-          const flankDist = Math.abs(c - cols / 2) / (cols / 2);
-          const flankElev = Math.pow(flankDist, 2.2) * 280;
-
-          // Stable alpine terrain elevation locked to physical world coordinate
-          const wave =
-            Math.sin(c * 0.35 + worldZ * 3.5) * 25 +
-            Math.cos(c * 0.22 - worldZ * 2.8) * 30;
-          const y = flankElev + wave - 65;
-
-          const sx = cx + (x / z) * fov;
-          const sy = cy + (y / z) * fov;
-
-          // Smooth depth attenuation that reaches exactly 0 at horizon and near camera (zero pop)
-          const normZ = z / (rows * rowSpacing);
-          const depthAlpha = Math.sin(Math.max(0, Math.min(Math.PI, normZ * Math.PI)));
-
-          points[r][c] = { sx, sy, depthAlpha, z, worldRow };
-        }
-      }
-
-      // Draw Horizontal Terrain Contours
-      for (let r = rows - 1; r >= 1; r--) {
-        if (!points[r] || !points[r][0]) continue;
-        const alpha = points[r][0]?.depthAlpha || 0;
-        if (alpha <= 0.02) continue;
-
-        ctx.beginPath();
-        let started = false;
-        for (let c = 0; c < cols; c++) {
-          const pt = points[r][c];
-          if (!pt || pt.sx < -100 || pt.sx > width + 100) continue;
-          if (!started) {
-            ctx.moveTo(pt.sx, pt.sy);
-            started = true;
-          } else {
-            ctx.lineTo(pt.sx, pt.sy);
-          }
-        }
-        ctx.strokeStyle = isDark
-          ? `rgba(56, 189, 248, ${alpha * 0.4})`
-          : `rgba(14, 116, 144, ${alpha * 0.32})`;
-        ctx.lineWidth = Math.max(0.75, alpha * 2.2);
-        ctx.stroke();
-      }
-
-      // Draw Longitudinal Flight Vectors
-      for (let c = 0; c < cols; c += 2) {
-        ctx.beginPath();
-        let started = false;
-        for (let r = rows - 1; r >= 1; r--) {
-          const pt = points[r]?.[c];
-          if (!pt || pt.sx < -100 || pt.sx > width + 100) continue;
-          if (!started) {
-            ctx.moveTo(pt.sx, pt.sy);
-            started = true;
-          } else {
-            ctx.lineTo(pt.sx, pt.sy);
-          }
-        }
-        const flank = Math.abs(c - cols / 2) / (cols / 2);
-        ctx.strokeStyle = isDark
-          ? `rgba(6, 182, 212, ${0.12 + flank * 0.22})`
-          : `rgba(2, 132, 199, ${0.1 + flank * 0.18})`;
-        ctx.lineWidth = 0.75;
-        ctx.stroke();
-      }
-
-      // Continuous Scanning LiDAR Laser Line
-      const laserCycle = (flightTime * 0.015) % 1;
-      const targetZ = (0.2 + laserCycle * 0.6) * (rows * rowSpacing);
-      let bestRowIndex = -1;
-      let minDiff = 999999;
-      for (let r = 0; r < rows; r++) {
-        const pt = points[r]?.[Math.floor(cols / 2)];
-        if (pt && pt.depthAlpha > 0.05) {
-          const diff = Math.abs(pt.z - targetZ);
-          if (diff < minDiff) {
-            minDiff = diff;
-            bestRowIndex = r;
-          }
-        }
-      }
-
-      if (bestRowIndex !== -1 && points[bestRowIndex]) {
-        ctx.beginPath();
-        let started = false;
-        for (let c = 0; c < cols; c++) {
-          const pt = points[bestRowIndex][c];
-          if (!pt || pt.sx < -100 || pt.sx > width + 100) continue;
-          if (!started) {
-            ctx.moveTo(pt.sx, pt.sy);
-            started = true;
-          } else {
-            ctx.lineTo(pt.sx, pt.sy);
-          }
-        }
-        ctx.strokeStyle = isDark ? "rgba(249, 115, 22, 0.85)" : "rgba(234, 88, 12, 0.75)";
-        ctx.lineWidth = 2.4;
-        ctx.shadowColor = "#F97316";
-        ctx.shadowBlur = 10;
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-      }
-    };
-
-    animationFrameId = requestAnimationFrame(render);
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [isDark]);
-
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <canvas ref={canvasRef} className="h-full w-full object-cover" />
-      <div
-        className={`absolute inset-0 ${
-          isDark
-            ? "bg-gradient-to-t from-[#06070a] via-transparent to-[#06070a]/70"
-            : "bg-gradient-to-t from-[#F8FAFC] via-transparent to-[#F8FAFC]/70"
-        }`}
-      />
+      {children}
     </div>
   );
 }
@@ -449,20 +93,20 @@ function TelemetryMarqueeStrip({ isDark = true }) {
 function AnimatedBeamMeshDiagram({ isDark = true }) {
   return (
     <div
-      className={`mt-12 rounded-3xl border p-6 sm:p-9 backdrop-blur-2xl ${
-        isDark ? "border-white/[0.08] bg-[#0c0d14]/85 shadow-2xl" : "border-slate-200 bg-white/90 shadow-xl"
+      className={`mt-12 rounded-2xl border p-6 sm:p-8 ${
+        isDark ? "border-slate-800 bg-[#0c1017] shadow-xl" : "border-slate-200 bg-white shadow-md"
       }`}
     >
       <div className="text-center max-w-xl mx-auto">
-        <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-950/20 px-3 py-1 font-mono text-xs text-cyan-400 mb-2">
-          <IoWifiOutline className="h-3.5 w-3.5" />
+        <div className="flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-wider text-cyan-600 dark:text-cyan-400 mb-2">
+          <IoWifiOutline className="h-4 w-4" />
           <span>Multi-Hop Radio Mesh Network</span>
         </div>
-        <h3 className={`text-xl sm:text-2xl font-semibold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+        <h3 className={`text-xl sm:text-2xl font-bold tracking-normal ${isDark ? "text-white" : "text-slate-900"}`}>
           Decentralized LoRa Mesh Signal Propagation
         </h3>
-        <p className={`mt-2 text-xs leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-          Emergency telemetry travels along physical radio beams from valley ravines over mountain ridges to rescue headquarters.
+        <p className={`mt-2 text-sm leading-relaxed ${isDark ? "text-slate-300" : "text-slate-600"}`}>
+          Emergency telemetry travels along physical radio links from valley ravines over mountain ridges to rescue headquarters.
         </p>
       </div>
 
@@ -470,38 +114,38 @@ function AnimatedBeamMeshDiagram({ isDark = true }) {
       <div className="relative mt-10 grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
         {/* Node 1: Hiker Wearable */}
         <div className="relative z-10 flex flex-col items-center text-center">
-          <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-400/50 shadow-[0_0_20px_rgba(6,182,212,0.25)]">
-            <IoHardwareChipOutline className="h-9 w-9 text-cyan-400" />
-            <span className="absolute -top-1.5 -right-1.5 h-3.5 w-3.5 rounded-full bg-rose-500 border-2 border-slate-950 animate-ping" />
+          <div className="relative flex h-16 w-16 items-center justify-center rounded-xl border border-slate-700 bg-slate-900">
+            <IoHardwareChipOutline className="h-8 w-8 text-cyan-400" />
+            <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-rose-500 border-2 border-slate-950" />
           </div>
           <div className="mt-3 font-semibold text-sm text-white">ESP32-S3 Wearable</div>
-          <div className="font-mono text-xs text-cyan-400">Origin: Deep Ravine</div>
-          <div className="mt-1 font-mono text-[10px] text-slate-400">868MHz · 64-byte payload</div>
+          <div className="text-xs text-cyan-400">Origin: Field Sensor</div>
+          <div className="mt-1 font-mono text-[11px] text-slate-400">868 MHz · 64-byte payload</div>
         </div>
 
         {/* Node 2: Ridge Drone / Repeater */}
         <div className="relative z-10 flex flex-col items-center text-center">
-          <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-400/50 shadow-[0_0_20px_rgba(245,158,11,0.25)]">
-            <IoRadioOutline className="h-9 w-9 text-amber-400" />
-            <span className="absolute -top-1.5 -right-1.5 h-3.5 w-3.5 rounded-full bg-amber-400 border-2 border-slate-950 animate-pulse" />
+          <div className="relative flex h-16 w-16 items-center justify-center rounded-xl border border-slate-700 bg-slate-900">
+            <IoRadioOutline className="h-8 w-8 text-amber-400" />
+            <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-amber-400 border-2 border-slate-950" />
           </div>
           <div className="mt-3 font-semibold text-sm text-white">Alpine Ridge Relay</div>
-          <div className="font-mono text-xs text-amber-400">Hop 02 · 15 km Line-of-Sight</div>
-          <div className="mt-1 font-mono text-[10px] text-slate-400">Zero Cellular Required</div>
+          <div className="text-xs text-amber-400">Relay: 15 km Line-of-Sight</div>
+          <div className="mt-1 font-mono text-[11px] text-slate-400">Zero Cellular Required</div>
         </div>
 
         {/* Node 3: SAR Basecamp Command */}
         <div className="relative z-10 flex flex-col items-center text-center">
-          <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-400/50 shadow-[0_0_20px_rgba(16,185,129,0.25)]">
-            <IoShieldCheckmarkOutline className="h-9 w-9 text-emerald-400" />
-            <span className="absolute -top-1.5 -right-1.5 h-3.5 w-3.5 rounded-full bg-emerald-400 border-2 border-slate-950" />
+          <div className="relative flex h-16 w-16 items-center justify-center rounded-xl border border-slate-700 bg-slate-900">
+            <IoShieldCheckmarkOutline className="h-8 w-8 text-emerald-400" />
+            <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-emerald-400 border-2 border-slate-950" />
           </div>
           <div className="mt-3 font-semibold text-sm text-white">Basecamp Command HQ</div>
-          <div className="font-mono text-xs text-emerald-400">Hop 03 · Rescue Dispatch</div>
-          <div className="mt-1 font-mono text-[10px] text-slate-400">Offline PWA Live Map</div>
+          <div className="text-xs text-emerald-400">Terminal: Rescue Dispatch</div>
+          <div className="mt-1 font-mono text-[11px] text-slate-400">Offline PWA Live Map</div>
         </div>
 
-        {/* Animated Connecting SVG Beams */}
+        {/* Connecting SVG Beams */}
         <svg
           className="pointer-events-none absolute inset-0 hidden md:block h-full w-full"
           viewBox="0 0 900 160"
@@ -510,17 +154,15 @@ function AnimatedBeamMeshDiagram({ isDark = true }) {
         >
           <path
             d="M 180 80 L 410 80"
-            stroke="rgba(6, 182, 212, 0.4)"
-            strokeWidth="3"
-            strokeDasharray="8 8"
-            className="animate-beam-pulse"
+            stroke="rgba(100, 116, 139, 0.45)"
+            strokeWidth="2"
+            strokeDasharray="6 6"
           />
           <path
             d="M 490 80 L 720 80"
-            stroke="rgba(245, 158, 11, 0.4)"
-            strokeWidth="3"
-            strokeDasharray="8 8"
-            className="animate-beam-pulse"
+            stroke="rgba(100, 116, 139, 0.45)"
+            strokeWidth="2"
+            strokeDasharray="6 6"
           />
         </svg>
       </div>
@@ -1818,37 +1460,28 @@ export default function Landing() {
         <div className="relative z-10 mx-auto max-w-7xl w-full">
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12">
             <div className="lg:col-span-7">
-              {/* Enterprise Reliability Eyebrow */}
-              <div
-                className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1 font-mono text-xs font-medium backdrop-blur-md ${
-                  isDark
-                    ? "border-[#00D4FF]/30 bg-[#00D4FF]/10 text-[#00D4FF]"
-                    : "border-cyan-200 bg-white/80 text-cyan-800"
-                }`}
-              >
-                <span className="flex h-2 w-2 rounded-full bg-[#00D4FF] animate-ping" />
-                <span className="flex items-center gap-1.5">
-                  <IoShieldCheckmarkOutline className="h-3.5 w-3.5 text-[#00D4FF]" />
-                  <span>MISSION-CRITICAL WORKFORCE SAFETY · 99.999% LORA UPTIME</span>
-                </span>
+              {/* Field Reliability Category Header */}
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">
+                <IoShieldCheckmarkOutline className="h-4 w-4" />
+                <span>Mission-Critical Workforce Safety · 99.999% LoRa Uptime</span>
               </div>
 
               {/* Bold Headline Communicating Core Benefit */}
               <h1
-                className={`mt-5 max-w-[660px] text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-wrap-balance ${
+                className={`mt-4 max-w-[660px] text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-tight ${
                   isDark
                     ? "text-white"
                     : "text-slate-900"
                 }`}
               >
                 Zero Lone-Worker Fatalities:{" "}
-                <span className="bg-gradient-to-r from-[#00D4FF] via-[#38BDF8] to-[#2563EB] bg-clip-text text-transparent">
+                <span className={isDark ? "text-slate-200" : "text-slate-700"}>
                   Off-Grid Telemetry and Fall Rescue for Wilderness Operations
                 </span>
               </h1>
 
               {/* Supporting Subheading Clarifying What the Product Does */}
-              <p className={`mt-4 max-w-[580px] text-base leading-relaxed sm:text-lg backdrop-blur-xs ${
+              <p className={`mt-4 max-w-[580px] text-base leading-relaxed sm:text-lg ${
                 isDark ? "text-slate-300" : "text-slate-600"
               }`}>
                 SWAAS equips field engineers, mining crews, and alpine operators with autonomous 
@@ -1907,32 +1540,32 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* 21st.dev Signature Border Beam HUD Card */}
+            {/* Hardware Telemetry Live Status Card */}
             <div className="lg:col-span-5">
               <BorderBeamCard isDark={isDark}>
-                <div className="flex items-center justify-between border-b pb-3 font-mono text-[10px] border-slate-800">
+                <div className="flex items-center justify-between border-b pb-3 text-xs border-slate-800">
                   <div className="flex items-center gap-2">
-                    <span className="flex h-2 w-2 rounded-full bg-rose-500 animate-ping" />
-                    <span className="font-semibold text-rose-400">REC [●] LIVE LiDAR SCAN</span>
+                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                    <span className="font-medium text-slate-200">Live Device Telemetry</span>
                   </div>
-                  <span className="text-slate-400 font-mono">60 FPS · 915MHz</span>
+                  <span className="text-slate-400 font-mono text-[11px]">868 MHz · 12 Locked</span>
                 </div>
 
                 <div className="mt-4 flex items-center justify-between">
                   <div>
-                    <div className="text-[10px] font-mono text-cyan-400 font-medium">GPS LOCK // 12-SATELLITE FIX</div>
-                    <div className="text-sm font-semibold tracking-tight text-white mt-0.5">
-                      Mont Blanc Sector IV
+                    <div className="text-[11px] text-slate-400">GPS Position</div>
+                    <div className="text-sm font-semibold text-white mt-0.5">
+                      Sector IV (Mont Blanc)
                     </div>
-                    <div className="font-mono text-xs text-slate-400">
-                      45.8326° N · 6.8652° E
+                    <div className="font-mono text-xs text-slate-400 mt-0.5">
+                      45.8326° N, 6.8652° E
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <div className="text-[10px] font-mono text-slate-400">ELEVATION</div>
+                    <div className="text-[11px] text-slate-400">Elevation</div>
                     <div className="text-xl font-bold font-mono text-emerald-400">
-                      2,840m
+                      2,840 m
                     </div>
                     <div className="font-mono text-[10px] text-slate-400">
                       Baro: 712 hPa
@@ -1940,10 +1573,10 @@ export default function Landing() {
                   </div>
                 </div>
 
-                <div className="mt-4 rounded-xl border p-3 border-slate-800 bg-black/60">
+                <div className="mt-4 rounded-xl border p-3 border-slate-800 bg-slate-900/60">
                   <div className="flex items-center justify-between font-mono text-[10px] mb-1.5">
                     <span className="text-slate-400 flex items-center gap-1">
-                      <IoPulseOutline className="h-3 w-3 text-rose-500 animate-pulse" />
+                      <IoPulseOutline className="h-3 w-3 text-emerald-400" />
                       <span>Optical PPG Biosensor</span>
                     </span>
                     <span className="text-emerald-400 font-semibold">74 BPM · 99% SpO2</span>
@@ -1960,11 +1593,10 @@ export default function Landing() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    <div className="absolute inset-y-0 w-8 bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent animate-grid-scan" />
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center justify-between rounded-xl border px-3.5 py-2.5 font-mono text-xs border-slate-800 bg-slate-900/60">
+                <div className="mt-4 flex items-center justify-between rounded-xl border px-3.5 py-2.5 font-mono text-xs border-slate-800 bg-slate-900/40">
                   <div className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-cyan-400" />
                     <span className="text-slate-300">Basecamp HQ Link:</span>
