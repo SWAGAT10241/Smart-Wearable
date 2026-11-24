@@ -47,6 +47,50 @@ export default function Dashboard() {
     lastSeen,
   } = useDashboardData(selectedDeviceId);
 
+  // Dynamic physiological & environmental status evaluators
+  const getHeartRateStatus = (rate) => {
+    if (rate == null || rate === "--") return undefined;
+    const n = Number(rate);
+    if (n > 120) return "Alert";
+    if (n > 100) return "High";
+    if (n < 50) return "Alert";
+    if (n < 60) return "Low";
+    return "Live";
+  };
+
+  const getOxygenStatus = (spo2) => {
+    if (spo2 == null || spo2 === "--") return undefined;
+    const n = Number(spo2);
+    if (n >= 95) return "Optimal";
+    if (n >= 90) return "Warning";
+    return "Low";
+  };
+
+  const getTemperatureStatus = (temp) => {
+    if (temp == null || temp === "--") return undefined;
+    const n = Number(temp);
+    if (n > 34) return "High";
+    if (n > 26) return "Mild";
+    if (n < 18) return "Cold";
+    return "Normal";
+  };
+
+  const getHumidityStatus = (hum) => {
+    if (hum == null || hum === "--") return undefined;
+    const n = Number(hum);
+    if (n > 65) return "Humid";
+    if (n < 30) return "Dry";
+    return "Normal";
+  };
+
+  const getPressureStatus = (pres) => {
+    if (pres == null || pres === "--") return undefined;
+    const n = Number(pres);
+    if (n < 1000) return "Low";
+    if (n > 1025) return "High";
+    return "Normal";
+  };
+
   // Configuration for 5 quick metric stat cards
   const stats = useMemo(
     () => [
@@ -56,7 +100,7 @@ export default function Dashboard() {
         label: "HEART RATE",
         value: hr?.heartRate ?? "--",
         unit: "bpm",
-        status: hr?.heartRate != null ? "Live" : undefined,
+        status: getHeartRateStatus(hr?.heartRate),
         statusColor: "var(--status-optimal)",
         variant: "ppg",
         signal: vitalsHistory
@@ -91,7 +135,7 @@ export default function Dashboard() {
         label: "BLOOD OXYGEN",
         value: hr?.spo2 ?? "--",
         unit: "% SpO₂",
-        status: hr?.spo2 != null ? "Normal" : undefined,
+        status: getOxygenStatus(hr?.spo2),
         statusColor: "var(--status-optimal)",
         variant: "gauge",
         gaugePct: hr?.spo2 ?? 0,
@@ -112,7 +156,7 @@ export default function Dashboard() {
         label: "TEMPERATURE",
         value: env?.temperature != null ? Number(env.temperature).toFixed(1) : "--",
         unit: "°C",
-        status: env?.temperature != null ? "Mild" : undefined,
+        status: getTemperatureStatus(env?.temperature),
         statusColor: "var(--status-warning)",
         variant: "tempGauge",
         gaugePct:
@@ -155,7 +199,7 @@ export default function Dashboard() {
         label: "HUMIDITY",
         value: env?.humidity != null ? Number(env.humidity).toFixed(1) : "--",
         unit: "%",
-        status: env?.humidity != null ? "Normal" : undefined,
+        status: getHumidityStatus(env?.humidity),
         statusColor: "var(--status-optimal)",
         variant: "bars",
         signal: environmentHistory
@@ -186,7 +230,7 @@ export default function Dashboard() {
         label: "PRESSURE",
         value: env?.pressure != null ? Number(env.pressure).toFixed(1) : "--",
         unit: "hPa",
-        status: env?.pressure != null ? "Normal" : undefined,
+        status: getPressureStatus(env?.pressure),
         statusColor: "var(--status-info)",
         variant: "pressure",
         signal: environmentHistory

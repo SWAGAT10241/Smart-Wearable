@@ -9,21 +9,25 @@
 Always run the tier verification command before completing any feature, fix, or refactor:
 
 - **Backend (Cloud & Realtime):**
+
   ```bash
   cd backend && pnpm test
   ```
 
 - **Frontend (Rescue Dashboard):**
+
   ```bash
   cd frontend && pnpm run test:run && pnpm run build
   ```
 
 - **Mobile (Companion App):**
+
   ```bash
   cd mobile && node scripts/check-syntax.js && pnpm exec expo-doctor
   ```
 
 - **Hardware (Firmware & Drivers):**
+
   ```bash
   python3 -m compileall -q hardware
   ```

@@ -1,20 +1,11 @@
+import { Card } from "../ui/card";
+
 export default function AuthCard({ children, className = "" }) {
   return (
-    <div
-      className={`
-        w-full
-        rounded-[var(--card-radius-expanded)]
-        border border-[var(--border-default)]
-        bg-[var(--surface-card)]/90
-        p-[var(--card-padding-expanded)]
-        shadow-[var(--shadow-card-lg)]
-        backdrop-blur-2xl
-        text-[var(--text-primary)]
-        transition-all duration-300
-        ${className}
-      `}
+    <Card
+      className={`w-full border border-slate-200/80 dark:border-slate-800/80 bg-white/95 dark:bg-slate-900/90 shadow-2xl backdrop-blur-2xl transition-all duration-300 ${className}`}
     >
       {children}
-    </div>
+    </Card>
   );
 }

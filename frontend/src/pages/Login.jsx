@@ -3,9 +3,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { IoShieldCheckmarkOutline } from "react-icons/io5";
 import AuthLayout from "../components/auth/AuthLayout";
-import AuthCard from "../components/auth/AuthCard";
 import Field from "../components/auth/Field";
 import Button from "../components/auth/Button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
 import { useAuth } from "../context/AuthContext";
 import { authApi } from "../lib/apiClient";
 import { isProfileComplete } from "../lib/profileCompletion";
@@ -46,89 +54,106 @@ export default function Login() {
         </>
       }
     >
-      <AuthCard className="w-full max-w-[var(--auth-card-max-width)]">
-        <form className="flex flex-col" onSubmit={onSubmit}>
-          {/* Header Block: Linear/Stripe style with generous breathing room */}
-          <div className="mb-[var(--auth-header-margin-bottom)] flex items-start justify-between gap-[var(--auth-header-gap)]">
-            <div>
-              <h2 className="tg-formcard__title">Sign In</h2>
-              <p className="tg-formcard__sub">
-                Enter your credentials to access your safety dashboard.
-              </p>
-            </div>
-            <div className="flex h-[var(--auth-icon-badge-size)] w-[var(--auth-icon-badge-size)] shrink-0 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--color-accent)]/30 bg-[var(--color-accent)]/10 text-[var(--color-accent)] shadow-sm">
-              <IoShieldCheckmarkOutline className="h-[var(--auth-icon-size)] w-[var(--auth-icon-size)]" />
-            </div>
+      <Card className="w-full max-w-[var(--auth-card-max-width)] border border-slate-200/80 dark:border-slate-800/80 bg-white/95 dark:bg-slate-900/90 shadow-2xl backdrop-blur-2xl">
+        <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
+          <div className="space-y-1">
+            <CardTitle className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+              Sign In
+            </CardTitle>
+            <CardDescription className="text-sm text-slate-500 dark:text-slate-400">
+              Enter your credentials to access your safety dashboard.
+            </CardDescription>
           </div>
-
-          {error && <div className="tg-formcard__error mb-[var(--auth-field-gap)]">{error}</div>}
-
-          {/* Form Fields: Consistent vertical rhythm */}
-          <div className="space-y-[var(--auth-field-gap)]">
-            <Field
-              label="Email"
-              name="email"
-              type="email"
-              placeholder="you@example.com"
-              value={form.email}
-              onChange={onChange}
-              required
-            />
-
-            <Field
-              label="Password"
-              name="password"
-              type="password"
-              placeholder="••••••••"
-              value={form.password}
-              onChange={onChange}
-              required
-            />
-          </div>
-
-          {/* Action Button: Deliberate separation */}
-          <div className="mt-[var(--auth-button-margin-top)]">
-            <Button type="submit" disabled={busy}>
-              {busy ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  <span>Signing in…</span>
-                </span>
-              ) : (
-                "Sign In"
-              )}
-            </Button>
-          </div>
-
-          {/* Divider: Clean vertical margins */}
-          <div className="tg-formcard__divider my-[var(--auth-divider-margin-y)]">
-            <span />
-            <em>or</em>
-            <span />
-          </div>
-
-          <Button
-            variant="secondary"
-            type="button"
-            onClick={() => (window.location.href = authApi.googleLoginUrl())}
-            className="flex items-center justify-center gap-[var(--space-3)]"
+          <Badge
+            variant="tactical"
+            className="shrink-0 flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-mono tracking-wider"
           >
-            <FcGoogle className="text-[var(--auth-social-icon-size)]" />
-            Continue with Google
-          </Button>
+            <IoShieldCheckmarkOutline className="text-sm" />
+            <span>SECURE</span>
+          </Badge>
+        </CardHeader>
 
-          {/* Footer: Balanced margin handled via .tg-formcard__footer token */}
-          <p className="tg-formcard__footer">
+        <CardContent>
+          <form className="flex flex-col space-y-4" onSubmit={onSubmit}>
+            {error && (
+              <div className="rounded-lg border border-red-200/80 bg-red-50/90 px-3.5 py-2.5 text-sm font-medium text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-400">
+                {error}
+              </div>
+            )}
+
+            {/* Form Fields: Consistent vertical rhythm */}
+            <div className="space-y-4">
+              <Field
+                label="Email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                placeholder="hiker@trailguard.org"
+                value={form.email}
+                onChange={onChange}
+                required
+              />
+
+              <Field
+                label="Password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                placeholder="••••••••"
+                value={form.password}
+                onChange={onChange}
+                required
+              />
+            </div>
+
+            {/* Action Button: Deliberate separation */}
+            <div className="pt-2">
+              <Button type="submit" disabled={busy}>
+                {busy ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    <span>Signing in…</span>
+                  </span>
+                ) : (
+                  "Sign In"
+                )}
+              </Button>
+            </div>
+
+            {/* Divider: Clean Tailwind line */}
+            <div className="relative my-3 flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-200 dark:border-slate-800" />
+              </div>
+              <div className="relative bg-white/95 dark:bg-slate-900/90 px-3 text-xs uppercase tracking-wider text-slate-400">
+                or
+              </div>
+            </div>
+
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={() => (window.location.href = authApi.googleLoginUrl())}
+              className="flex items-center justify-center gap-3"
+            >
+              <FcGoogle className="text-lg" />
+              Continue with Google
+            </Button>
+          </form>
+        </CardContent>
+
+        <CardFooter className="justify-center border-t border-slate-100 dark:border-slate-800/60 pt-4 text-center text-sm text-slate-500 dark:text-slate-400">
+          <span>
             Don't have an account?{" "}
             <Link
               to="/register"
-              className="font-medium text-[var(--action-primary)] transition-colors hover:text-[var(--action-primary-hover)] underline underline-offset-4"
+              className="font-semibold text-[var(--action-primary)] transition-colors hover:text-[var(--action-primary-hover)] underline underline-offset-4"
             >
               Sign up
             </Link>
-          </p>
-        </form>
-      </AuthCard>
+          </span>
+        </CardFooter>
+      </Card>
     </AuthLayout>
   );
 }

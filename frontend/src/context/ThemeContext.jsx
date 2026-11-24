@@ -2,12 +2,18 @@ import { createContext, useContext, useEffect, useState } from "react";
 const ThemeContext = createContext();
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
-    // Load saved theme
+    // 1. User's manual selection in localStorage takes top priority
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark" || savedTheme === "light") {
       return savedTheme;
     }
-    // Default to dark theme for mission control
+    // 2. If no saved choice, automatically match user's OS / device theme
+    if (typeof window !== "undefined" && window.matchMedia) {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+    }
+    // 3. Safe fallback
     return "dark";
   });
   useEffect(() => {

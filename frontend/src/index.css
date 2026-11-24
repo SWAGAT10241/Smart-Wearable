@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* =========================================================================
    LAYER 1: PRIMITIVES (Core Colors)
@@ -6,76 +7,76 @@
    00 = near white, 500 = base hue, 1000 = near black.
    ========================================================================= */
 :root {
-  /* Grayscale (Neutrals / Field Matte) */
-  --color-grayscale-1000: #000000;
-  --color-grayscale-950: #07090e;
-  --color-grayscale-900: #0d1117;
-  --color-grayscale-870: #121820;
-  --color-grayscale-850: #161b22;
-  --color-grayscale-800: #21262d;
-  --color-grayscale-750: #30363d;
-  --color-grayscale-700: #3e4651;
-  --color-grayscale-600: #484f58;
-  --color-grayscale-500: #6e7681;
-  --color-grayscale-400: #8b949e;
-  --color-grayscale-300: #b1bac4;
-  --color-grayscale-200: #c9d1d9;
-  --color-grayscale-150: #d0d7de;
-  --color-grayscale-100: #e6edf3;
-  --color-grayscale-50: #f0f6fc;
-  --color-grayscale-00: #ffffff;
+  /* Grayscale (Neutrals / Field Matte in OKLCH) */
+  --color-grayscale-1000: oklch(0 0 0);
+  --color-grayscale-950: oklch(0.11 0.01 240);
+  --color-grayscale-900: oklch(0.15 0.01 240);
+  --color-grayscale-870: oklch(0.18 0.01 240);
+  --color-grayscale-850: oklch(0.20 0.01 240);
+  --color-grayscale-800: oklch(0.25 0.01 240);
+  --color-grayscale-750: oklch(0.32 0.01 240);
+  --color-grayscale-700: oklch(0.38 0.01 240);
+  --color-grayscale-600: oklch(0.42 0.01 240);
+  --color-grayscale-500: oklch(0.55 0.01 240);
+  --color-grayscale-400: oklch(0.65 0.01 240);
+  --color-grayscale-300: oklch(0.77 0.01 240);
+  --color-grayscale-200: oklch(0.85 0.01 240);
+  --color-grayscale-150: oklch(0.88 0.01 240);
+  --color-grayscale-100: oklch(0.94 0.01 240);
+  --color-grayscale-50: oklch(0.97 0.01 240);
+  --color-grayscale-00: oklch(1 0 0);
 
-  /* Primary (SWAAS Emerald Brand Hue) */
-  --color-primary-00: #f0fdf4;
-  --color-primary-100: #dcfce7;
-  --color-primary-200: #bbf7d0;
-  --color-primary-300: #86efac;
-  --color-primary-400: #4ade80;
-  --color-primary-500: #10b981;
-  --color-primary-600: #059669;
-  --color-primary-700: #047857;
-  --color-primary-800: #065f46;
-  --color-primary-900: #064e3b;
-  --color-primary-1000: #022c22;
+  /* Primary (SWAAS Emerald Brand Hue in OKLCH) */
+  --color-primary-00: oklch(0.98 0.02 155);
+  --color-primary-100: oklch(0.95 0.05 155);
+  --color-primary-200: oklch(0.90 0.09 155);
+  --color-primary-300: oklch(0.83 0.15 155);
+  --color-primary-400: oklch(0.75 0.19 155);
+  --color-primary-500: oklch(0.65 0.19 155);
+  --color-primary-600: oklch(0.58 0.17 155);
+  --color-primary-700: oklch(0.50 0.15 155);
+  --color-primary-800: oklch(0.42 0.12 155);
+  --color-primary-900: oklch(0.35 0.10 155);
+  --color-primary-1000: oklch(0.20 0.06 155);
 
-  /* Secondary (Sky Blue / Altimetry Hue) */
-  --color-secondary-00: #f0f9ff;
-  --color-secondary-100: #e0f2fe;
-  --color-secondary-200: #bae6fd;
-  --color-secondary-300: #7dd3fc;
-  --color-secondary-400: #38bdf8;
-  --color-secondary-500: #0ea5e9;
-  --color-secondary-600: #0284c7;
-  --color-secondary-700: #0369a1;
-  --color-secondary-800: #075985;
-  --color-secondary-900: #0c4a6e;
-  --color-secondary-1000: #082f49;
+  /* Secondary (Sky Blue / Altimetry Hue in OKLCH) */
+  --color-secondary-00: oklch(0.98 0.02 230);
+  --color-secondary-100: oklch(0.94 0.04 230);
+  --color-secondary-200: oklch(0.88 0.08 230);
+  --color-secondary-300: oklch(0.80 0.13 230);
+  --color-secondary-400: oklch(0.72 0.16 230);
+  --color-secondary-500: oklch(0.65 0.18 230);
+  --color-secondary-600: oklch(0.58 0.17 235);
+  --color-secondary-700: oklch(0.50 0.15 235);
+  --color-secondary-800: oklch(0.42 0.12 235);
+  --color-secondary-900: oklch(0.35 0.10 235);
+  --color-secondary-1000: oklch(0.22 0.06 235);
 
-  /* Red (Emergency SOS / Destructive Hue) */
-  --color-red-00: #fef2f2;
-  --color-red-100: #fee2e2;
-  --color-red-200: #fecaca;
-  --color-red-300: #fca5a5;
-  --color-red-400: #f87171;
-  --color-red-500: #e5484d;
-  --color-red-600: #dc2626;
-  --color-red-700: #b91c1c;
-  --color-red-800: #991b1b;
-  --color-red-900: #7f1d1d;
-  --color-red-1000: #450a0a;
+  /* Red (Emergency SOS / Destructive Hue in OKLCH) */
+  --color-red-00: oklch(0.97 0.02 25);
+  --color-red-100: oklch(0.93 0.05 25);
+  --color-red-200: oklch(0.86 0.10 25);
+  --color-red-300: oklch(0.78 0.16 25);
+  --color-red-400: oklch(0.70 0.21 25);
+  --color-red-500: oklch(0.62 0.24 25);
+  --color-red-600: oklch(0.56 0.24 25);
+  --color-red-700: oklch(0.48 0.22 25);
+  --color-red-800: oklch(0.40 0.18 25);
+  --color-red-900: oklch(0.34 0.14 25);
+  --color-red-1000: oklch(0.22 0.08 25);
 
-  /* Yellow (Warning / Advisory Hue) */
-  --color-yellow-00: #fffbeb;
-  --color-yellow-100: #fef3c7;
-  --color-yellow-200: #fde68a;
-  --color-yellow-300: #fcd34d;
-  --color-yellow-400: #fbbf24;
-  --color-yellow-500: #f59e0b;
-  --color-yellow-600: #d97706;
-  --color-yellow-700: #b45309;
-  --color-yellow-800: #92400e;
-  --color-yellow-900: #78350f;
-  --color-yellow-1000: #451a03;
+  /* Yellow (Warning / Advisory Hue in OKLCH) */
+  --color-yellow-00: oklch(0.98 0.03 85);
+  --color-yellow-100: oklch(0.94 0.07 85);
+  --color-yellow-200: oklch(0.89 0.12 85);
+  --color-yellow-300: oklch(0.83 0.16 80);
+  --color-yellow-400: oklch(0.78 0.18 75);
+  --color-yellow-500: oklch(0.72 0.18 65);
+  --color-yellow-600: oklch(0.65 0.18 60);
+  --color-yellow-700: oklch(0.55 0.16 55);
+  --color-yellow-800: oklch(0.45 0.14 50);
+  --color-yellow-900: oklch(0.38 0.10 45);
+  --color-yellow-1000: oklch(0.25 0.07 40);
 }
 
 /* =========================================================================
@@ -119,11 +120,11 @@
   --action-disabled: var(--color-grayscale-200);
 
   /* Status */
-  --status-optimal: var(--color-primary-500);
-  --status-sos: var(--color-red-500);
-  --status-warning: var(--color-yellow-500);
-  --text-warning: var(--color-yellow-800);
-  --status-info: var(--color-secondary-400);
+  --status-optimal: oklch(0.65 0.19 155);
+  --status-sos: oklch(0.62 0.24 20);
+  --status-warning: oklch(0.72 0.18 60);
+  --text-warning: oklch(0.55 0.18 60);
+  --status-info: oklch(0.68 0.16 230);
 
   /* Backward Compatibility Aliases */
   --color-main: var(--text-primary);
@@ -326,35 +327,35 @@
      LAYER 5: NAMED BRAND & THEME COLOR TOKENS
      Named color definitions replacing raw hex literals across views
      ========================================================================= */
-  /* Brand Navy Palette (Sidebar, Auth & Night Atmospheres) */
-  --brand-navy-deep: #031827;
-  --brand-navy: #061B2D;
-  --brand-navy-alt: #071C2E;
-  --brand-navy-soft: #061C2E;
-  --brand-navy-card: #102F4A;
-  --brand-navy-card-border: rgba(16, 47, 74, 0.8);
-  --brand-navy-card-bg: rgba(16, 47, 74, 0.7);
-  --brand-navy-card-hover: #092238;
-  --brand-navy-text: #06202D;
+  /* Brand Navy Palette (Sidebar, Auth & Night Atmospheres in OKLCH) */
+  --brand-navy-deep: oklch(0.18 0.04 235);
+  --brand-navy: oklch(0.20 0.04 235);
+  --brand-navy-alt: oklch(0.21 0.04 235);
+  --brand-navy-soft: oklch(0.21 0.04 235);
+  --brand-navy-card: oklch(0.28 0.06 235);
+  --brand-navy-card-border: oklch(0.28 0.06 235 / 0.8);
+  --brand-navy-card-bg: oklch(0.28 0.06 235 / 0.7);
+  --brand-navy-card-hover: oklch(0.24 0.05 235);
+  --brand-navy-text: oklch(0.22 0.04 235);
 
-  /* Brand Teal Palette (Accent, Highlights & Active States) */
-  --brand-teal: #2DD4BF;
-  --brand-teal-light: #42E3D0;
-  --brand-teal-hover: #5EEAD4;
-  --brand-teal-dark: #0E9C8C;
-  --brand-teal-subtle: rgba(14, 156, 140, 0.25);
-  --brand-teal-glow: rgba(45, 212, 191, 0.35);
+  /* Brand Teal Palette (Accent, Highlights & Active States in OKLCH) */
+  --brand-teal: oklch(0.78 0.14 175);
+  --brand-teal-light: oklch(0.83 0.14 175);
+  --brand-teal-hover: oklch(0.86 0.14 175);
+  --brand-teal-dark: oklch(0.60 0.13 175);
+  --brand-teal-subtle: oklch(0.60 0.13 175 / 0.25);
+  --brand-teal-glow: oklch(0.78 0.14 175 / 0.35);
 
-  /* Map & Marker Colors */
-  --map-trail-color: #16B890;
-  --map-marker-color: #1976D2;
+  /* Map & Marker Colors in OKLCH */
+  --map-trail-color: oklch(0.68 0.16 165);
+  --map-marker-color: oklch(0.55 0.18 250);
 
-  /* Avatar Gradient */
-  --avatar-gradient-start: #b7f3df;
-  --avatar-gradient-end: #15967f;
+  /* Avatar Gradient in OKLCH */
+  --avatar-gradient-start: oklch(0.92 0.08 165);
+  --avatar-gradient-end: oklch(0.58 0.15 165);
 
-  /* Thermal Spectrum Gradient */
-  --thermal-gradient: linear-gradient(90deg, #1976D2, #18BFC1, #9DDC67, #F2A93B, #F59E0B);
+  /* Thermal Spectrum Gradient in OKLCH */
+  --thermal-gradient: linear-gradient(90deg, oklch(0.55 0.18 250), oklch(0.72 0.15 200), oklch(0.82 0.17 135), oklch(0.75 0.18 70), oklch(0.70 0.18 55));
 }
 
 /* =========================================================================
@@ -367,9 +368,9 @@ html.dark {
   --surface-card: var(--color-grayscale-850);        /* #161B22 Solid Card */
   --surface-elevated: var(--color-grayscale-800);    /* #21262D Solid Elevated */
   --surface-hover: var(--color-grayscale-750);       /* #30363D Hover Tile */
-  --surface-accent: rgba(16, 185, 129, 0.12);
-  --surface-error: rgba(229, 72, 77, 0.15);
-  --surface-warning: rgba(245, 158, 11, 0.15);
+  --surface-accent: oklch(0.65 0.19 155 / 0.12);
+  --surface-error: oklch(0.62 0.24 25 / 0.15);
+  --surface-warning: oklch(0.72 0.18 65 / 0.15);
 
   /* Borders */
   --border-default: var(--color-grayscale-750);      /* #30363D 1px Hairline */
@@ -398,11 +399,11 @@ html.dark {
   --action-disabled: var(--color-grayscale-800);
 
   /* Status */
-  --status-optimal: var(--color-primary-500);
-  --status-sos: var(--color-red-500);
-  --status-warning: var(--color-yellow-500);
-  --text-warning: var(--color-yellow-500);
-  --status-info: var(--color-secondary-400);
+  --status-optimal: oklch(0.65 0.19 155);
+  --status-sos: oklch(0.62 0.24 20);
+  --status-warning: oklch(0.72 0.18 60);
+  --text-warning: oklch(0.72 0.18 60);
+  --status-info: oklch(0.68 0.16 230);
 
   /* Backward Compatibility Aliases */
   --color-main: var(--text-primary);
@@ -1041,4 +1042,65 @@ html:not(.dark) .tg-topographic-mesh {
 
 .animate-telemetry-flash {
   animation: tg-telemetry-flash 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* =========================================================================
+   CUSTOM TACTICAL SCROLLBARS (Theme-Adaptive & Cross-Browser)
+   ========================================================================= */
+/* WebKit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: var(--radius-full);
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
+}
+
+/* Firefox / Modern Standard */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-default) transparent;
+}
+
+/* Scoped Utility Classes */
+.tg-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.tg-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: var(--radius-full);
+}
+
+html.dark .tg-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.tg-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-full);
+}
+
+.tg-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--action-primary);
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
