@@ -187,6 +187,7 @@ Every agent MUST uphold the following 7 invariants. **A client-side check is nev
 5. **NEVER remove or bypass rate limiters on public endpoints:** Ensure `authLimiter`, `deviceLimiter`, and `telemetryLimiter` remain intact.
 6. **NEVER commit plain-text credentials or API secrets:** All secrets must be loaded from validated environment configurations via `config/env.js`.
 7. **NEVER invent new database schemas or remove TTL indexes:** All emergency data must expire automatically.
+8. **NEVER introduce AI-generated visual slop:** Follow [.agents/rules/anti-slop-ui.md](file:///Users/swagatsouravdhar/WEB%20DEVELOPMENT/TrailGuard/.agents/rules/anti-slop-ui.md) for all frontend tasks (no clipped gradient headlines, no pinging pill eyebrows, no 60 FPS full-page background canvas orbs, no spinning conic border beams, no nested squircles, and no fake sci-fi HUD jargon).
 
 ---
 
