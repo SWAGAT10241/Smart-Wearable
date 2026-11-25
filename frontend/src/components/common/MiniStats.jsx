@@ -2,6 +2,7 @@ import React from "react";
 
 /**
  * Reusable 3-column statistical summary component (e.g. Min, Avg, Peak).
+ * Fully theme-adaptive: high contrast across light & dark themes.
  *
  * @param {object} props
  * @param {Array<[string, string|number]>} props.items - Array of [label, value] tuples
@@ -10,19 +11,19 @@ export default function MiniStats({ items = [] }) {
   if (!Array.isArray(items) || items.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-3 border-t border-[var(--color-border)] pt-[var(--space-3)]">
+    <div className="grid grid-cols-3 rounded-xl border border-black/15 dark:border-white/10 bg-white/75 dark:bg-black/30 backdrop-blur-md p-2">
       {items.map(([label, value], index) => (
         <div
           key={`${label}-${index}`}
-          className={`min-w-0 ${
-            index > 0 ? "border-l border-[var(--color-border)] pl-[var(--space-2-5)]" : "pr-[var(--space-2)]"
-          } ${index === 2 ? "pl-[var(--space-2-5)] pr-0" : ""}`}
+          className={`min-w-0 text-center ${
+            index > 0 ? "border-l border-black/15 dark:border-white/10" : ""
+          } px-1.5`}
         >
-          <div className="truncate text-sm font-bold leading-5 tabular-nums text-[var(--color-text)] sm:text-base">
+          <div className="truncate font-mono text-xs font-black tabular-nums text-slate-950 dark:text-white sm:text-sm">
             {value}
           </div>
 
-          <div className="mt-[var(--space-0-5)] truncate text-xs font-semibold text-[var(--color-text-secondary)]">
+          <div className="mt-0.5 truncate font-mono text-[9px] font-bold tracking-wider text-slate-700 dark:text-slate-300 uppercase">
             {label}
           </div>
         </div>
@@ -30,4 +31,3 @@ export default function MiniStats({ items = [] }) {
     </div>
   );
 }
-

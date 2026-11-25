@@ -1,10 +1,11 @@
 import React from "react";
 
 /**
- * Bar trace chart component for humidity and percentage distributions.
+ * Modern BarTrace chart component for environmental humidity distribution.
+ * Features gradient vertical bars, tactical dashed gridlines, and theme-adaptive text.
  */
 export default function BarTrace({
-  color,
+  color = "#0ea5e9",
   samples = [],
   emptyText = "Waiting for data...",
 }) {
@@ -27,7 +28,7 @@ export default function BarTrace({
         .filter(Number.isFinite)
     : [];
 
-  const visibleValues = values.slice(-20);
+  const visibleValues = values.slice(-16);
   const isBaseline = visibleValues.length < 2;
   const singleVal = visibleValues.length === 1 ? visibleValues[0] : null;
 
@@ -38,51 +39,45 @@ export default function BarTrace({
   const chartValues = isBaseline ? baselineBars : visibleValues;
 
   return (
-    <div className="relative grid h-[86px] grid-cols-[34px_minmax(0,1fr)] gap-2">
-      <div className="flex h-full flex-col justify-between py-[1px]">
-        {["100", "50", "0"].map((value) => (
-          <span
-            key={value}
-            className="text-[9px] font-medium text-[var(--color-text-muted)]"
-          >
-            {value}
-          </span>
-        ))}
+    <div className="relative grid h-[78px] grid-cols-[28px_minmax(0,1fr)] gap-2 items-center">
+      <div className="flex h-full flex-col justify-between py-1 font-mono text-[9px] font-bold text-slate-700 dark:text-slate-300">
+        <span>100%</span>
+        <span>50%</span>
+        <span>0%</span>
       </div>
 
-      <div className="relative min-w-0">
-        <div className="pointer-events-none absolute inset-0 flex flex-col justify-between">
-          <div className="border-t border-dashed border-[var(--color-border)]" />
-          <div className="border-t border-dashed border-[var(--color-border)]" />
-          <div className="border-t border-dashed border-[var(--color-border)]" />
+      <div className="relative h-full min-w-0">
+        {/* Subtle Dashed Gridlines */}
+        <div className="pointer-events-none absolute inset-0 flex flex-col justify-between py-1">
+          <div className="border-t border-dashed border-black/15 dark:border-white/10" />
+          <div className="border-t border-dashed border-black/15 dark:border-white/10" />
+          <div className="border-t border-dashed border-black/15 dark:border-white/10" />
         </div>
 
         {isBaseline && (
           <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-            <span className="rounded bg-[var(--color-surface)]/80 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] backdrop-blur-sm border border-[var(--color-border)]">
+            <span className="rounded bg-white/90 dark:bg-black/60 px-2.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 border border-black/15 dark:border-white/10 shadow-xs backdrop-blur-sm">
               Standby
             </span>
           </div>
         )}
 
-        <div className="relative flex h-full items-end gap-[7px] px-1">
+        <div className="relative flex h-full items-end justify-between px-1">
           {chartValues.map((value, index) => {
             const safeValue = Math.min(Math.max(value, 0), 100);
 
             return (
               <span
                 key={`${value}-${index}`}
-                className="w-[3px] shrink-0 rounded-full transition-all duration-500"
+                className="w-2.5 rounded-t-sm transition-all duration-500"
                 style={{
-                  height: `${Math.max(3, safeValue)}%`,
-                  background: color,
-                  opacity: isBaseline
-                    ? 0.35
-                    : index % 3 === 0
-                      ? 0.42
-                      : index % 3 === 1
-                        ? 0.62
-                        : 0.82,
+                  height: `${Math.max(6, safeValue)}%`,
+                  background: `linear-gradient(to top, ${
+                    typeof color === "string" && color.startsWith("oklch(")
+                      ? color.replace(")", " / 0.25)")
+                      : "rgba(2, 132, 199, 0.25)"
+                  }, ${color})`,
+                  opacity: isBaseline ? 0.45 : 0.85,
                 }}
               />
             );
@@ -92,4 +87,3 @@ export default function BarTrace({
     </div>
   );
 }
-

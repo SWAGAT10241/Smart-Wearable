@@ -1,24 +1,29 @@
-import { FaHeart, FaDroplet, FaGaugeHigh, FaLocationDot } from "react-icons/fa6";
-import { CiTempHigh } from "react-icons/ci";
+import {
+  FaHeart,
+  FaDroplet,
+  FaTemperatureHigh,
+  FaGaugeHigh,
+  FaLocationDot,
+} from "react-icons/fa6";
 import { IoWater, IoWatch } from "react-icons/io5";
 
-export function HeartIcon({ size = 23, color = "var(--action-destructive)" }) {
+export function HeartIcon({ size = 20, color = "currentColor" }) {
   return <FaHeart size={size} style={{ color }} />;
 }
 
-export function DropletIcon({ size = 24, color = "var(--status-optimal)" }) {
+export function DropletIcon({ size = 20, color = "currentColor" }) {
   return <FaDroplet size={size} style={{ color }} />;
 }
 
-export function ThermometerIcon({ size = 28, color = "var(--status-warning)" }) {
-  return <CiTempHigh size={size} style={{ color }} />;
+export function ThermometerIcon({ size = 20, color = "currentColor" }) {
+  return <FaTemperatureHigh size={size} style={{ color }} />;
 }
 
-export function HumidityIcon({ size = 26, color = "var(--status-info)" }) {
+export function HumidityIcon({ size = 21, color = "currentColor" }) {
   return <IoWater size={size} style={{ color }} />;
 }
 
-export function PressureIcon({ size = 25, color = "var(--status-info)" }) {
+export function PressureIcon({ size = 20, color = "currentColor" }) {
   return <FaGaugeHigh size={size} style={{ color }} />;
 }
 

@@ -1,17 +1,17 @@
-# Graph Report - TrailGuard  (2026-11-22)
+# Graph Report - TrailGuard  (2026-11-24)
 
 ## Corpus Check
-- 328 files · ~151,426 words
+- 331 files · ~152,146 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 32 file(s) not represented in the graph (top: (none) 24, .toml 1, .example 1)
+- Unclassified: 33 file(s) not represented in the graph (top: (none) 24, .css 2, .toml 1)
 
 ## Summary
-- 2295 nodes · 3927 edges · 167 communities (125 shown, 42 thin omitted)
-- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 140 edges (avg confidence: 0.87)
+- 2304 nodes · 3944 edges · 171 communities (131 shown, 40 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 142 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `681b31d5`
+- Built from commit: `9c11e0ac`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -19,7 +19,7 @@
 - ref_react
 - SWAAS / TrailGuard — Unified AI Agent Directives & Architecture
 - critical-section-guard.js
-- devDependencies
+- frontend/package.json
 - Dashboard.jsx
 - mobile/package.json
 - steps
@@ -43,7 +43,7 @@
 - Contributor Covenant Code of Conduct
 - Security Policy
 - simulate-esp32.js
-- User.js
+- emergencySessionController.js
 - 13. Day 3 exit criteria and concrete architectural answers
 - SWAAS / TrailGuard — Unified AI Agent Directives & Architecture
 - asyncHandler.js
@@ -57,7 +57,7 @@
 - AppError
 - XglcdFont
 - packet.go
-- ApiError
+- frontend/src/lib/apiClient.js
 - devicePairingService.js
 - vitest
 - server.js
@@ -66,9 +66,9 @@
 - authRoutes.js
 - 🦫 SWAAS / TrailGuard — Go Real-Time Ingestion Gateway
 - appError.js
-- vercel.json
-- sanitizeObject
-- History.jsx
+- Settings.jsx
+- Day 7 — Integration Testing, Architecture Compliance Review & Phase 1 Sign-Off
+- Register.jsx
 - ci-failure-fixer.agent.md
 - pr-preflight.agent.md
 - security-triage.agent.md
@@ -119,22 +119,22 @@
 - tests/sanitizeEmail.test.js
 - Security Alert Triage
 - dependencies
-- App.jsx
+- useAuth
 - Icons.js
 - ApiError
 - check-all.sh
 - setup-env.sh
-- emergencySessionController.js
+- auth.test.js
 - load-test-k6.js
 - ref_crypto
 - run
-- telemetryService.js
+- Device.js
 - TrailGuard deployment runbook
-- ErrorBoundary
+- vitest
 - lib.rs
 - telemetry_test.go
 - with
-- react-icons
+- DeviceContext.jsx
 - jobs
 - NonceTracker
 - gateway/main.go
@@ -144,25 +144,30 @@
 - frontend
 - config.go
 - CryptoError
-- auth.test.js
-- hub/hub.go
+- emergencySessionController.js
+- History.jsx
 - verifier.rs
 - Client
 - designmd
-- authorizeRole.js
+- Anti-Slop UI & Industrial Design Invariants
 - verify_canonical_request
+- devDependencies
+- 4. Mandatory Architectural Invariants (Zero-Tolerance Rules)
+- FallEvent.js
+- App.jsx
+- github.com/SWAGAT10241/Smart-Wearable/services/gateway-go
+- trailguard-crypto
+- vite.config.js
+- Hub
+- LiveMap.jsx
+- authorizeRole.js
 - 10. Architecture diagrams
+- main.jsx
+- scripts
 - 3. Device identity, lifecycle, and ownership
 - 7. REST API contract
 - 6. Emergency session and rescue authorization
-- github.com/SWAGAT10241/Smart-Wearable/services/gateway-go
-- trailguard-crypto
 - 9. Security controls and threat model
-- frontend/src/lib/apiClient.js
-- FallEvent.js
-- sw.js
-- sanitizeObject
-- backend
 - 4. BLE protocol and connection behavior
 
 ## God Nodes (most connected - your core abstractions)
@@ -173,54 +178,54 @@
 5. `useAuth()` - 23 edges
 6. `CryptoError` - 21 edges
 7. `13. Day 3 exit criteria and concrete architectural answers` - 21 edges
-8. `react-native` - 21 edges
-9. `MAX30100` - 20 edges
-10. `App()` - 20 edges
+8. `react-icons` - 21 edges
+9. `react-native` - 21 edges
+10. `MAX30100` - 20 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `2. Naming Conventions & Code Style Standards` --references--> `AppError`  [INFERRED]
-  AGENTS.md → backend/utils/appError.js
 - `📐 Code Style & Conventions` --references--> `AppError`  [INFERRED]
   CLAUDE.md → backend/utils/appError.js
+- `2. Naming Conventions & Code Style Standards` --references--> `AppError`  [INFERRED]
+  AGENTS.md → backend/utils/appError.js
 - `3.1 Backend: `AppError` & Centralized Middleware` --references--> `AppError`  [INFERRED]
   docs/architecture/CODEBASE_ORGANIZATION.md → backend/utils/appError.js
+- `4. Legacy TrailGuard → SWAAS Migration Verification` --references--> `deviceAuthMiddleware()`  [INFERRED]
+  docs/architecture/day-7-integration-testing-and-documentation.md → backend/middleware/deviceAuthMiddleware.js
 - `3. Mandatory Architectural Invariant Compliance Review` --references--> `getHistoricalData()`  [INFERRED]
-  docs/architecture/day-7-integration-testing-and-documentation.md → backend/services/emergencySessionService.js
-- `Journey 4: Fail-Closed Security Audit Logging & Historical Telemetry Window` --references--> `getHistoricalData()`  [INFERRED]
   docs/architecture/day-7-integration-testing-and-documentation.md → backend/services/emergencySessionService.js
 
 ## Import Cycles
 - None detected.
 
-## Communities (167 total, 42 thin omitted)
+## Communities (171 total, 40 thin omitted)
 
 ### Community 0 - "ref_react"
 Cohesion: 0.10
 Nodes (29): deferred(), device, request(), App(), AppContent(), API_URL, WS_URL, AuthContext (+21 more)
 
 ### Community 1 - "SWAAS / TrailGuard — Unified AI Agent Directives & Architecture"
-Cohesion: 0.10
-Nodes (21): 1. System Mission & 4-Tier Architecture, 2. Naming Conventions & Code Style Standards, 3. The 6 Specialized AI Agent Personas, 4. Mandatory Architectural Invariants (Zero-Tolerance Rules), 5. Role-Based Access Control (RBAC) Matrix, 6. Prohibited Anti-Patterns (Anti-Hallucination Directives), 7. Knowledge Graph & Architecture Navigation (Graphify), 8. User-Mandated Agent Guardrails & Invariants (+13 more)
+Cohesion: 0.14
+Nodes (14): 1. System Mission & 4-Tier Architecture, 2. Naming Conventions & Code Style Standards, 3. The 6 Specialized AI Agent Personas, 5. Role-Based Access Control (RBAC) Matrix, 6. Prohibited Anti-Patterns (Anti-Hallucination Directives), 7. Knowledge Graph & Architecture Navigation (Graphify), 8. User-Mandated Agent Guardrails & Invariants, 🛡️ Agent 1: Security & Cryptography Specialist (+6 more)
 
 ### Community 2 - "critical-section-guard.js"
 Cohesion: 0.22
 Nodes (7): checkDir(), checkSymbols, { execSync }, fs, path, rootDir, total
 
-### Community 3 - "devDependencies"
-Cohesion: 0.05
-Nodes (41): dependencies, maplibre-gl@^6.18.0, react@^19.3.0, react-dom@^19.3.0, react-icons@^5.7.0, react-phone-number-input@^3.4.18, react-router-dom@^7.18.5, typewriter-effect@^3.3.0 (+33 more)
+### Community 3 - "frontend/package.json"
+Cohesion: 0.15
+Nodes (16): dependencies, react@^19.3.0, react-icons@^5.7.0, react-phone-number-input@^3.4.18, react-router-dom@^7.18.5, typewriter-effect@^3.3.0, @zxing/browser@^0.2.1, description (+8 more)
 
 ### Community 4 - "Dashboard.jsx"
-Cohesion: 0.22
-Nodes (11): ACTIVITY_STYLES, ActivitySummary(), MiniGraph(), SummaryItem(), RecentEventsCard(), DropletIcon(), HeartIcon(), HumidityIcon() (+3 more)
+Cohesion: 0.08
+Nodes (26): ACTIVITY_STYLES, ActivitySummary(), MiniGraph(), SummaryItem(), NotificationBell(), MiniStats(), DashboardHeader(), QuickStatsGrid() (+18 more)
 
 ### Community 5 - "mobile/package.json"
 Cohesion: 0.06
 Nodes (44): dependencies, expo@~58.0.25, expo-device@~58.0.5, expo-linking@~58.0.17, expo-location@~58.0.22, expo-notifications@~58.1.9, expo-secure-store@~58.0.3, expo-status-bar@~58.0.5 (+36 more)
 
 ### Community 6 - "steps"
-Cohesion: 0.30
-Nodes (14): steps, steps, steps, steps, steps, steps, steps, continue-on-error (+6 more)
+Cohesion: 0.23
+Nodes (16): name, runs-on, steps, steps, steps, steps, steps, backend (+8 more)
 
 ### Community 7 - "backend/package.json"
 Cohesion: 0.06
@@ -243,7 +248,7 @@ Cohesion: 0.08
 Nodes (18): app, cors, express, helmet, mongoose, passport, clientUrls, config (+10 more)
 
 ### Community 12 - "App.jsx"
-Cohesion: 0.24
+Cohesion: 0.23
 Nodes (12): VideoAmbient(), AnimatedBeamMeshDiagram(), BorderBeamCard(), CinematicHelicopterFlybyOverlay(), GlobalLivingAtmosphereCanvas(), InteractiveBentoGrid(), Landing(), SarAirborneExtractionSection() (+4 more)
 
 ### Community 13 - "Settings.jsx"
@@ -255,8 +260,8 @@ Cohesion: 0.25
 Nodes (5): jsonwebtoken@^9.0.2, EventEmitter, jwt, { PassThrough }, jsonwebtoken
 
 ### Community 15 - "server/main.go"
-Cohesion: 0.05
-Nodes (61): PairDevicePanel(), API_URL, APP_NAME, config, IS_DEVELOPMENT, IS_PRODUCTION, normalizedApi, WS_URL (+53 more)
+Cohesion: 0.07
+Nodes (50): PairDevicePanel(), LiveDataContext, LiveDataProvider(), devicePairingApi, BLE_AUTHENTICATION_TIMEOUT_MS, BLE_CONNECT_TIMEOUT_MS, BLE_STALE_TIMEOUT_MS, BleAuthorizationError (+42 more)
 
 ### Community 16 - "AppNavigator.js"
 Cohesion: 0.15
@@ -290,7 +295,7 @@ Nodes (18): Authentication, Authorization, CI/CD Security, Data Security, Device
 Cohesion: 0.21
 Nodes (18): buildTelemetryPacket(), clamp(), createSignature(), crypto, fs, generateEnvironment(), generateLocation(), generateMotion() (+10 more)
 
-### Community 28 - "User.js"
+### Community 28 - "emergencySessionController.js"
 Cohesion: 0.15
 Nodes (12): bcrypt, mongoose, userSchema, crypto, mongoose, webSocketTicketSchema, consumeTicket(), createTicket() (+4 more)
 
@@ -342,9 +347,9 @@ Nodes (27): completePairingChallenge, getTelemetryReceipt, startPairingChallenge
 Cohesion: 0.18
 Nodes (11): completeProfile, getMe, login, register, completeProfile(), getCurrentUser(), jwt, loginUser() (+3 more)
 
-### Community 42 - "ApiError"
-Cohesion: 0.17
-Nodes (18): AppLayout(), items, MobileNav(), SearchModal(), PRIMARY_NAV_ITEMS, Sidebar(), DeviceContext, useDevices() (+10 more)
+### Community 42 - "frontend/src/lib/apiClient.js"
+Cohesion: 0.20
+Nodes (8): PRECACHE_ASSETS, FallAlertModal(), environmentApi, fallsApi, locationApi, request(), vitalsApi, ApiError
 
 ### Community 45 - "vitest"
 Cohesion: 0.22
@@ -370,17 +375,17 @@ Nodes (24): crypto, jwt, mockAuditCreate, mockAuditFind, mockBroadcastEmergencyE
 Cohesion: 0.16
 Nodes (15): devicePairingSchema, mongoose, assertDeviceAuthorizationConfigured(), canonicalReceiptPayload(), crypto, getAuthorityPrivateKey(), issueDeviceAuthorizationReceipt(), verifyDeviceAuthorizationReceipt() (+7 more)
 
-### Community 53 - "vercel.json"
-Cohesion: 0.15
-Nodes (18): AuthCard(), AuthLayout(), FEATURES, Button(), Field(), PhoneField(), InfoRow(), DeviceCard() (+10 more)
+### Community 53 - "Settings.jsx"
+Cohesion: 0.40
+Nodes (7): Button(), Field(), PhoneField(), InfoRow(), DeviceCard(), CompleteProfile(), Settings()
 
-### Community 54 - "sanitizeObject"
+### Community 54 - "Day 7 — Integration Testing, Architecture Compliance Review & Phase 1 Sign-Off"
 Cohesion: 0.15
 Nodes (12): 1. Executive Summary & Objective, 2. Final Phase 1 4-Tier Architecture, 3. Mandatory Architectural Invariant Compliance Review, 4. Legacy TrailGuard → SWAAS Migration Verification, 5. End-to-End Integration Test Suite, 6. Comprehensive Multi-Tier Verification Results, 7. Phase 1 Completion & Readiness Sign-Off, Day 7 — Integration Testing, Architecture Compliance Review & Phase 1 Sign-Off (+4 more)
 
-### Community 55 - "History.jsx"
-Cohesion: 0.24
-Nodes (11): LoadingSpinner(), LiveLocationCard(), createMarkerElement(), LiveMap(), MAP_STYLES, useDarkMode(), HISTORY_RANGES, useTelemetryHistory() (+3 more)
+### Community 55 - "Register.jsx"
+Cohesion: 0.28
+Nodes (14): AuthCard(), AuthLayout(), FEATURES, Badge(), Card(), CardContent(), CardDescription(), CardFooter() (+6 more)
 
 ### Community 56 - "ci-failure-fixer.agent.md"
 Cohesion: 0.17
@@ -391,8 +396,8 @@ Cohesion: 0.11
 Nodes (18): crypto, mockAuditLogCreate, mockAuditLogFind, mockBroadcastEmergencyEvent, mockCurrentUser, mockDeviceFindOne, mockEmergencySessionCreate, mockEmergencySessionFind (+10 more)
 
 ### Community 58 - "security-triage.agent.md"
-Cohesion: 0.18
-Nodes (10): status(), 1. Objective and Invariants, 2. Risk Engine Architecture, 3.1 `EmergencySession` (`backend/models/EmergencySession.js`), 3.2 `RiskAssessment` (`backend/models/RiskAssessment.js`), 3.3 `AuditLog` (`backend/models/AuditLog.js`), 3. Data Models Specification, 4. Verification and Acceptance Checklist (+2 more)
+Cohesion: 0.14
+Nodes (13): FORBIDDEN_OPERATORS, injectionGuard(), sanitizeObject(), status(), 1. Objective and Invariants, 2. Risk Engine Architecture, 3.1 `EmergencySession` (`backend/models/EmergencySession.js`), 3.2 `RiskAssessment` (`backend/models/RiskAssessment.js`) (+5 more)
 
 ### Community 60 - "CI Failure Debugging"
 Cohesion: 0.23
@@ -421,10 +426,6 @@ Nodes (12): base_branches, drafts, enabled, chat, auto_reply, language, reviews,
 ### Community 68 - "telemetry_test.go"
 Cohesion: 0.24
 Nodes (11): BottomTabBar(), styles, tabs, AlertIcon(), HistoryIcon(), HomeIcon(), MapIcon(), SettingsIcon() (+3 more)
-
-### Community 69 - "StatCard.jsx"
-Cohesion: 0.10
-Nodes (7): ChartCard(), Sparkline(), MiniStats(), QuickStatsGrid(), StatCard(), STATUS_COLORS, STYLES
 
 ### Community 70 - "ci.yml"
 Cohesion: 0.17
@@ -554,13 +555,13 @@ Nodes (3): Core Principles, GitHub Copilot & Codex Instructions — TrailGuard /
 Cohesion: 0.50
 Nodes (3): CI Failure Debugging, Procedure, Repository gates
 
-### Community 115 - "App.jsx"
-Cohesion: 0.12
-Nodes (26): @testing-library/react@^16.3.3, About, App(), CompleteProfile, Dashboard, History, Landing, Login (+18 more)
+### Community 115 - "useAuth"
+Cohesion: 0.17
+Nodes (14): ProfileMenu(), ProtectedRoute(), AuthContext, useAuth(), authApi, clearToken(), saveToken(), hasText() (+6 more)
 
-### Community 122 - "emergencySessionController.js"
-Cohesion: 0.27
-Nodes (11): assignOrJoinResponder, createSession, extractMeta(), generateWsTicket, getActiveSessions, getHistoricalData, getSessionAudit, getSessionById (+3 more)
+### Community 122 - "auth.test.js"
+Cohesion: 0.14
+Nodes (12): createLimiter(), rateLimit, supertest@^7.3.2, jwt, mockUserCreate, mockUserFindById, mockUserFindByIdAndUpdate, mockUserFindOne (+4 more)
 
 ### Community 123 - "load-test-k6.js"
 Cohesion: 0.20
@@ -571,16 +572,20 @@ Cohesion: 0.22
 Nodes (10): checkNativeAvailability(), crypto, { execFileSync }, fs, getEngineStatus(), path, RUST_BIN_PATH, unpackTelemetryPacket() (+2 more)
 
 ### Community 125 - "run"
-Cohesion: 0.20
-Nodes (10): run, defaults, name, runs-on, gateway-go, mobile, defaults, name (+2 more)
+Cohesion: 0.18
+Nodes (11): defaults, run, defaults, name, runs-on, gateway-go, mobile, defaults (+3 more)
 
-### Community 126 - "telemetryService.js"
+### Community 126 - "Device.js"
 Cohesion: 0.31
 Nodes (7): dispatchEmergencyAlerts(), sendEmergencySMS(), twilio, processReadings(), sendEmergencyWhatsApp(), twilio, twilio
 
 ### Community 127 - "TrailGuard deployment runbook"
 Cohesion: 0.25
 Nodes (7): Environment boundaries, Production release, Required configuration, Rollback procedure, Rollback triggers, Staging release, TrailGuard deployment runbook
+
+### Community 128 - "vitest"
+Cohesion: 0.13
+Nodes (13): API_URL, APP_NAME, config, IS_DEVELOPMENT, IS_PRODUCTION, normalizedApi, WS_URL, emergencyApi (+5 more)
 
 ### Community 129 - "lib.rs"
 Cohesion: 0.24
@@ -594,13 +599,13 @@ Nodes (8): ExtractTicketFromProtocol(), TestExtractTicketFromProtocol_MalformedO
 Cohesion: 0.22
 Nodes (9): with, cache-dependency-path, components, go-version, node-version, python-version, run_install, toolchain (+1 more)
 
-### Community 133 - "react-icons"
-Cohesion: 0.31
-Nodes (5): NotificationBell(), ProfileMenu(), DashboardHeader(), useUpdatedTime(), react-icons
+### Community 133 - "DeviceContext.jsx"
+Cohesion: 0.28
+Nodes (8): SearchModal(), NAVIGATION_SECTIONS, Sidebar(), DeviceContext, useDevices(), useLiveData(), useTheme(), devicesApi
 
 ### Community 134 - "jobs"
-Cohesion: 0.20
-Nodes (10): name, runs-on, name, runs-on, name, runs-on, jobs, architecture (+2 more)
+Cohesion: 0.29
+Nodes (7): name, runs-on, name, runs-on, jobs, crypto-rust, hardware
 
 ### Community 136 - "gateway/main.go"
 Cohesion: 0.20
@@ -630,13 +635,13 @@ Nodes (5): Config, getEnv(), getEnvInt(), getEnvInt64(), Load()
 Cohesion: 0.18
 Nodes (10): CryptoError, ChecksumMismatch, InvalidNonce, InvalidPacketHeader, InvalidPublicKey, InvalidSignature, MalformedPacket, NonceReplayed (+2 more)
 
-### Community 143 - "auth.test.js"
-Cohesion: 0.14
-Nodes (12): createLimiter(), rateLimit, supertest@^7.3.2, jwt, mockUserCreate, mockUserFindById, mockUserFindByIdAndUpdate, mockUserFindOne (+4 more)
+### Community 143 - "emergencySessionController.js"
+Cohesion: 0.27
+Nodes (11): assignOrJoinResponder, createSession, extractMeta(), generateWsTicket, getActiveSessions, getHistoricalData, getSessionAudit, getSessionById (+3 more)
 
-### Community 144 - "hub/hub.go"
-Cohesion: 0.24
-Nodes (5): Client, Hub, main(), NewHub(), TestHubRegistrationAndScopedDelivery()
+### Community 144 - "History.jsx"
+Cohesion: 0.16
+Nodes (16): AppLayout(), items, MobileNav(), LoadingSpinner(), HISTORY_RANGES, useTelemetryHistory(), About(), HardwareTab() (+8 more)
 
 ### Community 145 - "verifier.rs"
 Cohesion: 0.31
@@ -646,73 +651,97 @@ Nodes (5): b64_val(), decode_base64_or_hex(), ED25519_SPKI_PREFIX, parse_public_
 Cohesion: 0.40
 Nodes (4): designmd, DESIGNMD_API_KEY, npx, designmd-mcp
 
-### Community 148 - "authorizeRole.js"
-Cohesion: 0.38
-Nodes (5): hasPermission(), ROLE_PERMISSIONS, authorizePermission(), authorizeRole(), 12. How are API requests authorized?
+### Community 148 - "Anti-Slop UI & Industrial Design Invariants"
+Cohesion: 0.20
+Nodes (9): 1. Zero Gradient Headlines, 2. No Pinging Pill Eyebrows, 3. No Full-Page 60 FPS Background Canvases, 4. No 3D Wireframe Terrain or Scanning Lasers, 5. Flat 1px Borders (No Spinning Conic Gradient Beams), 6. No Nested Card "Squircles", 7. Authentic Telemetry (No Mock Sci-Fi Arcade Jargon), 8. Restraint Over Opacity Stacking (+1 more)
 
 ### Community 149 - "verify_canonical_request"
 Cohesion: 0.48
 Nodes (4): main(), print_usage(), run_benchmark(), verify_canonical_request()
 
-### Community 151 - "10. Architecture diagrams"
-Cohesion: 0.33
-Nodes (6): 10. Architecture diagrams, API authentication and authorization flow, BLE communication and reconnection sequence, Emergency session lifecycle sequence, Local-first storage and normal-mode boundary, User → Device ownership entity diagram
+### Community 151 - "devDependencies"
+Cohesion: 0.20
+Nodes (9): devDependencies, jsdom@^31.0.1, tailwindcss@^4.3.5, @testing-library/jest-dom@^7.0.1, @testing-library/react@^16.3.3, vitest@^5.1.0, jsdom, tailwindcss (+1 more)
 
-### Community 152 - "3. Device identity, lifecycle, and ownership"
-Cohesion: 0.40
-Nodes (5): 3. Device identity, lifecycle, and ownership, Identity and credential, Lifecycle, Ownership policy, Secure pairing decision and flow
+### Community 152 - "4. Mandatory Architectural Invariants (Zero-Tolerance Rules)"
+Cohesion: 0.29
+Nodes (7): 4. Mandatory Architectural Invariants (Zero-Tolerance Rules), Invariant 2: Emergency-Bounded Cloud Sharing, Invariant 3: Fail-Closed Security Audit Logging, Invariant 4: Cryptographic Device Authentication, Invariant 5: Ephemeral Retention & Automated TTL Cleanup, Invariant 6: Authenticated, Session-Scoped Real-Time Delivery, Invariant 7: Structured Redacted Logging
 
-### Community 153 - "7. REST API contract"
-Cohesion: 0.40
-Nodes (5): 7. REST API contract, Conventions and authentication, Initial endpoints, Request validation and examples, Response and error format
-
-### Community 154 - "6. Emergency session and rescue authorization"
-Cohesion: 0.50
-Nodes (4): 6. Emergency session and rescue authorization, Access, expiry, and deletion, Minimum emergency package, Trigger, states, and transitions
-
-### Community 159 - "9. Security controls and threat model"
-Cohesion: 0.50
-Nodes (4): 9. Security controls and threat model, Security invariants (must always hold), Threats and mitigations, Transport, storage, secrets
-
-### Community 160 - "frontend/src/lib/apiClient.js"
-Cohesion: 0.18
-Nodes (15): useDashboardData(), clearToken(), devicePairingApi, environmentApi, fallsApi, locationApi, request(), vitalsApi (+7 more)
-
-### Community 161 - "FallEvent.js"
+### Community 153 - "FallEvent.js"
 Cohesion: 0.29
 Nodes (3): fallEventSchema, mongoose, updateFallStatus()
 
-### Community 163 - "sanitizeObject"
-Cohesion: 0.53
-Nodes (3): FORBIDDEN_OPERATORS, injectionGuard(), sanitizeObject()
+### Community 154 - "App.jsx"
+Cohesion: 0.18
+Nodes (7): App(), ErrorBoundary, AuthProvider(), DeviceProvider(), ThemeContext, ThemeProvider(), getToken()
 
-### Community 164 - "backend"
+### Community 159 - "vite.config.js"
+Cohesion: 0.20
+Nodes (7): @tailwindcss/vite@^4.3.5, vite@^8.3.8, @vitejs/plugin-react@^6.3.0, __dirname, @tailwindcss/vite, vite, @vitejs/plugin-react
+
+### Community 160 - "Hub"
+Cohesion: 0.24
+Nodes (5): Client, Hub, main(), NewHub(), TestHubRegistrationAndScopedDelivery()
+
+### Community 161 - "LiveMap.jsx"
+Cohesion: 0.31
+Nodes (7): maplibre-gl@^6.18.0, LiveLocationCard(), createMarkerElement(), LiveMap(), MAP_STYLES, useDarkMode(), maplibre-gl
+
+### Community 162 - "authorizeRole.js"
+Cohesion: 0.38
+Nodes (5): hasPermission(), ROLE_PERMISSIONS, authorizePermission(), authorizeRole(), 12. How are API requests authorized?
+
+### Community 163 - "10. Architecture diagrams"
+Cohesion: 0.33
+Nodes (6): 10. Architecture diagrams, API authentication and authorization flow, BLE communication and reconnection sequence, Emergency session lifecycle sequence, Local-first storage and normal-mode boundary, User → Device ownership entity diagram
+
+### Community 164 - "main.jsx"
+Cohesion: 0.40
+Nodes (3): react-dom@^19.3.0, registerServiceWorker(), react-dom
+
+### Community 165 - "scripts"
+Cohesion: 0.33
+Nodes (6): scripts, build, dev, preview, test, test:run
+
+### Community 166 - "3. Device identity, lifecycle, and ownership"
+Cohesion: 0.40
+Nodes (5): 3. Device identity, lifecycle, and ownership, Identity and credential, Lifecycle, Ownership policy, Secure pairing decision and flow
+
+### Community 167 - "7. REST API contract"
+Cohesion: 0.40
+Nodes (5): 7. REST API contract, Conventions and authentication, Initial endpoints, Request validation and examples, Response and error format
+
+### Community 168 - "6. Emergency session and rescue authorization"
 Cohesion: 0.50
-Nodes (4): defaults, name, runs-on, backend
+Nodes (4): 6. Emergency session and rescue authorization, Access, expiry, and deletion, Minimum emergency package, Trigger, states, and transitions
 
-### Community 165 - "4. BLE protocol and connection behavior"
+### Community 169 - "9. Security controls and threat model"
+Cohesion: 0.50
+Nodes (4): 9. Security controls and threat model, Security invariants (must always hold), Threats and mitigations, Transport, storage, secrets
+
+### Community 170 - "4. BLE protocol and connection behavior"
 Cohesion: 0.67
 Nodes (3): 4. BLE protocol and connection behavior, Connection state and retries, Telemetry envelope
 
 ## Knowledge Gaps
 - **14 isolated node(s):** `ChecksumMismatch`, `InvalidNonce`, `InvalidPacketHeader`, `InvalidPublicKey`, `InvalidSignature` (+9 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1074 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **42 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1082 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **40 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `SWAAS / TrailGuard — Unified AI Agent Directives & Architecture` connect `SWAAS / TrailGuard — Unified AI Agent Directives & Architecture` to `gateway-go`?**
-  _High betweenness centrality (0.327) - this node is a cross-community bridge._
+- **Why does `SWAAS / TrailGuard — Unified AI Agent Directives & Architecture` connect `SWAAS / TrailGuard — Unified AI Agent Directives & Architecture` to `gateway-go`, `4. Mandatory Architectural Invariants (Zero-Tolerance Rules)`?**
+  _High betweenness centrality (0.322) - this node is a cross-community bridge._
 - **Are the 3 inferred relationships involving `AppError` (e.g. with `2. Naming Conventions & Code Style Standards` and `📐 Code Style & Conventions`) actually correct?**
   _`AppError` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `ChecksumMismatch`, `InvalidNonce`, `InvalidPacketHeader` to the rest of the system?**
   _14 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `ref_react` be split into smaller, more focused modules?**
   _Cohesion score 0.10365853658536585 - nodes in this community are weakly interconnected._
-- **Why does `4. Mandatory Architectural Invariants (Zero-Tolerance Rules)` connect `SWAAS / TrailGuard — Unified AI Agent Directives & Architecture` to `DashboardScreen.js`?**
-  _High betweenness centrality (0.240) - this node is a cross-community bridge._
+- **Why does `AppError` connect `AppError` to `SWAAS / TrailGuard — Unified AI Agent Directives & Architecture`, `TrailGuard / SWAAS — Claude Assistant Directives`, `packet.go`, `run`, `appError.js`, `FallEvent.js`, `Device.js`?**
+  _High betweenness centrality (0.224) - this node is a cross-community bridge._
 - **Should `SWAAS / TrailGuard — Unified AI Agent Directives & Architecture` be split into smaller, more focused modules?**
-  _Cohesion score 0.09523809523809523 - nodes in this community are weakly interconnected._
-- **Why does `Invariant 1: Local-First Privacy (No Continuous Cloud Telemetry)` connect `DashboardScreen.js` to `SWAAS / TrailGuard — Unified AI Agent Directives & Architecture`?**
-  _High betweenness centrality (0.238) - this node is a cross-community bridge._
+  _Cohesion score 0.14285714285714285 - nodes in this community are weakly interconnected._
+- **Why does `4. Mandatory Architectural Invariants (Zero-Tolerance Rules)` connect `4. Mandatory Architectural Invariants (Zero-Tolerance Rules)` to `SWAAS / TrailGuard — Unified AI Agent Directives & Architecture`, `DashboardScreen.js`?**
+  _High betweenness centrality (0.224) - this node is a cross-community bridge._

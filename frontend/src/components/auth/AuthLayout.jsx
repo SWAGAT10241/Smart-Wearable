@@ -1,20 +1,39 @@
 import loginBackground from "../../assets/images/login-background.webp";
-import { LuHeartPulse } from "react-icons/lu";
 import { FaPersonFalling, FaRegBell } from "react-icons/fa6";
-import { IoLocationOutline } from "react-icons/io5";
+import {
+  IoLocationOutline,
+  IoPulseOutline,
+  IoShieldCheckmarkOutline,
+} from "react-icons/io5";
 import Typewriter from "typewriter-effect";
 
 const FEATURES = [
-  [<LuHeartPulse key="pulse" />, "Real-time heart rate & SpO2", "Continuous monitoring of your vitals."],
-  [<FaPersonFalling key="fall" />, "Automatic fall detection", "Instant alerts when it matters most."],
-  [<IoLocationOutline key="loc" />, "Live GPS trail tracking", "Share your location in real time."],
-  [<FaRegBell key="bell" />, "Instant emergency contact alerts", "We notify your loved ones instantly."],
+  [
+    <IoPulseOutline key="pulse" />,
+    "Continuous Vitals Telemetry",
+    "Medical-grade SpO₂ & cardiac EKG pulse analyzed by on-device Edge Risk Engine.",
+  ],
+  [
+    <FaPersonFalling key="fall" />,
+    "Autonomous Fall & Impact Detection",
+    "Precision accelerometer telemetry with cancelable countdown to eliminate false alarms.",
+  ],
+  [
+    <IoLocationOutline key="loc" />,
+    "Tactical SAR Trail Tracking",
+    "Sub-meter NEO-6M GPS coordinates with secure 6-hour incident replay.",
+  ],
+  [
+    <IoShieldCheckmarkOutline key="shield" />,
+    "Cryptographic Rescue Dispatch",
+    "Ed25519 authenticated device pairing & automated emergency responder coordination.",
+  ],
 ];
 
 export default function AuthLayout({ headline, children }) {
   return (
     <div
-      className="relative flex min-h-screen flex-col overflow-x-hidden bg-[var(--surface-canvas)] lg:flex-row"
+      className="relative flex min-h-screen flex-col overflow-x-hidden tg-scrollbar bg-[var(--surface-canvas)] lg:flex-row"
       style={{
         backgroundImage: `url(${loginBackground})`,
         backgroundSize: "cover",
@@ -67,13 +86,13 @@ export default function AuthLayout({ headline, children }) {
         </p>
 
         {/* Features */}
-        <ul className="mt-[var(--space-8)] hidden sm:flex list-none flex-col gap-[var(--space-4)] p-0">
+        <ul className="mt-[var(--space-6)] sm:mt-[var(--space-8)] flex list-none flex-col gap-[var(--space-3)] sm:gap-[var(--space-4)] p-0">
           {FEATURES.map(([icon, title, sub]) => (
             <li
               key={title}
-              className="flex items-center gap-[var(--space-4)] group"
+              className="flex items-center gap-[var(--space-3)] sm:gap-[var(--space-4)] group"
             >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-elevated)] text-xl text-[var(--action-primary)] transition-colors group-hover:border-[var(--border-focus)]">
+              <span className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-elevated)] text-lg sm:text-xl text-[var(--action-primary)] transition-colors group-hover:border-[var(--border-focus)]">
                 {icon}
               </span>
 

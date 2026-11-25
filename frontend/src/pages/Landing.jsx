@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
-import VideoAmbient from "../components/common/VideoAmbient";
 import loginBg from "../assets/images/login-background.webp";
 import sarHelicopterImg from "../assets/images/sar-helicopter.webp";
 import {
@@ -19,7 +18,6 @@ import {
   IoLayersOutline,
   IoThermometerOutline,
   IoWifiOutline,
-  IoVideocamOutline,
   IoFlashOutline,
   IoAlertCircleOutline,
   IoTimeOutline,
@@ -29,16 +27,8 @@ import {
 } from "react-icons/io5";
 
 /* =========================================================================
-   1. GLOBAL CANVAS & HERO WIREFRAME DISABLED (CLEAN UN-SLOPPED INDUSTRIAL UI)
+   1. INDUSTRIAL SURFACE CARD CONTAINER
    ========================================================================= */
-function GlobalLivingAtmosphereCanvas() {
-  return null;
-}
-
-function SeamlessAlpineFlightCanvas() {
-  return null;
-}
-
 function BorderBeamCard({ children, className = "", isDark = true }) {
   return (
     <div
@@ -212,7 +202,6 @@ function InteractiveBentoGrid({ isDark = true }) {
                   strokeLinejoin="round"
                 />
               </svg>
-              <div className="absolute inset-y-0 w-8 bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent animate-grid-scan" />
             </div>
           </div>
         </div>
@@ -360,8 +349,8 @@ function TacticalRadarTerminal({ isDark = true }) {
               simMode === "normal"
                 ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
                 : simMode === "impact"
-                ? "bg-amber-500/15 text-amber-400 border border-amber-500/30 animate-pulse"
-                : "bg-rose-500/15 text-rose-400 border border-rose-500/30 animate-pulse"
+                ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                : "bg-rose-500/15 text-rose-400 border border-rose-500/30"
             }`}
           >
             {simMode === "normal" && "Nominal Patrol"}
@@ -420,7 +409,7 @@ function TacticalRadarTerminal({ isDark = true }) {
           {simMode === "normal" && (
             <div>
               <div className="flex items-center gap-2">
-                <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
                 <span className="font-mono text-xs font-semibold text-emerald-400">
                   All Sensors Nominal · Local Buffer Secure
                 </span>
@@ -454,7 +443,7 @@ function TacticalRadarTerminal({ isDark = true }) {
           {simMode === "impact" && (
             <div>
               <div className="flex items-center gap-2">
-                <span className="flex h-2.5 w-2.5 rounded-full bg-amber-500 animate-ping" />
+                <span className="flex h-2.5 w-2.5 rounded-full bg-amber-500" />
                 <span className="font-mono text-xs font-semibold text-amber-400">
                   3.84g Impact Shock · 30-Second Cancel Window
                 </span>
@@ -470,7 +459,7 @@ function TacticalRadarTerminal({ isDark = true }) {
                 </div>
                 <div className="mt-2.5 w-full bg-slate-800/60 rounded-full h-1.5 overflow-hidden">
                   <div
-                    className="bg-gradient-to-r from-amber-500 to-rose-500 h-full transition-all duration-1000 ease-linear"
+                    className="bg-amber-500 h-full transition-all duration-1000 ease-linear"
                     style={{ width: `${(simTimer / 30) * 100}%` }}
                   />
                 </div>
@@ -497,7 +486,7 @@ function TacticalRadarTerminal({ isDark = true }) {
           {simMode === "sos" && (
             <div>
               <div className="flex items-center gap-2">
-                <span className="flex h-2.5 w-2.5 rounded-full bg-rose-500 animate-pulse" />
+                <span className="flex h-2.5 w-2.5 rounded-full bg-rose-500" />
                 <span className="font-mono text-xs font-semibold text-rose-400">
                   Emergency Beacon Active · LoRa Mesh Broadcasting
                 </span>
@@ -520,7 +509,7 @@ function TacticalRadarTerminal({ isDark = true }) {
               <div className="mt-5">
                 <Link
                   to="/dashboard"
-                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-600 to-amber-600 px-5 py-2 font-mono text-xs font-semibold text-white shadow-md hover:shadow-rose-600/30"
+                  className="inline-flex items-center gap-2 rounded-lg bg-rose-600 hover:bg-rose-500 px-5 py-2 font-mono text-xs font-semibold text-white shadow-md transition"
                 >
                   <span>Open Rescue Dashboard</span>
                   <IoArrowForwardOutline className="h-3.5 w-3.5" />
@@ -550,36 +539,16 @@ function TacticalRadarTerminal({ isDark = true }) {
             <div className="absolute inset-x-0 h-[1px] bg-emerald-500/15" />
             <div className="absolute inset-y-0 w-[1px] bg-emerald-500/15" />
 
-            {/* Rotating 360° Radar Sweep Beam */}
-            <div
-              className={`absolute inset-0 animate-radar-sweep ${
-                simMode === "normal"
-                  ? "bg-gradient-to-tr from-emerald-500/15 via-transparent to-transparent"
-                  : simMode === "impact"
-                  ? "bg-gradient-to-tr from-amber-500/20 via-transparent to-transparent"
-                  : "bg-gradient-to-tr from-rose-500/25 via-transparent to-transparent"
-              }`}
-            />
-
             {/* Wearable Node (Center) */}
             <div className="relative z-20 flex flex-col items-center">
-              <span className={`relative flex h-3.5 w-3.5 ${simMode === "sos" ? "animate-pulse-beacon" : ""}`}>
-                <span
-                  className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                    simMode === "normal"
-                      ? "bg-emerald-400 animate-ping"
-                      : simMode === "impact"
-                      ? "bg-amber-400 animate-ping"
-                      : "bg-rose-500 animate-ping"
-                  }`}
-                />
+              <span className="relative flex h-3.5 w-3.5">
                 <span
                   className={`relative inline-flex h-3.5 w-3.5 rounded-full border-2 border-white ${
                     simMode === "normal"
                       ? "bg-emerald-500"
                       : simMode === "impact"
-                      ? "bg-amber-500"
-                      : "bg-rose-600"
+                      ? "bg-amber-400"
+                      : "bg-rose-500"
                   }`}
                 />
               </span>
@@ -708,7 +677,7 @@ function SwaasProblemSolutionSection({ isDark = true }) {
             }`}
           >
             <div className="flex items-center gap-2.5 font-mono text-xs font-semibold text-[#00D4FF]">
-              <span className="flex h-2.5 w-2.5 rounded-full bg-[#00D4FF] animate-pulse" />
+              <span className="flex h-2 w-2 rounded-full bg-cyan-400" />
               <span>THE SWAAS ARCHITECTURE · PROVEN RESCUE OUTCOME</span>
             </div>
             <h3
@@ -812,14 +781,14 @@ function SarAirborneExtractionSection({ isDark = true }) {
                 />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#060810] via-transparent to-transparent opacity-80" />
 
-                {/* HUD Telemetry Tag */}
-                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between font-mono text-xs text-slate-200">
-                  <div className="flex items-center gap-2 rounded-lg bg-black/60 px-3 py-1.5 backdrop-blur-md border border-white/10">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-                    <span>AIRBORNE SAR UNIT · H145 T3 READY</span>
+                {/* Telemetry Tag */}
+                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-slate-200">
+                  <div className="flex items-center gap-2 rounded-lg bg-black/70 px-3 py-1.5 border border-white/10">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                    <span className="font-medium">Airborne SAR Unit · Standby</span>
                   </div>
-                  <div className="hidden sm:flex items-center gap-1.5 rounded-lg bg-black/60 px-3 py-1.5 backdrop-blur-md border border-white/10 text-cyan-300">
-                    <span>SECTOR 4 DESCENT // 60s ARRIVAL</span>
+                  <div className="hidden sm:flex items-center gap-1.5 rounded-lg bg-black/70 px-3 py-1.5 border border-white/10 text-slate-300">
+                    <span>Mountain Flight Coordination</span>
                   </div>
                 </div>
               </div>
@@ -1234,10 +1203,10 @@ function CinematicHelicopterFlybyOverlay({ onComplete }) {
     <div className="fixed inset-0 z-[150] pointer-events-none overflow-hidden flex items-center justify-center">
       <canvas ref={canvasRef} className="w-full h-full object-cover" />
 
-      {/* Cinematic SAR Dispatch Telemetry HUD Overlay */}
-      <div className="absolute top-6 left-6 font-mono text-xs text-cyan-400 font-semibold tracking-wider flex items-center gap-2.5 bg-black/70 px-4 py-2 rounded-full border border-cyan-500/30 backdrop-blur-md">
-        <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-        <span>SAR TACTICAL DISPATCH // VECTOR INBOUND 045°</span>
+      {/* SAR Dispatch Telemetry Overlay */}
+      <div className="absolute top-6 left-6 text-xs text-cyan-400 font-semibold tracking-wider flex items-center gap-2.5 bg-black/80 px-4 py-2 rounded-lg border border-cyan-500/30">
+        <span className="h-2 w-2 rounded-full bg-emerald-400" />
+        <span>SAR Airborne Dispatch · Routing</span>
       </div>
 
       <div className="absolute bottom-8 font-mono text-xs text-slate-300 tracking-wider bg-black/80 px-5 py-2 rounded-full border border-slate-700/60 backdrop-blur-md">
@@ -1274,7 +1243,6 @@ export default function Landing() {
         "problem-solution",
         "sensors",
         "mesh",
-        "mission-video",
         "sar-extraction",
         "simulator",
         "privacy",
@@ -1340,9 +1308,6 @@ export default function Landing() {
         isDark ? "bg-[#070D1B] text-slate-100" : "bg-[#F8FAFC] text-slate-900"
       }`}
     >
-      {/* Full-Page Living Atmosphere Canvas (Continuous Motion from Top to Bottom) */}
-      <GlobalLivingAtmosphereCanvas isDark={isDark} />
-
       {/* Floating Navigation Bar */}
       <header className="sticky top-4 z-50 px-4 sm:px-6 lg:px-8">
         <div
@@ -1354,7 +1319,7 @@ export default function Landing() {
         >
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2.5 group">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-xs font-bold text-white shadow-sm transition-transform group-hover:scale-105">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-600 text-xs font-bold text-white shadow-sm transition-transform group-hover:scale-105">
                 🛡
               </span>
               <div className="flex flex-col">
@@ -1375,7 +1340,6 @@ export default function Landing() {
                 { id: "#problem-solution", label: "Problem/Solution", key: "problem-solution" },
                 { id: "#sensors", label: "Sensors", key: "sensors" },
                 { id: "#mesh", label: "LoRa Mesh", key: "mesh" },
-                { id: "#mission-video", label: "Recon", key: "mission-video" },
                 { id: "#sar-extraction", label: "SAR Unit", key: "sar-extraction" },
                 { id: "#simulator", label: "Simulator", key: "simulator" },
                 { id: "#privacy", label: "Privacy", key: "privacy" },
@@ -1450,13 +1414,11 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero Section with Seamless 60fps Video Flight Canvas & Enterprise Navy Theme */}
+      {/* Hero Section */}
       <section
         id="overview"
-        className="relative z-10 border-b px-4 pt-16 pb-20 sm:px-6 sm:pt-24 sm:pb-28 lg:px-8 overflow-hidden min-h-[640px] flex items-center"
+        className="relative z-10 border-b px-4 pt-16 pb-20 sm:px-6 sm:pt-24 sm:pb-28 lg:px-8 overflow-hidden min-h-[580px] flex items-center"
       >
-        <SeamlessAlpineFlightCanvas isDark={isDark} />
-
         <div className="relative z-10 mx-auto max-w-7xl w-full">
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12">
             <div className="lg:col-span-7">
@@ -1651,65 +1613,6 @@ export default function Landing() {
       >
         <div className="mx-auto max-w-7xl">
           <AnimatedBeamMeshDiagram isDark={isDark} />
-        </div>
-      </section>
-
-      {/* Tactical Aerial Reconnaissance & Telemetry Video */}
-      <section
-        id="mission-video"
-        className={`relative z-10 border-b px-4 py-20 sm:px-6 sm:py-24 lg:px-8 transition-colors duration-500 ${
-          isDark ? "border-white/[0.06]" : "border-slate-200/80"
-        }`}
-      >
-        <div className="mx-auto max-w-5xl">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <div className="inline-flex items-center gap-2 font-mono text-xs text-cyan-400 font-medium">
-              <IoVideocamOutline className="h-4 w-4" />
-              <span>Tactical Aerial Reconnaissance</span>
-            </div>
-            <h2
-              className={`mt-2.5 text-2xl sm:text-3xl font-semibold tracking-tight ${
-                isDark ? "text-white" : "text-slate-900"
-              }`}
-            >
-              Live Alpine Reconnaissance & Drone Relay
-            </h2>
-            <p
-              className={`mt-2 text-sm leading-relaxed ${
-                isDark ? "text-slate-400" : "text-slate-600"
-              }`}
-            >
-              Sub-second video stream with real-time canvas ambient halo refraction synchronized to the alpine terrain lighting.
-            </p>
-          </div>
-
-          <div
-            className={`relative mx-auto max-w-4xl p-3 sm:p-5 rounded-3xl border backdrop-blur-2xl transition-all duration-300 ${
-              isDark
-                ? "border-white/[0.08] bg-[#0c0d16]/75 shadow-[0_0_50px_rgba(6,182,212,0.12)]"
-                : "border-slate-200 bg-white/80 shadow-xl"
-            }`}
-          >
-            <VideoAmbient
-              src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
-              poster={loginBg}
-              blurAmount={65}
-              intensity={0.8}
-              autoPlay={false}
-              muted={true}
-              loop={true}
-              className="rounded-2xl"
-            />
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 px-2 font-mono text-xs">
-              <div className="flex items-center gap-2 text-cyan-400 font-medium">
-                <span className="h-2 w-2 rounded-full bg-rose-500 animate-ping" />
-                <span>Sector IV Alpine Recon // Aerial 4K</span>
-              </div>
-              <div className="text-slate-500 text-[11px]">
-                Encrypted Live Mesh Feed // 433-915 MHz Active
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
