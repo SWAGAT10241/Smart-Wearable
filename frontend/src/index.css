@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* =========================================================================
    LAYER 1: PRIMITIVES (Core Colors)
@@ -6,76 +7,76 @@
    00 = near white, 500 = base hue, 1000 = near black.
    ========================================================================= */
 :root {
-  /* Grayscale (Neutrals / Field Matte) */
-  --color-grayscale-1000: #000000;
-  --color-grayscale-950: #07090e;
-  --color-grayscale-900: #0d1117;
-  --color-grayscale-870: #121820;
-  --color-grayscale-850: #161b22;
-  --color-grayscale-800: #21262d;
-  --color-grayscale-750: #30363d;
-  --color-grayscale-700: #3e4651;
-  --color-grayscale-600: #484f58;
-  --color-grayscale-500: #6e7681;
-  --color-grayscale-400: #8b949e;
-  --color-grayscale-300: #b1bac4;
-  --color-grayscale-200: #c9d1d9;
-  --color-grayscale-150: #d0d7de;
-  --color-grayscale-100: #e6edf3;
-  --color-grayscale-50: #f0f6fc;
-  --color-grayscale-00: #ffffff;
+  /* Grayscale (Neutrals / Field Matte in OKLCH) */
+  --color-grayscale-1000: oklch(0 0 0);
+  --color-grayscale-950: oklch(0.11 0.01 240);
+  --color-grayscale-900: oklch(0.15 0.01 240);
+  --color-grayscale-870: oklch(0.18 0.01 240);
+  --color-grayscale-850: oklch(0.20 0.01 240);
+  --color-grayscale-800: oklch(0.25 0.01 240);
+  --color-grayscale-750: oklch(0.32 0.01 240);
+  --color-grayscale-700: oklch(0.38 0.01 240);
+  --color-grayscale-600: oklch(0.42 0.01 240);
+  --color-grayscale-500: oklch(0.55 0.01 240);
+  --color-grayscale-400: oklch(0.65 0.01 240);
+  --color-grayscale-300: oklch(0.77 0.01 240);
+  --color-grayscale-200: oklch(0.85 0.01 240);
+  --color-grayscale-150: oklch(0.88 0.01 240);
+  --color-grayscale-100: oklch(0.94 0.01 240);
+  --color-grayscale-50: oklch(0.97 0.01 240);
+  --color-grayscale-00: oklch(1 0 0);
 
-  /* Primary (SWAAS Emerald Brand Hue) */
-  --color-primary-00: #f0fdf4;
-  --color-primary-100: #dcfce7;
-  --color-primary-200: #bbf7d0;
-  --color-primary-300: #86efac;
-  --color-primary-400: #4ade80;
-  --color-primary-500: #10b981;
-  --color-primary-600: #059669;
-  --color-primary-700: #047857;
-  --color-primary-800: #065f46;
-  --color-primary-900: #064e3b;
-  --color-primary-1000: #022c22;
+  /* Primary (SWAAS Emerald Brand Hue in OKLCH) */
+  --color-primary-00: oklch(0.98 0.02 155);
+  --color-primary-100: oklch(0.95 0.05 155);
+  --color-primary-200: oklch(0.90 0.09 155);
+  --color-primary-300: oklch(0.83 0.15 155);
+  --color-primary-400: oklch(0.75 0.19 155);
+  --color-primary-500: oklch(0.65 0.19 155);
+  --color-primary-600: oklch(0.58 0.17 155);
+  --color-primary-700: oklch(0.50 0.15 155);
+  --color-primary-800: oklch(0.42 0.12 155);
+  --color-primary-900: oklch(0.35 0.10 155);
+  --color-primary-1000: oklch(0.20 0.06 155);
 
-  /* Secondary (Sky Blue / Altimetry Hue) */
-  --color-secondary-00: #f0f9ff;
-  --color-secondary-100: #e0f2fe;
-  --color-secondary-200: #bae6fd;
-  --color-secondary-300: #7dd3fc;
-  --color-secondary-400: #38bdf8;
-  --color-secondary-500: #0ea5e9;
-  --color-secondary-600: #0284c7;
-  --color-secondary-700: #0369a1;
-  --color-secondary-800: #075985;
-  --color-secondary-900: #0c4a6e;
-  --color-secondary-1000: #082f49;
+  /* Secondary (Sky Blue / Altimetry Hue in OKLCH) */
+  --color-secondary-00: oklch(0.98 0.02 230);
+  --color-secondary-100: oklch(0.94 0.04 230);
+  --color-secondary-200: oklch(0.88 0.08 230);
+  --color-secondary-300: oklch(0.80 0.13 230);
+  --color-secondary-400: oklch(0.72 0.16 230);
+  --color-secondary-500: oklch(0.65 0.18 230);
+  --color-secondary-600: oklch(0.58 0.17 235);
+  --color-secondary-700: oklch(0.50 0.15 235);
+  --color-secondary-800: oklch(0.42 0.12 235);
+  --color-secondary-900: oklch(0.35 0.10 235);
+  --color-secondary-1000: oklch(0.22 0.06 235);
 
-  /* Red (Emergency SOS / Destructive Hue) */
-  --color-red-00: #fef2f2;
-  --color-red-100: #fee2e2;
-  --color-red-200: #fecaca;
-  --color-red-300: #fca5a5;
-  --color-red-400: #f87171;
-  --color-red-500: #e5484d;
-  --color-red-600: #dc2626;
-  --color-red-700: #b91c1c;
-  --color-red-800: #991b1b;
-  --color-red-900: #7f1d1d;
-  --color-red-1000: #450a0a;
+  /* Red (Emergency SOS / Destructive Hue in OKLCH) */
+  --color-red-00: oklch(0.97 0.02 25);
+  --color-red-100: oklch(0.93 0.05 25);
+  --color-red-200: oklch(0.86 0.10 25);
+  --color-red-300: oklch(0.78 0.16 25);
+  --color-red-400: oklch(0.70 0.21 25);
+  --color-red-500: oklch(0.62 0.24 25);
+  --color-red-600: oklch(0.56 0.24 25);
+  --color-red-700: oklch(0.48 0.22 25);
+  --color-red-800: oklch(0.40 0.18 25);
+  --color-red-900: oklch(0.34 0.14 25);
+  --color-red-1000: oklch(0.22 0.08 25);
 
-  /* Yellow (Warning / Advisory Hue) */
-  --color-yellow-00: #fffbeb;
-  --color-yellow-100: #fef3c7;
-  --color-yellow-200: #fde68a;
-  --color-yellow-300: #fcd34d;
-  --color-yellow-400: #fbbf24;
-  --color-yellow-500: #f59e0b;
-  --color-yellow-600: #d97706;
-  --color-yellow-700: #b45309;
-  --color-yellow-800: #92400e;
-  --color-yellow-900: #78350f;
-  --color-yellow-1000: #451a03;
+  /* Yellow (Warning / Advisory Hue in OKLCH) */
+  --color-yellow-00: oklch(0.98 0.03 85);
+  --color-yellow-100: oklch(0.94 0.07 85);
+  --color-yellow-200: oklch(0.89 0.12 85);
+  --color-yellow-300: oklch(0.83 0.16 80);
+  --color-yellow-400: oklch(0.78 0.18 75);
+  --color-yellow-500: oklch(0.72 0.18 65);
+  --color-yellow-600: oklch(0.65 0.18 60);
+  --color-yellow-700: oklch(0.55 0.16 55);
+  --color-yellow-800: oklch(0.45 0.14 50);
+  --color-yellow-900: oklch(0.38 0.10 45);
+  --color-yellow-1000: oklch(0.25 0.07 40);
 }
 
 /* =========================================================================
@@ -119,10 +120,11 @@
   --action-disabled: var(--color-grayscale-200);
 
   /* Status */
-  --status-optimal: var(--color-primary-500);
-  --status-sos: var(--color-red-500);
-  --status-warning: var(--color-yellow-500);
-  --status-info: var(--color-secondary-400);
+  --status-optimal: oklch(0.65 0.19 155);
+  --status-sos: oklch(0.62 0.24 20);
+  --status-warning: oklch(0.72 0.18 60);
+  --text-warning: oklch(0.55 0.18 60);
+  --status-info: oklch(0.68 0.16 230);
 
   /* Backward Compatibility Aliases */
   --color-main: var(--text-primary);
@@ -151,6 +153,234 @@
   --shadow-sidebar: 2px 0 12px rgba(15, 23, 42, 0.06);
 
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* =========================================================================
+     LAYER 3: SPACING, RADIUS, SIZING & TYPOGRAPHY TOKENS
+     Modular scale tokens replacing hardcoded px & arbitrary values.
+     ========================================================================= */
+  /* =========================================================================
+     CORE 4PX SPACING GRID
+     Predictable harmonic rhythm: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64px
+     ========================================================================= */
+  --space-1: 4px;                            /* Tight gap, badge padding */
+  --space-2: 8px;                            /* Standard inline element gap */
+  --space-3: 12px;                           /* Form field gap, card inner margin */
+  --space-4: 16px;                           /* Card compact padding, section gaps */
+  --space-5: 20px;                           /* Standard card padding */
+  --space-6: 24px;                           /* Page header separation */
+  --space-8: 32px;                           /* Spacious section divider */
+  --space-10: 40px;                          /* Large container padding */
+  --space-12: 48px;                          /* Modal dialog padding */
+  --space-16: 64px;                          /* Hero vertical rhythm */
+
+  /* Backward-Compatible Fractional / Legacy Spacers */
+  --space-0: 0px;
+  --space-0-5: 2px;
+  --space-1-5: 6px;
+  --space-2-5: 10px;
+  --space-3-5: 14px;
+  --space-4-5: 18px;
+  --space-7: 28px;
+  --space-9: 36px;
+  --space-14: 56px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* =========================================================================
+     CORE RADIUS TOKENS (Fatigue-Free 5-Tier Apple Continuous Curvature System)
+     Single source of truth: 5 core tiers replacing 17 scattered variables.
+     Modify these 5 to effortlessly control every curve across the app!
+     ========================================================================= */
+  --radius-sm: 6px;                          /* 1. Micro: Badges, tags, kbd shortcuts */
+  --radius-md: 12px;                         /* 2. Interactive: Buttons, inputs, search fields */
+  --radius-lg: 16px;                         /* 3. Concentric Inner: Secondary containers, inner cards, popovers */
+  --radius-card: 24px;                       /* 4. Primary Surfaces: Dashboard cards, modals, sheets */
+  --radius-full: 9999px;                     /* 5. Pill: Round badges, circular avatars, status dots */
+
+  /* Mathematical Concentric Curve (R_inner = R_card - padding) */
+  --radius-inner: calc(var(--radius-card) - 10px);
+
+  /* Unified Semantic Aliases (Zero Broken References Across Codebase) */
+  --radius-none: 0px;
+  --radius-xs: var(--radius-sm);
+  --radius-xl: var(--radius-lg);
+  --radius-2xl: var(--radius-card);
+  --radius-3xl: var(--radius-card);
+  --radius-button: var(--radius-md);
+  --radius-stat-card: var(--radius-card);
+  --radius-section-card: var(--radius-card);
+  --radius-auth-card: var(--radius-card);
+  --card-radius: var(--radius-card);
+  --card-radius-compact: var(--radius-card);
+  --card-radius-expanded: var(--radius-card);
+  --card-radius-inner: var(--radius-inner);
+  --card-radius-inner-compact: var(--radius-inner);
+  --btn-radius: var(--radius-md);
+  --input-radius: var(--radius-md);
+  --modal-radius: var(--radius-card);
+  --popover-radius: var(--radius-lg);
+  --auth-notice-radius: var(--radius-md);
+  --auth-badge-radius: var(--radius-full);
+  --auth-meter-radius: var(--radius-full);
+
+  /* Component Dimensions & Layout Constraints */
+  --sidebar-width: 250px;
+  --mobile-nav-height: 72px;
+  --input-height: 56px;
+  --button-height-lg: 64px;
+  --map-min-height: 320px;
+  --chart-height-sm: 64px;
+  --chart-height-md: 76px;
+
+  /* =========================================================================
+     CORE TYPOGRAPHY SCALE (7-Step Industry Standard: Modular 1.25 Major Third)
+     Clean, fatigue-free hierarchy eliminating random 1px step fragmentation.
+     ========================================================================= */
+  --font-size-xs: 12px;                      /* Micro: Captions, status badges, timestamps */
+  --font-size-sm: 14px;                      /* Secondary: Field labels, helper copy */
+  --font-size-base: 16px;                    /* Base: Primary body text, inputs, buttons */
+  --font-size-lg: 18px;                      /* Subheading: Card titles, interactive icons */
+  --font-size-xl: 20px;                      /* Section: Subsection titles, modal headers */
+  --font-size-2xl: 24px;                     /* Page Title: Main headers, auth titles */
+  --font-size-3xl: 32px;                     /* Hero Metric: Big telemetry numbers, stats */
+
+  /* Backward-Compatible Typographic Aliases (Zero Broken References) */
+  --font-size-3xs: 10px;
+  --font-size-2xs: 11px;
+  --font-size-sm-alt: 13px;
+  --font-size-md: 17px;
+  --font-size-stat: 28px;
+  --font-size-4xl: 36px;
+
+  /* =========================================================================
+     LAYER 4: SEMANTIC COMPONENT & LAYOUT TOKENS (Single Source of Truth)
+     Modify any value below to update padding, radius, and sizing across
+     all matching components simultaneously!
+     ========================================================================= */
+
+  /* Card Surfaces (SectionCard, LiveLocationCard, RecentEventsCard, PageHeader) */
+  --card-padding: var(--space-5);            /* Standard padding for all main cards */
+  --card-padding-compact: var(--space-4);    /* Padding for metric/stat cards */
+  --card-padding-expanded: var(--space-8);   /* Padding for auth cards & spacious containers */
+  --card-gap: var(--space-4);                /* Internal element spacing within cards */
+
+  /* Page Layout & Container Spacing */
+  --page-padding-mobile: var(--space-3-5);   /* Padding on mobile screens */
+  --page-padding-tablet: var(--space-5);     /* Padding on tablet screens */
+  --page-padding-desktop: var(--space-6);    /* Padding on desktop screens */
+  --page-section-gap: var(--space-4);        /* Spacing between major layout sections */
+
+  /* Interactive Elements (Buttons & Inputs) */
+  --btn-height: var(--button-height-lg);     /* Action button height (64px) */
+  --btn-padding-x: var(--space-5);           /* Button horizontal padding */
+  --btn-gap: var(--space-2);                 /* Button icon-to-label gap */
+  --input-padding-x: var(--space-4);         /* Textfield horizontal padding */
+
+  /* Modals & Dialogs */
+  --modal-padding: var(--space-12);          /* Alert modal internal padding */
+  --modal-gap: var(--space-4);               /* Modal element gap */
+
+  /* Popovers & Floating Menus */
+  --popover-padding: var(--space-4);         /* Popover header/content padding */
+
+  /* =========================================================================
+     AUTH FORMS & SURFACES (Login, Register, CompleteProfile)
+     Single-source-of-truth tokens for auth card dimensions, vertical rhythm,
+     line-heights, and inter-element spacing across all authentication views.
+     ========================================================================= */
+  --auth-card-max-width: 450px;              /* Optimal reading & input width (Linear / Stripe style) */
+  --auth-card-max-width-wide: 700px;         /* Multi-column registration card width */
+  --auth-header-gap: var(--space-4);         /* 16px horizontal gap between header text & icon */
+  --auth-header-margin-bottom: var(--space-6);/* 24px vertical separation below header */
+  --auth-title-size: var(--font-size-2xl);   /* 24px bold title */
+  --auth-title-line-height: 1.25;            /* Tight, authoritative heading rhythm */
+  --auth-sub-margin-top: var(--space-2);     /* 8px clean breathing room below title */
+  --auth-sub-size: var(--font-size-sm);      /* 14px secondary text */
+  --auth-sub-line-height: 1.55;             /* Relaxed readability for instruction copy */
+  --auth-icon-badge-size: 40px;              /* Square shield badge dimension */
+  --auth-icon-size: 20px;                    /* Internal icon size */
+  --auth-field-gap: var(--space-4);          /* 16px vertical gap between form fields */
+  --auth-button-margin-top: var(--space-6);  /* 24px deliberate separation above primary action */
+  --auth-divider-margin-y: var(--space-6);   /* 24px vertical margins for 'or' divider */
+  --auth-footer-margin-top: var(--space-6);  /* 24px separation above footer link */
+  --auth-footer-size: var(--font-size-sm-alt);/* 13px footer size */
+  --auth-footer-line-height: 1.4;            /* Compact footer line height */
+  --auth-social-icon-size: 20px;             /* Provider icon dimension */
+  --auth-section-gap: var(--space-5);        /* 20px vertical gap between form sections */
+  --auth-section-label-gap: var(--space-2);  /* 8px gap between icon and section label */
+  --auth-section-label-size: var(--font-size-xs);/* 12px uppercase section label */
+  --auth-notice-radius: var(--radius-lg);    /* 12px notice banner corner radius */
+  --auth-badge-padding-x: var(--space-3);    /* Pill badge horizontal padding */
+  --auth-badge-padding-y: var(--space-1);    /* Pill badge vertical padding */
+  --auth-badge-radius: var(--radius-full);   /* Pill badge full radius */
+  --auth-meter-height: 4px;                  /* 4px sleek readiness track */
+  --auth-meter-track-bg: var(--border-default);/* Track background */
+  --auth-meter-fill-bg: var(--action-primary);/* Optimal progress fill */
+  --auth-meter-radius: var(--radius-full);   /* Rounded pill ends */
+  --auth-meter-margin-top: var(--space-3);   /* 12px separation below title */
+
+  /* =========================================================================
+     DASHBOARD & TELEMETRY SURFACES
+     Single-source-of-truth tokens for dashboard cards, telemetry stat indicators,
+     gauges, activity summaries, and status badges.
+     ========================================================================= */
+  --dash-header-padding-x: var(--space-1);
+  --dash-card-min-height: 420px;
+  --dash-events-col-min-width: 300px;
+  --dash-status-group-gap: var(--space-2);
+  --dash-status-dot-size: 6px;
+  --dash-range-dot-size: 8px;
+  --dash-icon-box-size: var(--space-10);              /* 40px */
+  --dash-icon-box-lg: var(--space-12);                /* 48px */
+  --dash-badge-padding-x: var(--space-2-5);           /* 10px */
+  --dash-badge-padding-y: var(--space-0-5);           /* 2px */
+  --dash-badge-text-size: var(--font-size-3xs);       /* 10px */
+  --dash-card-header-min-height: 22px;
+  --dash-card-value-min-height: 38px;
+  --dash-gauge-track-wrapper-height: 72px;
+  --dash-gauge-track-top: 32px;
+  --dash-gauge-track-thickness: 7px;
+  --dash-gauge-thumb-top: 26px;
+  --dash-gauge-thumb-size: 18px;
+  --dash-activity-graph-height: 28px;
+  --dash-activity-item-px: var(--space-5);
+  --dash-activity-item-py: var(--space-5);
+  --dash-activity-icon-size: var(--font-size-2xl);    /* 24px */
+  --dash-map-menu-width: 190px;                       /* Map style popover menu width */
+
+  /* =========================================================================
+     LAYER 5: NAMED BRAND & THEME COLOR TOKENS
+     Named color definitions replacing raw hex literals across views
+     ========================================================================= */
+  /* Brand Navy Palette (Sidebar, Auth & Night Atmospheres in OKLCH) */
+  --brand-navy-deep: oklch(0.18 0.04 235);
+  --brand-navy: oklch(0.20 0.04 235);
+  --brand-navy-alt: oklch(0.21 0.04 235);
+  --brand-navy-soft: oklch(0.21 0.04 235);
+  --brand-navy-card: oklch(0.28 0.06 235);
+  --brand-navy-card-border: oklch(0.28 0.06 235 / 0.8);
+  --brand-navy-card-bg: oklch(0.28 0.06 235 / 0.7);
+  --brand-navy-card-hover: oklch(0.24 0.05 235);
+  --brand-navy-text: oklch(0.22 0.04 235);
+
+  /* Brand Teal Palette (Accent, Highlights & Active States in OKLCH) */
+  --brand-teal: oklch(0.78 0.14 175);
+  --brand-teal-light: oklch(0.83 0.14 175);
+  --brand-teal-hover: oklch(0.86 0.14 175);
+  --brand-teal-dark: oklch(0.60 0.13 175);
+  --brand-teal-subtle: oklch(0.60 0.13 175 / 0.25);
+  --brand-teal-glow: oklch(0.78 0.14 175 / 0.35);
+
+  /* Map & Marker Colors in OKLCH */
+  --map-trail-color: oklch(0.68 0.16 165);
+  --map-marker-color: oklch(0.55 0.18 250);
+
+  /* Avatar Gradient in OKLCH */
+  --avatar-gradient-start: oklch(0.92 0.08 165);
+  --avatar-gradient-end: oklch(0.58 0.15 165);
+
+  /* Thermal Spectrum Gradient in OKLCH */
+  --thermal-gradient: linear-gradient(90deg, oklch(0.55 0.18 250), oklch(0.72 0.15 200), oklch(0.82 0.17 135), oklch(0.75 0.18 70), oklch(0.70 0.18 55));
 }
 
 /* =========================================================================
@@ -163,9 +393,9 @@ html.dark {
   --surface-card: var(--color-grayscale-850);        /* #161B22 Solid Card */
   --surface-elevated: var(--color-grayscale-800);    /* #21262D Solid Elevated */
   --surface-hover: var(--color-grayscale-750);       /* #30363D Hover Tile */
-  --surface-accent: rgba(16, 185, 129, 0.12);
-  --surface-error: rgba(229, 72, 77, 0.15);
-  --surface-warning: rgba(245, 158, 11, 0.15);
+  --surface-accent: oklch(0.65 0.19 155 / 0.12);
+  --surface-error: oklch(0.62 0.24 25 / 0.15);
+  --surface-warning: oklch(0.72 0.18 65 / 0.15);
 
   /* Borders */
   --border-default: var(--color-grayscale-750);      /* #30363D 1px Hairline */
@@ -194,10 +424,11 @@ html.dark {
   --action-disabled: var(--color-grayscale-800);
 
   /* Status */
-  --status-optimal: var(--color-primary-500);
-  --status-sos: var(--color-red-500);
-  --status-warning: var(--color-yellow-500);
-  --status-info: var(--color-secondary-400);
+  --status-optimal: oklch(0.65 0.19 155);
+  --status-sos: oklch(0.62 0.24 20);
+  --status-warning: oklch(0.72 0.18 60);
+  --text-warning: oklch(0.72 0.18 60);
+  --status-info: oklch(0.68 0.16 230);
 
   /* Backward Compatibility Aliases */
   --color-main: var(--text-primary);
@@ -250,6 +481,43 @@ html.dark {
   --color-status-sos: var(--status-sos);
   --color-status-warning: var(--status-warning);
   --color-status-info: var(--status-info);
+
+  /* Core 5-Tier Radius Theme Mappings */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-card: var(--radius-card);
+  --radius-full: var(--radius-full);
+
+  /* Semantic Theme Aliases */
+  --radius-xs: var(--radius-sm);
+  --radius-xl: var(--radius-lg);
+  --radius-2xl: var(--radius-card);
+  --radius-3xl: var(--radius-card);
+  --radius-button: var(--radius-md);
+  --radius-stat: var(--radius-card);
+  --radius-auth: var(--radius-card);
+  --radius-modal: var(--radius-card);
+  --radius-popover: var(--radius-lg);
+
+  /* Spacing theme mappings */
+  --spacing-card-p: var(--card-padding);
+  --spacing-stat-p: var(--card-padding-compact);
+  --spacing-card-gap: var(--card-gap);
+  --spacing-modal-p: var(--modal-padding);
+  --spacing-modal-gap: var(--modal-gap);
+  --spacing-sidebar: var(--sidebar-width);
+
+  /* Named brand color mappings */
+  --color-brand-navy-deep: var(--brand-navy-deep);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-navy-alt: var(--brand-navy-alt);
+  --color-brand-navy-soft: var(--brand-navy-soft);
+  --color-brand-navy-card: var(--brand-navy-card);
+  --color-brand-teal: var(--brand-teal);
+  --color-brand-teal-light: var(--brand-teal-light);
+  --color-brand-teal-hover: var(--brand-teal-hover);
+  --color-brand-teal-dark: var(--brand-teal-dark);
 }
 
 @layer base {
@@ -312,22 +580,41 @@ html.dark {
     @apply flex min-h-screen;
   }
 
+  .tg-formcard--card {
+    @apply flex flex-col w-full;
+    max-width: var(--auth-card-max-width-wide);
+    gap: var(--auth-field-gap);
+    border-radius: var(--card-radius-expanded);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: var(--card-padding-expanded);
+    box-shadow: 0 20px 60px rgba(7, 28, 46, 0.22);
+  }
+
   .tg-formcard__title {
-    @apply m-0 text-[30px] font-semibold tracking-[-0.02em];
+    @apply m-0 font-bold tracking-tight;
+    font-size: var(--auth-title-size, var(--font-size-2xl));
+    line-height: var(--auth-title-line-height, 1.25);
     color: var(--color-text);
   }
 
   .tg-formcard__sub {
-    @apply -mt-2 mb-1 text-sm leading-6;
+    margin-top: var(--auth-sub-margin-top, var(--space-2));
+    font-size: var(--auth-sub-size, var(--font-size-sm));
+    line-height: var(--auth-sub-line-height, 1.55);
     color: var(--color-text-secondary);
   }
 
   .tg-formcard__error {
-    @apply rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-[13px] font-medium text-red-700;
+    @apply border border-red-200 bg-red-50 font-medium text-red-700;
+    border-radius: var(--radius-lg);
+    padding: var(--space-2-5) var(--space-3);
+    font-size: var(--font-size-sm-alt);
   }
 
   .tg-formcard__divider {
-    @apply flex items-center gap-2.5;
+    @apply flex items-center;
+    gap: var(--space-2-5);
   }
 
   .tg-formcard__divider span {
@@ -341,7 +628,11 @@ html.dark {
   }
 
   .tg-formcard__footer {
-    @apply mt-1 w-full text-center text-[13px] leading-5;
+    width: 100%;
+    margin-top: var(--auth-footer-margin-top, var(--space-6));
+    text-align: center;
+    font-size: var(--auth-footer-size, var(--font-size-sm-alt));
+    line-height: var(--auth-footer-line-height, 1.4);
     color: var(--color-text-muted);
   }
 
@@ -351,13 +642,16 @@ html.dark {
   }
 
   .tg-formcard__section-label {
-    @apply flex items-center gap-2 pt-1 text-[12px] font-semibold tracking-[0.03em];
+    @apply flex items-center pt-2 font-semibold tracking-[0.04em];
+    gap: var(--auth-section-label-gap, var(--space-2));
+    font-size: var(--auth-section-label-size, var(--font-size-xs));
     color: var(--color-text);
   }
 
   .tg-formcard__section-label::before {
     content: "";
-    @apply h-1.5 w-1.5 rounded-full bg-teal-400;
+    @apply h-1.5 w-1.5 rounded-full;
+    background: var(--color-accent);
   }
 
   .tg-formcard__section-label::after {
@@ -367,7 +661,8 @@ html.dark {
   }
 
   .tg-formcard__row {
-    @apply flex gap-4;
+    @apply flex;
+    gap: var(--space-4);
   }
 
   .tg-formcard__row>* {
@@ -376,7 +671,9 @@ html.dark {
   }
 
   .tg-badge-pill {
-    @apply inline-flex self-start rounded-full bg-teal-100 px-3 py-1 text-[10.5px] font-bold tracking-[0.08em] text-sky-700;
+    @apply inline-flex self-start rounded-full bg-teal-100 font-bold tracking-[0.08em] text-sky-700;
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--font-size-2xs);
   }
 
   /* MapLibre marker */
@@ -389,7 +686,7 @@ html.dark {
   .tg-map-marker-pulse {
     position: absolute;
     inset: 2px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: rgba(45, 212, 191, 0.25);
     animation: tg-map-pulse 1.8s ease-out infinite;
   }
@@ -402,7 +699,7 @@ html.dark {
     height: 14px;
     transform: translate(-50%, -50%);
     border: 3px solid var(--color-white);
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: var(--color-accent);
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
   }
@@ -433,10 +730,10 @@ html.dark {
     display: flex;
     align-items: center;
     width: 100%;
-    height: 56px;
+    height: var(--input-height);
     overflow: hidden;
     border: 1px solid var(--color-border);
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     background: var(--color-surface);
     color: var(--color-text);
     transition:
@@ -627,4 +924,211 @@ html.dark {
   html.dark .shadow-\[var\(--shadow-card-lg\)\] {
     box-shadow: var(--shadow-card-lg) !important;
   }
+}
+
+/* =========================================================================
+   MODERN WEB PLATFORM ENHANCEMENTS
+   - SPA View Transitions (same-document-transitions)
+   - Hardware-Accelerated Dialog Transitions (animate-to-from-top-layer)
+   - Accessible Reduced-Motion Overrides
+   ========================================================================= */
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: 160ms cubic-bezier(0.4, 0, 1, 1) both tg-fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 200ms cubic-bezier(0, 0, 0.2, 1) both tg-fade-in;
+}
+
+@keyframes tg-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes tg-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal hardware-accelerated transitions */
+.tg-modal-backdrop {
+  opacity: 1;
+  transition: opacity 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tg-modal-card {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  transition: opacity 200ms cubic-bezier(0.16, 1, 0.3, 1), transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@starting-style {
+  .tg-modal-backdrop {
+    opacity: 0;
+  }
+  .tg-modal-card {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
+  .tg-modal-backdrop,
+  .tg-modal-card,
+  .animate-cardiac-pulse,
+  .animate-card-entrance,
+  .animate-telemetry-flash {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* =========================================================================
+   TOPOGRAPHIC ELEVATION MESH & EXPEDITION ATMOSPHERE
+   Subtle tactical contour vector lines with ambient depth glows
+   ========================================================================= */
+.tg-topographic-mesh {
+  background-color: var(--surface-canvas);
+  background-image:
+    radial-gradient(circle at 85% 15%, rgba(45, 212, 191, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at 15% 85%, rgba(16, 47, 74, 0.35) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cpath d='M0,35 Q35,15 70,35 T140,35 M0,70 Q35,50 70,70 T140,70 M0,105 Q35,85 70,105 T140,105 M35,0 Q55,35 35,70 T35,140 M105,0 Q125,35 105,70 T105,140' fill='none' stroke='%232dd4bf' stroke-width='0.75' stroke-opacity='0.032' stroke-dasharray='4,4'/%3E%3C/svg%3E");
+}
+
+html:not(.dark) .tg-topographic-mesh {
+  background-image:
+    radial-gradient(circle at 85% 15%, rgba(14, 156, 140, 0.04) 0%, transparent 45%),
+    radial-gradient(circle at 15% 85%, rgba(203, 213, 225, 0.3) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cpath d='M0,35 Q35,15 70,35 T140,35 M0,70 Q35,50 70,70 T140,70 M0,105 Q35,85 70,105 T140,105 M35,0 Q55,35 35,70 T35,140 M105,0 Q125,35 105,70 T105,140' fill='none' stroke='%230f766e' stroke-width='0.75' stroke-opacity='0.03' stroke-dasharray='4,4'/%3E%3C/svg%3E");
+}
+
+/* =========================================================================
+   PURPOSEFUL TELEMETRY MICRO-ANIMATIONS
+   ========================================================================= */
+
+/* Organic Double-Beat Cardiac EKG Pulse */
+@keyframes tg-cardiac-pulse {
+  0% { transform: scale(1); }
+  14% { transform: scale(1.1); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.14); }
+  70% { transform: scale(1); }
+  100% { transform: scale(1); }
+}
+
+.animate-cardiac-pulse {
+  animation: tg-cardiac-pulse 2s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+  transform-origin: center;
+}
+
+/* Staggered Card Entrance */
+@keyframes tg-card-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-card-entrance {
+  animation: tg-card-entrance 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Live Telemetry Refresh Flash */
+@keyframes tg-telemetry-flash {
+  0% {
+    opacity: 0.65;
+    transform: translateY(-1px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-telemetry-flash {
+  animation: tg-telemetry-flash 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* =========================================================================
+   CUSTOM TACTICAL SCROLLBARS (Theme-Adaptive & Cross-Browser)
+   ========================================================================= */
+/* WebKit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: var(--radius-full);
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
+}
+
+/* Firefox / Modern Standard */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-default) transparent;
+}
+
+/* Scoped Utility Classes */
+.tg-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.tg-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: var(--radius-full);
+}
+
+html.dark .tg-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.tg-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-full);
+}
+
+.tg-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--action-primary);
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }

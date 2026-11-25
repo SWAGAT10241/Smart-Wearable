@@ -256,6 +256,24 @@ const removeDevice = useCallback(
   },
   [selectedDeviceId],
 );
+
+  /*
+   * ----------------------------------------------------------
+   * Real-time device heartbeat / last seen updater
+   * ----------------------------------------------------------
+   */
+  const updateDeviceHeartbeat = useCallback((deviceId, lastSeen) => {
+    if (!deviceId) return;
+    const normalized = String(deviceId).trim().toUpperCase();
+    const timestamp = lastSeen ? new Date(lastSeen) : new Date();
+    setDevices((currentDevices) =>
+      currentDevices.map((dev) =>
+        dev.deviceId?.toUpperCase() === normalized
+          ? { ...dev, lastSeen: timestamp }
+          : dev,
+      ),
+    );
+  }, []);
   /*
    * ----------------------------------------------------------
    * Currently selected device
@@ -302,6 +320,7 @@ const removeDevice = useCallback(
       renameDevice,
       updateDeviceStatus,
       removeDevice,
+      updateDeviceHeartbeat,
 
       refreshDevices: loadDevices,
     }),
@@ -318,6 +337,7 @@ const removeDevice = useCallback(
       renameDevice,
       updateDeviceStatus,
       removeDevice,
+      updateDeviceHeartbeat,
 
       loadDevices,
     ],

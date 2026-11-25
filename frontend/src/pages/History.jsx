@@ -164,17 +164,17 @@ export default function History() {
     <AppLayout>
       <div className="flex flex-col gap-3.5">
         {/* HEADER & CONTROLS */}
-        <div className="flex flex-col gap-2.5 rounded-[18px] border border-[var(--border-default)] bg-[var(--surface-card)] p-3.5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-[18px] border border-[var(--border-default)] bg-[var(--surface-card)] p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-lg font-bold tracking-tight text-[var(--text-primary)] sm:text-xl">
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--text-primary)]">
                 Telemetry History
               </h1>
-              <span className="rounded-md border border-[var(--border-default)] bg-[var(--surface-elevated)] px-2 py-0.5 font-mono text-[10px] text-[var(--text-secondary)]">
+              <span className="rounded-md border border-[var(--border-default)] bg-[var(--surface-elevated)] px-2.5 py-0.5 font-mono text-[11px] font-semibold text-[var(--text-secondary)]">
                 Interactive Route
               </span>
             </div>
-            <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
+            <p className="mt-1 text-sm font-medium text-[var(--text-secondary)]">
               {selectedDevice
                 ? `${selectedDevice.deviceName || selectedDevice.name || "TrailGuard Wearable"} · ${maskDeviceId(selectedDevice.deviceId)}`
                 : "No device selected"}
@@ -183,15 +183,15 @@ export default function History() {
 
           <div className="flex items-center gap-2">
             {/* Range Selector */}
-            <div className="flex rounded-lg border border-[var(--border-default)] bg-[var(--surface-elevated)] p-0.5">
+            <div className="flex rounded-lg border border-[var(--border-default)] bg-[var(--surface-elevated)] p-1">
               {HISTORY_RANGES.map((item) => (
                 <button
                   key={item.label}
                   type="button"
                   onClick={() => setRange(item.hours)}
-                  className={`rounded-md px-2.5 py-1 text-xs font-semibold transition ${
+                  className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
                     range === item.hours
-                      ? "border border-teal-500/30 bg-[#0E9C8C]/25 text-[#42E3D0] shadow-sm"
+                      ? "border border-teal-500/30 bg-[var(--brand-teal-subtle)] text-[var(--brand-teal-light)] shadow-sm font-bold"
                       : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                   }`}
                 >
@@ -306,15 +306,15 @@ export default function History() {
         {/* PROMINENT GPS MOVEMENT MAP (LARGE INTERACTIVE VIEW) */}
         <div className="flex flex-col rounded-[22px] border border-[var(--border-default)] bg-[var(--surface-card)] p-4 shadow-sm">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-teal-500/30 bg-teal-500/10 text-[#2DD4BF]">
-                <IoLocationOutline className="h-4 w-4" />
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-teal-500/30 bg-teal-500/10 text-[var(--brand-teal)]">
+                <IoLocationOutline className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-[var(--text-primary)] sm:text-base">
+                <h2 className="text-base sm:text-lg font-bold text-[var(--text-primary)]">
                   GPS Movement Route & Terrain
-                </h3>
-                <p className="text-[11px] text-[var(--text-muted)]">
+                </h2>
+                <p className="text-xs text-[var(--text-secondary)]">
                   Interactive satellite topography and recorded GPS waypoints ({range}h window)
                 </p>
               </div>
@@ -345,15 +345,15 @@ export default function History() {
         <div className="flex flex-col rounded-[22px] border border-[var(--border-default)] bg-[var(--surface-card)] p-4 shadow-sm">
           {/* Header & Badges */}
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2.5">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400">
-                <IoShieldOutline className="h-4 w-4" />
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400">
+                <IoShieldOutline className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-[var(--text-primary)] sm:text-base">
+                <h2 className="text-base sm:text-lg font-bold text-[var(--text-primary)]">
                   Fall Incidents & Impact Timeline
-                </h3>
-                <p className="text-[11px] text-[var(--text-muted)]">
+                </h2>
+                <p className="text-xs text-[var(--text-secondary)]">
                   Chronological event log categorized by time window and impact severity
                 </p>
               </div>
@@ -388,7 +388,7 @@ export default function History() {
                 }}
                 className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
                   fallSeverityFilter === "all"
-                    ? "bg-[#0E9C8C]/25 text-[#42E3D0] border border-teal-500/30 font-bold"
+                    ? "bg-[var(--brand-teal-subtle)] text-[var(--brand-teal-light)] border border-teal-500/30 font-bold"
                     : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
@@ -604,7 +604,7 @@ export default function History() {
                 </span>
 
                 {pageTimelineSpan && (
-                  <div className="flex items-center gap-1.5 rounded-md border border-teal-500/25 bg-teal-500/10 px-2 py-0.5 text-[11px] font-medium text-[#2DD4BF]">
+                  <div className="flex items-center gap-1.5 rounded-md border border-teal-500/25 bg-teal-500/10 px-2 py-0.5 text-[11px] font-medium text-[var(--brand-teal)]">
                     <IoTimeOutline className="h-3 w-3" />
                     <span>Timeline: {pageTimelineSpan}</span>
                   </div>
@@ -627,7 +627,7 @@ export default function History() {
                         }}
                         className={`rounded px-2 py-0.5 text-[11px] font-semibold transition ${
                           pageSize === size
-                            ? "bg-[#0E9C8C]/25 text-[#42E3D0] border border-teal-500/30"
+                            ? "bg-[var(--brand-teal-subtle)] text-[var(--brand-teal-light)] border border-teal-500/30"
                             : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                         }`}
                       >

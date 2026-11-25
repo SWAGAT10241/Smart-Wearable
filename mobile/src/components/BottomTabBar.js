@@ -1,39 +1,28 @@
 import React from "react";
-
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppTheme } from "../theme/theme";
+import TabIcon from "./TabIcon";
 
 const tabs = [
   {
     name: "Dashboard",
     label: "Home",
-    icon: "⌂",
   },
   {
     name: "LiveMap",
     label: "Map",
-    icon: "⌖",
   },
   {
     name: "History",
     label: "History",
-    icon: "◷",
-  },
-  {
-    name: "Alerts",
-    label: "Alerts",
-    icon: "⚠",
-  },
-  {
-    name: "Settings",
-    label: "Settings",
-    icon: "⚙",
   },
 ];
 
 export default function BottomTabBar({ state, navigation }) {
   const theme = useAppTheme();
+  const insets = useSafeAreaInsets();
+  const bottomPadding = Math.max(insets.bottom, 8);
 
   return (
     <View
@@ -42,32 +31,44 @@ export default function BottomTabBar({ state, navigation }) {
         {
           backgroundColor: theme.card,
           borderTopColor: theme.border,
+          paddingBottom: bottomPadding,
+          height: 56 + bottomPadding,
         },
       ]}
     >
       {tabs.map((tab, index) => {
         const focused = state.index === index;
+        const color = focused ? theme.primary : theme.secondaryText;
 
         return (
           <TouchableOpacity
             key={tab.name}
             style={styles.tab}
+            activeOpacity={0.7}
             onPress={() => navigation.navigate(tab.name)}
           >
-            <Text
-              style={{
-                fontSize: 21,
-                color: focused ? theme.primary : theme.secondaryText,
-              }}
+            <View
+              style={[
+                styles.iconContainer,
+                focused && {
+                  backgroundColor: theme.primaryLight,
+                },
+              ]}
             >
-              {tab.icon}
-            </Text>
+              <TabIcon
+                name={tab.name}
+                focused={focused}
+                color={color}
+                size={20}
+              />
+            </View>
 
             <Text
               style={[
                 styles.label,
                 {
-                  color: focused ? theme.primary : theme.secondaryText,
+                  color,
+                  fontWeight: focused ? "700" : "500",
                 },
               ]}
             >
@@ -82,23 +83,30 @@ export default function BottomTabBar({ state, navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    height: 70,
     borderTopWidth: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",
-    paddingBottom: 5,
+    paddingTop: 6,
   },
 
   tab: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    gap: 2,
+    gap: 3,
+  },
+
+  iconContainer: {
+    paddingHorizontal: 12,
+    paddingVertical: 3,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   label: {
-    fontSize: 10,
-    fontWeight: "700",
+    fontSize: 11,
+    fontFamily: Platform.select({ ios: "System", android: "sans-serif" }),
   },
 });

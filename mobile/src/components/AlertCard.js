@@ -1,12 +1,7 @@
 import React from "react";
-
-import {
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-
+import { StyleSheet, Text, View } from "react-native";
 import { useAppTheme } from "../theme/theme";
+import { WarningIcon, BellIcon } from "./Icons";
 
 export default function AlertCard({ alert }) {
   const theme = useAppTheme();
@@ -32,14 +27,16 @@ export default function AlertCard({ alert }) {
           styles.icon,
           {
             backgroundColor: isFall
-              ? "#FEE2E2"
+              ? "rgba(220, 38, 38, 0.15)"
               : theme.primaryLight,
           },
         ]}
       >
-        <Text style={styles.iconText}>
-          {isFall ? "⚠️" : "🔔"}
-        </Text>
+        {isFall ? (
+          <WarningIcon size={18} color={theme.danger} />
+        ) : (
+          <BellIcon size={18} color={theme.primary} />
+        )}
       </View>
 
       <View style={styles.content}>

@@ -2,13 +2,19 @@ import { createContext, useContext, useEffect, useState } from "react";
 const ThemeContext = createContext();
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
-    // Load saved theme
+    // 1. User's manual selection in localStorage takes top priority
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark" || savedTheme === "light") {
       return savedTheme;
     }
-    // Default to light theme
-    return "light";
+    // 2. If no saved choice, automatically match user's OS / device theme
+    if (typeof window !== "undefined" && window.matchMedia) {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+    }
+    // 3. Safe fallback
+    return "dark";
   });
   useEffect(() => {
     const root = document.documentElement;
@@ -32,6 +38,7 @@ export function ThemeProvider({ children }) {
     <ThemeContext.Provider
       value={{
         theme,
+        themeMode: theme,
         setTheme,
         toggleTheme,
         setLightTheme,

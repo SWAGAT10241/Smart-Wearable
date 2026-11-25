@@ -25,6 +25,11 @@ const userSchema = new mongoose.Schema(
       enum: ["local", "google"],
       default: "local",
     },
+    role: {
+      type: String,
+      enum: ["citizen", "responder", "coordinator", "admin"],
+      default: "citizen",
+    },
     googleId: {
       type: String,
       default: null,
@@ -72,14 +77,13 @@ const userSchema = new mongoose.Schema(
 );
 
 // Hash password before saving, only for local accounts with a password set
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password") || !this.password) return next();
+userSchema.pre("save", async function () {
+  if (!this.isModified("password") || !this.password) return;
+
   this.password = await bcrypt.hash(this.password, 10);
-  next();
 });
 
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
-
 module.exports = mongoose.model("User", userSchema);

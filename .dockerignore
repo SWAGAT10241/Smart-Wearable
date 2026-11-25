@@ -1,0 +1,11 @@
+node_modules
+.git
+.github
+.vscode
+.DS_Store
+*.log
+backend/node_modules
+frontend/node_modules
+frontend/dist
+mobile/node_modules
+mobile/.expo

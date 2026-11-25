@@ -122,11 +122,11 @@ export default function LineTrace({
 
   return (
     <div className="relative grid h-[86px] grid-cols-[34px_minmax(0,1fr)] gap-2">
-      <div className="flex h-full flex-col justify-between py-[1px]">
+      <div className="flex h-full flex-col justify-between py-1">
         {labels.map((label, index) => (
           <span
             key={`${label}-${index}`}
-            className="text-[9px] font-medium leading-none tabular-nums text-[var(--color-text-muted)]"
+            className="text-[9px] font-mono font-bold leading-none tabular-nums text-slate-600 dark:text-slate-300"
           >
             {label}
           </span>
@@ -176,7 +176,7 @@ export default function LineTrace({
         </svg>
 
         {isBaseline && (
-          <span className="absolute right-1.5 top-1 rounded bg-[var(--color-surface)]/80 px-1 py-0.5 text-[8px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] backdrop-blur-sm">
+          <span className="absolute right-1.5 top-1 rounded bg-white/90 dark:bg-black/60 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 border border-black/15 dark:border-white/10 backdrop-blur-sm shadow-xs">
             Standby
           </span>
         )}
@@ -184,4 +184,3 @@ export default function LineTrace({
     </div>
   );
 }
-

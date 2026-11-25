@@ -1,12 +1,7 @@
 import React from "react";
-
-import {
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-
+import { StyleSheet, Text, View } from "react-native";
 import { useAppTheme } from "../theme/theme";
+import { BootIcon, ClockIcon, MountainIcon, FireIcon } from "./Icons";
 
 export default function ActivityCard({
   distance = 0,
@@ -37,28 +32,28 @@ export default function ActivityCard({
 
       <View style={styles.grid}>
         <Item
-          icon="🥾"
+          icon={<BootIcon size={18} color={theme.primary || "#2DD4BF"} />}
           label="Distance"
           value={`${distance} km`}
           theme={theme}
         />
 
         <Item
-          icon="⏱️"
+          icon={<ClockIcon size={18} color={theme.blue || "#3B82F6"} />}
           label="Duration"
           value={duration}
           theme={theme}
         />
 
         <Item
-          icon="⛰️"
+          icon={<MountainIcon size={18} color={theme.purple || "#A78BFA"} />}
           label="Elevation"
           value={`${elevation} m`}
           theme={theme}
         />
 
         <Item
-          icon="🔥"
+          icon={<FireIcon size={18} color={theme.warning || "#F59E0B"} />}
           label="Calories"
           value={`${calories} kcal`}
           theme={theme}
@@ -76,9 +71,9 @@ function Item({
 }) {
   return (
     <View style={styles.item}>
-      <Text style={styles.icon}>
-        {icon}
-      </Text>
+      <View style={styles.iconContainer}>
+        {React.isValidElement(icon) ? icon : <Text style={styles.icon}>{icon}</Text>}
+      </View>
 
       <Text
         style={[

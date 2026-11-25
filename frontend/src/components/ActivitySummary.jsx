@@ -9,7 +9,7 @@ import { ImFire } from "react-icons/im";
 
 function MiniGraph({ points = [], color }) {
   if (!Array.isArray(points) || points.length < 2) {
-    return <div className="mt-2 h-7 w-full" />;
+    return <div className="mt-[var(--space-2)] h-[var(--dash-activity-graph-height)] w-full" />;
   }
 
   const min = Math.min(...points);
@@ -32,7 +32,7 @@ function MiniGraph({ points = [], color }) {
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
-      className="mt-2 h-7 w-full"
+      className="mt-[var(--space-2)] h-[var(--dash-activity-graph-height)] w-full"
       preserveAspectRatio="none"
       aria-hidden="true"
     >
@@ -78,23 +78,22 @@ function SummaryItem({
   sub,
   icon,
   color,
-  glow,
   graphPoints,
 }) {
   return (
-    <div className="flex min-w-0 items-center gap-4 px-5 py-5 transition-colors hover:bg-teal-400/[0.03]">
+    <div className="flex min-w-0 items-center gap-[var(--card-gap)] px-[var(--dash-activity-item-px)] py-[var(--dash-activity-item-py)] transition-colors hover:bg-[var(--surface-hover)]">
       {/* Icon */}
 
       <div
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border"
+        className="flex h-[var(--dash-icon-box-lg)] w-[var(--dash-icon-box-lg)] shrink-0 items-center justify-center rounded-full border"
         style={{
-          background: `linear-gradient(145deg,${color}30,${color}08)`,
-          borderColor: `${color}55`,
-          boxShadow: `0 0 18px ${glow},inset 0 0 12px ${glow}`,
+          background: `linear-gradient(145deg, ${color}25, ${color}08)`,
+          borderColor: `${color}45`,
+          boxShadow: `0 0 16px ${color}20, inset 0 0 10px ${color}15`,
           color,
         }}
       >
-        <span className="text-[22px]">{icon}</span>
+        <span className="text-[length:var(--dash-activity-icon-size)]">{icon}</span>
       </div>
 
       {/* Content */}
@@ -104,7 +103,7 @@ function SummaryItem({
           {label}
         </div>
 
-        <div className="mt-1 flex items-baseline gap-1">
+        <div className="mt-[var(--space-1)] flex items-baseline gap-[var(--space-1)]">
           <span className="truncate text-xl font-bold leading-none tracking-[-0.025em] tabular-nums text-[var(--color-text)] sm:text-2xl">
             {value ?? "--"}
           </span>
@@ -116,7 +115,7 @@ function SummaryItem({
           )}
         </div>
 
-        <div className="mt-1 text-xs font-medium text-[var(--color-text-muted)]">
+        <div className="mt-[var(--space-1)] text-xs font-medium text-[var(--color-text-muted)]">
           {sub}
         </div>
 
@@ -187,22 +186,22 @@ export default function ActivitySummary({
   ];
 
   return (
-    <section className="overflow-hidden rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]">
+    <section className="overflow-hidden rounded-[var(--card-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]">
       {/* Header */}
 
-      <div className="border-b border-[var(--color-border)] px-5 py-4">
-        <div className="flex items-center justify-between gap-4">
+      <div className="border-b border-[var(--color-border)] px-[var(--card-padding)] py-[var(--space-4)]">
+        <div className="flex items-center justify-between gap-[var(--card-gap)]">
           <div>
-            <h2 className="text-[17px] font-semibold text-[var(--color-text)]">
+            <h2 className="text-base sm:text-lg font-bold tracking-tight text-[var(--color-text)]">
               Activity Summary
             </h2>
 
-            <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">
+            <p className="mt-[var(--space-0-5)] text-xs text-[var(--color-text-muted)]">
               Today's trail activity
             </p>
           </div>
 
-          <span className="rounded-full border border-teal-400/20 bg-teal-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-teal-400">
+          <span className="rounded-full border border-[var(--color-accent)]/20 bg-[var(--color-accent)]/10 px-[var(--dash-badge-padding-x)] py-[var(--dash-badge-padding-y)] text-[length:var(--dash-badge-text-size)] font-semibold uppercase tracking-wide text-[var(--color-accent)]">
             TODAY
           </span>
         </div>
